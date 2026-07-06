@@ -1,0 +1,23 @@
+import 'package:equatable/equatable.dart';
+// TODO: import o pacote/módulo onde {{FeatureName}}DTO é definido (config do projeto)
+
+class {{FeatureName}}Entity extends Equatable {
+  const {{FeatureName}}Entity({
+    required this.id,
+  });
+
+  factory {{FeatureName}}Entity.fromDTO({{FeatureName}}DTO dto) {
+    return {{FeatureName}}Entity(
+      id: dto.id ?? '',
+    );
+  }
+
+  final String id;
+
+  {{FeatureName}}Entity copyWith({String? id}) {
+    return {{FeatureName}}Entity(id: id ?? this.id);
+  }
+
+  @override
+  List<Object?> get props => [id];
+}

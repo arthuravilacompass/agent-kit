@@ -1,0 +1,48 @@
+import 'package:injectable/injectable.dart';
+import 'package:mobx/mobx.dart';
+import '../entities/{{feature_name}}_entity.dart';
+import '../repository/{{feature_name}}_repository.dart';
+
+part '{{feature_name}}_controller.g.dart';
+
+@injectable
+class {{FeatureName}}Controller = _{{FeatureName}}ControllerBase with _${{FeatureName}}Controller;
+
+enum {{FeatureName}}State { initial, loading, success, error }
+
+abstract class _{{FeatureName}}ControllerBase with Store {
+  _{{FeatureName}}ControllerBase(this._repository);
+
+  final {{FeatureName}}Repository _repository;
+
+  @observable
+  {{FeatureName}}State state = {{FeatureName}}State.initial;
+
+  @observable
+  ObservableList<{{FeatureName}}Entity> items = ObservableList();
+
+  @observable
+  String? errorMessage;
+
+  @computed
+  bool get isLoading => state == {{FeatureName}}State.loading;
+
+  @action
+  Future<void> load() async {
+    state = {{FeatureName}}State.loading;
+    errorMessage = null;
+
+    final result = await _repository.getAll();
+
+    result.fold(
+      (failure) {
+        errorMessage = failure.message;
+        state = {{FeatureName}}State.error;
+      },
+      (data) {
+        items = ObservableList.of(data);
+        state = {{FeatureName}}State.success;
+      },
+    );
+  }
+}

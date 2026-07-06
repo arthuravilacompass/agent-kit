@@ -1,0 +1,14 @@
+import 'package:dartz/dartz.dart';
+import 'package:injectable/injectable.dart';
+// TODO: import o SDK/pacote de repositórios do projeto (config do projeto)
+import '../entities/{{feature_name}}_entity.dart';
+// TODO: import o tipo Failure do projeto (config do projeto)
+
+@lazySingleton
+final class {{FeatureName}}Repository {
+  Future<Either<Failure, List<{{FeatureName}}Entity>>> getAll() async {
+    // TODO: replace with the correct SDK endpoint
+    // SDK.endpoints.<endpointName>.<methodName>()
+    return left(const Failure('Unimplemented'));
+  }
+}

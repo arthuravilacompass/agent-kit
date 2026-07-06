@@ -1,0 +1,52 @@
+// Layout placeholder. Rode a ferramenta de design-to-code do seu setup antes de customizar.
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+// TODO: import o pacote de design system do projeto (config do projeto)
+import '../controller/{{feature_name}}_controller.dart';
+
+// TODO: importar l10n da feature, se o projeto for multi-idioma
+
+class {{FeatureName}}Page extends StatefulWidget {
+  const {{FeatureName}}Page({super.key});
+
+  @override
+  State<{{FeatureName}}Page> createState() => _{{FeatureName}}PageState();
+}
+
+class _{{FeatureName}}PageState extends State<{{FeatureName}}Page> {
+  late final {{FeatureName}}Controller _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = dependencies.get<{{FeatureName}}Controller>();
+    _controller.load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Observer(
+        builder: (_) {
+          if (_controller.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (_controller.state == {{FeatureName}}State.error) {
+            return Center(child: Text(_controller.errorMessage ?? ''));
+          }
+          return ListView.builder(
+            itemCount: _controller.items.length,
+            itemBuilder: (context, index) {
+              final item = _controller.items[index];
+              // TODO: substituir por componente do design system do projeto
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(item.id),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}

@@ -1,0 +1,222 @@
+<!-- Casca reusável do report GA4 (skill mobile:ga4-validate). Preencha as seções e publique via a
+     ferramenta de artifact do seu setup, se houver. -->
+<style>
+  :root {
+    --ground:#FBFBFD; --panel:#FFFFFF; --ink:#1A1A22; --muted:#5B5B6B; --hair:#E7E7EE;
+    --promo:#4F46E5; --promo-bg:#EEEDFB;
+    --lista:#B45309; --lista-bg:#FBF0E2;
+    --conteudo:#0F766E; --conteudo-bg:#E3F1EF;
+    --pass:#15803D; --pass-bg:#E6F4EA;
+    --pend:#6B7280; --pend-bg:#F1F1F4;
+    --nom:#3B5BA5; --nom-bg:#EAF0FB;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:820px; margin:0 auto; padding:56px 24px 96px; }
+  .eyebrow { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:0 0 10px; }
+  h1 { font-size:30px; line-height:1.2; font-weight:800; margin:0 0 12px; letter-spacing:-.02em; text-wrap:balance; }
+  h2 { font-size:20px; font-weight:750; margin:48px 0 6px; letter-spacing:-.01em; }
+  .lede { font-size:16px; color:var(--muted); max-width:70ch; margin:0; }
+  p { max-width:64ch; }
+  .note { font-size:13px; color:var(--muted); }
+  strong { font-weight:700; }
+
+  /* ---- chip (todas as variantes) ---- */
+  .chip { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; white-space:nowrap; }
+  .chip.promo{ background:var(--promo-bg); color:var(--promo); }
+  .chip.lista{ background:var(--lista-bg); color:var(--lista); }
+  .chip.conteudo{ background:var(--conteudo-bg); color:var(--conteudo); }
+  .chip.pass{ background:var(--pass-bg); color:var(--pass); }
+  .chip.pend{ background:var(--pend-bg); color:var(--pend); }
+  .chip.nom{ background:var(--nom-bg); color:var(--nom); }
+
+  /* ---- callout ---- */
+  .callout { border-left:3px solid var(--promo); background:var(--promo-bg); border-radius:0 10px 10px 0; padding:14px 18px; margin:18px 0; }
+  .callout p { margin:0; font-size:14px; }
+
+  /* ---- breakout (bloco de largura cheia dentro do .wrap) ---- */
+  .breakout { position:relative; left:50%; transform:translateX(-50%); width:min(1120px,94vw); }
+
+  /* ---- summary grid ---- */
+  .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:22px 0 6px; }
+  @media(min-width:720px){ .stats{ grid-template-columns:repeat(6,1fr); } }
+  .stat { border:1px solid var(--hair); border-radius:12px; background:var(--panel); padding:15px 12px; text-align:center; }
+  .stat .n { font-size:26px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1; }
+  .stat .l { font-size:11px; color:var(--muted); margin-top:6px; line-height:1.3; }
+  .stat.pass .n{ color:var(--pass); } .stat.dec .n{ color:var(--lista); } .stat.nom .n{ color:var(--nom); } .stat.pend .n{ color:var(--pend); } .stat.tot .n{ color:var(--ink); }
+
+  /* ---- discriminador (painéis estilo DebugView) ---- */
+  .panels { display:grid; grid-template-columns:1fr; gap:14px; margin:16px 0 6px; }
+  @media(min-width:820px){ .panels{ grid-template-columns:1fr 1fr 1fr; } }
+  .panel { border:1px solid var(--hair); border-radius:12px; background:var(--panel); overflow:hidden; }
+  .panel .ptop { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:10px 13px; border-bottom:1px solid var(--hair); background:#F4F4F8; }
+  .panel .pev { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; font-weight:700; color:var(--ink); }
+  .panel .ptag { font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+  .panel .pp { padding:5px 13px 11px; }
+  .prow { display:grid; grid-template-columns:auto 1fr; gap:12px; padding:6px 0; border-bottom:1px dashed var(--hair); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
+  .prow:last-child{ border-bottom:none; }
+  .prow .k { color:var(--muted); } .prow .v { color:var(--ink); text-align:right; word-break:break-all; }
+  .panel.illus { border-style:dashed; background:#FCFBFF; }
+  .panel.illus .ptop { background:var(--promo-bg); } .panel.illus .ptag { color:var(--promo); font-weight:700; }
+
+  /* ---- tabelas (wrapper com scroll próprio — largura pode passar do viewport) ---- */
+  .qtw { overflow-x:auto; border:1px solid var(--hair); border-radius:12px; margin:16px 0; }
+  table.qa { border-collapse:collapse; width:100%; min-width:820px; font-size:12.5px; }
+  table.qa th { text-align:left; background:#F4F4F8; color:var(--muted); font-weight:700; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; padding:9px 12px; border-bottom:1px solid var(--hair); white-space:nowrap; position:sticky; top:0; }
+  table.qa td { padding:9px 12px; border-bottom:1px solid var(--hair); vertical-align:top; }
+  table.qa tr:last-child td { border-bottom:none; }
+  table.qa .ct { font-variant-numeric:tabular-nums; font-weight:700; color:var(--muted); white-space:nowrap; }
+  table.qa .comp { font-weight:600; white-space:nowrap; }
+  table.qa .exp { color:var(--muted); font-size:11px; white-space:nowrap; }
+  table.qa .cap { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--ink); }
+  table.qa .cap.no { font-family:inherit; color:var(--muted); font-size:11.5px; }
+  table.qa .cap.code { font-family:inherit; color:var(--muted); font-style:italic; font-size:11.5px; }
+  table.qa .obs { font-size:11.5px; color:var(--muted); line-height:1.45; min-width:220px; }
+  table.qa tr.famrow td { background:#FAFAFC; font-weight:750; font-size:11.5px; letter-spacing:.02em; color:var(--ink); }
+  table.qa tr.famrow .fev { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-weight:600; color:var(--muted); }
+
+  table.mx { border-collapse:collapse; width:100%; min-width:560px; font-size:12.5px; }
+  table.mx th { text-align:left; background:#F4F4F8; color:var(--muted); font-weight:700; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; padding:9px 12px; border-bottom:1px solid var(--hair); }
+  table.mx td { padding:9px 12px; border-bottom:1px solid var(--hair); vertical-align:top; }
+  table.mx tr:last-child td{ border-bottom:none; } table.mx .comp{ font-weight:600; }
+  table.mx .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; }
+  .x { color:#B91C1C; font-weight:700; } .ok { color:var(--pass); font-weight:700; }
+
+  /* ---- cards de achados / restrições ---- */
+  .qagrid2 { display:grid; grid-template-columns:1fr; gap:14px; }
+  @media(min-width:820px){ .qagrid2 { grid-template-columns:1fr 1fr; } }
+  .acard { border:1px solid var(--hair); border-left:3px solid var(--nom); border-radius:0 10px 10px 0; background:var(--panel); padding:14px 16px; }
+  .acard.mw { border-left-color:var(--pass); }
+  .rcard { border:1px solid var(--hair); border-left:3px solid var(--lista); border-radius:0 10px 10px 0; background:var(--lista-bg); padding:14px 16px; }
+  .acard h4, .rcard h4 { margin:0 0 6px; font-size:14px; font-weight:750; display:flex; gap:8px; align-items:baseline; }
+  .acard h4 .tagn { font-size:11px; font-weight:800; color:var(--nom); font-variant-numeric:tabular-nums; }
+  .acard.mw h4 .tagn { color:var(--pass); }
+  .rcard h4 .tagn { font-size:11px; font-weight:800; color:var(--lista); font-variant-numeric:tabular-nums; }
+  .acard p, .rcard p { margin:5px 0; font-size:12.5px; max-width:none; line-height:1.5; }
+  .acard p strong, .rcard p strong { color:var(--ink); }
+  .acard code, .rcard code, .recs code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; background:var(--panel); padding:1px 5px; border-radius:5px; }
+  .rcard code { background:#FFF; }
+
+  /* ---- doc-bugs (lista de recomendações) + nota técnica ---- */
+  .recs { border:1px solid var(--hair); border-radius:12px; background:var(--panel); padding:8px 20px; }
+  .recs li { font-size:13px; margin:8px 0; } .recs .tag { font-weight:700; color:var(--promo); }
+  .qnote { font-size:12.5px; color:var(--muted); background:#F4F4F8; border:1px solid var(--hair); border-radius:10px; padding:12px 14px; margin:14px 0; max-width:none; }
+  .qnote strong{ color:var(--ink); } .qnote code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; background:var(--panel); padding:1px 5px; border-radius:5px; }
+</style>
+
+<div class="wrap">
+
+  <!-- ============================== header ============================== -->
+  <p class="eyebrow"><!-- preencha: nome do projeto · área · card/US --></p>
+  <h1><!-- preencha: título do report --></h1>
+  <p class="lede"><!-- preencha: lede — o que foi validado, em que ambiente/build, e por quê --></p>
+
+  <!-- ============================== summary grid ============================== -->
+  <h2>Resumo</h2>
+  <div class="stats">
+    <!-- exemplo (apagar ao preencher):
+    <div class="stat tot"><div class="n">44</div><div class="l">CTs no card</div></div>
+    <div class="stat pass"><div class="n">12</div><div class="l">Passa — empírico ao vivo</div></div>
+    <div class="stat dec"><div class="n">16</div><div class="l">Decisão de produto</div></div>
+    <div class="stat nom"><div class="n">4</div><div class="l">Nomenclatura</div></div>
+    <div class="stat pend"><div class="n">8</div><div class="l">Pendente render</div></div>
+    -->
+    <!-- preencha: um .stat por métrica de resumo (variantes: tot/pass/dec/nom/pend) -->
+  </div>
+  <p class="note"><!-- preencha: 1 frase de leitura do resumo (ex.: "0 falhas de código") --></p>
+
+  <!-- ============================== discriminador ============================== -->
+  <h2>Dado real, lado a lado — o discriminador</h2>
+  <p><!-- preencha: o que os painéis abaixo contrastam --></p>
+  <div class="breakout">
+    <div class="panels">
+      <!-- painel real (dado capturado ao vivo) — exemplo (apagar ao preencher):
+      <div class="panel">
+        <div class="ptop"><span class="pev">view_promotion</span><span class="ptag">log real · componente</span></div>
+        <div class="pp">
+          <div class="prow"><span class="k">creative_slot</span><span class="v">hero_banner</span></div>
+          <div class="prow"><span class="k">promotion_id</span><span class="v">…</span></div>
+        </div>
+      </div>
+      -->
+      <!-- painel ilustrativo (alvo/esperado, tracejado) — exemplo (apagar ao preencher):
+      <div class="panel illus">
+        <div class="ptop"><span class="pev">evento-alvo</span><span class="ptag">exemplo — ilustrativo</span></div>
+        <div class="pp">
+          <div class="prow"><span class="k">param</span><span class="v">valor esperado</span></div>
+        </div>
+      </div>
+      -->
+      <!-- preencha: 1+ painel real + 1 painel .illus por contraste -->
+    </div>
+  </div>
+
+  <!-- ============================== tabela de CTs ============================== -->
+  <h2>Todos os CTs</h2>
+  <div class="qtw">
+    <table class="qa">
+      <thead><tr><th>CT</th><th>Componente</th><th>Esperado</th><th>Capturado</th><th>Observação</th><th>Veredito</th></tr></thead>
+      <tbody>
+        <!-- linhas de CT
+             linha de família (opcional): <tr class="famrow"><td colspan="6"><span class="fev">nome</span> · contagem</td></tr>
+             linha de CT: <tr><td class="ct">001</td><td class="comp">nome</td><td class="exp">esperado</td><td class="cap">capturado</td><td class="obs">observação</td><td><span class="chip pass">passa</span></td></tr>
+             (classes de td.cap: "cap" real, "cap code" confirmado no código, "cap no" não dispara)
+             (classes de chip: pass/pend/nom/lista/conteudo/promo — conforme veredito) -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================== matriz de comparação ============================== -->
+  <h2>Matriz de comparação</h2>
+  <p><!-- preencha: o que a matriz compara — antes×depois (regressivo) ou tela A×tela B (cross-tela) --></p>
+  <div class="qtw">
+    <table class="mx">
+      <thead><tr><th>Componente</th><th><!-- preencha: coluna A (ex. Antes) --></th><th><!-- preencha: coluna B (ex. Depois) --></th><th>Batem?</th></tr></thead>
+      <tbody>
+        <!-- linha: <tr><td class="comp">nome</td><td class="mono">valor A</td><td class="mono">valor B</td><td class="x">✗ divergem</td></tr> (ou <td class="ok">✓ batem</td>) -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================== achados ============================== -->
+  <h2>Achados</h2>
+  <div class="qagrid2">
+    <!-- card de achado — exemplo (apagar ao preencher):
+    <div class="acard">
+      <h4><span class="tagn">A1</span> título do achado</h4>
+      <p><strong>Observado:</strong> …</p>
+      <p><strong>Causa:</strong> …</p>
+      <p><strong>Impacto:</strong> …</p>
+    </div>
+    -->
+    <!-- preencha: 1 .acard por achado (variante .acard.mw para achado positivo/"funciona") -->
+  </div>
+
+  <!-- ============================== restrições ============================== -->
+  <h2>Restrições da rodada</h2>
+  <div class="qagrid2">
+    <!-- card de restrição — exemplo (apagar ao preencher):
+    <div class="rcard">
+      <h4><span class="tagn">R1</span> título da restrição</h4>
+      <p>descrição da limitação da rodada (ex.: componente não renderizou, ambiente sem stream, etc.)</p>
+    </div>
+    -->
+    <!-- preencha: 1 .rcard por restrição -->
+  </div>
+
+  <!-- ============================== doc-bugs ============================== -->
+  <h2>Doc-bugs / recomendações</h2>
+  <ol class="recs">
+    <!-- item — exemplo (apagar ao preencher):
+    <li><span class="tag">[corrigir CT]</span> descrição da divergência entre o CT documentado e o comportamento real do app.</li>
+    -->
+    <!-- preencha: 1 item por doc-bug ou recomendação -->
+  </ol>
+
+  <!-- ============================== nota técnica ============================== -->
+  <div class="qnote">
+    <!-- preencha: nota técnica — gotcha de contrato (ex. singular×plural, param derivado, timing de impressão) --></div>
+
+</div>
