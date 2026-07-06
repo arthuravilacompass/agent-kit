@@ -2,7 +2,6 @@
 
 ## [Unreleased]
 
-### Added
+### Adicionado
 
-- Initial repo skeleton with core and mobile plugins
-
+- Skeleton inicial do repo com plugins core e mobile

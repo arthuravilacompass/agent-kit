@@ -1,9 +1,10 @@
 # agent-kit
 
-Personal Claude Code plugin marketplace: methodology, workflow, and toolkit.
+Marketplace pessoal de plugins do Claude Code: metodologia, fluxo de trabalho e toolkit.
 
 ## Plugins
 
-- **core** — Engineering methodology with agents: epistemology, workflow, deterministic hooks
-- **mobile** — Personal mobile toolkit: Flutter/MobX review, app driving, scaffolding, tracking
+- **core** — Metodologia de engenharia com agentes: epistemologia, fluxo de trabalho, hooks determinísticos
+- **mobile** — Toolkit pessoal mobile: revisão Flutter/MobX, condução de app, scaffolding, tracking
 
+Em construção.
