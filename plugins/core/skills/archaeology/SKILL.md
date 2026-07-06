@@ -11,7 +11,7 @@ Mapa arqueológico do estado atual do app para uma US ou domínio — antes de q
 ## Config do projeto
 
 Este skill assume que o projeto consumidor define:
-- **Padrão de ticket ID** — regex usado na regra de detecção (ex.: `^TF-\d+$`, `^PROJ-\d+$`). Sem essa config, trate qualquer token que pareça um identificador de ticket do tracker do projeto como modo **ticket**.
+- **Padrão de ticket ID** — regex usado na regra de detecção (ex.: `^ACME-\d+$`, `^PROJ-\d+$`). Sem essa config, trate qualquer token que pareça um identificador de ticket do tracker do projeto como modo **ticket**.
 - **Diretório de módulos** — onde vivem as features (ex.: `src/modules/`, `src/features/`). Usado no passo 1 para listar módulos candidatos.
 - **Diretório(s) de SDK/pacote compartilhado** — se o projeto separa chamadas de API em um pacote próprio (ex.: um SDK de repositórios), informe o caminho para a Dimensão C.
 
