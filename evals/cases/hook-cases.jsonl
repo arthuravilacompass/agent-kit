@@ -1,7 +1,6 @@
 # Casos de eval (Tier 1, determinístico) para os hooks reais em plugins/core/hooks/.
 # Placeholders {{TMPDIR}} / {{REPO_ROOT}} são substituídos por evals/run-evals.sh
 # antes do parse JSON — ver schema no cabeçalho daquele script.
-# handoff-gate NÃO aparece aqui: hook deletado como vestigial, não portado ao kit.
 {"desc": "plan-autoload: plano recente (<72h) injeta ponteiro de retomada", "hook": "plugins/core/hooks/plan-autoload.sh", "env": {"CLAUDE_PROJECT_DIR": "{{TMPDIR}}/agent-kit-evals/plan-autoload-happy"}, "input": {"hook_event_name": "SessionStart", "session_id": "eval-pa-happy"}, "expect_exit": 0, "expect_contains": "plan-autoload"}
 {"desc": "plan-autoload: plano com mtime >72h não injeta (silêncio)", "hook": "plugins/core/hooks/plan-autoload.sh", "env": {"CLAUDE_PROJECT_DIR": "{{TMPDIR}}/agent-kit-evals/plan-autoload-stale"}, "input": {"hook_event_name": "SessionStart", "session_id": "eval-pa-stale"}, "expect_exit": 0, "expect_not_contains": "plan-autoload"}
 {"desc": "context-monitor: transcript >=500KB dispara aviso de contexto crescendo", "hook": "plugins/core/hooks/context-monitor.sh", "env": {"CLAUDE_PLUGIN_DATA": "{{TMPDIR}}/agent-kit-evals/plugin-data"}, "input": {"session_id": "eval-cm-warn", "transcript_path": "{{TMPDIR}}/agent-kit-evals/context-monitor/transcript-warn.jsonl"}, "expect_exit": 0, "expect_contains": "[context-monitor]"}
