@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "agent-kit",
+  "owner": { "name": "Arthur Avila" },
+  "plugins": [
+    { "name": "core", "source": "./plugins/core", "description": "Metodologia pessoal de engenharia com agentes: epistemologia, workflow, hooks determinísticos", "category": "development" },
+    { "name": "mobile", "source": "./plugins/mobile", "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking", "category": "development" }
+  ]
+}
