@@ -23,7 +23,7 @@ Os exemplos assumem `get_it` + `injectable` (DI), `go_router` (navegação), `mo
 
 ## Dependency Injection
 
-Stack: `get_it` + `injectable` (com codegen). Registro central no módulo de DI do projeto (ex.: `lib/src/core/services_locator/dependencies.dart`).
+Stack: `get_it` + `injectable` (com codegen). Registro central no módulo de DI do projeto (ex.: `lib/core/di/service_locator.dart`).
 
 ### Quando usar cada anotação
 
@@ -38,18 +38,18 @@ Stack: `get_it` + `injectable` (com codegen). Registro central no módulo de DI 
 
 ```dart
 // abstract interface
-abstract class CartRepository {
-  Future<Either<Failure, CartEntity>> getCart();
+abstract class BasketRepository {
+  Future<Either<Failure, BasketEntity>> getBasket();
 }
 
 // implementation registered as the interface type
-@LazySingleton(as: CartRepository)
-class CartRepositoryImpl implements CartRepository {
-  CartRepositoryImpl(this._sdk);
+@LazySingleton(as: BasketRepository)
+class BasketRepositoryImpl implements BasketRepository {
+  BasketRepositoryImpl(this._sdk);
   final AppApi _sdk;
 
   @override
-  Future<Either<Failure, CartEntity>> getCart() async {
+  Future<Either<Failure, BasketEntity>> getBasket() async {
     // ...
   }
 }
@@ -116,9 +116,9 @@ Stack: `mockito` + `@GenerateMocks` annotation + codegen.
 ```dart
 // arquivo de teste — declarar mocks no topo
 import 'package:mockito/annotations.dart';
-import 'cart_store_test.mocks.dart'; // gerado
+import 'basket_store_test.mocks.dart'; // gerado
 
-@GenerateMocks([CartRepository, ShippingStore])
+@GenerateMocks([BasketRepository, CatalogStore])
 void main() {
   // ...
 }
@@ -140,45 +140,45 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
-import 'cart_store_test.mocks.dart';
+import 'basket_store_test.mocks.dart';
 
-@GenerateMocks([CartRepository])
+@GenerateMocks([BasketRepository])
 void main() {
-  late CartStore store;
-  late MockCartRepository mockRepository;
+  late BasketStore store;
+  late MockBasketRepository mockRepository;
 
   setUp(() {
-    mockRepository = MockCartRepository();
-    store = CartStore(mockRepository);
+    mockRepository = MockBasketRepository();
+    store = BasketStore(mockRepository);
   });
 
-  group('CartStore', () {
-    group('loadCart', () {
+  group('BasketStore', () {
+    group('loadBasket', () {
       test('should populate items when repository succeeds', () async {
         // Arrange
-        final mockCart = CartEntity(items: const [], total: 0);
-        when(mockRepository.getCart())
-            .thenAnswer((_) async => Right(mockCart));
+        final mockBasket = BasketEntity(items: const [], total: 0);
+        when(mockRepository.getBasket())
+            .thenAnswer((_) async => Right(mockBasket));
 
         // Act
-        await store.loadCart();
+        await store.loadBasket();
 
         // Assert
-        expect(store.cart, equals(mockCart));
-        expect(store.state, equals(CartState.success));
+        expect(store.basket, equals(mockBasket));
+        expect(store.state, equals(BasketState.success));
         expect(store.errorMessage, isNull);
       });
 
       test('should set error state when repository fails', () async {
         // Arrange
-        when(mockRepository.getCart())
+        when(mockRepository.getBasket())
             .thenAnswer((_) async => const Left(NetworkFailure('timeout')));
 
         // Act
-        await store.loadCart();
+        await store.loadBasket();
 
         // Assert
-        expect(store.state, equals(CartState.error));
+        expect(store.state, equals(BasketState.error));
         expect(store.errorMessage, equals('timeout'));
       });
     });
@@ -202,23 +202,23 @@ import 'package:mockito/mockito.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 void main() {
-  late MockCartStore mockStore;
+  late MockBasketStore mockStore;
 
   setUp(() {
-    mockStore = MockCartStore();
+    mockStore = MockBasketStore();
   });
 
-  testWidgets('shows items when cart has data', (tester) async {
+  testWidgets('shows items when basket has data', (tester) async {
     // Arrange
-    when(mockStore.state).thenReturn(CartState.success);
+    when(mockStore.state).thenReturn(BasketState.success);
     when(mockStore.items).thenReturn([
-      CartItemEntity(id: '1', name: 'Running Shoe', price: 299),
+      BasketItemEntity(id: '1', name: 'Running Shoe', price: 299),
     ]);
 
     // Act
     await tester.pumpWidget(
       MaterialApp(
-        home: CartPage.withStore(store: mockStore),
+        home: BasketPage.withStore(store: mockStore),
       ),
     );
 
@@ -227,19 +227,19 @@ void main() {
   });
 
   testWidgets('shows skeleton when state is loading', (tester) async {
-    when(mockStore.state).thenReturn(CartState.loading);
+    when(mockStore.state).thenReturn(BasketState.loading);
 
     await tester.pumpWidget(
-      MaterialApp(home: CartPage.withStore(store: mockStore)),
+      MaterialApp(home: BasketPage.withStore(store: mockStore)),
     );
 
-    expect(find.byType(CartSkeleton), findsOneWidget);
+    expect(find.byType(BasketSkeleton), findsOneWidget);
   });
 }
 ```
 
 **Notas:**
-- Pages devem aceitar store opcional via construtor (`CartPage.withStore(...)`) para facilitar test injection
+- Pages devem aceitar store opcional via construtor (`BasketPage.withStore(...)`) para facilitar test injection
 - Em código de produção, resolva a dependência no construtor padrão (não em `build()` — quebra DI001/equivalente)
 - Prefira shimmer/skeleton a spinner onde a convenção do time definir isso (config do projeto)
 

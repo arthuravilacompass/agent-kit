@@ -135,18 +135,18 @@ final class CreateItem extends FlowCommand { final ItemDraft draft; const Create
 
 ```dart
 // ERRADO — múltiplos write sites diretos
-@observable ShippingSelection _selection = _emptySelection;
+@observable VariantSelection _selection = _emptySelection;
 _selection = _emptySelection;          // em resetOnExit
-_selection = _selection.copyWith(...); // em _reconcileSelections
+_selection = _selection.copyWith(...); // em _reconcileVariants
 _selection = next;                     // em _applySelection
 
 // CERTO — sealed class + @readonly + single writer
 @readonly
-DeliverySelection _delivery = const DeliveryNotSelected();
+SizeSelection _size = const SizeNotSelected();
 
 @action
-void _setDelivery(DeliverySelection next) => _delivery = next;
-// Todo write no arquivo passa por _setDelivery — auditável via grep.
+void _setSize(SizeSelection next) => _size = next;
+// Todo write no arquivo passa por _setSize — auditável via grep.
 ```
 
 ---

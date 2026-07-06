@@ -31,13 +31,13 @@ Not every module needs every folder. Include only what's used. Prefer a **flat**
 
 | Element | Convention | Pattern | Example |
 |---|---|---|---|
-| Files | `snake_case` | `{name}_{type}.dart` | `cart_store.dart` |
-| Classes | `PascalCase` | `{Name}{Type}` | `CartStore` |
-| Stores | `*Store` | `{Domain}Store` | `CartStore`, `ShippingStore` |
+| Files | `snake_case` | `{name}_{type}.dart` | `basket_store.dart` |
+| Classes | `PascalCase` | `{Name}{Type}` | `BasketStore` |
+| Stores | `*Store` | `{Domain}Store` | `BasketStore`, `CatalogStore` |
 | Controllers | `*Controller` | `{Screen}Controller` | `ProductListController` |
-| Entities | `*Entity` | `{Name}Entity` | `ProductEntity`, `CartItemEntity` |
+| Entities | `*Entity` | `{Name}Entity` | `ProductEntity`, `BasketItemEntity` |
 | Models/DTOs | `*Model` or `*DTO` | `{Name}Model` | `ProductModel` |
-| Enums | `PascalCase` | `{Name}Status`/`{Name}Type` | `CartStatus`, `PaymentType` |
+| Enums | `PascalCase` | `{Name}Status`/`{Name}Type` | `BasketStatus`, `PaymentType` |
 | Extensions | `*Ext` | `{Type}Ext` | `DoubleExt`, `StringExt` |
 | Helpers | `*Helper` | `{Domain}Helper` | `ShippingHelper` |
 | Mappers | `*Mapper` | `{Domain}Mapper` | `SummaryMapper` |
@@ -58,8 +58,8 @@ Every folder with public Dart files **must** have an `index.dart` barrel file.
 
 ```dart
 // stores/index.dart
-export 'cart_store.dart';
-export 'shipping_store.dart';
+export 'basket_store.dart';
+export 'catalog_store.dart';
 ```
 
 Rules:
@@ -117,13 +117,13 @@ import 'package:go_router/go_router.dart';
 
 // 4. Project shared/SDK packages (config: your project's internal package names)
 import 'package:my_design_system/my_design_system.dart';
-import 'package:my_repositories/core/service_locator/dependencies.dart';
+import 'package:my_repositories/core/di/service_locator.dart';
 
 // 5. App package imports (prefer relative for same module)
 import 'package:my_app/src/core/router/app_routes.dart';
 
 // 6. Relative imports (same module)
-import '../stores/cart_store.dart';
+import '../stores/basket_store.dart';
 import '../widgets/widgets.dart';
 ```
 

@@ -4,7 +4,7 @@ Companion to the `mobile:mobx-smell-hunter` agent. The hunter *finds* smells; th
 
 ## When to use
 
-- A reviewer or `mobile:mobx-smell-hunter` cited a specific code (e.g., "MOBX001 in CartStore").
+- A reviewer or `mobile:mobx-smell-hunter` cited a specific code (e.g., "MOBX001 in BasketStore").
 - You're refactoring a store and want to confirm the canonical shape before mutating.
 - You introduced new state and want to validate it against the BLOCKER rules before opening a PR.
 

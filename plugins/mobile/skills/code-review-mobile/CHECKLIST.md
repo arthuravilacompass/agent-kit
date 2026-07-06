@@ -56,7 +56,7 @@ Convenção comum de PR review (adapte à ferramenta do seu projeto — GitHub, 
 
 `blocker:` = obrigatório corrigir antes do merge. `non-blocker:` = avaliar e responder — pode discordar com justificativa.
 
-Formato: `blocker: MOBX001 — _isLoading e _hasError são flags paralelos, deveriam ser um enum (CartStore.dart:42)`
+Formato: `blocker: MOBX001 — _isLoading e _hasError são flags paralelos, deveriam ser um enum (BasketStore.dart:42)`
 
 ## Atalhos
 
