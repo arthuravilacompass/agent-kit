@@ -7,17 +7,16 @@ description: Invoque para exportar logs de rede HTTP de uma sessão Flutter debu
 
 Exporta logs de rede HTTP de uma sessão Flutter debug rodando, filtrados por um intervalo de tempo, como JSON estruturado.
 
-## Config do projeto
+## Script
 
-Este skill assume um script `scripts/export_network_logs.py` (bring-your-own — não incluído neste kit) que conecta ao Dart VM Service Protocol via WebSocket e busca o HTTP profile filtrado por horário. Se seu projeto ainda não tem esse script, escreva um seguindo a interface abaixo antes de usar este skill — a mecânica (VM service → HTTP profile → filtro por tempo → JSON) é padrão Flutter/Dart e não muda entre projetos.
+O script `scripts/export_network_logs.py` deste plugin conecta ao Dart VM Service Protocol via WebSocket e busca o HTTP profile filtrado por horário — mecânica padrão Flutter/Dart, não muda entre projetos.
 
-Interface esperada do script:
 ```
-python3 scripts/export_network_logs.py <url> <start-time> <end-time> [--output PATH]
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/export_network_logs.py" <url> <start-time> <end-time> [--output PATH]
 ```
 - `<url>`: URL WS do VM service, URL do DevTools, ou `auto` (detecta de processos Flutter rodando via `--vm-service-uri`).
 - `<start-time>` / `<end-time>`: `HH:MM:SS` ou `HH:MM:SS.mmm` (hora local, hoje).
-- `--output`: path de saída (default sugerido: pasta de downloads do usuário, com timestamp).
+- `--output`: path de saída (default: pasta de downloads do usuário, com timestamp).
 
 ## Usage
 
@@ -59,10 +58,8 @@ Depois verifique o import de novo.
 
 Use `auto` como URL — o script detecta a sessão Flutter rodando a partir dos argumentos do processo (`--vm-service-uri`):
 
-> O script vive na raiz do projeto/workspace (config do projeto — ajuste o path se o cwd for um subpacote).
-
 ```bash
-python3 scripts/export_network_logs.py auto "<start-time>" "<end-time>"
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/export_network_logs.py" auto "<start-time>" "<end-time>"
 ```
 
 Capture stdout e stderr. O script imprime progresso no stderr (buscando cada request).
@@ -71,7 +68,7 @@ Capture stdout e stderr. O script imprime progresso no stderr (buscando cada req
 
 - **"No running Flutter debug session found"** → peça ao usuário pra colar a URL do DevTools do Chrome, e re-rode com essa URL no lugar de `auto`:
   ```bash
-  python3 scripts/export_network_logs.py "<devtools-url>" "<start-time>" "<end-time>"
+  python3 "${CLAUDE_PLUGIN_ROOT}/scripts/export_network_logs.py" "<devtools-url>" "<start-time>" "<end-time>"
   ```
 
 - **"No requests found in the specified time range"** → o intervalo pode estar errado. Mostre ao usuário a contagem total de requests do output e sugira ampliar o intervalo.
