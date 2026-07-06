@@ -1,0 +1,159 @@
+---
+name: advisor-check
+description: Invoque em 3 checkpoints deterministicos — pre-plan (antes de escolher abordagem), post-plan (plano aprovado, antes de codar), pre-done ("acho que terminei" / "tá pronto") — para escalar a um reviewer mais forte com contexto controlado ou cego, quebrando a bolha epistêmica da própria sessão.
+disable-model-invocation: true
+---
+
+# advisor-check — Advisor Escalation at Decision Checkpoints
+
+Deterministic, controlled-context escalation at a checkpoint **you** choose. This skill **complements** Claude Code's native advisor (`/advisor`) — it does not replace it.
+
+The native advisor escalates to a stronger model with the **full conversation**, whenever *Claude* decides to consult it. This skill fires at a checkpoint *you* pick, with the context and framing *you* control — including the one thing the native advisor structurally **cannot** do: review **blind**, to break your epistemic bubble instead of inheriting it.
+
+## Config do projeto
+
+Este skill assume que o projeto consumidor define:
+- **Doc de arquitetura** carregado em `pre-plan` (ex.: `CLAUDE.md §Architecture` ou equivalente).
+- **Diretório de módulos** usado para listar a estrutura existente da área alvo em `pre-plan`.
+- **Arquivos de regra/lint** citados como lentes em `post-plan` (ex.: princípios de bugfix, regras de qualidade específicas do stack).
+- **Branch base** usada no `pre-done` para o `git diff` (default: `main`).
+- **Categorias de regra por tipo de mudança** em `pre-done` (ex.: regras de state-management se stores mudaram, regras de arquitetura se cross-layer, regras de UI se widgets) — usadas para montar o checklist do reviewer cego.
+- **Padrão de ticket ID**, se o projeto usa um tracker com prefixo próprio.
+
+Sem essas configs, o skill ainda roda — só com menos contexto especializado carregado automaticamente.
+
+## Two mechanisms, by design
+
+| Mechanism | Context it gets | Who triggers | Used by |
+|---|---|---|---|
+| **Native advisor** (`/advisor opus`) | Full conversation, always | Claude (model-driven; requestable) | `pre-plan`, `post-plan` |
+| **Blind adversarial subagent** (Agent tool, `model: opus`) | Only what you pass (diff + ACs); reads the repo fresh | You, deterministically | `pre-done` |
+
+**Why split:** the native advisor sees everything — ideal when the reviewer needs the whole problem (planning, approach choice). But "sees everything" means it inherits your framing, and a model that shares your blind spot can't catch what you missed (the *self-correction illusion*: models reliably correct **others**, not **themselves**). For the "I think I'm done" check, that correlation is the enemy — so `pre-done` withholds your narrative and gives a fresh reviewer an adversarial mandate.
+
+**Prerequisite for `pre-plan` / `post-plan`:** an advisor model must be configured — run `/advisor opus` (persists) or set `"advisorModel": "opus"` in settings. Requires Claude Code ≥ v2.1.98 on the Anthropic API. If no advisor is configured, those modes fall back to a full-context subagent dispatch (`model: opus`) so the checkpoint still runs.
+
+## Usage
+
+```
+advisor-check pre-plan <TICKET> [--greenfield]
+advisor-check post-plan
+advisor-check pre-done
+```
+
+`--greenfield` (pre-plan only): the work is a **new concept judged on its own merit**. Firewall the advisor from the project's rules/skills so it does not re-anchor the design to what already exists.
+
+## Ticket source
+
+`pre-plan` and `pre-done` need the ticket text / ACs. **Do not hardcode an MCP tool name.** Resolve the *get-issue* tool available in the session at runtime (e.g. via tool search) — MCP server aliases change over time and a hardcoded name silently breaks the fetch. If no tracker tool is available, ask the user to paste the ticket text / ACs. The skill depends on the **ticket content**, never on a specific integration.
+
+## When to Use Each Mode
+
+| Mode | Mechanism | Checkpoint | When |
+|---|---|---|---|
+| `pre-plan` | native advisor (full ctx) | Before choosing an approach | Before design/approach lock-in; beginning of a track with multiple viable alternatives |
+| `post-plan` | native advisor (full ctx) | Plan approved, before coding | Right after a plan is approved and before the first implementation file is touched |
+| `pre-done` | blind subagent (diff + ACs only) | "I think I'm done" / "acho que terminei" / "tá pronto" | Right before wrapping up / opening a PR / final review |
+
+## Steps
+
+1. **Parse the arguments**
+
+   Validate the first argument is one of: `pre-plan`, `post-plan`, `pre-done`.
+
+   If mode is `pre-plan`, require a ticket ID (e.g., `<TICKET>`) as second argument. If missing, ask: "Which ticket?" Parse the optional `--greenfield` flag (pre-plan only).
+
+   If mode is missing or invalid, show usage and stop.
+
+2. **Load context for the mode**
+
+   **`pre-plan <ticket>` (default):**
+   - Fetch the ticket text (see **Ticket source** above)
+   - Load the project's architecture doc (config)
+   - Load relevant project code-review skill content for component/module structure (config)
+   - Include: existing module structure of the target area (via Glob on the project's module directory — config)
+
+   **`pre-plan <ticket> --greenfield`:**
+   - Fetch the ticket text (see **Ticket source**) — **and nothing else**.
+   - Do **NOT** load rules, skills, or module structure. The advisor judges by first principles; existing patterns are optional convenience, never the measuring stick. (Loading the harness as a lens re-anchors a novel concept into what already exists and erases the new design — a documented, repeated failure.)
+
+   **`post-plan`:**
+   - Identify the active plan file (most recent `docs/superpowers/plans/*.md`, or the one last loaded via `plan-autoload`). The native advisor already has the conversation — **point at the plan, do not re-paste it.**
+   - Name the project's rule files to weigh as **lenses** (not a compliance gate) — config (e.g. bugfix principles, stack-specific quality rules). Quote them only if they are not already in the conversation.
+
+   **`pre-done`:**
+   - Run `git diff <base>...HEAD` where base is the project's default integration branch (config; fallback: `main`)
+   - Fetch the ticket ACs (see **Ticket source**) for the work under review
+   - Derive affected modules from changed paths and collect the rule files relevant to them (project-specific categories — config; e.g. state-management rules if stores changed, architecture rules if cross-layer, UI rules if widgets). These become the reviewer's **checklist**.
+   - Do **NOT** gather your commit messages, the plan, or your own rationale. That narrative is exactly the framing the blind review exists to escape.
+
+3. **Escalate — mechanism per mode**
+
+   **`pre-plan` / `post-plan` — native advisor:**
+   - Confirm an advisor model is configured (else fall back to a subagent with `model: opus`).
+   - Solicit a consultation with the mode framing below. The advisor sees the full conversation — **do not re-paste context.**
+
+     *`pre-plan` framing (merit-first, NOT "which rule does this violate"):*
+     > "I'm about to plan an approach for [ticket]. What's the right abstraction here, on its own terms? What's the highest risk if I pick the wrong approach? If an existing pattern genuinely fits, name it — but don't force the design into one."
+     > (`--greenfield`: drop the existing-pattern clause entirely; judge purely on first principles.)
+
+     *`post-plan` framing:*
+     > "Review the plan I just produced. What hidden dependencies does it carry? Which assumptions are fragile? Where would a naive implementation violate a project invariant (use the named rules as lenses)? Cite specifics."
+
+   **`pre-done` — blind adversarial subagent:**
+   - Dispatch **one** subagent via the Agent tool (`model: opus`). It is blind to your **narrative**, not to the **code** — it reads the repo fresh.
+   - Pass it ONLY: the diff, the ticket ACs, and the paths of the rule files for the affected modules (it reads them).
+   - Mandate (adversarial):
+     > "This change is presented as complete. Assume it is **not**. Find the regression, the dropped behavior, the scope drift, the missing verification. Run the bidirectional trace: **every diff hunk must trace to an AC** (unmatched hunk = scope creep) and **every AC must have a corresponding hunk** (unmatched AC = omission) — list the orphans of both sides explicitly. Work against the diff and read the surrounding code to confirm. For every claim about current code, cite `file:lineStart-lineEnd` and set `epistemicSource`. Return findings as a JSON array."
+   - Findings schema (consumed by a citation validator — see project's hook/script setup):
+     ```json
+     [{ "claim": "...", "epistemicSource": "tool-output",
+        "evidence": {"file": "...", "lineStart": N, "lineEnd": M},
+        "severity": "critico|atencao|consideracao", "rule": "CODE|null" }]
+     ```
+     Use `epistemicSource: "inference"` for judgment calls that don't cite code (validator passes these through).
+
+4. **(`pre-done` only) Verify citations before presenting**
+
+   If the project has a citation-verification mechanism (script that checks findings against a session's read-ledger), run it with an **explicit** session id — subagent reads are logged under the parent session, so auto-discovery is unsafe with concurrent sessions.
+   - `verified` / `passthrough` → present normally.
+   - `unverified` (cited code that overlaps no actual read — likely fabrication) → route to the "⚠️ Não-verificadas" bucket, marked as a hypothesis, **never** as a confirmed finding.
+
+   Complementary, not a substitute: re-read the cited lines and drop findings already addressed in the diff.
+
+5. **Present findings to the user in pt-BR**
+
+   Format:
+   ```
+   ## Advisor Findings (<mode>)
+
+   ### Críticos (🔴)
+   - <finding> — regra <CODE> — <file>:<line>
+
+   ### Atenção (🟡)
+   - <finding> — regra <CODE> — <file>:<line>
+
+   ### Considerações (🟣)
+   - <finding>
+
+   ### ⚠️ Não-verificadas (<n>)   ← pre-done only
+   - <finding> — <file>:<line> (citação não sobrepõe leitura no ledger — possível fabricação)
+   ```
+
+6. **Ask the user how to proceed**
+
+   Never apply findings automatically. Ask: "Como proceder? Reply: address-all / address-selected <n,m,...> / note-as-followup / ignore"
+
+   - `address-all` — proceed to fix every finding
+   - `address-selected` — fix only listed findings
+   - `note-as-followup` — create follow-up note (tracker ticket or memory) for later; do not fix now
+   - `ignore` — acknowledge and move on
+
+## Important
+
+- Advisor output (native or subagent) is **signal, not decision**. Human approves before any code change.
+- `pre-done`'s independence is now **structural** (withheld narrative + adversarial mandate + blind dispatch), not temporal — you no longer need to wait for the bubble to fade; the correlation is broken by construction. (Still fine to `/clear` first if you want.)
+- Never modify code inside this skill. It only loads context, escalates, verifies, presents, and asks. Fixes are a separate step taken after user approval.
+- Do not commit memory entries or update project docs based on findings — that's a separate capture via skill `core:learn` (or inline write with approval).
+- Invocation order in a typical feature track: `pre-plan` (before `superpowers:writing-plans`) → `post-plan` (after plan approval) → `pre-done` (before `core:review-local`).
+- **Native advisor vs. this skill:** for a routine second opinion with full context, the native `/advisor` is lighter — Claude calls it on its own. Use `advisor-check` when you need a **guaranteed checkpoint**, **controlled or blind context**, or **citation-verified structured findings**.
