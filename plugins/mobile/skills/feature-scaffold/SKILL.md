@@ -70,6 +70,7 @@ Anotações críticas preservadas pelos templates: `@lazySingleton`/`@injectable
    ```
 
 8. **Registrar rota** — lembre de adicionar a entrada de rota no router do projeto (`go_router` ou equivalente).
+   - Gotcha go_router: no `redirect`, `return null` significa "siga pro location pedido", não "cancele/fique parado". Se o location não casar nenhuma rota, cai no `errorBuilder`. Pra *ignorar* um path, retorne uma rota explícita — não `null`.
 
 9. **Resumo** — liste só os arquivos de fato gerados (respeitando o subconjunto) + follow-ups:
    - Plugar DTO/endpoint real.

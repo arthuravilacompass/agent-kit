@@ -45,6 +45,26 @@ Antes de aproximar uma métrica analítica com shell genérico, verifique se já
 
 **Sinal**: turno usa `wc -c`, `grep | wc -l`, ou um one-liner Python/awk para uma tarefa já coberta por um script dedicado do projeto.
 
+## Verificação e Confirmação
+
+### Verifique a própria claim tão adversarialmente quanto a de um agente 🔴
+
+Revisão que herda o enquadramento de quem produziu o trabalho — inclusive você mesmo — carrega o mesmo ponto cego. Para afirmação de estado (git/branch/config/topologia), prefira checagem cega/adversarial (sem prévia do que se espera achar) e evidência de runtime a uma auto-revisão; entenda o mecanismo de um check antes de confiar no veredito dele.
+
+**Sinal**: claim de estado apoiada em 1 comando isolado sem checagem adversarial; validação feita por quem já tinha a hipótese.
+
+**Failure mode**: claim errada escala pra narrativa; revisão enquadrada deixa passar o que uma checagem cega pegaria.
+
+---
+
+### Confirme entendimento antes de produzir
+
+Em pedido multi-parte (ou entrevista tipo "grill me"), reflita o entendimento — as partes + as escolhas interpretativas que está fazendo — e confirme com o usuário ANTES de produzir o artefato. Ir direto ao output enterra escolhas silenciosas que só aparecem depois do trabalho feito.
+
+**Sinal**: pedido com múltiplas frentes ou ambiguidade recebe artefato direto, sem reflexão + confirmação prévia.
+
+**Failure mode**: esforço desperdiçado quando o entendimento estava errado; confiança erodida.
+
 ## Scope Discipline
 
 ### 3 Perguntas Antes de Editar
@@ -136,6 +156,16 @@ Estado que sobrevive múltiplas operações precisa de origem explícita, home n
 
 **Sinal**: argumento contém "sempre", "nunca", "nesse ponto", "antes disso".
 
+---
+
+### Escopo do fix = escopo do bug reportado
+
+Quando o bug reportado é "ação X não faz nada", o fix precisa fazer X funcionar — decorar o estado quebrado com mensagem de erro, aviso ou mudança de UX no lugar disso não é um fix pro bug relatado.
+
+**Sinal**: fix responde a "X não funciona" com messaging/UX nova em vez de fazer X executar/registrar.
+
+**Failure mode**: ação continua quebrada; a entrega parece progresso mas o bug relatado permanece aberto.
+
 ## Permissions
 
 ### NO-COMMIT — Never commit without explicit user request
@@ -148,6 +178,17 @@ Estado que sobrevive múltiplas operações precisa de origem explícita, home n
 
 **Failure mode**: unwanted commits on the wrong branch; history rewrite required.
 
+## Vocabulário de Posturas
+
+Seis modos de raciocínio pra vestir deliberadamente diante de uma decisão (skill `council`):
+
+- **Schrödinger** — diagnóstico ambíguo: mantém hipóteses vivas até existir observação que discrimine.
+- **Bohr** — falsa dicotomia ("A ou B"): busca o eixo que dissolve o trade-off.
+- **Epicurus** — antes de dar design/escopo por pronto: separa necessário de desejável-descartável de vão.
+- **Sagan** — antes de investir esforço: calibra se importa, em que escala, se sobrevive ao tempo.
+- **Maxwell** — antes de mexer em algo acoplado: mapeia como a mudança propaga e que invariantes viajam.
+- **Zeno** — validando solução proposta: empurra os invariantes ao limite (zero, um, infinito, concorrente, falho-no-meio) até achar onde quebra.
+
 ## Governança do kit
 
 Este kit se aplica às próprias regras que carrega:
@@ -155,3 +196,4 @@ Este kit se aplica às próprias regras que carrega:
 - **Code com ID só nasce com validador.** Toda regra, hook ou skill identificada por um ID nasce junto com o mecanismo que verifica sua aplicação (gate, hook, script) — nunca como texto solto sem enforcement.
 - **Promoção archive → wired exige uso real.** Um artefato só sai de `archive/` para um plugin ativo (`plugins/`) depois de comprovar valor num projeto novo de verdade — não por avaliação teórica.
 - **Estado único por artefato.** Todo artefato do kit está em exatamente um estado: `wired` (dentro de um plugin ativo), `archive` (arquivado, mas presente no repo) ou deletado. Nada fica "testado mas não ligado" fora desses três estados.
+- **Regra textual que falha repetido vira mecanismo.** Sob orçamento de atenção finito, instrução marginal é omitida (não desobedecida) — empilhar mais texto não recupera compliance; a regra de maior taxa de falha vira hook, schema de output obrigatório ou gate determinístico, não mais texto.

@@ -23,3 +23,11 @@ Leia quando: um smell-hunter (ver `mobile:mobx-smell-hunter` para os 4 codes asp
 ## Correção registrada — MOBX004
 
 O code MOBX004 ("`@observable` deve ser privado + getter") foi reconciliado com a prática medida em um projeto real: a formulação original tratava *todo* `@observable` público como violação 🔴, mas 61% dos observables medidos em stores reais eram públicos e reativamente corretos (mobx_codegen gera o accessor via mixin — público não quebra tracking). O alvo real do code é um **getter manual que bypassa o mixin** (`Type get x => _x;` sobre um `_x` que deveria estar exposto apenas pelo `with _$Store`), não a visibilidade do campo em si. Ver a formulação corrigida em `REFERENCE.md` §MOBX004.
+
+## Referência técnica — Observer e builders deferidos
+
+`Observer` (flutter_mobx) só rastreia observables lidos **sincronamente dentro do seu próprio `builder`**. Reads dentro de um builder deferido aninhado — `ListenableBuilder`, `Builder`, `LayoutBuilder`, `AnimatedBuilder`, `FutureBuilder`, `ValueListenableBuilder`, `StreamBuilder` — não são rastreados: essa closure roda fora do `reaction.track()` do Observer.
+
+**Sintoma**: o widget só reage ao que é lido direto no builder do Observer; estado que muda depois (ex.: assíncrono) não dispara rebuild.
+
+**Fix**: inverta o aninhamento — o builder deferido por fora, o `Observer` por dentro envolvendo a subtree. É mais robusto que hoistar cada read manualmente pro builder do Observer, porque não depende de lembrar disso a cada novo read introduzido depois.
