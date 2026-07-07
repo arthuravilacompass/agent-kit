@@ -70,6 +70,31 @@ def collect_provisional():
     return result
 
 
+CONTRACT_PATH = os.path.join(REPO_ROOT, "docs", "SKILL-CONTRACT.md")
+CONFORMITY_LINE_RE = re.compile(r"^- `(plugins/[^`]+)` — ([a-zA-Zà-ú-]+)$")
+
+
+def collect_conformity():
+    """path do SKILL.md -> esqueleto, da seção '## Conformidade' de docs/SKILL-CONTRACT.md."""
+    if not os.path.isfile(CONTRACT_PATH):
+        return {}
+    result = {}
+    in_section = False
+    with open(CONTRACT_PATH, encoding="utf-8") as f:
+        for raw in f:
+            line = raw.rstrip("\n")
+            if line.startswith("## Conformidade"):
+                in_section = True
+                continue
+            if in_section and line.startswith("## "):
+                break
+            if in_section:
+                m = CONFORMITY_LINE_RE.match(line)
+                if m:
+                    result[m.group(1)] = m.group(2)
+    return result
+
+
 class InventoryError(Exception):
     """Raised on any structural problem in a source file — always fatal, never silent."""
 
@@ -274,7 +299,7 @@ def render_table(headers, rows):
     return lines
 
 
-def render_plugin_section(plugin, provisional):
+def render_plugin_section(plugin, provisional, conformity):
     lines = [f"## Plugin `{plugin}`", ""]
 
     skills = collect_skills(plugin, provisional)
@@ -288,8 +313,9 @@ def render_plugin_section(plugin, provisional):
             name_cell = f"`{s['name']}`"
         if s.get("provisional_until"):
             name_cell += f" ⏳ provisório até {s['provisional_until']}"
-        rows.append([name_cell, s["description"]])
-    lines.extend(render_table(["Skill", "Descrição"], rows))
+        contract = conformity.get(f"plugins/{plugin}/skills/{s['name']}/SKILL.md", "pendente")
+        rows.append([name_cell, contract, s["description"]])
+    lines.extend(render_table(["Skill", "Contrato (D14)", "Descrição"], rows))
     lines.append("")
 
     agents = collect_agents(plugin, provisional)
@@ -349,8 +375,9 @@ def generate():
         "",
     ]
     provisional = collect_provisional()
+    conformity = collect_conformity()
     for i, plugin in enumerate(PLUGINS):
-        lines.extend(render_plugin_section(plugin, provisional))
+        lines.extend(render_plugin_section(plugin, provisional, conformity))
         if i < len(PLUGINS) - 1:
             lines.append("---")
             lines.append("")
