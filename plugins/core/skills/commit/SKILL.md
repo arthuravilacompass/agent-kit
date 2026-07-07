@@ -4,9 +4,9 @@ description: Invoque para rodar validação pré-commit (lint + testes) e criar 
 disable-model-invocation: true
 ---
 
-# commit — Standardized Commit
+# commit — Commit Padronizado
 
-Run pre-commit validation and create a conventional commit following the project's commit conventions.
+Valida o diff staged (lint, depois testes) e gera uma mensagem de commit convencional a partir dele. Só executa `git commit` depois de aprovação explícita do usuário.
 
 ## Config do projeto
 
@@ -16,59 +16,59 @@ Este skill assume que o projeto consumidor define:
 
 Sem essas configs, pule as steps 2/3 e avise o usuário que a validação automática não pôde rodar.
 
-## Steps
+## Passos
 
-1. **Check staged files**
+1. **Verificar arquivos staged**
 
-   Run `git diff --cached --stat` to see what is staged.
+   Rode `git diff --cached --stat` para ver o que está staged.
 
-   If nothing is staged, run `git diff --stat` to show unstaged changes and ask the user: "Nothing is staged. Which files would you like to stage?"
+   Se nada estiver staged, rode `git diff --stat` para mostrar as mudanças não staged e pergunte ao usuário: "Nothing is staged. Which files would you like to stage?"
 
-2. **Run lint**
+2. **Rodar lint**
 
-   Run the project's lint/static-analysis command (config above).
+   Rode o comando de lint/static-analysis do projeto (config acima).
 
-   If lint fails, report all errors and **STOP**. Do not proceed to commit.
+   Se o lint falhar, reporte todos os erros e **PARE**. Não prossiga para o commit.
 
-3. **Run tests**
+3. **Rodar testes**
 
-   Run the project's test command (config above).
+   Rode o comando de testes do projeto (config acima).
 
-   If tests fail, report failures and **STOP**. Do not proceed to commit.
+   Se os testes falharem, reporte as falhas e **PARE**. Não prossiga para o commit.
 
-4. **Analyze staged diff**
+4. **Analisar o diff staged**
 
-   Run `git diff --cached` to understand what is changing.
+   Rode `git diff --cached` para entender o que está mudando.
 
-5. **Generate commit message**
+5. **Gerar a mensagem de commit**
 
-   Create a message following this format:
+   Crie uma mensagem seguindo este formato:
    ```
    <type>: <description>
 
    <optional body>
    ```
 
-   Rules:
-   - Type: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, or `ci`
-   - Description: English, imperative mood, no period, max 72 characters
-   - Body: optional, add when the title alone is not self-explanatory
-   - No emojis
+   Regras:
+   - Type: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf` ou `ci`
+   - Description: inglês, modo imperativo, sem ponto final, máximo 72 caracteres
+   - Body: opcional, adicione quando o título sozinho não for autoexplicativo
+   - Sem emojis
 
-6. **Present for approval**
+6. **Apresentar para aprovação**
 
-   Show the user:
-   - Summary of staged files
-   - Proposed commit message
-   - Ask: "Proceed with this commit? Reply with: yes, edit [new message], or abort"
+   Mostre ao usuário:
+   - Resumo dos arquivos staged
+   - Mensagem de commit proposta
+   - Pergunte: "Proceed with this commit? Reply with: yes, edit [new message], or abort"
 
-7. **Execute commit only after explicit approval**
+7. **Executar o commit somente após aprovação explícita**
 
-   Only run `git commit -m "..."` after the user confirms with "yes".
+   Só rode `git commit -m "..."` depois que o usuário confirmar com "yes".
 
-   If the user says "edit", use their new message.
-   If the user says "abort", stop.
+   Se o usuário disser "edit", use a nova mensagem dele.
+   Se o usuário disser "abort", pare.
 
-## Important
+## Regras invioláveis
 
-Never skip lint or tests. Never commit with `--no-verify`.
+Nunca pule lint ou testes. Nunca commite com `--no-verify`.

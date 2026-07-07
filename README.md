@@ -113,7 +113,7 @@ Um estágio por vez — o pipeline recomenda a próxima rota e para; nunca execu
 | `plugins/` | Os dois plugins instaláveis (`core`, `mobile`) |
 | `unwired/` | Matéria-prima genericizada aguardando prova de uso — nada é carregado, custo de contexto zero ([detalhe](unwired/README.md)) |
 | `assets/` | Templates de cópia manual: status line, esqueleto de `CLAUDE.md`, snippets de `settings.json` |
-| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (ciclo de vida, promoção, ledger de decisões) e [OPERATIONS.md](docs/OPERATIONS.md) (operação do dono) |
+| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (ciclo de vida, promoção, ledger de decisões), [SKILL-CONTRACT.md](docs/SKILL-CONTRACT.md) (formato de autoria de skills) e [OPERATIONS.md](docs/OPERATIONS.md) (operação do dono) |
 | `scripts/` | Gate de proveniência, gerador de inventário e tooling de manutenção |
 
 ## Princípios

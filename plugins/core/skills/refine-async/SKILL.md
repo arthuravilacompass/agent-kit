@@ -56,7 +56,7 @@ Com base nos termos do card (título, contexto do PO, módulos mencionados), exe
 - Foco em **confirmar existência** (não mapear arquitetura)
 - Se atingir budget antes de completar: pare e reporte o que encontrou até então
 
-**O que buscar** (tools do Claude Code — `Glob`/`Grep`, não as APIs de IDE do projeto de origem):
+**O que buscar** (tools do Claude Code — `Glob`/`Grep`):
 | Alvo | Exemplo |
 |---|---|
 | Módulo/feature existe? | `Glob("**/*<feature>*")` |

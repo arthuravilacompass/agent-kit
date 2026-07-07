@@ -173,3 +173,13 @@ Code com ID só nasce junto com seu validador-máquina (hook, eval ou agent); se
 ## Adicionar novos codes
 
 Default: nova orientação STANDARD nasce em `mobile:code-review-mobile` STANDARDS.md. Promoção para BLOCKER com gate mecânico (hook) requer decisão explícita — apenas quando o code captura bug, leak, correctness ou segurança.
+
+---
+
+## Observer e builders deferidos
+
+`Observer` (flutter_mobx) só rastreia observables lidos **sincronamente dentro do seu próprio `builder`**. Reads dentro de um builder deferido aninhado — `ListenableBuilder`, `Builder`, `LayoutBuilder`, `AnimatedBuilder`, `FutureBuilder`, `ValueListenableBuilder`, `StreamBuilder` — não são rastreados: essa closure roda fora do `reaction.track()` do Observer.
+
+**Sintoma**: o widget só reage ao que é lido direto no builder do Observer; estado que muda depois (ex.: assíncrono) não dispara rebuild.
+
+**Fix**: inverta o aninhamento — o builder deferido por fora, o `Observer` por dentro envolvendo a subtree. É mais robusto que hoistar cada read manualmente pro builder do Observer, porque não depende de lembrar disso a cada novo read introduzido depois.

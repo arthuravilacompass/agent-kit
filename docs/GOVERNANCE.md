@@ -1,6 +1,6 @@
 # Governança do kit
 
-Doc canônico do ciclo de vida dos artefatos do agent-kit. Toda regra normativa de governança vive aqui e só aqui — `README.md`, `unwired/README.md` e `using-agent-kit` apontam pra cá. Histórico e datas vivem no `CHANGELOG.md`; medições vivem no gate (`scripts/check-governance.sh`).
+Doc canônico do ciclo de vida dos artefatos do agent-kit. Toda regra normativa de ciclo de vida vive aqui e só aqui; o formato de autoria de skills vive em `docs/SKILL-CONTRACT.md` (D14). `README.md`, `unwired/README.md` e `using-agent-kit` apontam pra cá. Histórico e datas vivem no `CHANGELOG.md`; medições vivem no gate (`scripts/check-governance.sh`).
 
 ## O modelo de 3 estados (D10)
 
@@ -48,3 +48,4 @@ Registro das decisões identificadas por ID (série `D*` = decisão de design, `
 - **D10** — Modelo de 3 estados (wired/unwired/deletado) para todo artefato do kit; elimina a categoria fantasma "testado mas não ligado". Texto normativo: seção "O modelo de 3 estados" deste doc.
 - **D13** — Métricas de aceite da extração do kit: tag `gate-day3-pass` e métrica-2-semanas (primeiro uso real em projeto fora do projeto de origem dentro do prazo, senão o resultado foi "inventário com README"). Registro e datas: `CHANGELOG.md` §Métricas D13.
 - **R2** — Requisito de aceite da extração: medir o custo real de payload do kit (tokens/turno + injeção de sessão) e rodar A/B comportamental com e sem o kit. Resultados e lacunas conhecidas da medição: `CHANGELOG.md` §Aceite final (c).
+- **D14** — Contrato de SKILL.md: três esqueletos nomeados (postura / procedimento / roteador), política de idioma (corpo pt-BR; exceção grandfathered: grill-me) e teto de 120 linhas com extração para arquivos de apoio. Texto normativo e lista de conformidade: `docs/SKILL-CONTRACT.md`; enforcement: `scripts/check-governance.sh` (conformidade + proibição de narração de proveniência em `plugins/`).
