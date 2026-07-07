@@ -17,7 +17,7 @@ Rodado em dois projetos virgens sob `$TMPDIR` (`git init` + `claude plugin marke
 - `learn` gravando: verificado à parte, num terceiro projeto virgem (`$TMPDIR/learn-check`, `git init` + mesmo marketplace local), via `claude -p "Usando a skill core:learn: eu prefiro sempre usar tabs em vez de espaços. Capture essa preferência como uma proposta de memória — mostre o arquivo de memória que você proporia (frontmatter + corpo)."`. Resultado observado: a skill carregou, procurou `MEMORY.md` (ausente, sem duplicata), e devolveu uma proposta estruturada — frontmatter `name`/`description`/`type: feedback` + corpo com `Why`/`How to apply` + entrada correspondente pro índice `MEMORY.md` — parando explicitamente para aprovação (`approve`/`edit ...`/`skip`) sem gravar nada em disco (confirmado: diretório do projeto ficou só com `README.md` do `git init`, nenhum `.md` novo). Isso é o comportamento correto do fluxo propose-then-approve da skill, não uma falha. **PASS.**
 - Hook dispara: `session-start.sh` (core) e `smell-checker.sh` (mobile, bloqueou DI001 com exit 2) rodados direto no cache instalado (`~/.claude/plugins/cache/agent-kit/{core,mobile}/66a0edfe53fe`) — ambos confirmados fora do harness de eval.
 - `.mcp.json` registrado: `claude mcp list` mostra `plugin:mobile:dart` e `plugin:mobile:marionette`, ambos ✔ Connected (binários presentes no PATH da máquina de teste).
-- Zero ref TF quebrada: denylist de `check-no-tf.sh` rodada contra o cache instalado (`plugins/cache/agent-kit/{core,mobile}/66a0edfe53fe`) — limpo.
+- Zero ref de proveniência quebrada: denylist de `check-provenance.sh` (à época `check-no-tf.sh`) rodada contra o cache instalado (`plugins/cache/agent-kit/{core,mobile}/66a0edfe53fe`) — limpo.
 
 **(b) Projeto não-mobile virgem, só core instalado:** confirmado por `claude -p` que não há nenhuma skill `mobile:*` disponível e nenhum MCP `dart`/`marionette` — e que o contexto `using-agent-kit` injeta normalmente (mesma citação de regra 🔴 que em (a)).
 
@@ -32,4 +32,4 @@ Rodado em dois projetos virgens sob `$TMPDIR` (`git init` + `claude plugin marke
 ### Métricas D13
 
 - gate-day3: 2026-07-06 14:12:26 -0300 (commit `1674a57`, tag `gate-day3-pass`)
-- métrica-2-semanas: primeiro uso real em projeto não-TF até 2026-07-20 — senão foi "inventário com README"
+- métrica-2-semanas: primeiro uso real em projeto fora do projeto de origem até 2026-07-20 — senão foi "inventário com README"

@@ -36,5 +36,5 @@ Ao promover:
 
 ## O que NÃO está aqui
 
-- Conteúdo específico do domínio/empresa de origem — a mesma denylist de `scripts/check-no-tf.sh` que gate o resto do repo cobre `archive/`. Além da denylist mecânica, cada arquivo aqui passou por uma checagem de proveniência (paths internos reais, nomes de classe/módulo verbatim, IDs de ticket/investigação reais) — não só grep por string de marca.
+- Conteúdo específico do domínio/empresa de origem — a mesma denylist de `scripts/check-provenance.sh` que gate o resto do repo cobre `archive/`. Além da denylist mecânica, cada arquivo aqui passou por uma checagem de proveniência (paths internos reais, nomes de classe/módulo verbatim, IDs de ticket/investigação reais) — não só grep por string de marca.
 - Duplicação de algo já wired (Schrödinger e Epicurus, por exemplo, não estão aqui — estão só em `plugins/core/skills/`).

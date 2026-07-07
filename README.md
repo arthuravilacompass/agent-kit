@@ -145,7 +145,7 @@ Nenhum destes é carregado automaticamente pelo Claude Code — são templates/s
 - **Estado único por artefato (wired / archive / deletado).** Ver seção acima — nunca uma quarta categoria fantasma de "meio-ligado".
 - **Advisory-nudge não entra em `plugins/` sem medição.** Um mecanismo puramente de lembrete (sem enforcement, só reminder) precisa provar conversão real de uso antes de ser wired — não basta a ideia parecer boa. Caso concreto em `archive/README.md` (`learning-pulse`): a metade "nudge" mediu ~0 conversão no projeto de origem e foi descartada por isso, não promovida por precaução.
 - **Documentação nasce do que morde, não do que parece prudente.** Toda regra/skill do kit carrega um `Sinal` (como detectar a violação) e um `Failure mode` (o que quebra rio abaixo) — nasceu de um caso real observado, não de uma preocupação teórica antecipada. Regra textual que falha repetido vira mecanismo (hook, schema de output, gate determinístico) em vez de mais texto — texto marginal sob orçamento de atenção finito tende a ser omitido, não desobedecido.
-- **Zero conteúdo TF/específico de domínio, inclusive em `archive/`.** Gate mecânico: `scripts/check-no-tf.sh` (denylist de nomes de empresa/produto/board/paths internos) roda sobre o repo inteiro, sem exceção pra material arquivado.
+- **Zero conteúdo do projeto de origem/específico de domínio, inclusive em `archive/`.** Gate mecânico: `scripts/check-provenance.sh` (denylist de nomes de empresa/produto/board/paths internos) roda sobre o repo inteiro, sem exceção pra material arquivado.
 
 ---
 
@@ -158,7 +158,7 @@ Se você instala este marketplace dentro de um workspace que já tem sua própri
 ## Gate de qualidade
 
 ```bash
-./scripts/check-no-tf.sh   # zero conteúdo TF/domínio-específico, todo o repo
+./scripts/check-provenance.sh   # zero conteúdo do projeto de origem/domínio-específico, todo o repo
 claude plugin validate .    # manifest da marketplace + dos 2 plugins
 ./evals/run-evals.sh        # Tier 1 determinístico: hooks reais com payload sintético
 ```
