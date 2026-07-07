@@ -1,10 +1,50 @@
 # agent-kit
 
-> Consultor em rotação não pode recomeçar a disciplina do zero a cada cliente. O agent-kit é a memória executável dessa disciplina: toda regra aqui nasceu de um erro real, virou mecanismo quando texto falhou, e só continua carregada enquanto provar uso. Correções de um projeto viram enforcement portável pro próximo.
+Configuração padronizada de Claude Code para todos os meus repositórios. Fornece regras sempre-ativas, workflows de entrega, skills, agents e hooks — distribuídos como dois plugins instaláveis via marketplace local: **`core`** (qualquer stack) e **`mobile`** (Flutter/Dart).
 
-Dois plugins de Claude Code, instaláveis como marketplace local: **`core`** (metodologia de engenharia e disciplina epistêmica, qualquer stack) e **`mobile`** (toolkit Flutter/Dart, pressupõe `core`). Zero conteúdo do projeto de origem — um gate mecânico garante isso.
+## Por que este kit?
 
-## Quickstart — 60 segundos
+Agentes de código sem guardrails produzem resultado inconsistente — e quem troca de projeto com frequência recomeça a disciplina do zero a cada cliente. O agent-kit resolve os dois problemas:
+
+- **Regras epistêmicas sempre-ativas** — evidência antes de claim, grep antes de responder convenção, disciplina de escopo e de bugfix, injetadas em toda sessão via SessionStart.
+- **Workflows de entrega** — um condutor de fluxo (`core:pipeline`) que detecta o estágio real da tarefa e roteia pelos estágios: clarificar, especificar, quebrar, implementar, revisar, entregar, capturar.
+- **Enforcement determinístico** — hooks que auto-aprovam leitura segura, bloqueiam smells de correctness em Dart, protegem diretórios críticos e mantêm ledger de citação. Não dependem de o modelo obedecer.
+- **Portabilidade por construção** — zero conteúdo de projeto de origem, garantido por gate mecânico (`scripts/check-provenance.sh`) sobre o repo inteiro. Correções de um projeto viram enforcement portável pro próximo.
+
+## O que está incluído
+
+### `core` — metodologia de engenharia, qualquer stack
+
+25 skills, 4 agents, 7 hooks e 5 scripts. Destaques:
+
+- `core:pipeline` — condutor de fluxo: classifica a intenção crua e conduz pelas skills do kit, um estágio por vez
+- `/core:commit`, `/core:pr`, `/core:review-local` — fluxo de entrega com validação pré-commit e reviewers em paralelo
+- `/core:tech-breakdown`, `/core:spec-refine`, `/core:archaeology` — de ticket a plano de implementação grillado contra o codebase real
+- `core:council` — Conselho de Posturas: 6 lentes epistêmicas (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno) para decisões de alto custo de reversão
+- `core:learn` + `/core:compound` — captura de aprendizado e handoff no fim da sessão
+
+### `mobile` — toolkit Flutter/Dart (pressupõe `core`)
+
+10 skills, 1 agent, 4 hooks, 5 scripts e 2 MCP servers (`dart`, `marionette`). Destaques:
+
+- `mobile:code-review-mobile`, `mobile:refactor-review` — review Flutter com checklist em camadas e protocolo pós-refactor
+- `mobile:mobx`, `mobile:performance-patterns` — smells de MobX/DI e padrões de performance que o linter não pega, com bloqueio determinístico dos casos de correctness
+- `mobile:deeplink-debug`, `mobile:ga4-validate`, `mobile:marionette` — debug de deeplink, validação de tracking GA4 e condução visual do app no simulador
+- `mobile:feature-scaffold`, `/mobile:figma-to-component` — scaffold em camadas e conversão Figma → widget tree
+
+Inventário completo, gerado por script e verificado no gate: **[INVENTORY.md](INVENTORY.md)**.
+
+## Instalação
+
+### 1. Clonar (uma vez)
+
+Clone este repositório para um path estável (a URL está no botão **Code** acima):
+
+```bash
+git clone <url-deste-repositorio> ~/dev/agent-kit
+```
+
+### 2. Adicionar o marketplace e instalar
 
 ```bash
 claude plugin marketplace add "$HOME/dev/agent-kit"
@@ -12,43 +52,76 @@ claude plugin install core@agent-kit
 claude plugin install mobile@agent-kit   # só em projeto Flutter/Dart
 ```
 
-Rode de dentro do projeto onde o kit deve ficar ativo. Abra uma sessão e jogue uma tarefa crua, sem estruturar:
+Rode de dentro do projeto onde o kit deve ficar ativo.
+
+### 3. Verificar
+
+Abra uma sessão de Claude Code e confirme:
+
+```bash
+claude plugin list   # deve listar core@agent-kit (e mobile@agent-kit, se instalado)
+```
+
+Numa sessão nova, as regras do `core` já entram via SessionStart. Jogue uma tarefa crua, sem estruturar — o `core:pipeline` detecta o estágio e conduz:
 
 > preciso investigar por que o deeplink X quebra no Android
 
-O `core:pipeline` detecta o estágio real da tarefa, classifica a intenção e conduz pelas skills do kit — um estágio por vez. Esse é o primeiro valor; o resto do kit (hooks determinísticos, posturas epistêmicas, fluxos de entrega) entra em cena conforme o trabalho pede.
+### 4. Atualizar
 
-Para atualizar depois de um novo commit no kit: `claude plugin update core@agent-kit` (e/ou `mobile@agent-kit`) — reinício de sessão necessário.
+Depois de um novo commit no kit:
 
-*Inventário completo do que cada plugin carrega (skills, agents, hooks, scripts, MCP): [INVENTORY.md](INVENTORY.md) — gerado por script, verificado no gate. Operação do dono (publicação, permissões, gate): [docs/OPERATIONS.md](docs/OPERATIONS.md).*
+```bash
+claude plugin update core@agent-kit     # e/ou mobile@agent-kit
+```
 
-## O que cada plugin carrega
+Reinício de sessão necessário.
 
-- **`core`** — metodologia de engenharia com agentes: regras epistêmicas sempre-ativas (research-depth, evidência antes de claim, scope discipline), condutor de fluxo (`core:pipeline`), fluxos de entrega (commit, PR, review, breakdown técnico, refinamento de spec), Conselho de Posturas (lentes epistêmicas in-thread e em subagente isolado) e hooks determinísticos (auto-aprovação de leitura, guarda de diretório, injeção de escopo, ledger de citação).
-- **`mobile`** — toolkit Flutter/MobX: review de código mobile, condução de app via MCP, scaffold de feature, debug de deeplink, validação de tracking, padrões de performance, smells de MobX/DI/arquitetura com bloqueio determinístico dos casos de correctness. Os MCP servers registrados são só os genéricos de toolchain (`dart`, `marionette`) — nenhum server de backend/projeto: portabilidade entre projetos consumidores é o critério.
+### Desinstalar
 
-`core` não depende de `mobile` e serve qualquer stack. `mobile` pressupõe `core` instalado e só é útil em projetos Flutter/Dart.
+```bash
+claude plugin uninstall mobile@agent-kit   # se instalado
+claude plugin uninstall core@agent-kit
+claude plugin marketplace remove agent-kit
+```
 
-Alguns fluxos do `core` referenciam skills do marketplace `superpowers` (brainstorming, writing-plans, systematic-debugging, executing-plans). Sem ele instalado nada quebra: `core:pipeline` indica o fallback interno equivalente de cada estágio.
+## Fluxo de trabalho
 
-## `unwired/`
+```
+intenção crua ("adiciona autenticação", "esse deeplink quebrou", ticket do board)
+  ↓ core:pipeline — detecta o estágio real, classifica a intenção, propõe a rota
+clarificar        → core:grill-me / brainstorming
+especificar       → /core:spec-refine
+quebrar           → /core:tech-breakdown
+implementar       → execução com hooks de enforcement ativos
+revisar           → /core:review-local (+ mobile:refactor-review em refactor)
+entregar          → /core:commit → /core:pr
+capturar          → core:learn + handoff
+```
 
-`unwired/` não é um plugin — nada dele é carregado, custo de contexto zero. É matéria-prima genericizada aguardando prova de uso real. O modelo de estados e a regra de promoção: [docs/GOVERNANCE.md](docs/GOVERNANCE.md); o detalhe por item: [unwired/README.md](unwired/README.md).
+Um estágio por vez — o pipeline recomenda a próxima rota e para; nunca executa a cadeia inteira sozinho. Rota mínima é legítima em tarefa pequena.
 
-## Assets manuais (`assets/`)
+## Requisitos
 
-Templates que você copia e adapta à mão — nada aqui é carregado automaticamente:
+- [Claude Code](https://claude.com/claude-code) com suporte a plugins
+- **Opcional:** marketplace [superpowers](https://github.com/obra/superpowers) — alguns fluxos do `core` o referenciam (brainstorming, writing-plans, systematic-debugging); sem ele nada quebra, o pipeline indica o fallback interno de cada estágio
+- Para o `mobile`: projeto Flutter/Dart. Os MCP servers registrados são só os genéricos de toolchain — nenhum server de backend/projeto
 
-- **`statusline-command.sh`** — status line (modelo, contexto, rate limits, branch). Copiar pra um path estável, `chmod +x`, apontar em `settings.json` (`statusLine.command`). Requer `jq`.
-- **`claude-md-starter.md`** — esqueleto de `CLAUDE.md` pro projeto consumidor; princípio-guia "ponteiro, não conteúdo inline".
-- **`settings-snippets.md`** — trechos de `settings.json`: sandbox Flutter e deny-list de edição em arquivo gerado por codegen.
+## Estrutura do repositório
+
+| Diretório | O que é |
+|---|---|
+| `plugins/` | Os dois plugins instaláveis (`core`, `mobile`) |
+| `unwired/` | Matéria-prima genericizada aguardando prova de uso — nada é carregado, custo de contexto zero ([detalhe](unwired/README.md)) |
+| `assets/` | Templates de cópia manual: status line, esqueleto de `CLAUDE.md`, snippets de `settings.json` |
+| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (ciclo de vida, promoção, ledger de decisões) e [OPERATIONS.md](docs/OPERATIONS.md) (operação do dono) |
+| `scripts/` | Gate de proveniência, gerador de inventário e tooling de manutenção |
 
 ## Princípios
 
-- **Documentação nasce do que morde** — toda regra carrega um `Sinal` (como detectar a violação) e um `Failure mode` (o que quebra rio abaixo).
-- **Zero conteúdo do projeto de origem, inclusive em `unwired/`** — gate mecânico (`scripts/check-provenance.sh`) roda sobre o repo inteiro, sem exceção.
-- **Governança do ciclo de vida** — modelo de estados, regra de promoção, teto do sempre-ativo e ledger de decisões: [docs/GOVERNANCE.md](docs/GOVERNANCE.md).
+- **Toda regra nasce de um erro real** — e carrega um `Sinal` (como detectar a violação) e um `Failure mode` (o que quebra na prática).
+- **Zero conteúdo do projeto de origem** — inclusive em `unwired/`; o gate mecânico roda sobre o repo inteiro, sem exceção.
+- **Só continua carregado o que prova uso** — modelo de estados, regra de promoção e teto do sempre-ativo em [docs/GOVERNANCE.md](docs/GOVERNANCE.md).
 
 ---
 
-Referência gerada: [INVENTORY.md](INVENTORY.md) · Operação do dono: [docs/OPERATIONS.md](docs/OPERATIONS.md) · Histórico: [CHANGELOG.md](CHANGELOG.md)
+[INVENTORY.md](INVENTORY.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
