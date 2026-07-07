@@ -92,4 +92,29 @@ else
   echo "OK: zero narração de proveniência ('Promovido de') em plugins/"
 fi
 
+# 5) Provisórios (D17): prazo vencido = gate vermelho até validar ou demover
+prov=$(sed -n '/^### Provisórios ativos/,/^## /p' "$LEDGER" \
+  | grep -E '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
+if [ -z "$prov" ]; then
+  echo "OK: nenhum item provisório ativo"
+else
+  today=$(date +%F)
+  expired=0
+  while IFS= read -r line; do
+    path=$(echo "$line" | grep -oE '`[^`]+`' | tr -d '`')
+    deadline=$(echo "$line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+    if [ ! -e "$path" ]; then
+      echo "ERRO: provisório ${path} listado em ${LEDGER} não existe no disco (D17)"
+      fail=1
+    fi
+    if [[ "$today" > "$deadline" ]]; then
+      echo "ERRO: provisório ${path} venceu em ${deadline} — validar por uso ou demover (D17)"
+      fail=1; expired=1
+    fi
+  done <<< "$prov"
+  if [ "$expired" -eq 0 ]; then
+    echo "OK: provisórios dentro do prazo ($(echo "$prov" | wc -l | tr -d ' ') itens, D17)"
+  fi
+fi
+
 exit $fail

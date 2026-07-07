@@ -27,6 +27,25 @@ Ao promover:
 
 Quando a desalocação de um workspace de origem ameaça perder a janela de validação, um item PODE ser promovido sem uso real comprovado neste kit, desde que: (1) a exceção seja registrada no `CHANGELOG.md` com o motivo; (2) a promoção passe por review adversarial imediata do diff completo — a primeira leva promovida sob esta exceção teve 15 defeitos encontrados num move "puramente mecânico" (registro no `CHANGELOG.md`); (3) o item ganhe prazo de validação — sem uso real em 1 ciclo de projeto novo, volta a `unwired/`. Promoção provisória não codificada é violação da governança, não exceção dela.
 
+### Provisórios ativos (lidos por máquina)
+
+Itens atualmente wired sob a exceção acima. Formato de linha (contrato lido por `scripts/generate_inventory.py` e `scripts/check-governance.sh`): `` - `<path relativo do artefato>` — valida até AAAA-MM-DD ``. Item validado por uso sai da lista (vira wired pleno); prazo vencido deixa o gate vermelho até a decisão — validar ou demover (D17).
+
+- `plugins/core/skills/bug-report` — valida até 2026-08-06
+- `plugins/core/skills/refine-live` — valida até 2026-08-06
+- `plugins/core/skills/refine-async` — valida até 2026-08-06
+- `plugins/mobile/skills/figma-to-component` — valida até 2026-08-06
+- `plugins/core/skills/council` — valida até 2026-08-06
+- `plugins/core/skills/bohr` — valida até 2026-08-06
+- `plugins/core/skills/sagan` — valida até 2026-08-06
+- `plugins/core/skills/council-log` — valida até 2026-08-06
+- `plugins/core/skills/council-recall` — valida até 2026-08-06
+- `plugins/core/agents/maxwell.md` — valida até 2026-08-06
+- `plugins/core/agents/zeno.md` — valida até 2026-08-06
+- `plugins/core/agents/epistemic-council.md` — valida até 2026-08-06
+
+Nota: `schrodinger` e `epicurus` NÃO entram — foram wired na extração original com linhagem de uso, não sob a exceção (CHANGELOG, leva 2026-07-07 lista 8 arquivos).
+
 ## Meta-princípios
 
 - **Code com ID só nasce com validador.** Toda regra, hook ou skill identificada por um ID nasce junto com o mecanismo que verifica sua aplicação (gate, hook, script) — nunca como texto solto sem enforcement. Este doc aplica a regra a si mesmo: todo ID D*/R* citado no repo precisa resolver no ledger abaixo, verificado por `scripts/check-governance.sh` no gate.
@@ -49,3 +68,4 @@ Registro das decisões identificadas por ID (série `D*` = decisão de design, `
 - **D13** — Métricas de aceite da extração do kit: tag `gate-day3-pass` e métrica-2-semanas (primeiro uso real em projeto fora do projeto de origem dentro do prazo, senão o resultado foi "inventário com README"). Registro e datas: `CHANGELOG.md` §Métricas D13.
 - **R2** — Requisito de aceite da extração: medir o custo real de payload do kit (tokens/turno + injeção de sessão) e rodar A/B comportamental com e sem o kit. Resultados e lacunas conhecidas da medição: `CHANGELOG.md` §Aceite final (c).
 - **D14** — Contrato de SKILL.md: três esqueletos nomeados (postura / procedimento / roteador), política de idioma (corpo pt-BR; exceção grandfathered: grill-me) e teto de 120 linhas com extração para arquivos de apoio. Texto normativo e lista de conformidade: `docs/SKILL-CONTRACT.md`; enforcement: `scripts/check-governance.sh` (conformidade + proibição de narração de proveniência em `plugins/`).
+- **D17** — Marcador wired-provisório machine-readable com prazo (§Provisórios ativos deste doc): INVENTORY marca o item, prazo vencido deixa o gate vermelho até validar ou demover. Enforcement: `scripts/check-governance.sh` (check 5) + `scripts/generate_inventory.py` (marcador ⏳).
