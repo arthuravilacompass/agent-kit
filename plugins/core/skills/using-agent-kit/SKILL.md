@@ -191,9 +191,4 @@ Seis modos de raciocínio pra vestir deliberadamente diante de uma decisão — 
 
 ## Governança do kit
 
-Este kit se aplica às próprias regras que carrega:
-
-- **Code com ID só nasce com validador.** Toda regra, hook ou skill identificada por um ID nasce junto com o mecanismo que verifica sua aplicação (gate, hook, script) — nunca como texto solto sem enforcement.
-- **Promoção unwired → wired exige uso real.** Um artefato só sai de `unwired/` para um plugin ativo (`plugins/`) depois de comprovar valor num projeto novo de verdade — não por avaliação teórica. Exceção única (promoção provisória por deadline de rotação, com registro + review adversarial + prazo de validação): `unwired/README.md`.
-- **Estado único por artefato.** Todo artefato do kit está em exatamente um estado: `wired` (dentro de um plugin ativo), `unwired` (presente no repo, não carregado) ou deletado. Nada fica "testado mas não ligado" fora desses três estados.
-- **Regra textual que falha repetido vira mecanismo.** Sob orçamento de atenção finito, instrução marginal é omitida (não desobedecida) — empilhar mais texto reduz o compliance agregado (não só deixa de melhorar); a regra de maior taxa de falha vira hook, schema de output obrigatório ou gate determinístico, não mais texto.
+As regras de ciclo de vida do kit — modelo de estados, promoção unwired → wired, meta-princípios, teto do sempre-ativo e ledger de decisões — vivem em `docs/GOVERNANCE.md` **no repo do agent-kit**, não neste contexto injetado. Ao editar o próprio kit (promover, demover, criar regra com ID), consulte esse doc antes.

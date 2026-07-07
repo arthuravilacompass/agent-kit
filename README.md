@@ -33,7 +33,7 @@ Alguns fluxos do `core` referenciam skills do marketplace `superpowers` (brainst
 
 ## `unwired/`
 
-`unwired/` não é um plugin — nada dele é carregado, custo de contexto zero. É matéria-prima genericizada aguardando prova de uso real. Todo artefato do kit está em exatamente um de três estados: **wired** (`plugins/`, custa contexto), **unwired** (custo zero) ou **deletado** — nunca "testado mas não ligado". A regra de promoção e o detalhe por item: [unwired/README.md](unwired/README.md).
+`unwired/` não é um plugin — nada dele é carregado, custo de contexto zero. É matéria-prima genericizada aguardando prova de uso real. O modelo de estados e a regra de promoção: [docs/GOVERNANCE.md](docs/GOVERNANCE.md); o detalhe por item: [unwired/README.md](unwired/README.md).
 
 ## Assets manuais (`assets/`)
 
@@ -45,10 +45,9 @@ Templates que você copia e adapta à mão — nada aqui é carregado automatica
 
 ## Princípios
 
-- **Estado único por artefato** — wired, unwired ou deletado; nunca uma quarta categoria fantasma.
-- **Advisory-nudge não entra em `plugins/` sem medição** — mecanismo só-lembrete precisa provar conversão real antes de ser wired; caso concreto em [unwired/README.md](unwired/README.md).
-- **Documentação nasce do que morde** — toda regra carrega um `Sinal` (como detectar a violação) e um `Failure mode` (o que quebra rio abaixo). Regra textual que falha repetido vira mecanismo (hook, gate, schema), não mais texto.
+- **Documentação nasce do que morde** — toda regra carrega um `Sinal` (como detectar a violação) e um `Failure mode` (o que quebra rio abaixo).
 - **Zero conteúdo do projeto de origem, inclusive em `unwired/`** — gate mecânico (`scripts/check-provenance.sh`) roda sobre o repo inteiro, sem exceção.
+- **Governança do ciclo de vida** — modelo de estados, regra de promoção, teto do sempre-ativo e ledger de decisões: [docs/GOVERNANCE.md](docs/GOVERNANCE.md).
 
 ---
 

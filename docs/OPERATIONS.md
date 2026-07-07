@@ -58,20 +58,22 @@ Se este marketplace é instalado dentro de um workspace que já tem cópia próp
 
 ## 4. Gate de qualidade
 
-Quatro comandos, todos precisam sair verdes antes de qualquer commit:
+Cinco comandos, todos precisam sair verdes antes de qualquer commit:
 
 ```bash
 ./scripts/check-provenance.sh
 claude plugin validate .
 ./evals/run-evals.sh
 python3 scripts/generate_inventory.py --check
+./scripts/check-governance.sh
 ```
 
 - `check-provenance.sh` — denylist de nomes de empresa/produto/board/paths internos, rodada sobre o repo inteiro (inclusive `unwired/`, sem exceção).
 - `claude plugin validate .` — valida o manifest da marketplace e o de cada plugin.
 - `run-evals.sh` — Tier 1 determinístico: roda os hooks reais contra payload sintético. Executa via heredoc; em ambientes que sandboxam criação de arquivo temporário (alguns harnesses de agente), rode com o sandbox desabilitado para esse comando específico.
 - `generate_inventory.py --check` — `INVENTORY.md` é gerado, nunca editado à mão; este comando falha (gate vermelho) se a árvore do repo divergir do inventário registrado. Regenerar com `python3 scripts/generate_inventory.py` e commitar o resultado.
+- `check-governance.sh` — mede a saída real de `session-start.sh` contra o teto do tier sempre-ativo e verifica que todo ID `D*`/`R*` citado no repo resolve no ledger. Teto, ledger e racional: `docs/GOVERNANCE.md`.
 
 Convenção normativa por trás do inventário: a linha `# desc:` (linha 2 de cada hook/script sob `plugins/*/hooks` e `plugins/*/scripts`) é a fonte da descrição que aparece em `INVENTORY.md`. Qualquer header de prosa que já exista no arquivo é comentário livre, sem efeito no inventário. Em caso de divergência entre os dois, corrige-se a linha `# desc:` — não o header de prosa.
 
-Docs de superfície (README e este arquivo) não carregam datas — histórico vive no `CHANGELOG.md`. Checagem: negar `grep -q` por padrão de ano-mês (`AAAA-`) sobre o arquivo. Nota: `grep -c` sai com código 1 quando não há match — não usar `-c` como aceite encadeado em `&&`.
+Docs de superfície (README, este arquivo e `docs/GOVERNANCE.md`) não carregam datas — histórico vive no `CHANGELOG.md`. Checagem: negar `grep -q` por padrão de ano-mês (`AAAA-`) sobre o arquivo. Nota: `grep -c` sai com código 1 quando não há match — não usar `-c` como aceite encadeado em `&&`.

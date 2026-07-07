@@ -2,29 +2,9 @@
 
 Este diretório não é um plugin. Nada aqui é carregado pelo Claude Code — custo de contexto zero. É matéria-prima: coisas que existiram e funcionaram em algum grau num projeto de origem, escrutinadas o bastante pra virar referência, mas sem uso real comprovado *neste* kit para justificar viver em `plugins/`.
 
-## O modelo (D10): wired / unwired / deletado
+## Estados, promoção e exceção
 
-Todo artefato que já existiu neste kit está num destes três estados, nunca em limbo:
-
-- **wired** — vive em `plugins/core/` ou `plugins/mobile/`. Foi admitido porque tem uso real comprovado (não só "parecia bom"). Custa contexto toda sessão que carrega o plugin.
-- **unwired** — vive aqui. Genericizável, scrub mecânico aplicado, mas sem prova de uso no novo projeto. Custo de contexto **zero** — só é lido se alguém abrir o arquivo.
-- **deletado** — não existe no repo. Foi avaliado e descartado (vestigial, TF-específico demais pra genericizar, ou substituído por outra coisa melhor).
-
-Nunca "testado mas não ligado" — essa terceira categoria fantasma é o que este modelo existe para eliminar.
-
-## Regra de promoção
-
-**Um item sobe de `unwired/` para `plugins/` (wired) quando tiver uso real comprovado no projeto novo — o mesmo critério de admissão que qualquer skill/agent/hook novo teria.** Não é "parece útil" nem "era usado no projeto de origem" — é: você invocou isso pelo menos uma vez no projeto novo, funcionou, e quer que sobreviva ao próximo `/clear`.
-
-Ao promover:
-1. **Reescreva a `description`** com o gatilho específico do novo contexto — a description arquivada carrega vocabulário/gatilho do projeto de origem (às vezes já genérico, às vezes não).
-2. **Preencha os placeholders de proveniência** (`<TICKET>`, `<DesignTokens>`, `<BOARD_NAME>`, nomes de componente entre `<>`) com os nomes reais do projeto novo. O scrub que colocou o item aqui foi mecânico, não uma reescrita — o trabalho de reancorar no domínio novo é seu, não deste kit.
-3. **Mova o arquivo** para `plugins/<core|mobile|novo-plugin>/` na estrutura padrão (skills em `skills/<nome>/SKILL.md`, agents em `agents/<nome>.md`, etc.) e rode `claude plugin validate .`.
-4. **Delete a cópia em `unwired/`** — um item promovido não fica duplicado nos dois estados.
-
-### Exceção: promoção provisória por deadline de rotação
-
-Quando a desalocação de um workspace de origem ameaça perder a janela de validação, um item PODE ser promovido sem uso real comprovado neste kit, desde que: (1) a exceção seja registrada no CHANGELOG com o motivo; (2) a promoção passe por review adversarial imediata do diff completo (a leva de 2026-07-07 achou 15 defeitos num move "puramente mecânico"); (3) o item ganhe prazo de validação — sem uso real em 1 ciclo de projeto novo, volta a `unwired/`. Promoção provisória não codificada é violação da governança, não exceção dela.
+O modelo de 3 estados (D10), a regra de promoção `unwired/` → `plugins/` e a exceção de promoção provisória por deadline vivem no doc canônico de governança: [docs/GOVERNANCE.md](../docs/GOVERNANCE.md).
 
 ## O que tem aqui e por quê
 

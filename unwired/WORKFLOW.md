@@ -69,7 +69,7 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 - **`chat-draft`** — draft de mensagens informais pt-BR pra Teams/Slack (squad update, recap de tech-sync).
 
 ### Conselho de Posturas (wired em 2026-07-07)
-Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Promovido por inteiro a `plugins/core/` (skills `bohr`/`sagan`/`council`/`council-log`/`council-recall`, agents `maxwell`/`zeno`/`epistemic-council`) — promoção provisória com prazo de validação por uso (ver `unwired/README.md` §exceção).
+Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Promovido por inteiro a `plugins/core/` (skills `bohr`/`sagan`/`council`/`council-log`/`council-recall`, agents `maxwell`/`zeno`/`epistemic-council`) — promoção provisória com prazo de validação por uso (ver `docs/GOVERNANCE.md` §exceção).
 
 ---
 
@@ -122,5 +122,5 @@ Servidores externos conectados à sessão. Prefira a tool do MCP a aproximar com
 ## 5. Ponteiros
 
 - **Inventário deste kit:** `.claude-plugin/marketplace.json` + READMEs de `plugins/core/` e `plugins/mobile/`.
-- **Regra de promoção de `unwired/` → `plugins/`:** `unwired/README.md`.
+- **Regra de promoção de `unwired/` → `plugins/`:** `docs/GOVERNANCE.md`.
 - **Convenções, arquitetura, padrões-chave do projeto consumidor:** o `CLAUDE.md` do projeto — ver `assets/claude-md-starter.md` pra um esqueleto de partida.
