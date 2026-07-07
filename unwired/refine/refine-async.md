@@ -169,6 +169,6 @@ Atualize o state file em `docs/refine/refine-<card-id>.md` (garanta que o diret�
 - **Sem spec detalhado**: não gere acceptance criteria, test plans, ou design docs. Esses são outputs de `tech-breakdown` + `spec-refine`.
 - **Idempotência**: se rodar duas vezes no mesmo card, detecte subtarefas existentes e pergunte: "Subtarefas já existem no card. Adicionar novas ou substituir?"
 
-## Provenance note (archived material)
+## Provenance note (unwired material)
 
 Ticket IDs, nomes de módulo/store/repositório e o board são placeholders — o original referenciava a stack de um projeto de origem (nomes reais de módulo, board de Kanban específico). A mecânica (carregar estado → grep leve → gerar subtarefas → approval gate → criar no board → sinal de pipeline) é o que é genericizável.

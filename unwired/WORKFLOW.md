@@ -51,7 +51,7 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 
 ### Domínio (consulta sob demanda)
 - **`mobx`** — casa única do conhecimento MobX: tier policy, codes, receitas de fix, patterns aspiracionais.
-- **`<design-tokens>`** — placeholder: referência do design system do projeto, se existir (todo valor visual via token, nunca hardcode cor/spacing/raio). Não portado neste kit — o original era proprietário demais pra genericizar (ver `archive/figma-to-component/` e `archive/ui-comparison/` pela mesma razão).
+- **`<design-tokens>`** — placeholder: referência do design system do projeto, se existir (todo valor visual via token, nunca hardcode cor/spacing/raio). Não portado neste kit — o original era proprietário demais pra genericizar (ver `unwired/figma-to-component/` e `unwired/ui-comparison/` pela mesma razão).
 - **`performance-patterns`** — Observer rebuilds, chamadas de rede, imagens, memória, RUM.
 - **`marionette`** — validação visual agent-driven no simulador (ver §4).
 
@@ -69,7 +69,7 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 - **`chat-draft`** — draft de mensagens informais pt-BR pra Teams/Slack (squad update, recap de tech-sync).
 
 ### Conselho de Posturas (arquivado, não wired neste kit)
-Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Material completo em `archive/council/` + `archive/posturas/` + `archive/agents/` — sobe a `plugins/` só com uso real comprovado (ver `archive/README.md`).
+Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Material completo em `unwired/council/` + `unwired/posturas/` + `unwired/agents/` — sobe a `plugins/` só com uso real comprovado (ver `unwired/README.md`).
 
 ---
 
@@ -81,7 +81,7 @@ Seis modos de raciocínio que você veste de propósito — *como* interrogar um
   - `pre-done` — subagent **cego** adversarial (só diff + ACs, sem sua narrativa); findings verificados por `validate_citations.py`. Roda no "acho que terminei", antes do review.
   - Complementa o advisor nativo, não substitui: o nativo vê tudo (ideal pra planning); o `pre-done` esconde a narrativa de propósito, pra quebrar a bolha epistêmica.
 - **`archaeology`** — mapa do codebase pré-US: o terreno antes de começar.
-- **`refine-live` / `refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Arquivados (`archive/refine/`) por não terem uso comprovado neste kit — placeholders de ticket/board no lugar dos nomes reais do projeto de origem.
+- **`refine-live` / `refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Unwired (`unwired/refine/`) por não terem uso comprovado neste kit — placeholders de ticket/board no lugar dos nomes reais do projeto de origem.
 - **Dashboard de prontidão de release** — o projeto de origem tinha uma skill de operação bem específica (git delta + QA + board + pubspec) que não generalizou o bastante pra portar; se o novo projeto precisar de algo assim, escreva a própria a partir do zero em vez de herdar esta.
 
 ---
@@ -122,5 +122,5 @@ Servidores externos conectados à sessão. Prefira a tool do MCP a aproximar com
 ## 5. Ponteiros
 
 - **Inventário deste kit:** `.claude-plugin/marketplace.json` + READMEs de `plugins/core/` e `plugins/mobile/`.
-- **Regra de promoção de `archive/` → `plugins/`:** `archive/README.md`.
+- **Regra de promoção de `unwired/` → `plugins/`:** `unwired/README.md`.
 - **Convenções, arquitetura, padrões-chave do projeto consumidor:** o `CLAUDE.md` do projeto — ver `assets/claude-md-starter.md` pra um esqueleto de partida.

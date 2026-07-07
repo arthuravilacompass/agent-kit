@@ -5,7 +5,7 @@
 ### Adicionado
 
 - Skeleton inicial do repo com plugins core e mobile
-- README.md completo (instalação, mapa wired dos 2 plugins, archive/promoção, assets manuais, princípios, nota de double-loading)
+- README.md completo (instalação, mapa wired dos 2 plugins, unwired/promoção (à época archive/), assets manuais, princípios, nota de double-loading)
 
 ### Aceite final (spec §7) — via marketplace local
 

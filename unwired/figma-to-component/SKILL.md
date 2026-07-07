@@ -94,6 +94,6 @@ List any Figma elements with no design-system match, suggesting either a legacy 
 - Delegate to **ui-comparison** after implementation for visual fidelity check
 - The developer implements the actual Flutter code
 
-## Provenance note (archived material)
+## Provenance note (unwired material)
 
 O método (extração → hierarquia → mapeamento → tokens → spec → gaps) é genérico e reutilizável. A tabela de mapeamento e os nomes de widget/token foram trocados por placeholders — no projeto de origem eram nomes de componentes proprietários (não capturados pela denylist mecânica, mas reais o bastante pra vazar arquitetura interna). Reconstrua a tabela com os nomes reais do novo design system ao promover.

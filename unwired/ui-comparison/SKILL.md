@@ -81,6 +81,6 @@ Use a estrutura em `output-template.md` (1. Fidelity Scorecard, 2. Discrepancy T
 - State/architecture issues spotted → flag for follow-up; design via superpowers brainstorming/writing-plans
 - Design intent unclear → delegate to **figma-to-component** with the original Figma node
 
-## Provenance note (archived material)
+## Provenance note (unwired material)
 
 Este skill nasceu genérico o suficiente na estrutura (fases, rubrica de score, delegação), mas a tabela de mapeamento de componentes e os nomes de token do projeto de origem foram removidos por serem verbatim proprietários. Ao promover, preencha a tabela com os widgets/tokens reais do novo projeto.

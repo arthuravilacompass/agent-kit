@@ -131,6 +131,6 @@ A sessão continua ativa após "fecha" — o usuário pode rodar outro `/refine-
 - **Sem spec-level questions**: error paths, race conditions, state transitions complexas → `spec-refine` faz isso melhor com contexto completo.
 - **Uma US por invocação**: não misture contexto de cards diferentes na mesma chamada.
 
-## Provenance note (archived material)
+## Provenance note (unwired material)
 
 Ticket IDs, nome do board e nomes de módulo/store neste arquivo são placeholders — o original referenciava um board e uma stack de módulos reais de um projeto de origem. A mecânica (fetch → perguntas → loop incremental → consolidação) é o que é genericizável.

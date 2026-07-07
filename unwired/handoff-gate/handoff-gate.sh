@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# handoff-gate.sh — Stop hook (ARQUIVADO, não wired)
+# handoff-gate.sh — Stop hook (UNWIRED — presente no repo, não carregado)
 #
 # Fecha o loop alerta→ação do context-monitor: se a sessão cruzou 800KB de
 # transcript e NENHUM handoff foi escrito/atualizado em docs/superpowers/handoffs/
 # nas últimas 12h, bloqueia o stop UMA vez por sessão pedindo o handoff. O
 # plan-autoload resurfaça o handoff na próxima sessão.
 #
-# Por que está em archive e não em plugins/: no projeto de origem este hook nunca
+# Por que está em unwired/ e não em plugins/: no projeto de origem este hook nunca
 # foi registrado em settings algum — existia (com evals passando) sem nunca ter
 # disparado, e foi descartado na extração como "peso morto com aparência de vivo".
 # A rodada de revisão pós-construção (censo cego, 2026-07-06) avaliou o mérito do
 # mecanismo de forma independente (nota 4/5) e o artefato foi resgatado pra cá:
 # preserva a opção sem custo de contexto. Promoção a wired segue a regra do
-# archive/README.md — exige uso real, não mérito percebido.
+# unwired/README.md — exige uso real, não mérito percebido.
 #
 # Notas pra promoção (se um dia subir pra plugins/core):
 #   1. Registrar em hooks/hooks.json no evento Stop.

@@ -120,13 +120,13 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 
 ---
 
-## `archive/` e regra de promoção
+## `unwired/` e regra de promoção
 
-`archive/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, par de skills Figma→componente, bug-report com citação, refino live/async, metade-nudge de um hook, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit.
+`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, par de skills Figma→componente, bug-report com citação, refino live/async, metade-nudge de um hook, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit.
 
-Modelo de três estados (D10): todo artefato que já existiu aqui está em exatamente um — **wired** (`plugins/`, custa contexto), **archive** (aqui, custo zero, só lido se alguém abrir), ou **deletado** (avaliado e descartado). Nunca "testado mas não ligado".
+Modelo de três estados (D10): todo artefato que já existiu aqui está em exatamente um — **wired** (`plugins/`, custa contexto), **unwired** (aqui, custo zero, só lido se alguém abrir), ou **deletado** (avaliado e descartado). Nunca "testado mas não ligado".
 
-Regra de promoção archive → wired: uso real comprovado no projeto novo (você invocou, funcionou, quer que sobreviva ao próximo `/clear`) — não "parece útil" nem "era usado na origem". Ao promover: reescreva a `description` com o gatilho do novo contexto, preencha os placeholders de proveniência com nomes reais do projeto novo, mova o arquivo pra estrutura padrão do plugin, rode `claude plugin validate .`, delete a cópia em `archive/`. Detalhe completo por item arquivado: `archive/README.md`.
+Regra de promoção unwired → wired: uso real comprovado no projeto novo (você invocou, funcionou, quer que sobreviva ao próximo `/clear`) — não "parece útil" nem "era usado na origem". Ao promover: reescreva a `description` com o gatilho do novo contexto, preencha os placeholders de proveniência com nomes reais do projeto novo, mova o arquivo pra estrutura padrão do plugin, rode `claude plugin validate .`, delete a cópia em `unwired/`. Detalhe completo por item: `unwired/README.md`.
 
 ---
 
@@ -142,10 +142,10 @@ Nenhum destes é carregado automaticamente pelo Claude Code — são templates/s
 
 ## Princípios do kit
 
-- **Estado único por artefato (wired / archive / deletado).** Ver seção acima — nunca uma quarta categoria fantasma de "meio-ligado".
-- **Advisory-nudge não entra em `plugins/` sem medição.** Um mecanismo puramente de lembrete (sem enforcement, só reminder) precisa provar conversão real de uso antes de ser wired — não basta a ideia parecer boa. Caso concreto em `archive/README.md` (`learning-pulse`): a metade "nudge" mediu ~0 conversão no projeto de origem e foi descartada por isso, não promovida por precaução.
+- **Estado único por artefato (wired / unwired / deletado).** Ver seção acima — nunca uma quarta categoria fantasma de "meio-ligado".
+- **Advisory-nudge não entra em `plugins/` sem medição.** Um mecanismo puramente de lembrete (sem enforcement, só reminder) precisa provar conversão real de uso antes de ser wired — não basta a ideia parecer boa. Caso concreto em `unwired/README.md` (`learning-pulse`): a metade "nudge" mediu ~0 conversão no projeto de origem e foi descartada por isso, não promovida por precaução.
 - **Documentação nasce do que morde, não do que parece prudente.** Toda regra/skill do kit carrega um `Sinal` (como detectar a violação) e um `Failure mode` (o que quebra rio abaixo) — nasceu de um caso real observado, não de uma preocupação teórica antecipada. Regra textual que falha repetido vira mecanismo (hook, schema de output, gate determinístico) em vez de mais texto — texto marginal sob orçamento de atenção finito tende a ser omitido, não desobedecido.
-- **Zero conteúdo do projeto de origem/específico de domínio, inclusive em `archive/`.** Gate mecânico: `scripts/check-provenance.sh` (denylist de nomes de empresa/produto/board/paths internos) roda sobre o repo inteiro, sem exceção pra material arquivado.
+- **Zero conteúdo do projeto de origem/específico de domínio, inclusive em `unwired/`.** Gate mecânico: `scripts/check-provenance.sh` (denylist de nomes de empresa/produto/board/paths internos) roda sobre o repo inteiro, sem exceção pra material unwired.
 
 ---
 

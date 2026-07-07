@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# learning-pulse-nudge.sh — UserPromptSubmit hook (ARQUIVADO, não wired)
+# learning-pulse-nudge.sh — UserPromptSubmit hook (UNWIRED — presente no repo, não carregado)
 #
 # Extraído de um hook de dois propósitos num projeto de origem. O outro propósito
 # (reset de debounce de um hook de scope-injection) foi resolvido de outra forma no
@@ -12,7 +12,7 @@
 #
 # STATUS: advisory nudge, mediu ~0 conversão em uso real (o hook original foi
 # removido do projeto de origem por essa razão) — só volta a ser wired com medição
-# nova que sustente o custo de contexto do lembrete. Fica em archive como material
+# nova que sustente o custo de contexto do lembrete. Fica em unwired como material
 # de referência, não como recomendação de reativar sem dado.
 #
 # Outputs JSON com additionalContext opcional, no formato entendido pelo Claude Code.
@@ -37,7 +37,7 @@ except Exception:
     print('unknown')
 " <<< "$INPUT_JSON" 2>/dev/null || echo "unknown")
 
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/agent-kit-archive}/state"
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/agent-kit-unwired}/state"
 mkdir -p "$STATE_DIR"
 
 COUNTER_FILE="${STATE_DIR}/msg-count-${SESSION_ID}"
