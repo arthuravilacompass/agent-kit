@@ -32,7 +32,7 @@
 ````markdown
 ---
 name: pipeline
-description: Invoque ao receber uma intenção crua de trabalho substancial (feature, bug, investigação, refactor, ticket/US) sem fluxo em andamento definido, ou quando o usuário pedir "por onde começo", "qual o fluxo pra isso", "me conduz nesse trabalho". Condutor de fluxo — detecta o estágio real da tarefa, classifica a intenção e roteia pelas skills do kit um estágio por vez; recomenda a próxima rota, nunca executa a cadeia inteira sozinho.
+description: Invoque ao receber uma intenção crua de trabalho substancial (feature, bug, investigação, refactor, ticket/US) sem fluxo em andamento definido, ou quando o usuário pedir "por onde começo", "qual o fluxo pra isso", "me conduz nesse trabalho". NÃO invoque para pergunta conceitual ou lookup pontual ("como funciona X?"), nem quando já há um fluxo em andamento (brainstorming, plano em execução, review). Condutor de fluxo — detecta o estágio real da tarefa, classifica a intenção e roteia pelas skills do kit um estágio por vez; recomenda a próxima rota, nunca executa a cadeia inteira sozinho.
 ---
 
 # Pipeline — condutor de fluxo
@@ -77,11 +77,17 @@ Se a tarefa já está em andamento: diga em que estágio ela está, com a evidê
 
 Skills marcadas `core:*` slash-only (`archaeology`, `spec-refine`, `advisor-check`, `tech-breakdown`, `review-local`, `commit`, `pr`, `compound`): recomende o comando exato (`/core:<nome>`) pro usuário disparar — a tool Skill não as invoca.
 
+Notas de estágio:
+- Terminal de Investigação ("relatório/handoff"): produzido via `core:compound` (handoff) ou handoff manual proporcional — não há skill própria.
+- `consumer-simulation` é um AGENT, não skill: dispatch como subagente (tool Agent), passando SÓ o texto do ticket + critérios de aceite, nunca a implementação.
+- Revisar num projeto com o plugin mobile instalado: some `mobile:refactor-review` quando a mudança for refactor.
+
 ## 4. Regras de condução
 
 - **Um estágio por vez.** Ao fechar um estágio, recomende as 2-3 próximas rotas com 1 linha de porquê — e PARE. Nunca invoque o próximo estágio sem confirmação do usuário.
+- **Coordenação com superpowers.** Se um fluxo superpowers já está ativo (brainstorming em curso, plano em execução), NÃO assuma a condução: faça só a detecção de estágio, se útil, e defira à skill de estágio ativa.
 - **Estado = artefatos.** O progresso mora nos artefatos (specs/plans/handoffs) — não crie marcador ou arquivo de estado próprio.
-- **Disciplina de sessão.** Uma fase pesada por sessão: *clarificar/especificar* · *implementar* · *revisar/entregar* · *fechar*. Ao cruzar de fase pesada, recomende sessão nova com handoff; o `plan-autoload` reabre o contexto.
+- **Disciplina de sessão.** Uma fase pesada por sessão: *clarificar/especificar* · *implementar* · *revisar/entregar* · *fechar*. Ao cruzar de fase pesada, recomende sessão nova com handoff; o `plan-autoload` reabre planos/handoffs — specs são detectadas pela seção 1 desta skill.
 - **Fechar sempre captura.** Fim de trabalho relevante → `core:learn` (se houve correções/decisões) + handoff proporcional ao trabalho da sessão.
 ````
 
@@ -90,12 +96,18 @@ Skills marcadas `core:*` slash-only (`archaeology`, `spec-refine`, `advisor-chec
 Run: `cd "$HOME/dev/agent-kit" && claude plugin validate . && wc -l plugins/core/skills/pipeline/SKILL.md`
 Expected: validation passa (mesmos 3 warnings pré-existentes); ≤120 linhas.
 
-- [ ] **Step 3: Smoke de disparo (aceite §5.2 da spec, aproximado)**
+- [ ] **Step 3: Smoke de disparo com ATRIBUIÇÃO (aceite §5.2 da spec)**
 
-Run: `claude --plugin-dir "$HOME/dev/agent-kit/plugins/core" -p "tenho uma feature nova pra começar nesse app e não sei por onde começar"`
-Expected: resposta menciona condução por estágios/classes (evidência de que a description roteou) — ou invoca a skill pipeline explicitamente.
+O critério NÃO é a resposta "parecer conduzida por estágios" — o modelo faz isso de baseline (CHANGELOG, teste A/B: sem diferença observável). O critério é o `tool_use` da skill aparecer no stream.
 
-- [ ] **Step 4: Smoke de meia-entrada (aceite §5.3 da spec)**
+```bash
+FIX="${TMPDIR:-/tmp}/pipeline-trigger" && rm -rf "$FIX" && mkdir -p "$FIX" && cd "$FIX" && git init -q
+claude --plugin-dir "$HOME/dev/agent-kit/plugins/core" -p "tenho uma feature nova pra começar nesse app e não sei por onde começar" \
+  --output-format stream-json --verbose 2>/dev/null | grep -c '"name":"Skill".*pipeline\|pipeline.*"name":"Skill"'
+```
+Expected: contagem ≥1 (a tool Skill foi chamada com a skill pipeline). Zero = description não roteou → ajustar wording da description antes de seguir.
+
+- [ ] **Step 4: Smoke de meia-entrada com ATRIBUIÇÃO (aceite §5.3 da spec)**
 
 ```bash
 FIX="${TMPDIR:-/tmp}/pipeline-midentry" && rm -rf "$FIX" && mkdir -p "$FIX/docs/superpowers/specs" && cd "$FIX" && git init -q
@@ -103,9 +115,12 @@ cat > docs/superpowers/specs/2026-07-06-favoritos-design.md << 'EOF'
 # Feature Favoritos — Design
 **Status:** aprovado. Requisitos: usuário marca/desmarca item como favorito; lista persiste localmente; badge com contagem no header.
 EOF
-claude --plugin-dir "$HOME/dev/agent-kit/plugins/core" -p "quero continuar o trabalho da feature de favoritos"
+claude --plugin-dir "$HOME/dev/agent-kit/plugins/core" -p "quero continuar o trabalho da feature de favoritos" \
+  --output-format stream-json --verbose 2>/dev/null > /tmp/midentry-stream.json
+grep -c 'pipeline' /tmp/midentry-stream.json
+grep -c 'favoritos-design' /tmp/midentry-stream.json
 ```
-Expected: resposta reconhece a spec existente e propõe o estágio seguinte (checkpoint/quebrar/implementar) — NÃO propõe reclarificar/re-especificar do zero.
+Expected: ambos ≥1 — a skill disparou E a spec existente foi lida/citada (detecção de estágio funcionou); a resposta final propõe estágio seguinte (checkpoint/quebrar/implementar), não reclarificação.
 
 - [ ] **Step 5: Gate + commit**
 
@@ -196,6 +211,17 @@ Expected: main atualizada no remote.
 
 Run: `claude plugin update core@agent-kit`
 Expected: cache atualizado pro novo HEAD; lembrar: reinício de sessão aplica.
+
+- [ ] **Step 2b: Smoke no ambiente REAL (com superpowers concorrendo)**
+
+O smoke da Task 1 roda core isolado; o primeiro-movimento real tem `superpowers:using-superpowers` (model-invocable) concorrendo pelo roteamento. Depois do update do cache:
+
+```bash
+FIX="${TMPDIR:-/tmp}/pipeline-realenv" && rm -rf "$FIX" && mkdir -p "$FIX" && cd "$FIX" && git init -q
+claude -p "tenho uma feature nova pra começar nesse app e não sei por onde começar" \
+  --output-format stream-json --verbose 2>/dev/null | grep -c 'pipeline'
+```
+Expected: ≥1 (pipeline participa do primeiro movimento mesmo com superpowers carregado — seja invocado direto, seja citado na condução). Zero = registrar no ledger como limitação conhecida e observar no primeiro uso real (métrica de 2 semanas); a coordenação com brainstorming é soft por design.
 
 - [ ] **Step 3: Atualizar memória**
 

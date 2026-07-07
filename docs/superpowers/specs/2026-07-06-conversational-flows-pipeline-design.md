@@ -17,7 +17,7 @@ A dúvida do usuário — "minha forma de escrever prompts é boa?" — se respo
 | 1 | Forma | Pipeline **coerente com o que já existe** — skills atuais viram estágios referenciados, nenhuma é modificada (grill-me explicitamente intocado) |
 | 2 | Roteamento de transição | **Centralizado no condutor** (`core:pipeline`), não distribuído em exit-routes dentro das skills |
 | 3 | Invocação | **Model-invocable** (description com gatilhos) + `/core:pipeline` explícito |
-| 4 | Estado entre sessões | Só pelos artefatos existentes (`docs/superpowers/{specs,plans,handoffs}` + `plan-autoload`) — sem marcador/arquivo novo |
+| 4 | Estado entre sessões | Só pelos artefatos existentes (`docs/superpowers/{specs,plans,handoffs}`) — sem marcador/arquivo novo. Retomada: `plan-autoload` reinjeta plans/handoffs (specs não — glob dele não cobre `specs/`); specs são detectadas pela própria skill na detecção de estágio |
 | 5 | Entrada no meio | Condutor sempre detecta o estágio real (artefatos recentes + git log/status) antes de classificar — nunca repete fase |
 | 6 | Superpowers | Estágios que o referenciam ganham **fallback nomeado** pra skill do próprio kit; resolve também o polimento pendente "core assume superpowers" |
 | 7 | Ponta de entrada pessoal | Tabela intenção→fluxo + contrato de prompting no `~/.claude/CLAUDE.md` do usuário — fora do kit, fora do teto de 200 do always-on |
