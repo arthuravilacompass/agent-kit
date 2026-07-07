@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- **Fase 1 da onda de refino pós-auditoria (2026-07-07, spec em `docs/superpowers/specs/2026-07-07-refino-pos-auditoria-design.md`)** — D17: registro machine-readable de provisórios em `docs/GOVERNANCE.md` §Provisórios ativos (12 itens das levas 2026-07-06/07), com check 5 no `check-governance.sh` (prazo vencido = gate vermelho) e marcador ⏳ no INVENTORY; coluna `Contrato (D14)` no INVENTORY expõe a dívida de conformidade (31 pendentes); critério slash-only escrito no `SKILL-CONTRACT.md`; CI (`.github/workflows/ci.yml`) rodando os 3 gates + evals tier-1 + shellcheck em push/PR.
+
 - **Governança consolidada em `docs/GOVERNANCE.md` (Marco 2, 2026-07-07)** — doc canônico único com o modelo de 3 estados (D10), regra de promoção, exceção de deadline, meta-princípios, teto do tier sempre-ativo (16.384 bytes sobre a saída real do `session-start.sh`) e ledger de decisões resolvendo todo ID `D*`/`R*` citado no repo (D6, D10, D13, R2 — reconstituídos de evidência in-repo; o material de origem dos IDs fica fora do repo por proveniência). `README.md` §unwired/§Princípios, `unwired/README.md` e `using-agent-kit` §Governança viraram ponteiros — o texto de cada regra existe em exatamente 1 arquivo. Novo gate `scripts/check-governance.sh` (5º comando): mede o sempre-ativo contra o teto e falha se algum ID citado não resolver no ledger ("code com ID só nasce com validador" aplicado ao próprio ledger). Efeito colateral: sempre-ativo enxugou ~1KB com a seção de governança virando ponteiro.
 
 - **Conselho de Posturas completo promovido a wired (2026-07-07)** — `bohr`, `sagan`, `council` (índice + formato de saída), `council-log`, `council-recall` em `plugins/core/skills/`; `maxwell`, `zeno`, `epistemic-council` em `plugins/core/agents/`. Promoção provisória sob a exceção de deadline de rotação (codificada em `unwired/README.md` nesta mesma mudança), decidida explicitamente pelo dono após a auditoria de harness de 2026-07-07; linhagem de uso: corpus episódico pré-existente das 6 posturas em `~/.claude/epistemic/` (jun–jul 2026). Prazo de validação: sem uso real em 1 ciclo de projeto novo, volta a `unwired/`. Adaptações na promoção: descriptions dos 8 arquivos reescritas com o gatilho do contexto do kit (passo 1 da regra — cobrado pela review adversarial), convenção `/core:` aplicada nos corpos, `<path-do-skill>` → `${CLAUDE_PLUGIN_ROOT}`, refs cruzadas `council/SKILL.md` → skill `core:council`, nota de proveniência refeita. Review adversarial pós-promoção rodada na mesma sessão (regra de memória do dono).
@@ -13,6 +15,8 @@
 
 ### Alterado
 
+- D14 §Escopo: correção cirúrgica (linhas pontuais, sem mudar esqueleto/propósito) não constitui reforma nem obriga conformidade — decisão do dono, 2026-07-07.
+- `review-local` (fix cirúrgico): mandato de tool Read para evidência citável no dispatch + claim do read-ledger anotada com o veredito do teste de runtime de 2026-07-07 (reads de subagent via Read entram no ledger da sessão-mãe; via Bash não).
 - `using-agent-kit` §Vocabulário de Posturas: as 6 posturas agora são todas wired (4 skills in-thread + 2 subagents) com ponteiro pro índice `core:council`.
 - README: contagens atualizadas (core: 25 skills, 4 agents), tabela de agents, seção unwired, descrição do autoapprove.
 - Auditoria de harness & identidade (2026-07-07, workflow de 15 agentes): relatório completo fora do repo (contém contexto do projeto de origem — o gate de proveniência recusa, corretamente) em `~/.claude/audits/2026-07-07-harness-identity-audit.md`.
