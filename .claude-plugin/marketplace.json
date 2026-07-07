@@ -1,9 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "agent-kit",
-  "owner": { "name": "Arthur Avila" },
+  "owner": {
+    "name": "Arthur Avila"
+  },
   "plugins": [
-    { "name": "core", "source": "./plugins/core", "description": "Metodologia pessoal de engenharia com agentes: epistemologia, workflow, hooks determinísticos", "category": "development" },
-    { "name": "mobile", "source": "./plugins/mobile", "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking", "category": "development" }
-  ]
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "Metodologia pessoal de engenharia com agentes: epistemologia, workflow, hooks determinísticos",
+      "category": "development"
+    },
+    {
+      "name": "mobile",
+      "source": "./plugins/mobile",
+      "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking",
+      "category": "development"
+    }
+  ],
+  "description": "Metodologia pessoal de engenharia com agentes: disciplina epistêmica portável entre projetos (core) + toolkit Flutter/MobX (mobile). Extraído de uso real, genericizado, com governança de promoção por uso."
 }

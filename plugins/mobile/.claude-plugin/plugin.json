@@ -1,1 +1,8 @@
-{ "name": "mobile", "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking", "author": { "name": "Arthur Avila" } }
+{
+  "name": "mobile",
+  "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking",
+  "author": {
+    "name": "Arthur Avila"
+  },
+  "version": "0.1.0"
+}

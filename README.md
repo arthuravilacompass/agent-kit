@@ -62,7 +62,7 @@ A marketplace local continua funcionando como caminho de desenvolvimento mesmo c
 
 Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (skills sob demanda pela `description`; hooks e o agent sempre presentes).
 
-**Skills (20)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 12 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
+**Skills (25)** — `plugins/core/skills/<nome>/SKILL.md`. 13 são invocáveis pelo modelo via tool Skill (`bohr`, `chat-draft`, `council`, `council-log`, `council-recall`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `sagan`, `schrodinger`, `using-agent-kit`); as outras 12 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
 
 | Skill | Para quê |
 |---|---|
@@ -86,8 +86,20 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 | `learn` | escaneia a conversa e propõe entries de memória pra aprovação |
 | `epicurus` | postura: separa necessário de desejável-descartável de vão antes de dar design/escopo por pronto |
 | `schrodinger` | postura: mantém hipóteses de diagnóstico vivas até existir observação que discrimine |
+| `bohr` | postura: recusa falsa dicotomia ("A ou B") e busca o eixo que dissolve o trade-off |
+| `sagan` | postura: calibra se a decisão importa, em que escala e se sobrevive ao tempo, antes de investir esforço |
+| `council` | índice do Conselho de Posturas — as 6 posturas, formato de saída (callout), invocação e escalonamento pro modo cego |
+| `council-log` | grava um brief de deliberação no corpus episódico (`~/.claude/epistemic/`, append-only) |
+| `council-recall` | recupera até 3 casos passados que rimam por forma com a decisão atual; silencioso se nada rima |
 
-**Agent (1)** — `plugins/core/agents/consumer-simulation.md`: recebe só o texto do ticket + critérios de aceite (nunca a implementação) e produz comportamentos esperados, pra detectar gap entre pedido e entregue.
+**Agents (4)** — `plugins/core/agents/`:
+
+| Agent | Para quê |
+|---|---|
+| `consumer-simulation` | recebe só o texto do ticket + critérios de aceite (nunca a implementação) e produz comportamentos esperados, pra detectar gap entre pedido e entregue |
+| `maxwell` | postura em subagent isolado: mapeia como uma mudança propaga (acoplamento, invariantes que viajam) antes de mexer em algo acoplado |
+| `zeno` | postura em subagent isolado: empurra os invariantes da solução ao limite (zero/um/∞/null/vazio/concorrente/falho-no-meio) até achar onde quebra |
+| `epistemic-council` | modo cego do Conselho — recebe só o problema reformulado + posições sem autoria, roda UMA postura e verifica executando; único ponto de separação estrutural real |
 
 **Hooks (7)** — `plugins/core/hooks/`, wireados em `hooks.json`:
 
@@ -95,13 +107,15 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 |---|---|---|
 | `session-start.sh` | SessionStart (startup\|clear\|compact) | injeta o corpo de `using-agent-kit` como contexto sempre-ativo |
 | `plan-autoload.sh` | SessionStart | se existe plano recente (<72h) em `docs/.../plans/`, injeta ponteiro de retomada |
-| `bash-autoapprove-readonly.sh` | PreToolUse (Bash) | auto-aprova comandos de leitura reconhecidos como seguros (ex. `git status`), nunca comandos de escrita/push |
+| `bash-autoapprove-readonly.sh` | PreToolUse (Bash) | auto-aprova comandos de leitura reconhecidos como seguros (ex. `git status`); escrita, push, rede (`git fetch`), mutação de deps (`pub get`) e execução de código do repo (`test`) deferem |
 | `claude-dir-guard.sh` | PreToolUse (Bash) | bloqueia `rm` que atinge `.claude/` |
 | `scope-inject.sh` | PreToolUse (Edit\|Write\|MultiEdit) | injeta ponteiro de escopo quando o arquivo editado casa um mapa de conhecimento do projeto |
 | `context-monitor.sh` | PostToolUse (Bash) | avisa quando o transcript da sessão cresce além de um limiar |
 | `read-ledger.sh` | PostToolUse (Read\|Grep) | registra o range lido no ledger da sessão (base do mecanismo de citação) |
 
 **Scripts (5)** — `plugins/core/scripts/`: `analyze_tokens.py` (custo de contexto por componente — usado no teste R2 abaixo), `census_usage.py`, `conflict_triage.py`, `prune_branches.sh`, `validate_citations.py` (camada 1 do mecanismo de citação que `read-ledger.sh` alimenta).
+
+**Composição com o modo de permissão do harness.** Duas camadas removem prompts, com papéis distintos: o modo de permissão do `settings.json` do usuário (`defaultMode`, sandbox) é o dono da decisão ampla; o `bash-autoapprove-readonly.sh` é um refinador estreito só pra Bash — emite `allow` ou defere, nunca bloqueia (escopo exato: tabela acima e header do próprio script). Se o seu `defaultMode` já aprova a maioria dos Bash, o hook é latência morta (estimativa: dezenas de ms/chamada, spawn de python3) — avalie desabilitá-lo; ele paga a passagem quando o modo é mais restritivo ou o sandbox está inativo.
 
 ---
 
@@ -128,7 +142,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 
 ## `unwired/` e regra de promoção
 
-`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, ui-comparison, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit. `bug-report`, `refine-live` e `refine-async` foram promovidos a wired em `plugins/core/skills/`, e `figma-to-component` a `plugins/mobile/skills/` (Flutter-only, não stack-agnostic) — todos em 2026-07-07.
+`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (ui-comparison, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit. Promoções de 2026-07-07: `bug-report`, `refine-live`, `refine-async` → `plugins/core/skills/`; `figma-to-component` → `plugins/mobile/skills/` (Flutter-only); e o Conselho de Posturas completo (bohr, sagan, council, council-log, council-recall → `plugins/core/skills/`; maxwell, zeno, epistemic-council → `plugins/core/agents/`) — promoção provisória sob a exceção de deadline de rotação (ver `unwired/README.md`), sustentada pelo corpus episódico pré-existente das 6 posturas em `~/.claude/epistemic/`, com prazo de validação por uso real.
 
 Modelo de três estados (D10): todo artefato que já existiu aqui está em exatamente um — **wired** (`plugins/`, custa contexto), **unwired** (aqui, custo zero, só lido se alguém abrir), ou **deletado** (avaliado e descartado). Nunca "testado mas não ligado".
 

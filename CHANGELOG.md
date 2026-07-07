@@ -4,6 +4,17 @@
 
 ### Adicionado
 
+- **Conselho de Posturas completo promovido a wired (2026-07-07)** — `bohr`, `sagan`, `council` (índice + formato de saída), `council-log`, `council-recall` em `plugins/core/skills/`; `maxwell`, `zeno`, `epistemic-council` em `plugins/core/agents/`. Promoção provisória sob a exceção de deadline de rotação (codificada em `unwired/README.md` nesta mesma mudança), decidida explicitamente pelo dono após a auditoria de harness de 2026-07-07; linhagem de uso: corpus episódico pré-existente das 6 posturas em `~/.claude/epistemic/` (jun–jul 2026). Prazo de validação: sem uso real em 1 ciclo de projeto novo, volta a `unwired/`. Adaptações na promoção: descriptions dos 8 arquivos reescritas com o gatilho do contexto do kit (passo 1 da regra — cobrado pela review adversarial), convenção `/core:` aplicada nos corpos, `<path-do-skill>` → `${CLAUDE_PLUGIN_ROOT}`, refs cruzadas `council/SKILL.md` → skill `core:council`, nota de proveniência refeita. Review adversarial pós-promoção rodada na mesma sessão (regra de memória do dono).
+- **Exceção de promoção por deadline de rotação codificada em `unwired/README.md`** (regra completa lá; `using-agent-kit` §Governança ganhou o ponteiro).
+- **Hardening do `bash-autoapprove-readonly.sh`** (finding da auditoria 2026-07-07): `git fetch` (rede), criação de branch/tag, `pub get` (muta lockfile) e `flutter/dart test` (executa código do repo) saem da classificação read-only e passam a deferir. +7 eval cases cobrindo os novos guards (30 no total). README ganhou parágrafo de composição das duas camadas de permissão (modo do harness × hook).
+- Versões nos manifests (`core` 0.2.0, `mobile` 0.1.0) e descrição na marketplace.
+
+### Alterado
+
+- `using-agent-kit` §Vocabulário de Posturas: as 6 posturas agora são todas wired (4 skills in-thread + 2 subagents) com ponteiro pro índice `core:council`.
+- README: contagens atualizadas (core: 25 skills, 4 agents), tabela de agents, seção unwired, descrição do autoapprove.
+- Auditoria de harness & identidade (2026-07-07, workflow de 15 agentes): relatório completo fora do repo (contém contexto do projeto de origem — o gate de proveniência recusa, corretamente) em `~/.claude/audits/2026-07-07-harness-identity-audit.md`.
+
 - Skeleton inicial do repo com plugins core e mobile
 - README.md completo (instalação, mapa wired dos 2 plugins, unwired/promoção (à época archive/), assets manuais, princípios, nota de double-loading)
 - `core:pipeline` — condutor de fluxo (camada de routing conversacional): detecção de estágio, 5 classes de tarefa com rotas, tabela estágio→skill com fallbacks sem superpowers, disciplina de sessão. Spec: `docs/superpowers/specs/2026-07-06-conversational-flows-pipeline-design.md`
