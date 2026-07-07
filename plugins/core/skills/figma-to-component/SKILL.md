@@ -1,6 +1,7 @@
 ---
 name: figma-to-component
-description: Figma-to-Component Agent
+description: Extrai um design do Figma via MCP (get_design_context/get_screenshot) e produz uma especificação de widget tree mapeada aos componentes do design system do projeto consumidor — tabela de mapeamento, tokens e lista de gaps sem equivalente. Use com /core:figma-to-component ao converter uma tela/componente do Figma pra Flutter.
+disable-model-invocation: true
 ---
 
 # Figma-to-Component Agent
@@ -93,7 +94,3 @@ List any Figma elements with no design-system match, suggesting either a legacy 
 - For state + data architecture design, use superpowers brainstorming/writing-plans before scaffolding
 - Delegate to **ui-comparison** after implementation for visual fidelity check
 - The developer implements the actual Flutter code
-
-## Provenance note (unwired material)
-
-O método (extração → hierarquia → mapeamento → tokens → spec → gaps) é genérico e reutilizável. A tabela de mapeamento e os nomes de widget/token foram trocados por placeholders — no projeto de origem eram nomes de componentes proprietários (não capturados pela denylist mecânica, mas reais o bastante pra vazar arquitetura interna). Reconstrua a tabela com os nomes reais do novo design system ao promover.

@@ -62,7 +62,7 @@ A marketplace local continua funcionando como caminho de desenvolvimento mesmo c
 
 Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (skills sob demanda pela `description`; hooks e o agent sempre presentes).
 
-**Skills (17)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 9 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
+**Skills (18)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 10 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
 
 | Skill | Para quê |
 |---|---|
@@ -77,6 +77,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 | `review-remote` | review de PR remoto |
 | `spec-refine` | refinamento adversarial de spec |
 | `tech-breakdown` | breakdown técnico pra tech lead a partir de uma US/ticket |
+| `figma-to-component` | extrai design do Figma via MCP e produz spec de widget tree mapeada aos componentes do design system do projeto consumidor |
 | `compound` | composição de skills/tarefas em fluxo maior |
 | `chat-draft` | rascunho de mensagem informal (Teams/Slack) |
 | `grill-me` | entrevista estruturada e implacável pra pressionar plano/decisão |
