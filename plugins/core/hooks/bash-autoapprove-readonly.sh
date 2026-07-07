@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PreToolUse(Bash) — auto-aprova comandos de leitura reconhecidos como seguros; escrita, rede e mutação de deps deferem.
 # PreToolUse(Bash) — fallback auto-approve para comandos read-only.
 #
 # v2 (compound-aware): decompõe comandos compostos em vez de recusar todo metacaractere.

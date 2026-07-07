@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# desc: Faz triage de conflitos de merge entre uma branch base e branches feature/team.
 """conflict_triage.py — triage merge conflicts between a base branch's landed change and a
 set of feature/team branches.
 

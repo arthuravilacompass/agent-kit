@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: SessionStart — injeta ponteiro de retomada quando existe plano recente (<72h).
 # plan-autoload.sh — SessionStart hook
 # Detects the most recently modified plan file across the canonical doc locations.
 # Notifies user via stderr (visible in terminal before session starts).

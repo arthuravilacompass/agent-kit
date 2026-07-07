@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PreToolUse(Edit|Write|MultiEdit) — injeta ponteiro de escopo quando o arquivo editado casa um mapa de conhecimento do projeto.
 # scope-inject.sh — PreToolUse Edit|Write|MultiEdit hook
 # Responsabilidade:
 #   Knowledge map: ao tocar uma área mapeada (path → ponteiro de decisão), injeta o

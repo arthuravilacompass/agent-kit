@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PreToolUse(Edit|Write|MultiEdit) — bloqueia (exit 2, add-only) smells de correctness em Dart: DI direto, BuildContext vazando, print em produção.
 # smell-checker.sh — PreToolUse Edit|Write|MultiEdit hook (exit 2 = blocks)
 #
 # Mechanical enforcement for a small set of statically-detectable Flutter/MobX

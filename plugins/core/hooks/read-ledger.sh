@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PostToolUse(Read|Grep) — registra o range lido no ledger da sessão (base do mecanismo de citação).
 # read-ledger.sh — PostToolUse Read|Grep hook (Camada 1 / verificação por citação)
 #
 # Registra, por sessão, os ranges file:line que o agente REALMENTE leu. O validador

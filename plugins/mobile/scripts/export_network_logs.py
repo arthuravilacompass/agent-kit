@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# desc: Exporta logs de rede HTTP do Dart VM Service para JSON.
 """
 Flutter Network Logs Exporter
 

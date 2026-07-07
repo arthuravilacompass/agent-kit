@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# desc: Valida citações de findings contra o read-ledger da sessão (Camada 1).
 """
 validate_citations.py — Validador determinístico de citação (Camada 1).
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PreToolUse(Bash) — bloqueia comandos rm que atingem .claude/.
 # claude-dir-guard.sh — PreToolUse(Bash) hook
 # Blocks `rm` commands whose command string also touches a `.claude` path segment —
 # extracted from an inline PreToolUse command into its own script. Protects .claude/

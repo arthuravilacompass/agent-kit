@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# desc: Analisa custo de contexto (tokens) por componente do setup Claude Code.
 """
 Claude Code Token Usage Analyzer
 Identifies per-turn and on-demand token cost for each component in your setup.

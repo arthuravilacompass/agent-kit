@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# desc: Censo de uso dos artefatos invocáveis (commands/skills) por janela de tempo.
 """census_usage.py — censo de uso dos artefatos invocáveis de um projeto Claude Code
 (.claude/commands + .claude/skills): quantas vezes cada um foi realmente invocado, por
 janela de tempo.

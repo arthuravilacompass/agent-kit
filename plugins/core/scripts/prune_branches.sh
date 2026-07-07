@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: Lista branches remotos candidatos a deleção; nunca deleta, gera arquivo para revisão manual.
 # prune_branches.sh — lista branches remotos candidatos a deleção. NUNCA deleta — gera
 # um arquivo de comandos para revisão manual antes de qualquer `git push --delete`.
 # Branches "stale-unmerged" têm commits únicos: exigem inspeção individual

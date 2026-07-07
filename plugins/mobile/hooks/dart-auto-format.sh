@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PostToolUse(Edit|Write|MultiEdit) — roda dart format no arquivo editado.
 # dart-auto-format.sh — PostToolUse hook (Edit|Write|MultiEdit)
 # Runs `dart format --line-length 120 <file>` on .dart files after every edit.
 # Silent on non-Dart files. Skips generated outputs (.g.dart, .freezed.dart, .config.dart).

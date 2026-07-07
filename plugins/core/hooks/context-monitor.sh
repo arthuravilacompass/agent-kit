@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: PostToolUse(Bash) — avisa quando o transcript da sessão cresce além de um limiar.
 # context-monitor.sh — PostToolUse hook
 # Monitors transcript size as proxy for context window usage.
 # Warns once per threshold level per session (debounced via state file).

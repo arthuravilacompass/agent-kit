@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# desc: Mede o grafo de imports (lakos) e regenera o bloco de dados do ARCHITECTURE.md.
 # arch_graph.sh — measures the real import graph (lakos) of a Flutter/Dart
 # package and regenerates the data block of that project's ARCHITECTURE.md
 # (between <!-- arch-graph:start --> and <!-- arch-graph:end -->).
