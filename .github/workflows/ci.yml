@@ -1,0 +1,22 @@
+name: gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provenance gate
+        run: bash scripts/check-provenance.sh
+      - name: Governance gate
+        run: bash scripts/check-governance.sh
+      - name: Inventory up-to-date
+        run: python3 scripts/generate_inventory.py --check
+      - name: Hook evals (tier 1)
+        run: ./evals/run-evals.sh
+      - name: Shellcheck
+        run: find plugins scripts evals -name '*.sh' -print0 | xargs -0 shellcheck
