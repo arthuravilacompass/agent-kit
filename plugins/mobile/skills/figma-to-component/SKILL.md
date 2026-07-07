@@ -1,6 +1,6 @@
 ---
 name: figma-to-component
-description: Extrai um design do Figma via MCP (get_design_context/get_screenshot) e produz uma especificação de widget tree mapeada aos componentes do design system do projeto consumidor — tabela de mapeamento, tokens e lista de gaps sem equivalente. Use com /core:figma-to-component ao converter uma tela/componente do Figma pra Flutter.
+description: Extrai um design do Figma via MCP (get_design_context/get_screenshot) e produz uma especificação de widget tree mapeada aos componentes do design system do projeto consumidor — tabela de mapeamento, tokens e lista de gaps sem equivalente. Use com /mobile:figma-to-component ao converter uma tela/componente do Figma pra Flutter.
 disable-model-invocation: true
 ---
 
@@ -44,7 +44,7 @@ Extract fileKey and nodeId from Figma URLs:
 
 ## Figma → Flutter Component Mapping
 
-Este é um exemplo ILUSTRATIVO da forma da tabela — os nomes reais de widget/pacote são proprietários do projeto de origem e foram removidos. Preencha com o vocabulário de componentes real do projeto consumidor ao promover este material.
+Este é um exemplo ILUSTRATIVO da forma da tabela — não é o design system de nenhum projeto real. Preencha com o vocabulário de componentes real do projeto Flutter consumidor ao usar esta skill; este kit não tem design system próprio pra preencher aqui.
 
 | Figma Component | Flutter Widget | Factory/Variant | Package Path |
 |---|---|---|---|
@@ -92,5 +92,5 @@ List any Figma elements with no design-system match, suggesting either a legacy 
 ## Delegation
 
 - For state + data architecture design, use superpowers brainstorming/writing-plans before scaffolding
-- Delegate to **ui-comparison** after implementation for visual fidelity check
+- For a post-implementation visual fidelity check, see `unwired/ui-comparison/SKILL.md` — not yet promoted to wired in this kit; promote it if you want this step automated
 - The developer implements the actual Flutter code

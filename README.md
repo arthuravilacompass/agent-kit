@@ -62,7 +62,7 @@ A marketplace local continua funcionando como caminho de desenvolvimento mesmo c
 
 Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (skills sob demanda pela `description`; hooks e o agent sempre presentes).
 
-**Skills (21)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 13 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
+**Skills (20)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 12 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
 
 | Skill | Para quê |
 |---|---|
@@ -77,7 +77,6 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 | `review-remote` | review de PR remoto |
 | `spec-refine` | refinamento adversarial de spec |
 | `tech-breakdown` | breakdown técnico pra tech lead a partir de uma US/ticket |
-| `figma-to-component` | extrai design do Figma via MCP e produz spec de widget tree mapeada aos componentes do design system do projeto consumidor |
 | `bug-report` | investiga bug e só fecha relatório com citação `file:line` verificada por gate determinístico + verifier semântico em contexto fresco |
 | `refine-live` | copiloto ao vivo pra agenda de refinamento com o PO — perguntas de esclarecimento em tempo real |
 | `refine-async` | triage pós-refinamento — consolida contexto do refine-live, grep leve, gera subtarefas [INTERIM] pra aprovação |
@@ -108,7 +107,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 
 ## Mapa wired — `plugins/mobile`
 
-**Skills (9)** — `plugins/mobile/skills/<nome>/SKILL.md`: `code-review-mobile` (checklist + cookbook + standards + estrutura de módulo Flutter), `mobx` (smells MobX/DI/arquitetura que o linter não pega — blockers on-demand, padrões aspiracionais, receitas), `refactor-review` (protocolo pós-refactor), `deeplink-debug`, `export-logs`, `feature-scaffold`, `ga4-validate`, `marionette` (condução de app Flutter rodando via MCP), `performance-patterns`.
+**Skills (10)** — `plugins/mobile/skills/<nome>/SKILL.md`: `code-review-mobile` (checklist + cookbook + standards + estrutura de módulo Flutter), `mobx` (smells MobX/DI/arquitetura que o linter não pega — blockers on-demand, padrões aspiracionais, receitas), `refactor-review` (protocolo pós-refactor), `deeplink-debug`, `export-logs`, `feature-scaffold`, `figma-to-component` (extrai design do Figma via MCP e produz spec de widget tree mapeada ao design system do projeto consumidor), `ga4-validate`, `marionette` (condução de app Flutter rodando via MCP), `performance-patterns`.
 
 **Agent (1)** — `plugins/mobile/agents/mobx-smell-hunter.md`: caça os 4 smells MobX que o linter e o hook determinístico não cobrem (composição de flow state, estado multi-writer, discriminador primitivo, estado de concorrência sintético).
 
@@ -129,7 +128,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 
 ## `unwired/` e regra de promoção
 
-`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, ui-comparison, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit. `figma-to-component`, `bug-report`, `refine-live` e `refine-async` foram promovidos a wired em 2026-07-07 (ver `plugins/core/skills/`).
+`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, ui-comparison, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit. `bug-report`, `refine-live` e `refine-async` foram promovidos a wired em `plugins/core/skills/`, e `figma-to-component` a `plugins/mobile/skills/` (Flutter-only, não stack-agnostic) — todos em 2026-07-07.
 
 Modelo de três estados (D10): todo artefato que já existiu aqui está em exatamente um — **wired** (`plugins/`, custa contexto), **unwired** (aqui, custo zero, só lido se alguém abrir), ou **deletado** (avaliado e descartado). Nunca "testado mas não ligado".
 

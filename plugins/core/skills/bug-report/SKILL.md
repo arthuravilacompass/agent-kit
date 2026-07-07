@@ -8,12 +8,12 @@ disable-model-invocation: true
 
 Investiga um bug e **só finaliza** o relatório com findings cuja citação `file:line` (1) sobrepõe código realmente lido nesta sessão **e** (2) é semanticamente sustentada pelo código. É o caminho com **gate duro** — porque um bug-report com citação fabricada (ex.: uma rota que não existe no código, inventada pelo modelo) é um failure conhecido em relatórios gerados por LLM sem esse gate.
 
-**Dependência:** este skill assume a existência do mecanismo de citação verificada — um read-ledger que registra cada `Read`/`Grep` da sessão + um script `validate_citations.py --gate` que recusa finding `tool-output` citando código não lido. Se o projeto consumidor já tem esse mecanismo (ex.: portado via `plugins/core`), aponte os comandos abaixo para ele; caso contrário, este skill precisa do mecanismo antes de funcionar.
+**Dependência:** este skill assume a existência do mecanismo de citação verificada — um read-ledger que registra cada `Read`/`Grep` da sessão + um script `validate_citations.py --gate` que recusa finding `tool-output` citando código não lido. Neste kit o mecanismo já é wired no mesmo plugin (`plugins/core/scripts/validate_citations.py`, alimentado por `plugins/core/hooks/read-ledger.sh`) — os comandos abaixo usam `${CLAUDE_PLUGIN_ROOT}` e resolvem sem ajuste. Se portar esta skill sozinha pra outro lugar sem esse mecanismo, ela precisa dele antes de funcionar.
 
 ## Usage
 
 ```
-/bug-report <descrição do bug / ticket>
+/core:bug-report <descrição do bug / ticket>
 ```
 
 ## Steps
@@ -31,7 +31,7 @@ Investiga um bug e **só finaliza** o relatório com findings cuja citação `fi
 
 4. **Gate determinístico (duro)** —
    ```
-   python3 <path-do-mecanismo>/validate_citations.py --session <session-id-atual> --gate --findings <arquivo>
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_citations.py" --session <session-id-atual> --gate --findings <arquivo>
    ```
    Passe `--session` explícito (sessões concorrentes). **Exit 2** = há finding `tool-output` citando código não-lido (fabricação de localização) → **NÃO finalizar**; voltar ao passo 2, ler de fato ou corrigir o finding. Só prossiga com exit 0.
 

@@ -51,7 +51,7 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 
 ### Domínio (consulta sob demanda)
 - **`mobx`** — casa única do conhecimento MobX: tier policy, codes, receitas de fix, patterns aspiracionais.
-- **`<design-tokens>`** — placeholder: referência do design system do projeto, se existir (todo valor visual via token, nunca hardcode cor/spacing/raio). Não portado neste kit — o original era proprietário demais pra genericizar (ver `unwired/figma-to-component/` e `unwired/ui-comparison/` pela mesma razão).
+- **`<design-tokens>`** — placeholder: referência do design system do projeto, se existir (todo valor visual via token, nunca hardcode cor/spacing/raio). Não portado neste kit — o original era proprietário demais pra genericizar (ver `unwired/ui-comparison/` pela mesma razão; `figma-to-component` foi promovido a `plugins/mobile/skills/figma-to-component/` em 2026-07-07, mas também carrega essa lacuna — a tabela de mapeamento fica ilustrativa até um projeto real preenchê-la).
 - **`performance-patterns`** — Observer rebuilds, chamadas de rede, imagens, memória, RUM.
 - **`marionette`** — validação visual agent-driven no simulador (ver §4).
 
@@ -81,7 +81,7 @@ Seis modos de raciocínio que você veste de propósito — *como* interrogar um
   - `pre-done` — subagent **cego** adversarial (só diff + ACs, sem sua narrativa); findings verificados por `validate_citations.py`. Roda no "acho que terminei", antes do review.
   - Complementa o advisor nativo, não substitui: o nativo vê tudo (ideal pra planning); o `pre-done` esconde a narrativa de propósito, pra quebrar a bolha epistêmica.
 - **`archaeology`** — mapa do codebase pré-US: o terreno antes de começar.
-- **`refine-live` / `refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Unwired (`unwired/refine/`) por não terem uso comprovado neste kit — placeholders de ticket/board no lugar dos nomes reais do projeto de origem.
+- **`/core:refine-live` / `/core:refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Promovidos a wired em 2026-07-07 (`plugins/core/skills/`) — ainda dependem de um MCP de board/kanban específico do projeto consumidor, que este kit não embute; placeholders de ticket/board seguem no lugar dos nomes reais até adaptar.
 - **Dashboard de prontidão de release** — o projeto de origem tinha uma skill de operação bem específica (git delta + QA + board + pubspec) que não generalizou o bastante pra portar; se o novo projeto precisar de algo assim, escreva a própria a partir do zero em vez de herdar esta.
 
 ---

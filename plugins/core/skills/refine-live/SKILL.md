@@ -10,37 +10,37 @@ Copiloto para uso durante a agenda semanal de refinamento com o PO. Recebe o car
 
 **Posição no workflow:**
 ```
-/refine-live <card-id>                     ← você está aqui (durante a agenda)
+/core:refine-live <card-id>                ← você está aqui (durante a agenda)
         ↓
-/refine-async <card-id>                    ← pós-agenda (triage + subtarefas)
+/core:refine-async <card-id>               ← pós-agenda (triage + subtarefas)
         ↓
 archaeology → tech-breakdown → spec-refine → plano
 ```
 
-(`archaeology`, `tech-breakdown`, `spec-refine` são skills do plugin `core` deste kit — ver `plugins/core/skills/`.)
+(`archaeology`, `tech-breakdown`, `spec-refine` são skills do plugin `core` deste kit — invoque como `/core:archaeology`, `/core:tech-breakdown`, `/core:spec-refine`.)
 
 ## Quando Usar
 
 Execute **durante a agenda de refinamento** quando o PO apresentar uma US. Use em paralelo com o PO falando — você digita bullets do que ele diz e a IA gera perguntas pra fazer na hora.
 
-Não usar para: exploração técnica profunda (use `archaeology`), stress-test de spec (use `spec-refine`), decomposição em subtarefas (use `/refine-async`).
+Não usar para: exploração técnica profunda (use `/core:archaeology`), stress-test de spec (use `/core:spec-refine`), decomposição em subtarefas (use `/core:refine-async`).
 
 ## Input
 
 ```
-/refine-live <TICKET>
-/refine-live <card-id-numérico>
+/core:refine-live <TICKET>
+/core:refine-live <card-id-numérico>
 ```
 
 Aceita:
-- **Custom ID** (formato ticket do board, ex. `<TICKET>`): resolve via `search_cards(custom_id: "<TICKET>")`
-- **Card ID numérico**: valida via `search_cards` no board ou tool equivalente de detalhe
+- **Custom ID** (formato ticket do board, ex. `<TICKET>`): resolve via a tool de busca do board MCP do projeto consumidor (ex.: `search_cards(custom_id: "<TICKET>")` — sintaxe ilustrativa; adapte ao MCP de board real disponível na sessão, este kit não embute nenhum)
+- **Card ID numérico**: valida via a mesma tool, ou tool equivalente de detalhe
 
 ## Steps
 
 ### 1. Fetch card do board
 
-Busque o card via API do sistema de board/kanban do projeto:
+**Depende de um MCP de board/kanban específico do projeto consumidor — este kit não inclui nenhum.** Busque o card via a tool desse MCP (ex.: `search_cards`/detalhe de card — adapte ao servidor real conectado na sessão):
 - Se formato de ticket: use a busca com `custom_id` para obter o `card_id` numérico
 - Se numérico: valide existência no board
 
@@ -95,7 +95,7 @@ Quando o usuário digita **"fecha"**, consolide o estado da sessão:
 
 1. Gere o resumo estruturado abaixo
 2. Salve em `docs/refine/refine-<card-id>.md` (garanta que o diretório existe: `mkdir -p docs/refine`; use o external_id se disponível, ex: `refine-<TICKET>.md`)
-3. Confirme ao usuário: "Estado salvo. Pode rodar `/refine-async <TICKET>` quando quiser."
+3. Confirme ao usuário: "Estado salvo. Pode rodar `/core:refine-async <TICKET>` quando quiser."
 
 **Schema do estado:**
 
@@ -126,13 +126,14 @@ Quando o usuário digita **"fecha"**, consolide o estado da sessão:
 - data: <YYYY-MM-DD>
 ```
 
-A sessão continua ativa após "fecha" — o usuário pode rodar outro `/refine-live` com outro card ID.
+A sessão continua ativa após "fecha" — o usuário pode rodar outro `/core:refine-live` com outro card ID.
 
 ## Important
 
 - **Velocidade > completude**: perguntas curtas, diretas, 1 linha. O PO está falando — você não pode gerar parágrafos.
 - **Sem jargão técnico nas perguntas**: o PO é de negócio. Pergunte sobre comportamento esperado, não sobre stores/repositories.
 - **Sem codebase exploration pesada**: grep oportunístico ok (<2s). Qualquer coisa além disso, deixe pro async.
-- **Sem subtarefas**: geração de subtarefas é responsabilidade do `/refine-async`.
-- **Sem spec-level questions**: error paths, race conditions, state transitions complexas → `spec-refine` faz isso melhor com contexto completo.
+- **Sem subtarefas**: geração de subtarefas é responsabilidade do `/core:refine-async`.
+- **Sem spec-level questions**: error paths, race conditions, state transitions complexas → `/core:spec-refine` faz isso melhor com contexto completo.
 - **Uma US por invocação**: não misture contexto de cards diferentes na mesma chamada.
+- **`<BOARD_NAME>`, `<TICKET>` e nomes de módulo/store neste arquivo são placeholders** — adapte aos nomes reais do board e do projeto consumidor ao usar esta skill; este kit não tem um board próprio pra preencher aqui.
