@@ -55,10 +55,11 @@ READ_ONLY = {
 }
 # Deliberadamente FORA: find, xargs, sed, awk, mkdir, cp, mv, rm, tee, dd (escrevem/executam).
 
+# `fetch` deliberadamente FORA: faz rede e muda refs remotos locais — não é leitura.
 GIT_RO = {
     "status", "log", "diff", "show", "blame", "ls-files", "ls-tree", "grep",
     "rev-parse", "merge-base", "describe", "reflog", "for-each-ref", "cat-file",
-    "shortlog", "fetch", "rev-list", "name-rev", "verify-pack", "count-objects",
+    "shortlog", "rev-list", "name-rev", "verify-pack", "count-objects",
 }
 
 
@@ -87,23 +88,56 @@ def cmd_readonly(tokens):
         sub, args = g[0], g[1:]
         if sub == "config":
             return bool(args and args[0] in ("--get", "--get-all", "--list", "-l"))
+        # branch/tag/remote: ALLOWLIST fail-closed — deny-list falha ABERTO quando o git
+        # ganha flag/subcomando de escrita novo (ex.: `--set-upstream-to=x` num token só
+        # escapava de match exato; `remote set-branches` escrevia config e passava).
         if sub == "branch":
-            return not any(a in ("-d", "-D", "-m", "-M", "--delete", "--move") for a in args)
+            # `git branch` puro lista (read-only); posicional sem flag de consulta CRIA.
+            BRANCH_QUERY = {
+                "--list", "-l", "--show-current", "--contains", "--no-contains",
+                "--points-at", "--merged", "--no-merged", "--sort", "--format",
+                "-v", "-vv", "--verbose", "-a", "--all", "-r", "--remotes",
+                "--color", "--no-color", "--column", "--no-column", "--abbrev", "--no-abbrev",
+            }
+            if not args:
+                return True
+            flags = [a for a in args if a.startswith("-")]
+            if any(a.split("=", 1)[0] not in BRANCH_QUERY for a in flags):
+                return False
+            # posicional (pattern/commit) só é seguro acompanhado de flag de consulta
+            return bool(flags) or all(a.startswith("-") for a in args)
         if sub == "tag":
-            return not any(a in ("-d", "--delete", "-f", "--force") for a in args)
+            # `git tag` puro lista; `git tag <nome>` CRIA.
+            TAG_QUERY = {
+                "-l", "--list", "--contains", "--no-contains", "--points-at",
+                "--merged", "--no-merged", "--sort", "--format", "--column", "--no-column",
+            }
+            if not args:
+                return True
+            flags = [a for a in args if a.startswith("-")]
+            if any(a.split("=", 1)[0] not in TAG_QUERY for a in flags):
+                return False
+            return bool(flags)
         if sub == "remote":
-            return not (args and args[0] in ("add", "remove", "rm", "set-url", "rename", "prune", "set-head"))
+            # `remote show` sem -n consulta a rede — fora. Só bare/-v/get-url.
+            if not args:
+                return True
+            if args[0] in ("-v", "--verbose"):
+                return True
+            return args[0] == "get-url"
         return sub in GIT_RO
 
+    # `pub get` (muta lockfile/cache) e `test` (executa código arbitrário do repo)
+    # deliberadamente FORA — não são leitura; caem no prompt/sandbox normal.
     if cmd0 == "flutter":
-        if rest[:1] in (["analyze"], ["test"], ["doctor"]):
+        if rest[:1] in (["analyze"], ["doctor"]):
             return True
-        return rest[:2] in (["pub", "get"], ["pub", "deps"])
+        return rest[:2] == ["pub", "deps"]
 
     if cmd0 == "dart":
-        if rest[:1] in (["analyze"], ["test"]):
+        if rest[:1] == ["analyze"]:
             return True
-        if rest[:2] in (["pub", "get"], ["pub", "deps"]):
+        if rest[:2] == ["pub", "deps"]:
             return True
         if rest[:1] == ["format"]:
             return "--output=none" in rest or ("-o" in rest and "none" in rest)
