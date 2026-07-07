@@ -9,6 +9,8 @@ Dois plugins:
 
 `core` não depende de `mobile` e serve qualquer stack. `mobile` pressupõe `core` instalado (usa as mesmas convenções de skill/hook) e só é útil em projetos Flutter/Dart.
 
+Alguns fluxos do `core` referenciam skills do marketplace `superpowers` (brainstorming, writing-plans, systematic-debugging, executing-plans). Sem ele instalado nada quebra: `core:pipeline` indica o fallback interno equivalente de cada estágio (grill-me, tech-breakdown, schrodinger, execução direta com gate).
+
 ---
 
 ## Instalação
@@ -60,12 +62,13 @@ A marketplace local continua funcionando como caminho de desenvolvimento mesmo c
 
 Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (skills sob demanda pela `description`; hooks e o agent sempre presentes).
 
-**Skills (16)** — `plugins/core/skills/<nome>/SKILL.md`. 7 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `schrodinger`, `using-agent-kit`); as outras 9 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
+**Skills (17)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 9 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
 
 | Skill | Para quê |
 |---|---|
 | `using-agent-kit` | sempre-ativo via SessionStart — regras epistêmicas e de disciplina (research-depth, evidência antes de claim, scope discipline, bugfix principles, permissions, vocabulário de posturas, governança do kit) |
 | `methodology` | metodologia de engenharia consolidada do kit — ponto de entrada pros princípios de mais alto nível |
+| `pipeline` | condutor de fluxo: detecta o estágio real, classifica a intenção (feature/bug/investigação/spec-de-fora/refactor) e roteia pelas skills um estágio por vez — camada de routing do kit |
 | `advisor-check` | escalação a um reviewer mais forte em pontos de decisão (pre-plan / post-plan / pre-done) |
 | `archaeology` | mapa de codebase pré-tarefa (arqueologia antes de tocar código desconhecido) |
 | `commit` | commit padronizado |

@@ -6,6 +6,7 @@
 
 - Skeleton inicial do repo com plugins core e mobile
 - README.md completo (instalação, mapa wired dos 2 plugins, unwired/promoção (à época archive/), assets manuais, princípios, nota de double-loading)
+- `core:pipeline` — condutor de fluxo (camada de routing conversacional): detecção de estágio, 5 classes de tarefa com rotas, tabela estágio→skill com fallbacks sem superpowers, disciplina de sessão. Spec: `docs/superpowers/specs/2026-07-06-conversational-flows-pipeline-design.md`
 
 ### Aceite final (spec §7) — via marketplace local
 
