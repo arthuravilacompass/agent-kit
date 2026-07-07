@@ -41,6 +41,34 @@ FRONTMATTER_KEY_RE = re.compile(r"^([A-Za-z0-9_-]+):\s?(.*)$")
 COMMAND_PATH_RE = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/(.+)$")
 DESC_LINE_RE = re.compile(r"^#\s*desc:\s*(.+)$")
 
+GOVERNANCE_PATH = os.path.join(REPO_ROOT, "docs", "GOVERNANCE.md")
+PROVISIONAL_LINE_RE = re.compile(r"^- `([^`]+)` — valida até (\d{4}-\d{2}-\d{2})$")
+
+
+def collect_provisional():
+    """path relativo -> deadline, da seção '### Provisórios ativos' de docs/GOVERNANCE.md."""
+    if not os.path.isfile(GOVERNANCE_PATH):
+        return {}
+    result = {}
+    in_section = False
+    with open(GOVERNANCE_PATH, encoding="utf-8") as f:
+        for raw in f:
+            line = raw.rstrip("\n")
+            if line.startswith("### Provisórios ativos"):
+                in_section = True
+                continue
+            if in_section and (line.startswith("## ") or line.startswith("### ")):
+                break
+            if in_section:
+                m = PROVISIONAL_LINE_RE.match(line)
+                if m:
+                    if m.group(1) in result:
+                        raise InventoryError(
+                            f"docs/GOVERNANCE.md: provisório duplicado '{m.group(1)}'"
+                        )
+                    result[m.group(1)] = m.group(2)
+    return result
+
 
 class InventoryError(Exception):
     """Raised on any structural problem in a source file — always fatal, never silent."""
@@ -113,7 +141,7 @@ def get_desc_line(script_path):
     return m.group(1).strip()
 
 
-def collect_skills(plugin):
+def collect_skills(plugin, provisional):
     skills_dir = os.path.join(REPO_ROOT, "plugins", plugin, "skills")
     result = []
     if not os.path.isdir(skills_dir):
@@ -128,11 +156,20 @@ def collect_skills(plugin):
         if "description" not in fm:
             raise InventoryError(f"{rel(skill_md)}: frontmatter sem 'description'")
         slash_only = fm.get("disable-model-invocation", "").strip().lower() == "true"
-        result.append({"name": fm["name"], "description": fm["description"], "slash_only": slash_only})
+        key = f"plugins/{plugin}/skills/{name}"
+        deadline = provisional.pop(key, None)
+        result.append(
+            {
+                "name": fm["name"],
+                "description": fm["description"],
+                "slash_only": slash_only,
+                "provisional_until": deadline,
+            }
+        )
     return result
 
 
-def collect_agents(plugin):
+def collect_agents(plugin, provisional):
     agents_dir = os.path.join(REPO_ROOT, "plugins", plugin, "agents")
     result = []
     if not os.path.isdir(agents_dir):
@@ -146,7 +183,15 @@ def collect_agents(plugin):
             raise InventoryError(f"{rel(agent_md)}: frontmatter sem 'name'")
         if "description" not in fm:
             raise InventoryError(f"{rel(agent_md)}: frontmatter sem 'description'")
-        result.append({"name": fm["name"], "description": fm["description"]})
+        key = f"plugins/{plugin}/agents/{fname}"
+        deadline = provisional.pop(key, None)
+        result.append(
+            {
+                "name": fm["name"],
+                "description": fm["description"],
+                "provisional_until": deadline,
+            }
+        )
     return result
 
 
@@ -229,10 +274,10 @@ def render_table(headers, rows):
     return lines
 
 
-def render_plugin_section(plugin):
+def render_plugin_section(plugin, provisional):
     lines = [f"## Plugin `{plugin}`", ""]
 
-    skills = collect_skills(plugin)
+    skills = collect_skills(plugin, provisional)
     lines.append(f"### Skills ({len(skills)})")
     lines.append("")
     rows = []
@@ -241,14 +286,21 @@ def render_plugin_section(plugin):
             name_cell = f"`{s['name']}` (slash-only: `/{plugin}:{s['name']}`)"
         else:
             name_cell = f"`{s['name']}`"
+        if s.get("provisional_until"):
+            name_cell += f" ⏳ provisório até {s['provisional_until']}"
         rows.append([name_cell, s["description"]])
     lines.extend(render_table(["Skill", "Descrição"], rows))
     lines.append("")
 
-    agents = collect_agents(plugin)
+    agents = collect_agents(plugin, provisional)
     lines.append(f"### Agents ({len(agents)})")
     lines.append("")
-    rows = [[f"`{a['name']}`", a["description"]] for a in agents]
+    rows = []
+    for a in agents:
+        name_cell = f"`{a['name']}`"
+        if a.get("provisional_until"):
+            name_cell += f" ⏳ provisório até {a['provisional_until']}"
+        rows.append([name_cell, a["description"]])
     lines.extend(render_table(["Agent", "Descrição"], rows))
     lines.append("")
 
@@ -290,14 +342,23 @@ def generate():
         "rodam só via comando explícito (`/core:<nome>`, `/mobile:<nome>`), nunca por "
         "iniciativa do modelo.",
         "",
+        "Itens com “provisório até <data>” estão wired sob a exceção de deadline "
+        "(`docs/GOVERNANCE.md` §Provisórios ativos) — prazo vencido deixa o gate vermelho.",
+        "",
         "---",
         "",
     ]
+    provisional = collect_provisional()
     for i, plugin in enumerate(PLUGINS):
-        lines.extend(render_plugin_section(plugin))
+        lines.extend(render_plugin_section(plugin, provisional))
         if i < len(PLUGINS) - 1:
             lines.append("---")
             lines.append("")
+    if provisional:
+        raise InventoryError(
+            "provisórios em docs/GOVERNANCE.md sem artefato correspondente: "
+            + ", ".join(sorted(provisional))
+        )
     # single trailing newline
     while lines and lines[-1] == "":
         lines.pop()
