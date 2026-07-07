@@ -2,7 +2,7 @@
 
 Formato de autoria de toda skill do kit. Complementa `docs/GOVERNANCE.md` — lá vive o ciclo de vida (o que entra, sobe e sai); aqui vive a forma do arquivo. Enforcement mecânico: `scripts/check-governance.sh` lê a §Conformidade deste doc.
 
-**Escopo**: skill nova nasce conforme. Skill existente conforma quando for reformada — ao ser tocada, entra na §Conformidade. Sem big-bang no estoque.
+**Escopo**: skill nova nasce conforme. Skill existente conforma quando for reformada — mudança de esqueleto, propósito ou estrutura; ao ser reformada, entra na §Conformidade. Correção cirúrgica (linhas pontuais que não mudam esqueleto, propósito nem estrutura) não constitui reforma e não obriga conformidade. Sem big-bang no estoque.
 
 ## Os três esqueletos
 
