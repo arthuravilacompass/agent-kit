@@ -1,3 +1,9 @@
+---
+name: refine-live
+description: Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /core:refine-async na sequência.
+disable-model-invocation: true
+---
+
 # /refine-live -- Assistente de Refinamento ao Vivo
 
 Copiloto para uso durante a agenda semanal de refinamento com o PO. Recebe o card do board + contexto verbal do PO em bullets, e gera perguntas de esclarecimento em tempo real para maximizar o entendimento da US.
@@ -130,7 +136,3 @@ A sessão continua ativa após "fecha" — o usuário pode rodar outro `/refine-
 - **Sem subtarefas**: geração de subtarefas é responsabilidade do `/refine-async`.
 - **Sem spec-level questions**: error paths, race conditions, state transitions complexas → `spec-refine` faz isso melhor com contexto completo.
 - **Uma US por invocação**: não misture contexto de cards diferentes na mesma chamada.
-
-## Provenance note (unwired material)
-
-Ticket IDs, nome do board e nomes de módulo/store neste arquivo são placeholders — o original referenciava um board e uma stack de módulos reais de um projeto de origem. A mecânica (fetch → perguntas → loop incremental → consolidação) é o que é genericizável.
