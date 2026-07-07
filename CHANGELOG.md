@@ -7,6 +7,7 @@
 - Skeleton inicial do repo com plugins core e mobile
 - README.md completo (instalação, mapa wired dos 2 plugins, unwired/promoção (à época archive/), assets manuais, princípios, nota de double-loading)
 - `core:pipeline` — condutor de fluxo (camada de routing conversacional): detecção de estágio, 5 classes de tarefa com rotas, tabela estágio→skill com fallbacks sem superpowers, disciplina de sessão. Spec: `docs/superpowers/specs/2026-07-06-conversational-flows-pipeline-design.md`
+- Promovidos de `unwired/` para `plugins/core/skills/` (wired): `figma-to-component`, `bug-report`, `refine-live`, `refine-async`. Os dois primeiros já eram skill-folder válida (só mover + remover nota de proveniência); os dois últimos converteram de comando flat pra skill-folder com frontmatter (mesmo padrão usado em `tech-breakdown`/`archaeology`/`advisor-check` na extração original). Nenhum conteúdo novo — decisão de promoção documentada no plano `docs/superpowers/plans/2026-07-07-agent-kit-promote-figma-bugreport-refine.md` (exceção deliberada à regra padrão de "uso real comprovado", motivada pelo prazo de desalocação do workspace de origem).
 
 ### Aceite final (spec §7) — via marketplace local
 

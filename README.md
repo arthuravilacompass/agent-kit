@@ -129,7 +129,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 
 ## `unwired/` e regra de promoção
 
-`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, par de skills Figma→componente, bug-report com citação, refino live/async, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit.
+`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, ui-comparison, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit. `figma-to-component`, `bug-report`, `refine-live` e `refine-async` foram promovidos a wired em 2026-07-07 (ver `plugins/core/skills/`).
 
 Modelo de três estados (D10): todo artefato que já existiu aqui está em exatamente um — **wired** (`plugins/`, custa contexto), **unwired** (aqui, custo zero, só lido se alguém abrir), ou **deletado** (avaliado e descartado). Nunca "testado mas não ligado".
 
