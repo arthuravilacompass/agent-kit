@@ -22,6 +22,7 @@ Uso:
                                                      # se divergente ou ausente.
 """
 
+import datetime
 import difflib
 import json
 import os
@@ -66,7 +67,17 @@ def collect_provisional():
                         raise InventoryError(
                             f"docs/GOVERNANCE.md: provisório duplicado '{m.group(1)}'"
                         )
+                    try:
+                        datetime.date.fromisoformat(m.group(2))
+                    except ValueError:
+                        raise InventoryError(
+                            f"docs/GOVERNANCE.md: data de provisório inválida: {m.group(2)}"
+                        ) from None
                     result[m.group(1)] = m.group(2)
+                elif line.startswith("- `"):
+                    raise InventoryError(
+                        f"docs/GOVERNANCE.md: linha de provisório malformada: {line}"
+                    )
     return result
 
 

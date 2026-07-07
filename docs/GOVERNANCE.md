@@ -29,7 +29,7 @@ Quando a desalocação de um workspace de origem ameaça perder a janela de vali
 
 ### Provisórios ativos (lidos por máquina)
 
-Itens atualmente wired sob a exceção acima. Formato de linha (contrato lido por `scripts/generate_inventory.py` e `scripts/check-governance.sh`): `` - `<path relativo do artefato>` — valida até AAAA-MM-DD ``. Item validado por uso sai da lista (vira wired pleno); prazo vencido deixa o gate vermelho até a decisão — validar ou demover (D17).
+Itens atualmente wired sob a exceção acima. Formato de linha (contrato lido por `scripts/generate_inventory.py` e `scripts/check-governance.sh`): `` - `<path relativo do artefato>` — valida até AAAA-MM-DD ``. Skills são listadas pelo diretório da skill (`plugins/<p>/skills/<nome>`), agents pelo arquivo `.md` (`plugins/<p>/agents/<nome>.md`). Item validado por uso sai da lista (vira wired pleno); prazo vencido deixa o gate vermelho até a decisão — validar ou demover (D17).
 
 - `plugins/core/skills/bug-report` — valida até 2026-08-06
 - `plugins/core/skills/refine-live` — valida até 2026-08-06

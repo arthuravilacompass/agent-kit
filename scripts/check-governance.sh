@@ -93,29 +93,50 @@ else
   echo "OK: zero narração de proveniência ('Promovido de') em plugins/"
 fi
 
-# 5) Provisórios (D17): prazo vencido = gate vermelho até validar ou demover
+# 5) Provisórios (D17): prazo vencido, entrada malformada ou data inválida =
+# gate vermelho — fail-loud, nunca silenciosamente ignorado.
 # shellcheck disable=SC2016  # '$' é a ancora de fim-de-linha do regex, não expansão
-prov=$(sed -n '/^### Provisórios ativos/,/^## /p' "$LEDGER" \
-  | grep -E '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
-if [ -z "$prov" ]; then
+section=$(sed -n '/^### Provisórios ativos/,/^## /p' "$LEDGER")
+# shellcheck disable=SC2016  # crase é literal do padrão grep, não expansão
+entries=$(printf '%s\n' "$section" | grep -E '^- `' || true)
+# shellcheck disable=SC2016  # crase e '$' são literais do padrão grep, não expansão
+prov=$(printf '%s\n' "$section" | grep -E '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
+problem=0
+if [ -n "$entries" ]; then
+  # shellcheck disable=SC2016  # crase e '$' são literais do padrão grep, não expansão
+  malformed=$(printf '%s\n' "$entries" | grep -vE '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
+  if [ -n "$malformed" ]; then
+    while IFS= read -r line; do
+      [ -z "$line" ] && continue
+      echo "ERRO: linha de provisório malformada em docs/GOVERNANCE.md: ${line}"
+      fail=1; problem=1
+    done <<< "$malformed"
+  fi
+fi
+if [ -z "$entries" ]; then
   echo "OK: nenhum item provisório ativo"
-else
+elif [ -n "$prov" ]; then
   today=$(date +%F)
-  expired=0
   while IFS= read -r line; do
+    [ -z "$line" ] && continue
     # shellcheck disable=SC2016  # crase é literal do padrão grep, não expansão
     path=$(echo "$line" | grep -oE '`[^`]+`' | tr -d '`')
     deadline=$(echo "$line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+    if ! python3 -c 'import datetime,sys; datetime.date.fromisoformat(sys.argv[1])' "$deadline" 2>/dev/null; then
+      echo "ERRO: data de provisório inválida: $deadline (docs/GOVERNANCE.md, D17)"
+      fail=1; problem=1
+      continue
+    fi
     if [ ! -e "$path" ]; then
       echo "ERRO: provisório ${path} listado em ${LEDGER} não existe no disco (D17)"
-      fail=1
+      fail=1; problem=1
     fi
     if [[ "$today" > "$deadline" ]]; then
       echo "ERRO: provisório ${path} venceu em ${deadline} — validar por uso ou demover (D17)"
-      fail=1; expired=1
+      fail=1; problem=1
     fi
   done <<< "$prov"
-  if [ "$expired" -eq 0 ]; then
+  if [ "$problem" -eq 0 ]; then
     echo "OK: provisórios dentro do prazo ($(echo "$prov" | wc -l | tr -d ' ') itens, D17)"
   fi
 fi
