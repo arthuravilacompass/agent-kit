@@ -56,7 +56,3 @@ Investiga um bug e **só finaliza** o relatório com findings cuja citação `fi
 - **Gate duro aqui** (≠ um review menos estrito que só anota) — o custo de um bug-report falso justifica bloquear.
 - **Fix na origem, nunca na consequência**; estado que sobrevive tem ciclo de vida nomeado.
 - Não postar em sistema externo (tracker/board) sem pedido explícito.
-
-## Provenance note (unwired material)
-
-O gate de citação em si (read-ledger + `validate_citations.py`) já foi portado como mecanismo genérico wired (ver `plugins/core`). O que sobra aqui — e que fica em unwired por não ter uso comprovado como skill própria neste kit — é o *workflow* de bug-report que consome esse gate (escopo → investigar → findings → gate → verifier → relatório). Promova só se um projeto novo quiser essa skill nomeada, e não apenas o mecanismo.
