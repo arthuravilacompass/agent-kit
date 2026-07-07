@@ -25,9 +25,9 @@ claude plugin install mobile@agent-kit   # só em projeto Flutter/Dart
 
 Rode os comandos acima de dentro do projeto onde você quer o kit ativo (ou adicione `enabledPlugins` no `settings.json` do projeto/usuário). Para atualizar depois de um novo commit no kit: `claude plugin update core@agent-kit` (e/ou `mobile@agent-kit`) — reinício da sessão necessário para aplicar.
 
-### Depois — publicar no GitHub
+### GitHub
 
-Quando o repo for publicado (privado ou não), o dono roda a partir de `$HOME/dev/agent-kit`:
+Para publicar (privado ou não), o dono roda a partir de `$HOME/dev/agent-kit`:
 
 ```bash
 git remote add origin git@github.com:<usuario>/agent-kit.git
@@ -52,7 +52,7 @@ claude plugin install core@agent-kit
 claude plugin install mobile@agent-kit
 ```
 
-Enquanto o remote não existir, `git push` fica pendente — o resto (marketplace local, instalação, uso) já funciona sem essa etapa.
+A marketplace local continua funcionando como caminho de desenvolvimento mesmo com o remote publicado — o fonte em `$HOME/dev/agent-kit` é onde se edita; o GitHub é distribuição.
 
 ---
 
@@ -122,7 +122,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 
 ## `unwired/` e regra de promoção
 
-`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, par de skills Figma→componente, bug-report com citação, refino live/async, metade-nudge de um hook, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit.
+`unwired/` não é um plugin — nada nele é carregado pelo Claude Code, custo de contexto zero. É matéria-prima genericizável (council/posturas restantes, par de skills Figma→componente, bug-report com citação, refino live/async, metade-nudge de um hook, Stop-hook de handoff resgatado na revisão pós-construção, manual de operador de origem) com scrub mecânico de proveniência aplicado, mas sem uso real comprovado *neste* kit.
 
 Modelo de três estados (D10): todo artefato que já existiu aqui está em exatamente um — **wired** (`plugins/`, custa contexto), **unwired** (aqui, custo zero, só lido se alguém abrir), ou **deletado** (avaliado e descartado). Nunca "testado mas não ligado".
 
