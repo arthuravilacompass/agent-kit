@@ -366,7 +366,7 @@ def generate():
         "",
         "Skills marcadas **slash-only** têm `disable-model-invocation: true` no frontmatter: "
         "rodam só via comando explícito (`/core:<nome>`, `/mobile:<nome>`), nunca por "
-        "iniciativa do modelo.",
+        "iniciativa do modelo (critério: `docs/SKILL-CONTRACT.md` §Critério slash-only).",
         "",
         "Itens com “provisório até <data>” estão wired sob a exceção de deadline "
         "(`docs/GOVERNANCE.md` §Provisórios ativos) — prazo vencido deixa o gate vermelho.",

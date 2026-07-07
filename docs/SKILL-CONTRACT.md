@@ -51,6 +51,10 @@ Conteúdo técnico inline num roteador é sinal de extração pendente para `REF
 - Critério do corte: no SKILL.md fica o que o modelo precisa para decidir **se** invoca e **como** começa; o resto é on-demand.
 - Isento: `using-agent-kit` — tier sempre-ativo, governado pelo teto de bytes (`docs/GOVERNANCE.md` §Teto).
 
+## Critério slash-only
+
+`disable-model-invocation: true` quando a skill: (a) dispara efeito difícil de reverter (commit, PR, escrita externa consumida por terceiros, board), (b) tem custo alto de execução por orquestração (dispatch de múltiplos agents/subagentes), ou (c) conduz cerimônia longa que não deve começar por iniciativa do modelo. Lente, postura, índice ou referência barata em contexto fica invocável pelo modelo — assim como ferramenta de propósito único disparada por intenção explícita do usuário (ex.: dirigir o app no simulador), mesmo que rode um build. Caso de borda decide pelo custo do disparo errado: skill que só propõe e para (`learn`) pode ser invocável; skill que executa cadeia inteira (`bug-report`) é slash-only.
+
 ## Proibições (repo inteiro, não só conformados)
 
 - **Narração de proveniência no corpo de skill** — "promovido de", "de onde veio", "diferente do setup original", datas de promoção. Proveniência mora no `CHANGELOG.md` e no ledger do GOVERNANCE. O marcador mecanizável (`Promovido de` em `plugins/`) é verificado pelo gate; o resto é critério de review.
