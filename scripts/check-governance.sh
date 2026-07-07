@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # desc: Gate de governança — teto de bytes do tier sempre-ativo + resolução de todo ID D*/R* citado no ledger de docs/GOVERNANCE.md + contrato de SKILL.md (D14).
 set -uo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || exit 1
 
 CEILING=16384
 LEDGER="docs/GOVERNANCE.md"
@@ -57,6 +57,7 @@ if [ ! -f "$CONTRACT" ]; then
   echo "ERRO: ${CONTRACT} ausente — conformidade D14 não verificada"
   fail=1
 else
+  # shellcheck disable=SC2016  # crase e '$' são literais do padrão sed/grep, não expansão
   paths=$(sed -n '/^## Conformidade/,$p' "$CONTRACT" | grep -oE '\`plugins/[^\`]+\`' | tr -d '\`')
   if [ -z "$paths" ]; then
     echo "ERRO: §Conformidade vazia ou ilegível em ${CONTRACT} (D14)"
@@ -93,6 +94,7 @@ else
 fi
 
 # 5) Provisórios (D17): prazo vencido = gate vermelho até validar ou demover
+# shellcheck disable=SC2016  # '$' é a ancora de fim-de-linha do regex, não expansão
 prov=$(sed -n '/^### Provisórios ativos/,/^## /p' "$LEDGER" \
   | grep -E '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
 if [ -z "$prov" ]; then
@@ -101,6 +103,7 @@ else
   today=$(date +%F)
   expired=0
   while IFS= read -r line; do
+    # shellcheck disable=SC2016  # crase é literal do padrão grep, não expansão
     path=$(echo "$line" | grep -oE '`[^`]+`' | tr -d '`')
     deadline=$(echo "$line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
     if [ ! -e "$path" ]; then

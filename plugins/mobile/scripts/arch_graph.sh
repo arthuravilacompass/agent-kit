@@ -16,7 +16,7 @@
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="${1:-$(pwd)}"
-cd "$PROJECT_ROOT"
+cd "$PROJECT_ROOT" || exit 1
 
 DOC="ARCHITECTURE.md"
 mkdir -p build
