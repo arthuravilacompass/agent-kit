@@ -62,7 +62,7 @@ A marketplace local continua funcionando como caminho de desenvolvimento mesmo c
 
 Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (skills sob demanda pela `description`; hooks e o agent sempre presentes).
 
-**Skills (20)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 12 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
+**Skills (21)** — `plugins/core/skills/<nome>/SKILL.md`. 8 são invocáveis pelo modelo via tool Skill (`chat-draft`, `epicurus`, `grill-me`, `learn`, `methodology`, `pipeline`, `schrodinger`, `using-agent-kit`); as outras 13 têm `disable-model-invocation: true` no frontmatter — só rodam via slash command explícito (`/core:commit`, `/core:archaeology`, etc.), nunca por iniciativa do modelo:
 
 | Skill | Para quê |
 |---|---|
@@ -80,6 +80,7 @@ Tudo abaixo é carregado pelo Claude Code assim que o plugin está habilitado (s
 | `figma-to-component` | extrai design do Figma via MCP e produz spec de widget tree mapeada aos componentes do design system do projeto consumidor |
 | `bug-report` | investiga bug e só fecha relatório com citação `file:line` verificada por gate determinístico + verifier semântico em contexto fresco |
 | `refine-live` | copiloto ao vivo pra agenda de refinamento com o PO — perguntas de esclarecimento em tempo real |
+| `refine-async` | triage pós-refinamento — consolida contexto do refine-live, grep leve, gera subtarefas [INTERIM] pra aprovação |
 | `compound` | composição de skills/tarefas em fluxo maior |
 | `chat-draft` | rascunho de mensagem informal (Teams/Slack) |
 | `grill-me` | entrevista estruturada e implacável pra pressionar plano/decisão |

@@ -1,3 +1,9 @@
+---
+name: refine-async
+description: Triage pós-refinamento — consolida o contexto salvo pelo /core:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown).
+disable-model-invocation: true
+---
+
 # /refine-async -- Triage Pós-Refinamento
 
 Processamento assíncrono após a agenda de refinamento. Consolida o contexto capturado no `/refine-live`, executa exploração leve do codebase, gera subtarefas para aprovação e cria no board.
@@ -168,7 +174,3 @@ Atualize o state file em `docs/refine/refine-<card-id>.md` (garanta que o diret�
 - **Fallback gracioso**: se API falhar, exporte texto. Não bloqueie o workflow.
 - **Sem spec detalhado**: não gere acceptance criteria, test plans, ou design docs. Esses são outputs de `tech-breakdown` + `spec-refine`.
 - **Idempotência**: se rodar duas vezes no mesmo card, detecte subtarefas existentes e pergunte: "Subtarefas já existem no card. Adicionar novas ou substituir?"
-
-## Provenance note (unwired material)
-
-Ticket IDs, nomes de módulo/store/repositório e o board são placeholders — o original referenciava a stack de um projeto de origem (nomes reais de módulo, board de Kanban específico). A mecânica (carregar estado → grep leve → gerar subtarefas → approval gate → criar no board → sinal de pipeline) é o que é genericizável.
