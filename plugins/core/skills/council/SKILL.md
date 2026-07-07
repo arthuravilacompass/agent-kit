@@ -1,6 +1,6 @@
 ---
 name: council
-description: Invoque para ver o Conselho de Posturas — os 6 modos de raciocínio (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno), o que cada um interroga, e quando vesti-lo. É o índice/presença; o trabalho vive em cada postura.
+description: Invoque pra consultar o índice do Conselho de Posturas do kit — as 6 posturas wired (4 skills in-thread, 2 subagents isolados), o que cada uma interroga, quando vestir, o formato de saída (callout) e quando escalar pro modo cego (agent epistemic-council). O trabalho vive em cada postura; aqui é o mapa.
 ---
 
 # Conselho de Posturas Epistêmicas
@@ -32,14 +32,14 @@ Toda intervenção do Conselho — sugestão proativa ("o council interfere") OU
 | 🧲 Maxwell | Como isso propaga? | antes de mexer em algo acoplado | subagent |
 | 🐢 Zeno | Onde isso quebra? | validando uma solução | subagent |
 
-Invocação: as 4 skills se vestem por nome no thread (`/bohr`, `/sagan`, `/epicurus`, `/schrodinger`); Maxwell e Zeno são despachados isolados. **Zeno precisa das premissas vivas coladas no dispatch** (ver `agents/zeno.md`). O nome é identidade; o gatilho situacional vive na `description` de cada arquivo.
+Invocação: as 4 skills se vestem por nome no thread (`/core:bohr`, `/core:sagan`, `/core:epicurus`, `/core:schrodinger`); Maxwell e Zeno são despachados isolados (agents `maxwell` e `zeno` deste plugin). **Zeno precisa das premissas vivas coladas no dispatch** (ver `plugins/core/agents/zeno.md`). O nome é identidade; o gatilho situacional vive na `description` de cada arquivo.
 
 **Camada automática (opcional, arquitetura de referência — não incluída neste kit):** um porteiro `type:"agent"` no Stop (registrável em settings do projeto) pode interceptar conclusões consequentes DO ASSISTENTE (claim de estado, diagnóstico, "pronto/validado", número-que-vira-premissa) e bloquear o encerramento até o claim ser verificado pelo `epistemic-council` (modo cego, mandato executável) e a resposta revisada — marcador `∴ council-verified`. Nessa arquitetura o usuário nunca vê nudge; vê resposta já verificada. Hooks de sugestão proativa foram testados e removidos num projeto de origem (mediram ~0 conversão em campo) — sinal para não reintroduzir sem medição.
 
-**Dispositivos V1 (overlays in-thread):** as 4 skills inline (`/bohr` `/schrodinger` `/epicurus` `/sagan`) abrem com um **Restate Gate** (passo 0, output estruturado) e fecham com um **dispositivo de oposição** no callout + uma **cláusula de escalonamento** para o subagent isolado `epistemic-council` (modo cego). Os dispositivos elevam o custo de performar concordância, mas rodam no mesmo thread — a separação real só existe no escalonamento. Memória/recall: `/council-log`, `/council-recall`.
+**Dispositivos V1 (overlays in-thread):** as 4 skills inline (`/core:bohr` `/core:schrodinger` `/core:epicurus` `/core:sagan`) abrem com um **Restate Gate** (passo 0, output estruturado) e fecham com um **dispositivo de oposição** no callout + uma **cláusula de escalonamento** para o subagent isolado `epistemic-council` (modo cego). Os dispositivos elevam o custo de performar concordância, mas rodam no mesmo thread — a separação real só existe no escalonamento. Memória/recall: `/core:council-log`, `/core:council-recall`.
 
 **Anti-contaminação de output (ritual):** antes de entregar artefato *context-seeding* (handoff / spec / "prompt da próxima sessão" / descrição de PR), passá-lo por **review cego** (subagent isolado, sem o thread) + checklist mecânico (sem valores-esperados pré-escritos; framing neutro; aponta-pra-fonte). Não mecanizado — ver `POSITIONING.md`.
 
 Posicionamento (o porquê — o que o Conselho é, o que NÃO promete, e onde ainda não provou que funciona): `POSITIONING.md`.
 
-**Nota de proveniência (arquivo neste kit):** as referências originais a specs/planos datados de um projeto de origem (validação faseada, auditoria do mecanismo, plano de execução V2) foram removidas por não serem portáveis — o raciocínio e a arquitetura acima ficam de pé sem elas; se for promover este material a `plugins/`, refaça esses registros no novo projeto.
+**Nota de proveniência:** as referências originais a specs/planos datados do projeto de origem (validação faseada, auditoria do mecanismo, plano de execução V2) foram removidas por não serem portáveis — o raciocínio e a arquitetura acima ficam de pé sem elas. Promovido de `unwired/` em 2026-07-07 (promoção provisória por decisão explícita — ver CHANGELOG); o corpus episódico pré-existente em `~/.claude/epistemic/` (6 posturas, jun–jul 2026) é a linhagem de uso que sustentou a decisão. `POSITIONING.md` (mesmo diretório) mantém a autocrítica: eficácia é hipótese em validação, não resultado.

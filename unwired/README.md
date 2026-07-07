@@ -22,11 +22,14 @@ Ao promover:
 3. **Mova o arquivo** para `plugins/<core|mobile|novo-plugin>/` na estrutura padrão (skills em `skills/<nome>/SKILL.md`, agents em `agents/<nome>.md`, etc.) e rode `claude plugin validate .`.
 4. **Delete a cópia em `unwired/`** — um item promovido não fica duplicado nos dois estados.
 
+### Exceção: promoção provisória por deadline de rotação
+
+Quando a desalocação de um workspace de origem ameaça perder a janela de validação, um item PODE ser promovido sem uso real comprovado neste kit, desde que: (1) a exceção seja registrada no CHANGELOG com o motivo; (2) a promoção passe por review adversarial imediata do diff completo (a leva de 2026-07-07 achou 15 defeitos num move "puramente mecânico"); (3) o item ganhe prazo de validação — sem uso real em 1 ciclo de projeto novo, volta a `unwired/`. Promoção provisória não codificada é violação da governança, não exceção dela.
+
 ## O que tem aqui e por quê
 
 | Pasta | Origem | Por que não é wired |
 |---|---|---|
-| `council/`, `posturas/` (bohr, sagan), `agents/` (maxwell, zeno, epistemic-council) | Conselho de Posturas de um projeto de origem | Duas posturas (Schrödinger, Epicurus) já provaram uso real e estão em `plugins/core/skills/`; o resto do aparato (índice, memória episódica, posturas restantes, subagents isolados) não tinha essa prova neste kit. |
 | `ui-comparison/` | Skill de fidelidade visual de um projeto de origem | O método (fases, rubrica de score) é genérico; sem design system real pra testar contra, não tinha como comprovar uso aqui. `figma-to-component` (que vivia neste mesmo par) foi promovido em 2026-07-07 — ver `plugins/mobile/skills/figma-to-component/` (foi pra `mobile`, não `core`, por ser Flutter-only). |
 | `learning-pulse/` | Metade "nudge" de um hook de duplo propósito | A outra metade (debounce de scope-injection) foi resolvida de outra forma no `scope-inject.sh` de `plugins/core` — não sobrevive. A metade advisory (lembrete a cada N mensagens) **mediu ~0 conversão em uso real** no projeto de origem e foi removida de lá por essa razão. Só volta a ser wired com medição nova que sustente o custo do lembrete — não por achar a ideia boa de novo. |
 | `handoff-gate/` | Stop hook que fecha o loop alerta→ação do context-monitor | Originalmente DELETADO na extração ("órfão nunca registrado — peso morto com aparência de vivo": tinha evals passando sem nunca ter sido wired em settings algum). Resgatado pra unwired na rodada de revisão pós-construção (2026-07-06): o censo cego avaliou o mérito do mecanismo de forma independente (4/5) e, com o fim do clone do projeto de origem, deletado significava perda definitiva. O critério de promoção não muda: só sobe com uso real; o header do script lista o checklist (registrar no Stop, migrar state pra `${CLAUDE_PLUGIN_DATA}`, recriar evals). |

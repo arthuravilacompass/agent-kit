@@ -1,16 +1,16 @@
 ---
 name: council-log
-description: Grava um brief de deliberação do Conselho no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Use após rodar uma postura numa decisão de alto custo de reversão que vale lembrar. Advisory; nunca bloqueia.
+description: Invoque após rodar uma postura do Conselho (core:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia.
 ---
 
-# /council-log — registrar deliberação
+# /core:council-log — registrar deliberação
 
 Persiste UM brief (append-only, sob flock). Não decide nada; é infra de recall.
 
 Monte o objeto JSON do brief e appenda:
 ```bash
-echo '{"posture":"<roster-6>","topic":"<1 linha>","move":"<output verbatim da postura>","claim_status":"APOSTA|FATO","mode":"light|escalated","surface_class":"<repository|...|other>","keywords":["..."],"evidence":["file:linha"]}' \
-  | python3 <path-do-skill>/council-log/log.py
+echo '{"posture":"<bohr|schrodinger|epicurus|sagan|maxwell|zeno>","topic":"<1 linha>","move":"<output verbatim da postura>","claim_status":"APOSTA|FATO","mode":"light|escalated","surface_class":"<repository|...|other>","keywords":["..."],"evidence":["file:linha"]}' \
+  | python3 "${CLAUDE_PLUGIN_ROOT}/skills/council-log/log.py"
 ```
 
 Regras:

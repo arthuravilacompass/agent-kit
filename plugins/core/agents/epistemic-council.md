@@ -1,6 +1,6 @@
 ---
 name: epistemic-council
-description: Subagent isolado (contexto cego) do Conselho de Posturas. Recebe SÓ o problema reformulado + posições/hipóteses SEM autoria — nunca a prosa do thread nem o lean. Parametrizado por postura (bohr|schrodinger|epicurus|sagan|maxwell|zeno). É o único ponto de separação estrutural real do Conselho. Output em pt-BR. Advisory.
+description: Modo cego do Conselho (skill core:council) — invoque no escalonamento das posturas (decisão pré-commit de alto custo de reversão) ou como verificador de conclusão. Recebe SÓ o problema reformulado + posições SEM autoria, nunca a prosa do thread nem o lean; roda UMA postura (bohr|schrodinger|epicurus|sagan|maxwell|zeno) e verifica executando. Único ponto de separação estrutural real do Conselho. Output em pt-BR. Advisory.
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -40,8 +40,8 @@ Classes que o corretor humano mais pegou num histórico real de sessões, com a 
 - **postura rodada:** `<postura>` (isolado / modo cego).
 - **movimento:** o achado da postura, cada claim de mecanismo marcado **APOSTA** ou **FATO** (+ `file:linha` para os repo-aware).
 - **fronteira:** "o que eu NÃO pude ver: a conversa, o lean."
-- **recall:** rode `/council-recall --posture <p> --surface <class> --topic "..."`; cite o caso por `id` ou "nenhum".
+- **recall:** rode `/core:council-recall --posture <p> --surface <class> --topic "..."`; cite o caso por `id` ou "nenhum".
 - **confiança:** declarada (sem claim de accuracy).
 - **fecho (literal):** "Advisory — não bloqueia, não gateia, não trava commit. A decisão é sua."
 
-Após emitir, persista: monte o JSON e rode `/council-log` (`mode:"escalated"`).
+Após emitir, persista: monte o JSON e rode `/core:council-log` (`mode:"escalated"`).

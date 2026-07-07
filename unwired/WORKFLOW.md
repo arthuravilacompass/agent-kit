@@ -68,8 +68,8 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 - **`commit`** — commit padronizado com validações de formato e scope.
 - **`chat-draft`** — draft de mensagens informais pt-BR pra Teams/Slack (squad update, recap de tech-sync).
 
-### Conselho de Posturas (arquivado, não wired neste kit)
-Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Material completo em `unwired/council/` + `unwired/posturas/` + `unwired/agents/` — sobe a `plugins/` só com uso real comprovado (ver `unwired/README.md`).
+### Conselho de Posturas (wired em 2026-07-07)
+Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Promovido por inteiro a `plugins/core/` (skills `bohr`/`sagan`/`council`/`council-log`/`council-recall`, agents `maxwell`/`zeno`/`epistemic-council`) — promoção provisória com prazo de validação por uso (ver `unwired/README.md` §exceção).
 
 ---
 
