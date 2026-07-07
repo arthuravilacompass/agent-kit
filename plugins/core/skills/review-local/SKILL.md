@@ -65,7 +65,7 @@ Default base: config acima (fallback: `main`). When `--ticket` is provided, the 
      - Filtrar dispatch para os IDs pedidos.
      - Se `consumer` foi pedido sem `--ticket` → abortar: "Agente `consumer` requer `--ticket <TICKET>`."
 
-   **Dispatch:** todos os `Agent` calls em **uma única mensagem** (paralelo). Cada agente recebe o diff (`git diff <base>...HEAD`) + framing string do config. `consumer` recebe APENAS o texto do ticket (resolvido em runtime a partir do tool de tracker disponível na sessão — não hardcode nome de tool MCP) — nunca o diff.
+   **Dispatch:** todos os `Agent` calls em **uma única mensagem** (paralelo). Cada agente recebe o diff (`git diff <base>...HEAD`) + framing string do config. `consumer` recebe APENAS o texto do ticket (resolvido em runtime a partir do tool de tracker disponível na sessão — não hardcode nome de tool MCP) — nunca o diff. Cada prompt de agente DEVE mandar: use o tool **Read** (nunca `cat`/`sed`/`grep` via Bash) para qualquer arquivo que vá ser citado como evidência — leitura via Bash não entra no read-ledger e derruba a citação no gate.
 
 4. **Wait for all agents to return.** Não summarize parcial.
 
@@ -74,7 +74,7 @@ Default base: config acima (fallback: `main`). When `--ticket` is provided, the 
    Antes de agregar, **verificação por citação (mecanismo, não só releitura manual — releitura sozinha não pega fabricação)**:
 
    - Montar as findings como JSON `[{ "claim": "...", "evidence": { "file": "...", "lineStart": N, "lineEnd": M } }]` (o file:line que cada agente citou; ponto único → `lineStart`=`lineEnd`).
-   - Se o projeto tiver um validador de citações (script que checa findings contra o read-ledger da sessão), rode-o com `--session <session-id-atual>` explícito. O read-ledger registra os reads de TODOS os subagentes sob a session_id-pai. **Passe `--session` explícito** — NÃO confie em auto-discovery (pode haver sessões concorrentes).
+   - Se o projeto tiver um validador de citações (script que checa findings contra o read-ledger da sessão), rode-o com `--session <session-id-atual>` explícito. O read-ledger registra os reads via tool Read/Grep de TODOS os subagentes sob a session_id-pai (verificado em runtime, 2026-07-07); leitura via Bash NÃO entra — daí o mandato do Dispatch. **Passe `--session` explícito** — NÃO confie em auto-discovery (pode haver sessões concorrentes).
    - Finding `unverified` (file:line não sobrepõe nada lido nesta sessão) = provável fabricação → seção "⚠️ Não-verificadas", **não** apresentar como achado confirmado. `verified`/`passthrough` seguem.
    - Complementar (não substitui o mecanismo): re-ler as linhas e dropar findings já corrigidos.
 
