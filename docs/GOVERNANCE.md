@@ -1,156 +1,156 @@
-# Governança do kit
+# Kit governance
 
-Doc canônico do ciclo de vida dos artefatos do agent-kit. Toda regra normativa de ciclo de vida vive aqui e só aqui; o formato de autoria de skills vive na §Contrato de SKILL.md deste doc (D14). `README.md`, `unwired/README.md` e `using-agent-kit` apontam pra cá. Histórico e datas vivem no `CHANGELOG.md`; medições vivem no gate (`scripts/check-governance.sh`).
+Canonical doc for the agent-kit artifact lifecycle. Every normative lifecycle rule lives here and only here; the skill-authoring format lives in this doc's §SKILL.md contract (D14). `README.md`, `unwired/README.md`, and `using-agent-kit` point here. History and dates live in `CHANGELOG.md`; measurements live in the gate (`scripts/check-governance.sh`).
 
-## O modelo de 3 estados (D10)
+## The 3-state model (D10)
 
-Todo artefato que já existiu neste kit está num destes três estados, nunca em limbo:
+Every artifact that has ever existed in this kit is in one of these three states, never in limbo:
 
-- **wired** — vive em `plugins/<plugin>/` (hoje: `core`, `council`, `team`, `mobile`). Foi admitido porque tem uso real comprovado (não só "parecia bom"). Custa contexto toda sessão que carrega o plugin.
-- **unwired** — vive em `unwired/`. Genericizável, scrub mecânico aplicado, mas sem prova de uso no novo projeto. Custo de contexto **zero** — só é lido se alguém abrir o arquivo.
-- **deletado** — não existe no repo. Foi avaliado e descartado (vestigial, específico demais do projeto de origem pra genericizar, ou substituído por outra coisa melhor).
+- **wired** — lives in `plugins/<plugin>/` (today: `core`, `council`, `team`, `mobile`). Admitted because it has proven real use (not just "seemed good"). Costs context in every session that loads the plugin.
+- **unwired** — lives in `unwired/`. Genericizable, mechanical scrub applied, but no proof of use in the new project. Context cost **zero** — only read if someone opens the file.
+- **deleted** — does not exist in the repo. Evaluated and discarded (vestigial, too specific to the origin project to genericize, or replaced by something better).
 
-Nunca "testado mas não ligado" — essa terceira categoria fantasma é o que este modelo existe para eliminar.
+Never "tested but not wired" — that phantom third category is exactly what this model exists to eliminate.
 
-## Regra de promoção
+## Promotion rule
 
-**Um item sobe de `unwired/` para `plugins/` (wired) quando tiver uso real comprovado no projeto novo — o mesmo critério de admissão que qualquer skill/agent/hook novo teria.** Não é "parece útil" nem "era usado no projeto de origem" — é: você invocou isso pelo menos uma vez no projeto novo, funcionou, e quer que sobreviva ao próximo `/clear`.
+**An item moves up from `unwired/` to `plugins/` (wired) when it has proven real use in the new project — the same admission bar any new skill/agent/hook would have.** Not "seems useful" nor "was used in the origin project" — it's: you invoked it at least once in the new project, it worked, and you want it to survive the next `/clear`.
 
-Ao promover:
+When promoting:
 
-1. **Reescreva a `description`** com o gatilho específico do novo contexto — a description arquivada carrega vocabulário/gatilho do projeto de origem (às vezes já genérico, às vezes não).
-2. **Preencha os placeholders de proveniência** (`<TICKET>`, `<DesignTokens>`, `<BOARD_NAME>`, nomes de componente entre `<>`) com os nomes reais do projeto novo. O scrub que colocou o item em `unwired/` foi mecânico, não uma reescrita — o trabalho de reancorar no domínio novo é seu, não deste kit.
-3. **Mova o arquivo** para `plugins/<plugin>/` na estrutura padrão (skills em `skills/<nome>/SKILL.md`, agents em `agents/<nome>.md`, etc.) e rode `claude plugin validate .`.
-4. **Delete a cópia em `unwired/`** — um item promovido não fica duplicado nos dois estados.
+1. **Rewrite the `description`** with the trigger specific to the new context — the archived description carries the origin project's vocabulary/trigger (sometimes already generic, sometimes not).
+2. **Fill in the provenance placeholders** (`<TICKET>`, `<DesignTokens>`, `<BOARD_NAME>`, component names inside `<>`) with the new project's real names. The scrub that put the item in `unwired/` was mechanical, not a rewrite — re-anchoring it in the new domain is your job, not this kit's.
+3. **Move the file** to `plugins/<plugin>/` in the standard layout (skills under `skills/<name>/SKILL.md`, agents under `agents/<name>.md`, etc.) and run `claude plugin validate .`.
+4. **Delete the copy in `unwired/`** — a promoted item doesn't stay duplicated in both states.
 
-### Exceção: promoção provisória por deadline de rotação
+### Exception: provisional promotion under a rotation deadline
 
-Quando a desalocação de um workspace de origem ameaça perder a janela de validação, um item PODE ser promovido sem uso real comprovado neste kit, desde que: (1) a exceção seja registrada no `CHANGELOG.md` com o motivo; (2) a promoção passe por review adversarial imediata do diff completo — a primeira leva promovida sob esta exceção teve 15 defeitos encontrados num move "puramente mecânico" (registro no `CHANGELOG.md`); (3) o item ganhe prazo de validação — sem uso real em 1 ciclo de projeto novo, volta a `unwired/`. Promoção provisória não codificada é violação da governança, não exceção dela.
+When the deallocation of an origin workspace threatens to close the validation window, an item MAY be promoted without proven real use in this kit, provided that: (1) the exception is logged in `CHANGELOG.md` with the reason; (2) the promotion goes through immediate adversarial review of the full diff — the first batch promoted under this exception had 15 defects found in a "purely mechanical" move (logged in `CHANGELOG.md`); (3) the item gets a validation deadline — no real use within 1 new-project cycle sends it back to `unwired/`. A provisional promotion that isn't logged this way is a governance violation, not an exception to it.
 
-### Provisórios ativos (lidos por máquina)
+### Active provisionals (machine-read)
 
-Itens atualmente wired sob a exceção acima. Formato de linha (contrato lido por `scripts/generate_inventory.py` e `scripts/check-governance.sh`): `` - `<path relativo do artefato>` — valida até AAAA-MM-DD ``. Skills são listadas pelo diretório da skill (`plugins/<p>/skills/<nome>`), agents pelo arquivo `.md` (`plugins/<p>/agents/<nome>.md`). Item validado por uso sai da lista (vira wired pleno); prazo vencido deixa o gate vermelho até a decisão — validar ou demover (D17).
+Items currently wired under the exception above. Line format (contract read by `scripts/generate_inventory.py` and `scripts/check-governance.sh`): `` - `<artifact relative path>` — valid until YYYY-MM-DD ``. Skills are listed by the skill's directory (`plugins/<p>/skills/<name>`), agents by the `.md` file (`plugins/<p>/agents/<name>.md`). An item validated by use leaves the list (becomes fully wired); a missed deadline turns the gate red until a decision is made — validate or demote (D17).
 
-- `plugins/core/skills/bug-report` — valida até 2026-08-06
-- `plugins/team/skills/refine-live` — valida até 2026-08-06
-- `plugins/team/skills/refine-async` — valida até 2026-08-06
-- `plugins/mobile/skills/figma-to-component` — valida até 2026-08-06
-- `plugins/council/skills/council` — valida até 2026-08-06
-- `plugins/council/skills/bohr` — valida até 2026-08-06
-- `plugins/council/skills/sagan` — valida até 2026-08-06
-- `plugins/council/skills/council-log` — valida até 2026-08-06
-- `plugins/council/skills/council-recall` — valida até 2026-08-06
-- `plugins/council/agents/maxwell.md` — valida até 2026-08-06
-- `plugins/council/agents/zeno.md` — valida até 2026-08-06
-- `plugins/council/agents/epistemic-council.md` — valida até 2026-08-06
+- `plugins/core/skills/bug-report` — valid until 2026-08-06
+- `plugins/team/skills/refine-live` — valid until 2026-08-06
+- `plugins/team/skills/refine-async` — valid until 2026-08-06
+- `plugins/mobile/skills/figma-to-component` — valid until 2026-08-06
+- `plugins/council/skills/council` — valid until 2026-08-06
+- `plugins/council/skills/bohr` — valid until 2026-08-06
+- `plugins/council/skills/sagan` — valid until 2026-08-06
+- `plugins/council/skills/council-log` — valid until 2026-08-06
+- `plugins/council/skills/council-recall` — valid until 2026-08-06
+- `plugins/council/agents/maxwell.md` — valid until 2026-08-06
+- `plugins/council/agents/zeno.md` — valid until 2026-08-06
+- `plugins/council/agents/epistemic-council.md` — valid until 2026-08-06
 
-Nota: `schrodinger` e `epicurus` NÃO entram — foram wired na extração original com linhagem de uso, não sob a exceção (CHANGELOG, leva 2026-07-07 lista 8 arquivos).
+Note: `schrodinger` and `epicurus` do NOT belong here — they were wired in the original extraction with a lineage of use, not under the exception (CHANGELOG, 2026-07-07 batch lists 8 files).
 
-## Meta-princípios
+## Meta-principles
 
-- **Code com ID só nasce com validador.** Toda regra, hook ou skill identificada por um ID nasce junto com o mecanismo que verifica sua aplicação (gate, hook, script) — nunca como texto solto sem enforcement. Este doc aplica a regra a si mesmo: todo ID D*/R* citado no repo precisa resolver no ledger abaixo, verificado por `scripts/check-governance.sh` no gate.
-- **Regra textual que falha repetido vira mecanismo.** Sob orçamento de atenção finito, instrução marginal é omitida (não desobedecida) — empilhar mais texto reduz o compliance agregado, não só deixa de melhorar. A regra de maior taxa de falha vira hook, schema de output obrigatório ou gate determinístico, não mais texto.
-- **Advisory-nudge não entra em `plugins/` sem medição.** Mecanismo só-lembrete precisa provar conversão real antes de ser wired; caso concreto: `learning-pulse` (tabela por-item em `docs/OPERATIONS.md` §5), que mediu ~0 conversão no projeto de origem e só volta com medição nova que sustente o custo.
+- **Code with an ID is born with a validator, or not at all.** Every rule, hook, or skill identified by an ID is born together with the mechanism that verifies its enforcement (gate, hook, script) — never as loose text without enforcement. This doc applies the rule to itself: every D*/R* ID cited in the repo must resolve in the ledger below, verified by `scripts/check-governance.sh` in the gate.
+- **A textual rule that keeps failing becomes a mechanism.** Under a finite attention budget, marginal instructions get omitted, not disobeyed — stacking more text reduces aggregate compliance, it doesn't just stop improving it. The rule with the highest failure rate becomes a hook, a mandatory output schema, or a deterministic gate — not more text.
+- **An advisory nudge doesn't enter `plugins/` without measurement.** A reminder-only mechanism must prove real conversion before being wired; concrete case: `learning-pulse` (per-item table in `docs/OPERATIONS.md` §5), which measured ~0 conversion in the origin project and only comes back with new measurement that justifies the cost.
 
-## Teto do tier sempre-ativo
+## Always-on tier ceiling
 
-O tier sempre-ativo do `core` — o corpo de `using-agent-kit` injetado por sessão via `plugins/core/hooks/session-start.sh` — tem teto de **16.384 bytes**, medido sobre a saída real do hook (JSON completo; proxy conservador do payload injetado, envelope e escaping inclusos).
+The `core` always-on tier — the body of `using-agent-kit` injected per session via `plugins/core/hooks/session-start.sh` — has a ceiling of **16,384 bytes**, measured on the hook's actual output (full JSON; a conservative proxy for the injected payload, envelope and escaping included).
 
-- **Enforcement**: `scripts/check-governance.sh` no gate — vermelho se a medição passar do teto.
-- **Efeito pretendido**: pressão de seleção. Regra nova no sempre-ativo compete por espaço; quando o teto aperta, algo sai (vira skill on-demand, mecanismo, ou é deletado) — o teto não sobe por conveniência. Subir o teto é decisão de governança: exige entrada nova no ledger.
+- **Enforcement**: `scripts/check-governance.sh` in the gate — red if the measurement goes over the ceiling.
+- **Intended effect**: selection pressure. A new rule in the always-on tier competes for space; when the ceiling tightens, something has to go (becomes an on-demand skill, a mechanism, or gets deleted) — the ceiling doesn't rise for convenience. Raising the ceiling is a governance decision: it requires a new ledger entry.
 
-## Contrato de SKILL.md (D14)
+## SKILL.md contract (D14)
 
-Formato de autoria de toda skill do kit. Enforcement mecânico: `scripts/check-governance.sh` lê a §Conformidade abaixo.
+Authoring format for every skill in the kit. Mechanical enforcement: `scripts/check-governance.sh` reads the §Conformity section below.
 
-**Escopo**: skill nova nasce conforme. Skill existente conforma quando for reformada — mudança de esqueleto, propósito ou estrutura; ao ser reformada, entra na §Conformidade. Correção cirúrgica (linhas pontuais que não mudam esqueleto, propósito nem estrutura) não constitui reforma e não obriga conformidade. Sem big-bang no estoque.
+**Scope**: a new skill is born conformant. An existing skill conforms when it undergoes a *reform* — a change of skeleton, purpose, or structure; on being reformed, it enters §Conformity. A surgical fix (point edits that change neither skeleton, purpose, nor structure) does not constitute a reform and does not force conformity. Translating a skill's body to another language preserves its skeleton, purpose, and structure, so it is **NOT a reform** either, and does not pull the skill into §Conformity or under the line ceiling. No big-bang on the existing stock.
 
-### Os três esqueletos
+### The three skeletons
 
-Toda SKILL.md conforme é um destes três. O esqueleto de cada arquivo conformado está nomeado na §Conformidade.
+Every conformant SKILL.md is one of these three. Each conformed file's skeleton is named in §Conformity.
 
-#### `postura` — lente epistêmica in-thread
+#### `posture` — in-thread epistemic lens
 
-Muda o raciocínio em curso; não produz artefato.
+Changes reasoning in progress; produces no artifact.
 
-1. Frontmatter: `name` + `description` com o gatilho situacional citável.
-2. Identidade (1–3 linhas): a pergunta que a postura força.
-3. Ritual: Restate Gate → deliberação → dispositivo de oposição → cláusula de escalonamento.
-4. Formato de saída: o callout do Conselho (`council:council`).
+1. Frontmatter: `name` + `description` with a quotable situational trigger.
+2. Identity (1–3 lines): the question the posture forces.
+3. Ritual: Restate Gate → deliberation → opposition device → escalation clause.
+4. Output format: the Council's callout (`council:council`).
 
-#### `procedimento` — fluxo com efeitos
+#### `procedure` — flow with effects
 
-Passos que alteram estado (commit, PR, arquivos, board).
-
-1. Frontmatter.
-2. Propósito (1–2 linhas).
-3. Config/pré-requisitos do projeto consumidor — o que o skill assume existir e o que fazer quando falta.
-4. Steps numerados — cada um com ação e critério verificável; ponto de aprovação explícito antes de qualquer efeito difícil de reverter.
-5. Regras invioláveis — seção final curta.
-
-#### `roteador` — índice que aponta
-
-Mapeia quando ler o quê; não carrega o conteúdo.
+Steps that change state (commit, PR, files, board).
 
 1. Frontmatter.
-2. O que este índice mapeia (1–2 linhas).
-3. Rotas: tabela ou lista "leia X quando Y".
-4. Regras de condução, se houver.
+2. Purpose (1–2 lines).
+3. Consumer-project config/prerequisites — what the skill assumes exists and what to do when it's missing.
+4. Numbered steps — each with an action and a verifiable criterion; an explicit approval point before any effect that's hard to reverse.
+5. Inviolable rules — short final section.
 
-Conteúdo técnico inline num roteador é sinal de extração pendente para `REFERENCE.md`.
+#### `router` — index that points
 
-### Política de idioma
+Maps when to read what; doesn't carry the content.
 
-- Corpo em **pt-BR**. `name`, comandos, código, paths e termos técnicos em inglês.
-- `description` em pt-BR, com gatilhos citáveis — frases que o usuário realmente diria.
-- Exceção grandfathered: `plugins/core/skills/grill-me/SKILL.md` e o `REFERENCE.md` do mesmo diretório — corpo em inglês por decisão do dono (aproveitamento verbatim do advisor-check absorvido). A `description` e o output pro usuário seguem pt-BR; demais skills seguem o default.
+1. Frontmatter.
+2. What this index maps (1–2 lines).
+3. Routes: a table or list of "read X when Y".
+4. Routing rules, if any.
 
-### Teto de linhas
+Inline technical content in a router is a sign of pending extraction to `REFERENCE.md`.
 
-- `SKILL.md` ≤ **120 linhas** (`wc -l`), verificado pelo gate para os arquivos da §Conformidade.
-- Excedente extrai para arquivos de apoio no mesmo diretório — `REFERENCE.md` (sinal completo, tabelas, exemplos longos), `PATTERNS.md`, `RECIPES.md`. O modelo é `plugins/mobile/skills/mobx/`.
-- Critério do corte: no SKILL.md fica o que o modelo precisa para decidir **se** invoca e **como** começa; o resto é on-demand.
-- Isento: `using-agent-kit` — tier sempre-ativo, governado pelo teto de bytes (`docs/GOVERNANCE.md` §Teto).
+### Language policy
 
-### Critério slash-only
+- Body in **English**. `name`, commands, code, paths, and technical terms in English (unchanged).
+- `description` in English, with quotable triggers — phrases the user would actually say. Semantic skill-matching still fires on pt-BR prompts; the trigger doesn't have to be in the user's language to match it.
+- **Runtime output follows the user's language, default English**: model-generated output (Council callouts, review findings, consumer-simulation, grill-me) mirrors the language of the prompt it responds to; deterministic scripts (gate messages, hook feedback) always emit English. `team:chat-draft` producing pt-BR for a lusophone team is an *instance* of this rule, not an exception to it.
 
-`disable-model-invocation: true` quando a skill: (a) dispara efeito difícil de reverter (commit, PR, escrita externa consumida por terceiros, board), (b) tem custo alto de execução por orquestração (dispatch de múltiplos agents/subagentes), ou (c) conduz cerimônia longa que não deve começar por iniciativa do modelo. Lente, postura, índice ou referência barata em contexto fica invocável pelo modelo — assim como ferramenta de propósito único disparada por intenção explícita do usuário (ex.: dirigir o app no simulador), mesmo que rode um build. Caso de borda decide pelo custo do disparo errado: skill que só propõe e para (`learn`) pode ser invocável; skill que executa cadeia inteira (`bug-report`) é slash-only.
+### Line ceiling
 
-### Proibições (repo inteiro, não só conformados)
+- `SKILL.md` ≤ **120 lines** (`wc -l`), verified by the gate for the files in §Conformity.
+- Overflow extracts to support files in the same directory — `REFERENCE.md` (full signal, tables, long examples), `PATTERNS.md`, `RECIPES.md`. The model case is `plugins/mobile/skills/mobx/`.
+- Cutting criterion: SKILL.md keeps what the model needs to decide **whether** to invoke and **how** to start; the rest is on-demand.
+- Exempt: `using-agent-kit` — always-on tier, governed by the byte ceiling (`docs/GOVERNANCE.md` §Always-on tier ceiling).
 
-- **Narração de proveniência no corpo de skill** — "promovido de", "de onde veio", "diferente do setup original", datas de promoção. Proveniência mora no `CHANGELOG.md` e no ledger do GOVERNANCE. O marcador mecanizável (`Promovido de` em `plugins/`) é verificado pelo gate; o resto é critério de review.
-- **História de correção como seção** — a formulação corrigida vive onde a regra vive; a história vive no git e no `CHANGELOG.md`.
+### Slash-only criterion
+
+`disable-model-invocation: true` when the skill: (a) triggers an effect that's hard to reverse (commit, PR, an external write consumed by third parties, board), (b) has a high execution cost from orchestration (dispatching multiple agents/subagents), or (c) drives a long ceremony that shouldn't start on the model's own initiative. A lens, posture, index, or context-cheap reference stays model-invocable — as does a single-purpose tool triggered by explicit user intent (e.g., driving the app in the simulator), even if it runs a build. Edge cases are decided by the cost of a wrong trigger: a skill that only proposes and stops (`learn`) can be invocable; a skill that runs the whole chain (`bug-report`) is slash-only.
+
+### Prohibitions (repo-wide, not just conformant files)
+
+- **Provenance narration in a skill's body** — "promoted from", "where it came from", "different from the original setup", promotion dates. Provenance lives in `CHANGELOG.md` and the GOVERNANCE ledger. The mechanizable marker (`Promoted from` in `plugins/`) is verified by the gate; the rest is review criterion.
+- **Correction history as a section** — the corrected formulation lives where the rule lives; the history lives in git and in `CHANGELOG.md`.
 
 ### Descriptions (D16)
 
-A `description` do frontmatter responde só **"quando invocar"** — gatilho situacional citável, não resumo do que a skill faz nem história. Tetos em bytes UTF-8 sobre o valor da linha `description:`, verificados por `scripts/check-governance.sh` (check 6):
+The frontmatter `description` answers only **"when to invoke"** — a quotable situational trigger, not a summary of what the skill does nor its history. Ceilings in UTF-8 bytes on the `description:` line's value, verified by `scripts/check-governance.sh` (check 6):
 
-- **≤ 350 bytes** por skill (esqueletos postura e procedimento).
-- **≤ 700 bytes** para a classe roteador de invocação — descriptions que carregam a tabela de gatilhos de roteamento: `pipeline`, `methodology` e `mobx`. Cortar gatilho de roteador degrada a conversão que o censo mede.
-- **Agregado por plugin**: core ≤ 4096 · team ≤ 1024 · mobile ≤ 3584 bytes. Mesma pressão de seleção do teto do sempre-ativo: description nova compete por espaço; subir teto é decisão de ledger.
-- **`plugins/council/` está isento até o censo** — descriptions congeladas como condição da medição de conversão das posturas (§Provisórios ativos); o teto passa a valer pro council na decisão do censo.
+- **≤ 350 bytes** per skill (posture and procedure skeletons).
+- **≤ 700 bytes** for the invocation-router class — descriptions that carry the routing-trigger table: `pipeline`, `methodology`, and `mobx`. Cutting a router's trigger degrades the conversion the census measures.
+- **Aggregate per plugin**: core ≤ 4096 · team ≤ 1024 · mobile ≤ 3584 bytes. Same selection pressure as the always-on ceiling: a new description competes for space; raising the ceiling is a ledger decision.
+- **`plugins/council/` is exempt until the census** — descriptions frozen as a condition of measuring the postures' conversion (§Active provisionals); the ceiling starts applying to council at the census decision.
 
-A regra de forma (só "quando invocar") é critério de review; os tetos são o enforcement mecânico.
+The form rule (only "when to invoke") is review criterion; the ceilings are the mechanical enforcement.
 
-### Conformidade
+### Conformity
 
-Lista lida pelo gate: cada arquivo abaixo existe e respeita o teto de linhas. Formato de entrada: `` - `<path>` — <esqueleto> ``.
+List read by the gate: each file below exists and respects the line ceiling. Entry format: `` - `<path>` — <skeleton> ``.
 
-- `plugins/council/skills/council/SKILL.md` — roteador
-- `plugins/mobile/skills/mobx/SKILL.md` — roteador
-- `plugins/core/skills/commit/SKILL.md` — procedimento
-- `plugins/core/skills/archaeology/SKILL.md` — procedimento
-- `plugins/core/skills/grill-me/SKILL.md` — procedimento
+- `plugins/council/skills/council/SKILL.md` — router
+- `plugins/mobile/skills/mobx/SKILL.md` — router
+- `plugins/core/skills/commit/SKILL.md` — procedure
+- `plugins/core/skills/archaeology/SKILL.md` — procedure
+- `plugins/core/skills/grill-me/SKILL.md` — procedure
 
-## Ledger de decisões
+## Decision ledger
 
-Registro das decisões identificadas por ID (série `D*` = decisão de design, `R*` = requisito de aceite) citadas neste repo. **Decisão nova pega o próximo ID livre da série `D` e nasce com entrada neste ledger** — citar ID sem entrada aqui deixa o gate vermelho. Formato de entrada (contrato lido pelo gate): item de lista iniciando com `- **<ID>** — <decisão>`.
+Record of decisions identified by ID (series `D*` = design decision, `R*` = acceptance requirement) cited in this repo. **A new decision takes the next free ID in the `D` series and is born with an entry in this ledger** — citing an ID without an entry here turns the gate red. Entry format (contract read by the gate): a list item starting with `- **<ID>** — <decision>`.
 
-- **D6** — Corpus episódico do Conselho: `outcome` é armazenado e exibido, nunca entra no score/ranqueamento — o corpus registra "casos que aconteceram"; a interpretação é do leitor. Citado em `plugins/council/skills/council-recall/SKILL.md`.
-- **D10** — Modelo de 3 estados (wired/unwired/deletado) para todo artefato do kit; elimina a categoria fantasma "testado mas não ligado". Texto normativo: seção "O modelo de 3 estados" deste doc.
-- **D13** — Métricas de aceite da extração do kit: tag `gate-day3-pass` e métrica-2-semanas (primeiro uso real em projeto fora do projeto de origem dentro do prazo, senão o resultado foi "inventário com README"). Registro e datas: `CHANGELOG.md` §Métricas D13.
-- **R2** — Requisito de aceite da extração: medir o custo real de payload do kit (tokens/turno + injeção de sessão) e rodar A/B comportamental com e sem o kit. Resultados e lacunas conhecidas da medição: `CHANGELOG.md` §Aceite final (c).
-- **D14** — Contrato de SKILL.md: três esqueletos nomeados (postura / procedimento / roteador), política de idioma (corpo pt-BR; exceção grandfathered: grill-me) e teto de 120 linhas com extração para arquivos de apoio. Texto normativo e lista de conformidade: §Contrato de SKILL.md deste doc; enforcement: `scripts/check-governance.sh` (conformidade + proibição de narração de proveniência em `plugins/`).
-- **D15** — Identidade e estrutura em 4 plugins: `core` (metodologia de entrega com enforcement determinístico, do ticket ao PR, qualquer stack), `council` (lentes epistêmicas para decisões de alto custo de reversão), `team` (copiloto de cerimônias ágeis — refinamento com PO, comunicação de squad), `mobile` (toolkit Flutter/Dart). Teste de coerência para skill nova: não cabe em nenhuma frase de identidade ⇒ não entra em nenhum plugin. Inclui a emenda ao texto de D10 (wired vive em `plugins/<plugin>/`). Condição do censo preservada na extração do council: zero reforma interna, descriptions idênticas módulo namespace, `council` instalado onde `core` estiver (`docs/OPERATIONS.md` §1). Validadores: `claude plugin validate .` (manual, fora do CI) + `python3 scripts/generate_inventory.py --check` (CI).
-- **D16** — Governança de descriptions: regra de forma (description responde só "quando invocar") + tetos por classe (350 bytes; roteador 700) + teto agregado por plugin, com `council` isento até o censo. Texto normativo: §Contrato de SKILL.md → Descriptions deste doc. Enforcement: `scripts/check-governance.sh` (check 6); agregado publicado por `scripts/generate_inventory.py` no `INVENTORY.md`.
-- **D17** — Marcador wired-provisório machine-readable com prazo (§Provisórios ativos deste doc): INVENTORY marca o item, prazo vencido deixa o gate vermelho até validar ou demover. Enforcement: `scripts/check-governance.sh` (check 5) + `scripts/generate_inventory.py` (marcador ⏳).
+- **D6** — Council episodic corpus: `outcome` is stored and displayed, never enters scoring/ranking — the corpus records "cases that happened"; interpretation is the reader's. Cited in `plugins/council/skills/council-recall/SKILL.md`.
+- **D10** — 3-state model (wired/unwired/deleted) for every artifact in the kit; eliminates the phantom "tested but not wired" category. Normative text: this doc's "The 3-state model" section.
+- **D13** — Acceptance metrics for the kit extraction: the `gate-day3-pass` tag and the two-week metric (first real use in a project outside the origin project within the deadline, otherwise the result was "an inventory with a README"). Log and dates: `CHANGELOG.md` §Métricas D13.
+- **R2** — Acceptance requirement for the extraction: measure the kit's real payload cost (tokens/turn + session injection) and run a behavioral A/B with and without the kit. Results and known measurement gaps: `CHANGELOG.md` §Aceite final (c).
+- **D14** — SKILL.md contract: three named skeletons (posture / procedure / router), language policy (body in English; runtime output follows the user's language, default English; no grandfathered exception), and a 120-line ceiling with extraction to support files. Normative text and conformity list: this doc's §SKILL.md contract; enforcement: `scripts/check-governance.sh` (conformity + prohibition on provenance narration in `plugins/`).
+- **D15** — Identity and structure across 4 plugins: `core` (delivery methodology with deterministic enforcement, ticket to PR, any stack), `council` (epistemic lenses for high-reversal-cost decisions), `team` (agile-ceremony copilot — PO refinement, squad communication), `mobile` (Flutter/Dart toolkit). Coherence test for a new skill: doesn't fit any identity sentence ⇒ doesn't enter any plugin. Includes the amendment to D10's text (wired lives in `plugins/<plugin>/`). Census condition preserved in the council extraction: zero internal reform, descriptions identical modulo namespace, `council` installed wherever `core` is (`docs/OPERATIONS.md` §1). Validators: `claude plugin validate .` (manual, outside CI) + `python3 scripts/generate_inventory.py --check` (CI).
+- **D16** — Description governance: form rule (description answers only "when to invoke") + per-class ceilings (350 bytes; router 700) + per-plugin aggregate ceiling, with `council` exempt until the census. Normative text: this doc's §SKILL.md contract → Descriptions. Enforcement: `scripts/check-governance.sh` (check 6); aggregate published by `scripts/generate_inventory.py` in `INVENTORY.md`.
+- **D17** — Machine-readable wired-provisional marker with a deadline (this doc's §Active provisionals): INVENTORY marks the item, a missed deadline turns the gate red until validated or demoted. Enforcement: `scripts/check-governance.sh` (check 5) + `scripts/generate_inventory.py` (⏳ marker).

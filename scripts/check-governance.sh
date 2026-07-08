@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: Gate de governança — teto de bytes do tier sempre-ativo + resolução de todo ID D*/R* citado no ledger de docs/GOVERNANCE.md + contrato de SKILL.md (D14).
+# desc: Governance gate — always-on tier byte ceiling + resolution of every D*/R* ID cited against docs/GOVERNANCE.md's ledger + SKILL.md contract (D14).
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
@@ -7,149 +7,149 @@ CEILING=16384
 LEDGER="docs/GOVERNANCE.md"
 fail=0
 
-# 1) Teto do sempre-ativo: saída real do session-start.sh (JSON completo)
+# 1) Always-on ceiling: session-start.sh's actual output (full JSON)
 out=$(CLAUDE_PLUGIN_ROOT="plugins/core" bash plugins/core/hooks/session-start.sh 2>&1)
 rc=$?
 if [ "$rc" -ne 0 ]; then
-  echo "ERRO: session-start.sh falhou (rc=$rc) — teto não medido"
+  echo "ERROR: session-start.sh failed (rc=$rc) — ceiling not measured"
   echo "$out" | head -5
   fail=1
 else
   bytes=$(printf '%s' "$out" | wc -c | tr -d ' ')
   if [ "$bytes" -gt "$CEILING" ]; then
-    echo "ERRO: sempre-ativo mede ${bytes} bytes — acima do teto de ${CEILING} (docs/GOVERNANCE.md §Teto)"
+    echo "ERROR: always-on tier measures ${bytes} bytes — over the ${CEILING}-byte ceiling (docs/GOVERNANCE.md §Always-on tier ceiling)"
     fail=1
   else
-    echo "OK: sempre-ativo ${bytes} bytes <= teto ${CEILING}"
+    echo "OK: always-on tier ${bytes} bytes <= ceiling ${CEILING}"
   fi
 fi
 
-# 2) Todo ID D*/R* citado no repo resolve no ledger
-# git grep -E não suporta \b — usar grep do sistema, no mesmo padrão do
-# check-provenance.sh (sem xargs: robusto a filename com espaço, rc verificável).
-# superpowers/.superpowers é resíduo de construção, fora do escopo do censo.
-# .worktrees é workspace isolado de outro branch (gitignored), com ledger próprio —
-# seus IDs não resolvem no ledger da branch atual e não são deliverable dela.
+# 2) Every D*/R* ID cited in the repo resolves in the ledger
+# git grep -E doesn't support \b — use the system grep, same pattern as
+# check-provenance.sh (no xargs: robust to filenames with spaces, checkable rc).
+# superpowers/.superpowers is build residue, out of the census's scope.
+# .worktrees is another branch's isolated workspace (gitignored), with its own ledger —
+# its IDs don't resolve in the current branch's ledger and aren't a deliverable of it.
 ids=$(grep -rhoE --include='*.md' --exclude-dir=superpowers --exclude-dir=.superpowers --exclude-dir=.worktrees \
   '\b[DR][0-9]+\b' . | sort -u)
 rc=$?
 if [ "$rc" -ge 2 ]; then
-  echo "ERRO: census de IDs falhou (rc=$rc) — resolução no ledger não verificada"
+  echo "ERROR: ID census failed (rc=$rc) — ledger resolution not verified"
   fail=1
 elif [ -z "$ids" ]; then
-  echo "OK: nenhum ID D*/R* citado no repo"
+  echo "OK: no D*/R* ID cited in the repo"
 else
   missing=0
   for id in $ids; do
     if ! grep -qE "^- \*\*${id}\*\*" "$LEDGER"; then
-      echo "ERRO: ID ${id} citado no repo sem entrada no ledger (${LEDGER})"
+      echo "ERROR: ID ${id} cited in the repo without an entry in the ledger (${LEDGER})"
       fail=1
       missing=1
     fi
   done
   if [ "$missing" -eq 0 ]; then
-    echo "OK: todo ID citado resolve no ledger ($(echo "$ids" | tr '\n' ' '))"
+    echo "OK: every cited ID resolves in the ledger ($(echo "$ids" | tr '\n' ' '))"
   fi
 fi
 
-# 3) Contrato de SKILL.md (D14, §Contrato de SKILL.md do GOVERNANCE): todo arquivo
-# na §Conformidade existe e respeita o teto de linhas
+# 3) SKILL.md contract (D14, GOVERNANCE's §SKILL.md contract): every file
+# in §Conformity exists and respects the line ceiling
 CONTRACT="docs/GOVERNANCE.md"
 MAX_LINES=120
 if [ ! -f "$CONTRACT" ]; then
-  echo "ERRO: ${CONTRACT} ausente — conformidade D14 não verificada"
+  echo "ERROR: ${CONTRACT} missing — D14 conformity not verified"
   fail=1
 else
-  # shellcheck disable=SC2016  # crase e '$' são literais do padrão sed/grep, não expansão
-  # Crase SEM escape: em GNU grep -E, '\`' é âncora de início de buffer (extensão
-  # GNU) e o padrão nunca casa — foi o que deixou o gate vermelho no CI (ubuntu)
-  # enquanto o BSD grep local tratava '\`' como crase literal.
-  paths=$(sed -n '/^### Conformidade/,/^## /p' "$CONTRACT" | grep -oE '`plugins/[^`]+`' | tr -d '`')
+  # shellcheck disable=SC2016  # backtick and '$' are literal pattern chars for sed/grep, not expansion
+  # Backtick UNESCAPED: in GNU grep -E, '\`' is a start-of-buffer anchor (GNU
+  # extension) and the pattern never matches — that's what turned the gate red on CI (ubuntu)
+  # while the local BSD grep treated '\`' as a literal backtick.
+  paths=$(sed -n '/^### Conformity/,/^## /p' "$CONTRACT" | grep -oE '`plugins/[^`]+`' | tr -d '`')
   if [ -z "$paths" ]; then
-    echo "ERRO: §Conformidade vazia ou ilegível em ${CONTRACT} (D14)"
+    echo "ERROR: §Conformity empty or unreadable in ${CONTRACT} (D14)"
     fail=1
   else
     d14_ok=1
     while IFS= read -r p; do
       [ -z "$p" ] && continue
       if [ ! -f "$p" ]; then
-        echo "ERRO: ${p} listado na §Conformidade não existe (D14)"
+        echo "ERROR: ${p} listed in §Conformity does not exist (D14)"
         fail=1; d14_ok=0
       else
         lines=$(wc -l < "$p" | tr -d ' ')
         if [ "$lines" -gt "$MAX_LINES" ]; then
-          echo "ERRO: ${p} tem ${lines} linhas — acima do teto de ${MAX_LINES} (D14)"
+          echo "ERROR: ${p} has ${lines} lines — over the ${MAX_LINES}-line ceiling (D14)"
           fail=1; d14_ok=0
         fi
       fi
     done <<< "$paths"
     if [ "$d14_ok" -eq 1 ]; then
-      echo "OK: conformidade D14 ($(echo "$paths" | wc -l | tr -d ' ') arquivos <= ${MAX_LINES} linhas)"
+      echo "OK: D14 conformity ($(echo "$paths" | wc -l | tr -d ' ') files <= ${MAX_LINES} lines)"
     fi
   fi
 fi
 
-# 4) Proibição D14: narração de proveniência em plugins/ (marcador mecanizável)
-hits=$(grep -rIn 'Promovido de' plugins/ 2>/dev/null)
+# 4) D14 prohibition: provenance narration in plugins/ (mechanizable marker)
+hits=$(grep -rIn 'Promoted from' plugins/ 2>/dev/null)
 if [ -n "$hits" ]; then
-  echo "ERRO: narração de proveniência em plugins/ (D14 §Proibições):"
+  echo "ERROR: provenance narration in plugins/ (D14 §Prohibitions):"
   echo "$hits"
   fail=1
 else
-  echo "OK: zero narração de proveniência ('Promovido de') em plugins/"
+  echo "OK: zero provenance narration ('Promoted from') in plugins/"
 fi
 
-# 5) Provisórios (D17): prazo vencido, entrada malformada ou data inválida =
-# gate vermelho — fail-loud, nunca silenciosamente ignorado.
-# shellcheck disable=SC2016  # '$' é a ancora de fim-de-linha do regex, não expansão
-section=$(sed -n '/^### Provisórios ativos/,/^##\{1,2\} /p' "$LEDGER")
-# shellcheck disable=SC2016  # crase é literal do padrão grep, não expansão
+# 5) Provisionals (D17): missed deadline, malformed entry, or invalid date =
+# red gate — fail-loud, never silently ignored.
+# shellcheck disable=SC2016  # '$' is the regex end-of-line anchor, not expansion
+section=$(sed -n '/^### Active provisionals/,/^##\{1,2\} /p' "$LEDGER")
+# shellcheck disable=SC2016  # backtick is a literal grep pattern char, not expansion
 entries=$(printf '%s\n' "$section" | grep -E '^- `' || true)
-# shellcheck disable=SC2016  # crase e '$' são literais do padrão grep, não expansão
-prov=$(printf '%s\n' "$section" | grep -E '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
+# shellcheck disable=SC2016  # backtick and '$' are literal grep pattern chars, not expansion
+prov=$(printf '%s\n' "$section" | grep -E '^- `[^`]+` — valid until [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
 problem=0
 if [ -n "$entries" ]; then
-  # shellcheck disable=SC2016  # crase e '$' são literais do padrão grep, não expansão
-  malformed=$(printf '%s\n' "$entries" | grep -vE '^- `[^`]+` — valida até [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
+  # shellcheck disable=SC2016  # backtick and '$' are literal grep pattern chars, not expansion
+  malformed=$(printf '%s\n' "$entries" | grep -vE '^- `[^`]+` — valid until [0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)
   if [ -n "$malformed" ]; then
     while IFS= read -r line; do
       [ -z "$line" ] && continue
-      echo "ERRO: linha de provisório malformada em docs/GOVERNANCE.md: ${line}"
+      echo "ERROR: malformed provisional line in docs/GOVERNANCE.md: ${line}"
       fail=1; problem=1
     done <<< "$malformed"
   fi
 fi
 if [ -z "$entries" ]; then
-  echo "OK: nenhum item provisório ativo"
+  echo "OK: no active provisional item"
 elif [ -n "$prov" ]; then
   today=$(date +%F)
   while IFS= read -r line; do
     [ -z "$line" ] && continue
-    # shellcheck disable=SC2016  # crase é literal do padrão grep, não expansão
+    # shellcheck disable=SC2016  # backtick is a literal grep pattern char, not expansion
     path=$(echo "$line" | grep -oE '`[^`]+`' | tr -d '`')
     deadline=$(echo "$line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
     if ! python3 -c 'import datetime,sys; datetime.date.fromisoformat(sys.argv[1])' "$deadline" 2>/dev/null; then
-      echo "ERRO: data de provisório inválida: $deadline (docs/GOVERNANCE.md, D17)"
+      echo "ERROR: invalid provisional date: $deadline (docs/GOVERNANCE.md, D17)"
       fail=1; problem=1
       continue
     fi
     if [ ! -e "$path" ]; then
-      echo "ERRO: provisório ${path} listado em ${LEDGER} não existe no disco (D17)"
+      echo "ERROR: provisional ${path} listed in ${LEDGER} does not exist on disk (D17)"
       fail=1; problem=1
     fi
     if [[ "$today" > "$deadline" ]]; then
-      echo "ERRO: provisório ${path} venceu em ${deadline} — validar por uso ou demover (D17)"
+      echo "ERROR: provisional ${path} expired on ${deadline} — validate by use or demote (D17)"
       fail=1; problem=1
     fi
   done <<< "$prov"
   if [ "$problem" -eq 0 ]; then
-    echo "OK: provisórios dentro do prazo ($(echo "$prov" | wc -l | tr -d ' ') itens, D17)"
+    echo "OK: provisionals within deadline ($(echo "$prov" | wc -l | tr -d ' ') items, D17)"
   fi
 fi
 
-# 6) Descriptions (D16): teto por skill (350; roteador 700) + agregado por plugin.
-# council isento até o censo (docs/GOVERNANCE.md §Descriptions). Tetos hardcoded
-# aqui, doc como fonte — mesmo padrão do CEILING do sempre-ativo.
+# 6) Descriptions (D16): per-skill ceiling (350; router 700) + per-plugin aggregate.
+# council exempt until the census (docs/GOVERNANCE.md §Descriptions). Ceilings hardcoded
+# here, doc as source — same pattern as the always-on tier's CEILING.
 if python3 - <<'PYEOF'
 import os, re, sys
 
@@ -160,7 +160,7 @@ fail = 0
 for plugin, agg_ceil in AGG.items():
     base = os.path.join("plugins", plugin, "skills")
     if not os.path.isdir(base):
-        print(f"ERRO: {base} inexistente — D16 não medido")
+        print(f"ERROR: {base} does not exist — D16 not measured")
         fail = 1
         continue
     total = 0
@@ -170,26 +170,26 @@ for plugin, agg_ceil in AGG.items():
             continue
         with open(p, encoding="utf-8") as f:
             text = f.read()
-        # description vive no frontmatter (delimitado pelos dois primeiros '---');
-        # restringir a busca evita casar 'description:' em corpo de skill.
+        # description lives in the frontmatter (delimited by the first two '---');
+        # restricting the search avoids matching 'description:' in a skill's body.
         parts = text.split("\n---", 2)
         fm = parts[0] + ("\n---" if len(parts) > 1 else "")
         m = re.search(r"^description: (.*)$", fm, re.M)
         if not m:
-            print(f"ERRO: {p} sem 'description:' no frontmatter (D16)")
+            print(f"ERROR: {p} has no 'description:' in the frontmatter (D16)")
             fail = 1
             continue
         n = len(m.group(1).encode("utf-8"))
         total += n
         ceil = CEIL_ROUTER if name in ROUTERS else CEIL_DEFAULT
         if n > ceil:
-            print(f"ERRO: description de {plugin}:{name} mede {n} bytes — teto {ceil} (D16)")
+            print(f"ERROR: {plugin}:{name}'s description measures {n} bytes — ceiling {ceil} (D16)")
             fail = 1
     if total > agg_ceil:
-        print(f"ERRO: agregado de descriptions de {plugin} mede {total} bytes — teto {agg_ceil} (D16)")
+        print(f"ERROR: {plugin}'s description aggregate measures {total} bytes — ceiling {agg_ceil} (D16)")
         fail = 1
     else:
-        print(f"OK: descriptions de {plugin} — agregado {total} <= {agg_ceil} bytes (D16)")
+        print(f"OK: {plugin} descriptions — aggregate {total} <= {agg_ceil} bytes (D16)")
 sys.exit(fail)
 PYEOF
 then :; else fail=1; fi
