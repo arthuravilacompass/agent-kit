@@ -1,54 +1,54 @@
 ---
 name: marionette
-description: Invoque para validar visualmente mudanças de UI Flutter no app rodando no simulador — lançar o app em debug pra checks dirigidos por agente, tirar screenshots, tocar/rolar/dirigir telas, hot-reload após edits. Gatilhos em pt-BR — "confirma essa tela no simulador", "valida essa mudança visualmente", "screenshot do app rodando".
+description: Invoke to visually validate Flutter UI changes in the app running in the simulator — launch the app in debug for agent-driven checks, take screenshots, tap/scroll/drive screens, hot-reload after edits. Triggers — "confirm this screen in the simulator", "validate this change visually", "screenshot of the running app".
 ---
 
-# Marionette — Validação Visual Dirigida por Agente
+# Marionette — Agent-Driven Visual Validation
 
-## Config do projeto
+## Project Config
 
-Flavors, env files, e a convenção de qual backend cada um aponta são específicos de cada app — preencha a tabela em `references/SETUP.md` §Environments & flavors com a config real do seu projeto antes de usar este skill em produção. O mecanismo de driving (conectar, listar elementos, tocar, screenshot, hot-reload) é genérico e não muda entre projetos.
+Flavors, env files, and the convention for which backend each one points to are specific to each app — fill in the table in `references/SETUP.md` §Environments & flavors with your project's real config before using this skill in production. The driving mechanism (connect, list elements, tap, screenshot, hot-reload) is generic and doesn't change between projects.
 
 ## Overview
 
-Conecta a sessão ao app Flutter rodando em debug no simulador via marionette MCP (LeanCode): `take_screenshots`, `tap`, `scroll_to`, `enter_text`, `get_logs`, `hot_reload`. Execução **inline na sessão principal** — o loop editar → hot_reload → re-screenshot depende do contexto da conversa (não delegar a subagent: screenshots de subagent são invisíveis pro usuário).
+Connects the session to the Flutter app running in debug in the simulator via marionette MCP (LeanCode): `take_screenshots`, `tap`, `scroll_to`, `enter_text`, `get_logs`, `hot_reload`. Execution is **inline in the main session** — the edit → hot_reload → re-screenshot loop depends on the conversation context (don't delegate to a subagent: subagent screenshots are invisible to the user).
 
-## Passo 0 — Preflight
+## Step 0 — Preflight
 
-As tools `marionette__*` estão disponíveis nesta sessão?
+Are the `marionette__*` tools available in this session?
 
-- **Não** e o usuário quer validação dirigida por agente → leia [references/SETUP.md](references/SETUP.md), passe os comandos de setup ao usuário e **PARE** (registro de MCP exige restart da sessão).
-- **Não** e é um check rápido → fallback: peça screenshot manual ao usuário.
-- **Sim** → siga.
+- **No**, and the user wants agent-driven validation → read [references/SETUP.md](references/SETUP.md), pass the setup commands to the user, and **STOP** (MCP registration requires a session restart).
+- **No**, and it's a quick check → fallback: ask the user for a manual screenshot.
+- **Yes** → proceed.
 
-## Pré-requisitos — explícitos, nunca defaults silenciosos
+## Prerequisites — explicit, never a silent default
 
-| Input | Como resolver |
+| Input | How to resolve it |
 |---|---|
-| Device id do simulador | `xcrun simctl list devices booted` — vazio? pergunte ou boot |
-| Backend alvo | Config do projeto: qual variável/env file decide o backend (geralmente não é o `--flavor` sozinho). Confira o backend que o script de launch imprime a cada run. |
-| Estado logado | Fluxos autenticados (onboarding, checkout, perfil) exigem usuário logado no app |
-| Feature-flag/onboarding visível | Config do projeto: se o app usa remote config pra controlar visibilidade de onboarding/feature, confira a flag relevante antes de assumir que a tela vai aparecer |
+| Simulator device id | `xcrun simctl list devices booted` — empty? ask or boot one |
+| Target backend | Project config: which variable/env file decides the backend (usually not `--flavor` alone). Check the backend the launch script prints on every run. |
+| Logged-in state | Authenticated flows (onboarding, checkout, profile) require a logged-in user in the app |
+| Feature flag/onboarding visibility | Project config: if the app uses remote config to control onboarding/feature visibility, check the relevant flag before assuming the screen will appear |
 
 ## Workflow
 
-1. **Launch**: `bash scripts/run.sh -d <device-id> [-f <flavor>] [-t 600]` (deste skill) — mata runs duplicados, sobe o app em background, imprime o URI `ws://` de connect. Flavor e env file: convenção do projeto (ver `references/SETUP.md`), override com `-e`.
-2. **Connect**: `marionette__connect` com o URI impresso — **como próxima ação, sem trabalho no meio**: VM service ocioso desanexa.
-3. **Drive**: `get_interactive_elements` → `tap` / `enter_text` / `scroll_to`. Match por `ValueKey` > texto (widget sem key? ver Gotchas).
-4. **Validar**: `take_screenshots` (renderiza como imagem pro agente) → compare com o esperado (design de referência / spec / screenshot do usuário).
-5. **Iterar**: edite o código → `marionette__hot_reload` → re-screenshot. `get_logs` para eventos de analytics.
+1. **Launch**: `bash scripts/run.sh -d <device-id> [-f <flavor>] [-t 600]` (from this skill) — kills duplicate runs, brings up the app in the background, prints the `ws://` connect URI. Flavor and env file: project convention (see `references/SETUP.md`), override with `-e`.
+2. **Connect**: `marionette__connect` with the printed URI — **as the very next action, with no work in between**: an idle VM service detaches.
+3. **Drive**: `get_interactive_elements` → `tap` / `enter_text` / `scroll_to`. Match by `ValueKey` > text (widget with no key? see Gotchas).
+4. **Validate**: `take_screenshots` (renders as an image for the agent) → compare against the expected (reference design / spec / user screenshot).
+5. **Iterate**: edit the code → `marionette__hot_reload` → re-screenshot. `get_logs` for analytics events.
 
 ## Gotchas
 
-| Sintoma | Causa / Fix |
+| Symptom | Cause / Fix |
 |---|---|
-| Tools `marionette__*` não aparecem | MCP server só carrega no boot da sessão — restart; persiste? registro pode ter sido feito fora da raiz do projeto/workspace (ver `references/SETUP.md`) |
-| VM service não anexa / "OS terminated debug connection for being inactive" | Simulador com estado acumulado — reboot **sem erase**: `xcrun simctl shutdown <id> && xcrun simctl bootstatus <id> -b` (erase apaga Keychain/login), depois **re-rode o run.sh** |
-| URI file vazio após timeout | Veja `/tmp/marionette_run.log`; confirme que não há runs duplicados: `pgrep -f main_marionette` |
-| Widget não encontrado pelas tools | Adicione `ValueKey('...')` no widget alvo e `hot_reload` |
-| App caiu em backend errado | A variável de ambiente que decide o backend (config do projeto) ≠ esperado — troque o env file ou o valor, não o `--flavor` |
+| `marionette__*` tools don't show up | MCP server only loads at session boot — restart; still missing? registration may have been done outside the project/workspace root (see `references/SETUP.md`) |
+| VM service won't attach / "OS terminated debug connection for being inactive" | Simulator with accumulated state — reboot **without erasing**: `xcrun simctl shutdown <id> && xcrun simctl bootstatus <id> -b` (erase wipes Keychain/login), then **re-run run.sh** |
+| URI file empty after timeout | Check `/tmp/marionette_run.log`; confirm there are no duplicate runs: `pgrep -f main_marionette` |
+| Widget not found by the tools | Add `ValueKey('...')` to the target widget and `hot_reload` |
+| App landed on the wrong backend | The environment variable that decides the backend (project config) ≠ expected — change the env file or the value, not `--flavor` |
 
-## Quando NÃO usar
+## When NOT to Use
 
-- Comparação estática código × design de referência sem precisar do app rodando → use a ferramenta de comparação do seu setup, se houver.
-- Review de código → skills de review (`mobile:code-review-mobile`).
+- Static code × reference-design comparison without needing the app running → use your setup's comparison tool, if any.
+- Code review → review skills (`mobile:code-review-mobile`).

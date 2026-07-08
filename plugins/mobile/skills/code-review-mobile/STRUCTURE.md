@@ -2,9 +2,9 @@
 
 Reference for naming conventions, folder structure, barrel files, widget composition rules, and import organization in a modular Flutter app.
 
-## Config do projeto
+## Project Config
 
-A tabela de pastas e a lista de "modal bottom sheets vs. rotas" abaixo são convenções comuns — troque pelos nomes reais dos módulos/telas do seu projeto. O que não muda entre projetos: barrel files, regras de extração de widget, ordem de import.
+The folder table and the "modal bottom sheets vs. routes" list below are common conventions — swap in your project's real module/screen names. What doesn't change between projects: barrel files, widget extraction rules, import order.
 
 ## Feature Module Folder Structure
 

@@ -1,138 +1,138 @@
 # apk-archaeology — Demo v0 (NewPipe)
 
-> Skill provisional. Ver `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md`
-> pra decisões de design e limites. Este documento é o exemplo público (spec §8) —
-> app OSS, GPLv3, fonte real ao lado do output.
+> Provisional skill. See `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md`
+> for design decisions and limits. This document is the public example (spec §8) —
+> OSS app, GPLv3, real source alongside the output.
 
-## Proveniência
+## Provenance
 
-- **Input**: NewPipe v0.28.8 (`org.schabi.newpipe`) — APK público, [github.com/TeamNewPipe/NewPipe](https://github.com/TeamNewPipe/NewPipe)
+- **Input**: NewPipe v0.28.8 (`org.schabi.newpipe`) — public APK, [github.com/TeamNewPipe/NewPipe](https://github.com/TeamNewPipe/NewPipe)
   `sha256: d9fb2540b3a2a0b059c73a296f0cda1c06738426d013c626dbf088aea66629b3`
-- **Ferramentas**: jadx 1.5.5 · apktool 3.0.2
-- **Fonte de comparação (não-circular, spec §9)**: dois clones reais, não o output do próprio pipeline —
-  `TeamNewPipe/NewPipe` @ v0.28.8 (app) + `TeamNewPipe/NewPipeExtractor` @ v0.26.3 (a lógica de negócio de
-  fato vive num repositório separado, referenciado via dependência Gradle — achado do próprio processo de
-  grading, ver §Lições abaixo)
-- **Data**: 2026-07-08 · macOS (arm64)
+- **Tools**: jadx 1.5.5 · apktool 3.0.2
+- **Comparison source (non-circular, spec §9)**: two real clones, not the pipeline's own output —
+  `TeamNewPipe/NewPipe` @ v0.28.8 (app) + `TeamNewPipe/NewPipeExtractor` @ v0.26.3 (the actual business
+  logic lives in a separate repository, referenced via a Gradle dependency — found during the
+  grading process itself, see §Lessons below)
+- **Date**: 2026-07-08 · macOS (arm64)
 
-## B — Contratos de API (fato)
+## B — API Contracts (fact)
 
-- **213 endpoints extraídos** (business-candidate ∪ unclassifiable, known-third-party excluído; a mesma
-  URL pode aparecer em vários arquivo:linha, ex.: uma constante de base URL referenciada em várias
-  classes — **125 URLs únicas** após dedup, que é a base do scorecard abaixo) ·
-  **324 literais de alta entropia redigidos** (nenhum aparece no output; a grande maioria são hashes/IDs
-  isolados fora de contexto de URL, não segredo embutido em endpoint — só 2 dos 213 endpoints têm
-  `[REDACTED]` embutido)
+- **213 endpoints extracted** (business-candidate ∪ unclassifiable, known-third-party excluded; the same
+  URL can appear at several file:line locations, e.g. a base-URL constant referenced across several
+  classes — **125 unique URLs** after dedup, which is the basis of the scorecard below) ·
+  **324 high-entropy literals redacted** (none appear in the output; the vast majority are isolated
+  hashes/IDs with no URL context, not a secret embedded in an endpoint — only 2 of the 213 endpoints have
+  an embedded `[REDACTED]`)
 
-### Scorecard de fidelidade (grading não-circular, spec §9)
+### Fidelity Scorecard (non-circular grading, spec §9)
 
-| Passo de correção | real_count | true_positive | false_positive | false_negative | recall | Reproduzível com o `grade_fidelity.py` como está? |
+| Correction step | real_count | true_positive | false_positive | false_negative | recall | Reproducible with `grade_fidelity.py` as-is? |
 |---|---|---|---|---|---|---|
-| Ingênuo (app-only, com `test/`) | 96 | 30 | 95 | 66 | 0.31 | Sim |
-| + só `app/src/main` (exclui teste) | 51 | 29 | 96 | 22 | 0.57 | Sim (apontando o script pro dir certo) |
-| + inclui `NewPipeExtractor` (versão correta, só produção) | 138 | 82 | 43 | 56 | **0.59** | **Sim — este é o número que a ferramenta shipada produz de verdade** |
-| + exclui comentário Javadoc do gabarito (contaminação do PRÓPRIO grader) | 99 | 82 | 43 | 17 | 0.83 | **NÃO — passo manual, não codificado no script** |
+| Naive (app-only, with `test/`) | 96 | 30 | 95 | 66 | 0.31 | Yes |
+| + `app/src/main` only (excludes test) | 51 | 29 | 96 | 22 | 0.57 | Yes (pointing the script at the right dir) |
+| + includes `NewPipeExtractor` (correct version, production only) | 138 | 82 | 43 | 56 | **0.59** | **Yes — this is the number the shipped tool actually produces** |
+| + excludes Javadoc comment from the answer key (contamination in the grader ITSELF) | 99 | 82 | 43 | 17 | 0.83 | **NO — manual step, not encoded in the script** |
 
-**Número reproduzível pela ferramenta shipada: 0.59.** `grade_fidelity.py` não distingue string
-literal de comentário Javadoc (`URL_RE` casa `"https://..."` dentro de `<a href="...">` igual a
-qualquer literal de código) — isso é uma limitação do MÉTODO de comparação, documentada mas **não
-corrigida no script nesta rodada** (candidato a v2 se o padrão se repetir em uso real). O 0,83 é uma
-correção manual sobre esse número, feita nesta sessão: classifiquei os 56 falsos-negativos linha a
-linha (regex `^\s*(\*|//)` no início da linha onde a URL aparece) e achei que **39 dos 56 só
-existem dentro de comentário/Javadoc, nunca compilados** — sobram 17 falsos-negativos genuínos.
-Isso é auditável (o método está descrito aqui, a lista completa das 39 URLs excluídas está em
-`~/dev/apk-archaeology-lab/demo-run/newpipe/` como artefato de sessão, fora do repo), mas **não é o
-que alguém obtém rodando o pipeline do jeito que ele está hoje** — reportar os dois números,
-não só o mais bonito, é o ponto.
+**Number reproducible by the shipped tool: 0.59.** `grade_fidelity.py` doesn't distinguish a string
+literal from a Javadoc comment (`URL_RE` matches `"https://..."` inside `<a href="...">` just like
+any code literal) — this is a limitation of the comparison METHOD, documented but **not
+fixed in the script in this run** (a v2 candidate if the pattern recurs in real use). The 0.83 is a
+manual correction of that number, made in this session: I classified the 56 false negatives line by
+line (regex `^\s*(\*|//)` at the start of the line where the URL appears) and found that **39 of the 56
+only exist inside a comment/Javadoc, never compiled** — leaving 17 genuine false negatives.
+This is auditable (the method is described here, the full list of the 39 excluded URLs is in
+`~/dev/apk-archaeology-lab/demo-run/newpipe/` as a session artifact, outside the repo), but it is **not
+what someone gets running the pipeline as it stands today** — reporting both numbers,
+not just the prettier one, is the point.
 
-**43 falsos-positivos, categorizados** (nenhum verificado como alucinação pura):
-- ~6 são de `org.jsoup` (lib de terceiro real, não cadastrada em `known-libs.json` → cai em
-  `business-candidate` por não ser reconhecida — fragilidade já documentada na spec §6, agora com
-  instância concreta e nome de lib real).
-- Boa parte do restante (SoundCloud/Bandcamp/YouTube "API paths") são endpoints **reais**, construídos
-  em código-fonte por concatenação de string (`BASE_URL + path + "?param="`), que o compilador/R8
-  funde em uma constante única no bytecode — jadx decompila de volta como 1 literal, mas o gabarito
-  (que lê o `.java` fonte, onde ainda são fragmentos separados) nunca vê essa forma fundida como
-  string única. Não verificado exaustivamente item a item; padrão consistente com os casos checados.
+**43 false positives, categorized** (none confirmed as a pure hallucination):
+- ~6 are from `org.jsoup` (a real third-party lib, not registered in `known-libs.json` → falls into
+  `business-candidate` for not being recognized — a fragility already documented in spec §6, now with
+  a concrete instance and a real library name).
+- Most of the rest (SoundCloud/Bandcamp/YouTube "API paths") are **real** endpoints, built in
+  source code via string concatenation (`BASE_URL + path + "?param="`), which the compiler/R8
+  fuses into a single constant in the bytecode — jadx decompiles it back as 1 literal, but the answer key
+  (which reads the source `.java`, where they're still separate fragments) never sees this fused
+  form as a single string. Not exhaustively verified item by item; the pattern is consistent with the checked cases.
 
-## C — Grafo de módulo (reconstrução)
+## C — Module Graph (reconstruction)
 
-- **2067 nodes, 1450 edges, 232 classes sintéticas filtradas** (`artifact_warnings`) — volume de
-  filtragem alto, esperado num app real com Compose/lambdas geradas pelo R8.
-- Cluster usado como unidade de trabalho pra Dimensão A: componente conexo (922 componentes totais,
-  maior com 678 nodes — dominado por classes de biblioteca cruzando os poucos `business-candidate` que
-  fazem ponte; os 2 clusters usados na síntese abaixo foram escolhidos por serem pequenos e nomeados).
+- **2067 nodes, 1450 edges, 232 synthetic classes filtered** (`artifact_warnings`) — high filtering
+  volume, expected for a real app with Compose/generated lambdas from R8.
+- Cluster used as the unit of work for Dimension A: connected component (922 total components,
+  largest with 678 nodes — dominated by library classes crossing the few `business-candidate` ones
+  that bridge them; the 2 clusters used in the synthesis below were chosen for being small and named).
 
-## A — Fluxos e regras de negócio (inferência tiered)
+## A — Flows and Business Rules (tiered inference)
 
-Duas partições sintetizadas — "Streaming Services" (4 classes: `StreamingService`, `YoutubeService`,
-`BandcampService`, `PeertubeService`) e "Settings Fragments" (14 classes `*SettingsFragment`).
-43 claims totais, a maioria `alta`, 3 corretamente marcadas `unanchored` (regra de âncora, spec §5[5]
-— nenhuma decorada como inferência normal).
+Two partitions synthesized — "Streaming Services" (4 classes: `StreamingService`, `YoutubeService`,
+`BandcampService`, `PeertubeService`) and "Settings Fragments" (14 `*SettingsFragment` classes).
+43 total claims, most `high`, 3 correctly marked `unanchored` (anchor rule, spec §5[5]
+— none dressed up as a normal inference).
 
-### Calibração (verificado contra a fonte real, amostra de 4 claims `alta`)
+### Calibration (verified against the real source, sample of 4 `high` claims)
 
-| Claim | Veredito | Evidência |
+| Claim | Verdict | Evidence |
 |---|---|---|
-| YouTube declara 1 só idioma de UI ativo (`en-GB`), 109 países hardcoded | ✅ **verdadeiro, exato** | Os outros ~74 idiomas estão **comentados no source** (`/* ... */`) — nunca compilados. Contagem de país bate 109/109. O agente inferiu isso corretamente só a partir do bytecode, sem ver o comentário. |
-| SoundCloud limita a 9 países (`AU,CA,DE,FR,GB,IE,NL,NZ,US`) | ✅ **verdadeiro, exato** | Lista bate caractere a caractere com `SoundcloudService.java`. |
-| Playlist YouTube com id `RD*` roteia pro extractor de Mix | ✅ **verdadeiro, citação imprecisa** | Comportamento confirmado (`playlistId.startsWith("RD")`), mas no source vive em `YoutubeParsingHelper.java`, não `YoutubeService.java` como o agente citou — decompilado funde/organiza diferente do source (achado, não conclusão especulativa). |
-| Import de inscrições do YouTube só aceita `INPUT_STREAM` | ✅ **verdadeiro** | Conceito confirmado em `SubscriptionExtractor.java`/`YoutubeSubscriptionExtractor.java`. |
+| YouTube declares only 1 active UI language (`en-GB`), 109 hardcoded countries | ✅ **true, exact** | The other ~74 languages are **commented out in the source** (`/* ... */`) — never compiled. Country count matches 109/109. The agent inferred this correctly from the bytecode alone, without seeing the comment. |
+| SoundCloud limits to 9 countries (`AU,CA,DE,FR,GB,IE,NL,NZ,US`) | ✅ **true, exact** | List matches character-for-character with `SoundcloudService.java`. |
+| A YouTube playlist with id `RD*` routes to the Mix extractor | ✅ **true, imprecise citation** | Behavior confirmed (`playlistId.startsWith("RD")`), but in the source it lives in `YoutubeParsingHelper.java`, not `YoutubeService.java` as the agent cited — decompilation merges/organizes differently than the source (a finding, not a speculative conclusion). |
+| YouTube subscription import only accepts `INPUT_STREAM` | ✅ **true** | Concept confirmed in `SubscriptionExtractor.java`/`YoutubeSubscriptionExtractor.java`. |
 
-**4/4 verificadas amostradas, 4 verdadeiras** (2 exatas, 1 com imprecisão de citação de arquivo, 1
-confirmada sem checar linha exata) — amostra pequena, não é uma auditoria exaustiva dos 43 claims.
-Reportado como está: nenhuma falsa encontrada na amostra, mas a amostra é pequena e não prova taxa de
-erro zero pro conjunto inteiro.
+**4/4 sampled verified, 4 true** (2 exact, 1 with a file-citation imprecision, 1 confirmed without
+checking the exact line) — small sample, not an exhaustive audit of the 43 claims.
+Reported as-is: no false claim found in the sample, but the sample is small and doesn't prove a zero
+error rate for the whole set.
 
-## O que isto NÃO é
+## What This Is NOT
 
-- Não mede produtividade — sem baseline, sem migração real feita.
-- **Comportamento legado recuperado ≠ comportamento desejado aprovado.** Todo claim de A é observação
-  do que o app FAZ hoje, não decisão sobre o que ele DEVERIA fazer — o gate do PO permanece (ver
-  §11.1 do design doc: comportamento legado pode ser bug legado, não regra a preservar).
-- Fidelidade medida em referência limpa (NewPipe, sem ofuscação) — não em código ofuscado
-  (ver apêndice Telecorp abaixo, só estatística agregada).
-- Dimensão A demonstrada em referência pobre em regra de **negócio** (NewPipe é player de mídia —
-  as regras encontradas são de roteamento/localização/UI, não pricing/entitlement/checkout/antifraude).
-  Recuperação de regra de negócio real permanece projetada, não medida.
-- Inferência de A pode errar mesmo em tier alto — o tier é calibrado (amostra de 4/4 aqui), não
-  garantido pra todo o conjunto.
-- Regra de negócio de baixa frequência pode ter sido esquecida — spec candidata é insumo pra
-  reconciliação humana, não substituto dela.
-- **O scorecard de B, no valor final (0.83), já é uma correção sobre 3 erros metodológicos do
-  próprio processo de grading** (escopo de repo incompleto, versão errada da dependência, gabarito
-  contaminado por comentário) — ver Lições abaixo. Isso não é "a ferramenta errou 3 vezes", é o
-  processo de avaliação que precisou de 3 correções antes do número ser honesto.
+- Doesn't measure productivity — no baseline, no real migration done.
+- **Recovered legacy behavior ≠ approved desired behavior.** Every claim in A is an observation
+  of what the app DOES today, not a decision about what it SHOULD do — the PO gate remains (see
+  §11.1 of the design doc: legacy behavior may be a legacy bug, not a rule to preserve).
+- Fidelity measured against a clean reference (NewPipe, unobfuscated) — not against obfuscated
+  code (see the Telecorp appendix below, aggregate statistics only).
+- Dimension A demonstrated against a reference poor in **business** rules (NewPipe is a media
+  player — the rules found are routing/localization/UI, not pricing/entitlement/checkout/anti-fraud).
+  Recovery of real business rules remains projected, not measured.
+- Inference in A can be wrong even at a high tier — the tier is calibrated (4/4 sample here), not
+  guaranteed for the whole set.
+- A low-frequency business rule may have been missed — the candidate spec is input for human
+  reconciliation, not a substitute for it.
+- **The B scorecard's final value (0.83) is already a correction over 3 methodological errors in
+  the grading process itself** (incomplete repo scope, wrong dependency version, answer key
+  contaminated by comments) — see Lessons below. This isn't "the tool got it wrong 3 times", it's
+  the evaluation process that needed 3 corrections before the number was honest.
 
-## Apêndice — smoke Telecorp (app comercial real, pseudônimo — spec §8)
+## Appendix — Telecorp Smoke Test (real commercial app, pseudonym — spec §8)
 
-- **96,9% dos pacotes top-level caíram em `unclassifiable`** (558 de 576) — ofuscação real e pesada,
-  confirmando empiricamente a fragilidade de fingerprint por nome documentada na spec §6.
-- **847 segredos potenciais redigidos** — nenhum valor literal neste documento nem em qualquer lugar
-  fora de `~/dev/apk-archaeology-lab/` (spec §8). Verificação técnica pós-hoc não achou nenhum literal
-  residual dentro do campo `url` do output persistido (checagem restrita ao campo sensível, não ao
-  JSON inteiro — um primeiro grep mais largo bateu em falso-positivo no campo `file`, que é caminho de
-  classe, não segredo).
-- 15 endpoints tagueados `business`, 38 `unclassifiable` — a maioria do conteúdo de negócio real cai
-  fora do balde "confiável", como esperado sob ofuscação pesada (spec §6).
-- **Conteúdo extraído** (endpoints reais, domínios reais) — NÃO incluído. Interno, spec §8.
+- **96.9% of top-level packages fell into `unclassifiable`** (558 of 576) — real, heavy
+  obfuscation, empirically confirming the name-fingerprint fragility documented in spec §6.
+- **847 potential secrets redacted** — no literal value in this document or anywhere
+  outside `~/dev/apk-archaeology-lab/` (spec §8). Post-hoc technical verification found no
+  residual literal inside the persisted output's `url` field (check restricted to the sensitive
+  field, not the whole JSON — a first, broader grep hit a false positive in the `file` field, which
+  is a class path, not a secret).
+- 15 endpoints tagged `business`, 38 `unclassifiable` — most of the real business content falls
+  outside the "trusted" bucket, as expected under heavy obfuscation (spec §6).
+- **Extracted content** (real endpoints, real domains) — NOT included. Internal, spec §8.
 
-## Lições do processo de grading em si (achado desta demo, não do design)
+## Lessons From the Grading Process Itself (a finding of this demo, not of the design)
 
-O maior aprendizado desta rodada não foi sobre o pipeline — foi sobre como gradear fidelidade
-corretamente:
+The biggest lesson from this run wasn't about the pipeline — it was about how to
+grade fidelity correctly:
 
-1. **Repo errado inicialmente.** A lógica de negócio do NewPipe vive num repositório SEPARADO
-   (`NewPipeExtractor`), referenciado via `implementation(libs.newpipe.extractor)` no Gradle — não
-   está no clone do app. 19 dos 21 claims da Partição "Streaming Services" citam arquivos que só
-   existem nesse segundo repo.
-2. **Versão errada do segundo repo.** Cloná-lo sem fixar tag pega a branch padrão atual, não a versão
-   realmente empacotada no APK testado (`v0.26.3`, achado em `libs.versions.toml`) — o pipeline errado
-   deu 656 URLs de gabarito; o correto, 138 (produção) / 656 com testes inclusos.
-3. **Gabarito contaminado por comentário.** A regex do `grade_fidelity.py` (`"(https?://...)"`) não
-   distingue string literal de comentário Javadoc (`<a href="https://...">`) — ambos têm aspas. 39 dos
-   56 falsos-negativos "reais" eram, na verdade, links de documentação nunca compilados. Isso é uma
-   limitação do MÉTODO de grading (comparação textual ingênua), simétrica à contaminação por `test/`
-   já descrita acima — registrada aqui, não corrigida no `grade_fidelity.py` nesta rodada (correção
-   ad-hoc no escopo do clone foi suficiente pra esta demo; corrigir a regex do grader é candidato a
-   v2 se o padrão se repetir em uso real).
+1. **Wrong repo initially.** NewPipe's business logic lives in a SEPARATE repository
+   (`NewPipeExtractor`), referenced via `implementation(libs.newpipe.extractor)` in Gradle — not
+   in the app's clone. 19 of the 21 claims in the "Streaming Services" partition cite files that only
+   exist in that second repo.
+2. **Wrong version of the second repo.** Cloning it without pinning a tag grabs the current default
+   branch, not the version actually packaged in the tested APK (`v0.26.3`, found in `libs.versions.toml`) —
+   the wrong pipeline gave 656 answer-key URLs; the correct one, 138 (production) / 656 with tests included.
+3. **Answer key contaminated by comments.** `grade_fidelity.py`'s regex (`"(https?://...)"`) doesn't
+   distinguish a string literal from a Javadoc comment (`<a href="https://...">`) — both have quotes. 39 of the
+   56 "real" false negatives were, in fact, documentation links never compiled. This is a
+   limitation of the grading METHOD (naive textual comparison), symmetric to the `test/`
+   contamination already described above — recorded here, not fixed in `grade_fidelity.py` in this
+   run (an ad-hoc fix to the clone's scope was enough for this demo; fixing the grader's regex is a
+   v2 candidate if the pattern recurs in real use).

@@ -1,81 +1,81 @@
-# Playbook Ferramental — Deeplink / App Link Android
+# Command Playbook — Android Deeplink / App Link
 
-Comandos concretos. Todos exigem sandbox desabilitada (rede local + adb + acesso ao CoreSimulator/device).
+Concrete commands. All require sandbox disabled (local network + adb + access to CoreSimulator/device).
 
-## 1. Conectar ao device sem cabo (adb wifi, Android 11+)
+## 1. Connect to the device wirelessly (adb wifi, Android 11+)
 
-Depuração sem fio tem **duas etapas com portas diferentes** (ambas mudam a cada sessão):
+Wireless debugging has **two steps with different ports** (both change every session):
 
 ```bash
-# Device: Opções do desenvolvedor → Depuração sem fio → ativar
-# "Parear com código" mostra IP:PORTA_A + código de 6 dígitos:
-adb pair 192.168.1.11:41505 535891      # PORTA_A (pairing) + código
-# A tela principal de Depuração sem fio mostra OUTRO IP:PORTA_B (conexão):
-adb connect 192.168.1.11:34977          # PORTA_B (connect) — DIFERENTE da de pairing
-adb devices                             # confirmar
+# Device: Developer options → Wireless debugging → enable
+# "Pair with code" shows IP:PORT_A + a 6-digit code:
+adb pair 192.168.1.11:41505 535891      # PORT_A (pairing) + code
+# The main Wireless debugging screen shows ANOTHER IP:PORT_B (connect):
+adb connect 192.168.1.11:34977          # PORT_B (connect) — DIFFERENT from the pairing one
+adb devices                             # confirm
 ```
-Mac e device na mesma rede wifi. Com mais de um device, mire com `adb -s <IP:PORTA_B> ...` em todo comando.
+Mac and device on the same wifi network. With more than one device, target every command with `adb -s <IP:PORT_B> ...`.
 
-## 2. Qual comando responde qual pergunta
+## 2. Which command answers which question
 
-| Pergunta | Comando |
+| Question | Command |
 |---|---|
-| Versão do Android / SDK | `adb -s $S shell getprop ro.build.version.release` / `.sdk` |
-| App instalado / versão | `adb -s $S shell dumpsys package <pkg> \| grep -E "versionName\|versionCode"` |
-| Domínio **verificado**? (porta 2) | `adb -s $S shell pm get-app-links <pkg>` → `verified` / `1024` |
-| Estado interno completo (verificação + selection) | `adb -s $S shell "dumpsys package <pkg> \| grep -A20 'Domain verification state'"` |
-| Filtros que o SO **registrou** | `adb -s $S shell "dumpsys package <pkg> \| grep -iE 'Scheme\|Authority'"` |
-| **O intent-filter casa?** (porta 3, DECISIVO) | `adb -s $S shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "<url>" <pkg>` |
-| Quem o sistema escolhe (viés de shell!) | `adb -s $S shell cmd package resolve-activity --brief -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "<url>"` |
-| Decisão real no tap | `logcat` — ver seção 4 |
+| Android version / SDK | `adb -s $S shell getprop ro.build.version.release` / `.sdk` |
+| App installed / version | `adb -s $S shell dumpsys package <pkg> \| grep -E "versionName\|versionCode"` |
+| Domain **verified**? (gate 2) | `adb -s $S shell pm get-app-links <pkg>` → `verified` / `1024` |
+| Full internal state (verification + selection) | `adb -s $S shell "dumpsys package <pkg> \| grep -A20 'Domain verification state'"` |
+| Filters the OS **registered** | `adb -s $S shell "dumpsys package <pkg> \| grep -iE 'Scheme\|Authority'"` |
+| **Does the intent-filter match?** (gate 3, DECISIVE) | `adb -s $S shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "<url>" <pkg>` |
+| Who the system picks (shell bias!) | `adb -s $S shell cmd package resolve-activity --brief -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "<url>"` |
+| The real decision on tap | `logcat` — see section 4 |
 
-**Leitura do `am start`:** `START_INTENT_NOT_RESOLVED` / `unable to resolve` = filtro não casa. Abre a `MainActivity` = casa. Rode sempre um **host de controle** (sem o elemento suspeito) pra isolar a variável.
+**Reading `am start`:** `START_INTENT_NOT_RESOLVED` / `unable to resolve` = the filter doesn't match. Opens `MainActivity` = matches. Always run a **control host** (without the suspected element) to isolate the variable.
 
-## 3. Inspecionar o APK (estático, sem device)
+## 3. Inspect the APK (static, no device)
 
 ```bash
 BT="$HOME/Library/Android/sdk/build-tools/35.0.0"
-"$BT/apksigner" verify --print-certs app.apk | grep -i "SHA-256"   # cert que assinou (compara com assetlinks)
+"$BT/apksigner" verify --print-certs app.apk | grep -i "SHA-256"   # signing cert (compare with assetlinks)
 "$BT/aapt" dump badging app.apk | grep "^package:"                 # package + versionCode
 "$BT/aapt" dump xmltree app.apk AndroidManifest.xml | grep -iE "intent-filter|autoVerify|host|uri-relative|pathPrefix"
 ```
 
-## 4. Capturar a decisão real do tap (logcat)
+## 4. Capture the real tap decision (logcat)
 
 ```bash
-adb -s $S logcat -c                                   # limpar buffer
-# tocar o link no device, DEPOIS:
-adb -s $S logcat -d -v time ActivityTaskManager:I '*:S' | grep -iE "START u0.*(VIEW|<seu-dominio>)"
+adb -s $S logcat -c                                   # clear buffer
+# tap the link on the device, THEN:
+adb -s $S logcat -d -v time ActivityTaskManager:I '*:S' | grep -iE "START u0.*(VIEW|<your-domain>)"
 ```
-Sinais-chave:
-- `cmp=<pkg>/...MainActivity` → App Link roteou pro app ✅
-- `cmp=com.android.chrome/...IntentDispatcher` → foi pro navegador
-- `CustomTabsIntent#shouldAlwaysUseBrowserUI() = false` → o app de origem abriu em **Custom Tab** (bypassa App Links — resultado inválido como teste de matching)
-- `cmp=com.google.android.keep/...LinkResolverActivity` → o Keep interceptou com o próprio resolvedor (idem)
+Key signals:
+- `cmp=<pkg>/...MainActivity` → App Link routed to the app ✅
+- `cmp=com.android.chrome/...IntentDispatcher` → went to the browser
+- `CustomTabsIntent#shouldAlwaysUseBrowserUI() = false` → the originating app opened in a **Custom Tab** (bypasses App Links — invalid as a matching test)
+- `cmp=com.google.android.keep/...LinkResolverActivity` → Keep intercepted it with its own resolver (same issue)
 
-## 5. Validar assetlinks / AASA por host (lado web)
+## 5. Validate assetlinks / AASA per host (web side)
 
 ```bash
-for h in www.exemplo.com exemplo.com link.exemplo.com; do
+for h in www.example.com example.com link.example.com; do
   curl -sS -m 15 -o /dev/null -w "%{http_code} %{content_type} server=%header{server}\n" \
     "https://$h/.well-known/assetlinks.json"
 done
 ```
-- Compare o `sha256_cert_fingerprints` publicado com o cert do APK (seção 3). Têm que bater.
-- Hosts distintos podem ter backends distintos (CDN, servidor web dedicado, apex sem serviço). AASA/assetlinks servido por um host NÃO cobre o outro automaticamente. Confira cada host que seu app declara.
+- Compare the published `sha256_cert_fingerprints` with the APK's cert (section 3). They must match.
+- Distinct hosts may have distinct backends (CDN, dedicated web server, unserviced apex). AASA/assetlinks served by one host does NOT automatically cover another. Check every host your app declares.
 
-## 6. Forçar re-verificação / manipular selection (experimentos)
+## 6. Force re-verification / manipulate selection (experiments)
 
 ```bash
 adb -s $S shell pm verify-app-links --re-verify <pkg>
 adb -s $S shell pm set-app-links-user-selection --user 0 --package <pkg> true <host>
 ```
-⚠️ Isso muda o estado do device — reverta / avise se for device de outra pessoa.
+⚠️ This changes the device's state — revert / warn if it's someone else's device.
 
-## Ordem de diagnóstico recomendada
+## Recommended Diagnostic Order
 
-1. `pm get-app-links` → domínio verificado? (se não, é porta 2: assetlinks/cert/host)
-2. `am start ... <pkg>` no link problemático + **host de controle** → isola porta 3 (matching)
-3. Se matching falha → `aapt dump xmltree` + `git show` do manifesto → achar o elemento (ex.: `uri-relative-filter-group`)
-4. Cross-check por versão de Android (12 ok / 15 quebra = feature de matching nova)
-5. Só então tap real (de um app que delega, não Custom Tab) pra confirmação end-to-end
+1. `pm get-app-links` → is the domain verified? (if not, it's gate 2: assetlinks/cert/host)
+2. `am start ... <pkg>` on the problem link + **control host** → isolates gate 3 (matching)
+3. If matching fails → `aapt dump xmltree` + `git show` on the manifest → find the element (e.g. `uri-relative-filter-group`)
+4. Cross-check by Android version (12 ok / 15 breaks = new matching feature)
+5. Only then a real tap (from an app that delegates, not a Custom Tab) for end-to-end confirmation

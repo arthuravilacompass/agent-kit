@@ -1,66 +1,66 @@
 ---
 name: ga4-validate
-description: Invoque para validar tracking GA4 (tela × evento, antes × depois de uma mudança) num app Flutter no simulador — dirige o app, captura o evento real com params e monta a tabela de CTs com report visual. Gatilhos em pt-BR — "valida os eventos GA4 dessa tela", "confirma o tracking antes e depois dessa mudança".
+description: Invoke to validate GA4 tracking (screen × event, before × after a change) on a Flutter app in the simulator — drives the app, captures the real event with params, and builds the CT table with a visual report. Triggers — "validate the GA4 events for this screen", "confirm the tracking before and after this change".
 ---
 
-# GA4 Validate — Validação de tracking GA4 (tela × evento, antes × depois)
+# GA4 Validate — GA4 Tracking Validation (screen × event, before × after)
 
-Roteiro reusável para validar eventos GA4 de componentes de um app Flutter rodando no simulador/emulador: dirige o app, captura o evento **real** com params, screenshota, casa tela × evento, e monta o registro (tabela de CTs + report visual). Serve US de GA4 novas e regressivos (comparação antes × depois).
+Reusable script to validate GA4 events for components of a Flutter app running in the simulator/emulator: drives the app, captures the **real** event with params, screenshots, matches screen × event, and builds the record (CT table + visual report). Serves both new GA4 tickets and regression checks (before × after comparison).
 
-Reusa a plumbing de transporte do skill `mobile:export-logs` e o skill `mobile:marionette` para dirigir o app.
+Reuses the `mobile:export-logs` skill's transport plumbing and the `mobile:marionette` skill to drive the app.
 
-## Config do projeto
+## Project Config
 
-Preencha antes de usar: quais eventos/telas fazem parte do escopo, se o projeto tem alguma camada de tracking além da chamada direta ao SDK de analytics (ex.: middleware próprio que só dispara sob certas condições), e o nome dos arquivos-alvo pra instrumentação temporária (§Método A). O mecanismo de captura (3 vias abaixo) é universal Firebase/GA4 + Dart VM service — não muda entre projetos.
+Fill in before use: which events/screens are in scope, whether the project has any tracking layer beyond the direct call to the analytics SDK (e.g. a custom middleware that only fires under certain conditions), and the target file names for temporary instrumentation (§Method A). The capture mechanism (3 approaches below) is universal Firebase/GA4 + Dart VM service — it doesn't change between projects.
 
-## Quando usar
+## When to Use
 
-- US de tracking que precisa de evidência **tela × evento** (ex.: `view_promotion`/`select_promotion`/`view_item_list`/`select_item`/`select_content`, ou os nomes de evento do seu projeto).
-- **Regressivo de GA4:** capturar baseline ("antes"), aplicar a mudança, re-capturar idêntico ("depois"), comparar CT a CT.
+- A tracking ticket that needs **screen × event** evidence (e.g. `view_promotion`/`select_promotion`/`view_item_list`/`select_content`, or your project's event names).
+- **GA4 regression check:** capture a baseline ("before"), apply the change, re-capture identically ("after"), compare CT by CT.
 
-## O que produz
+## What It Produces
 
-1. Por componente/CT: o **evento real capturado** (nome + params) + **screenshot** da tela.
-2. **Tabela de CTs** (esperado × capturado × veredito).
-3. (Opcional) **Report visual** — comece pela casca `ga4-report-template.html` (deste skill) e preencha as seções. Publicar via a ferramenta de artifact do seu setup, se houver.
+1. Per component/CT: the **real captured event** (name + params) + a **screenshot** of the screen.
+2. A **CT table** (expected × captured × verdict).
+3. (Optional) **Visual report** — start from this skill's `ga4-report-template.html` shell and fill in the sections. Publish via your setup's artifact tool, if any.
 
-## Pré-requisitos (explícitos, nunca default silencioso)
+## Prerequisites (explicit, never a silent default)
 
-| Input | Como resolver |
+| Input | How to resolve it |
 |---|---|
 | Device | `xcrun simctl list devices booted` (iOS) / `adb devices` (Android) |
-| Backend | variável de ambiente que decide o backend (não o `--flavor` sozinho) — ver skill `mobile:marionette` |
-| Build com a camada de tracking completa | se o projeto tem tracking adicional além do SDK direto (middleware, decorator), confirme que o build sob teste inclui essa camada — um build sem ela dá falso-negativo |
-| Camada extra só dispara sob condição | se sua camada de tracking extra tem uma pré-condição (ex.: só dispara com sessão autenticada, ou só em determinado ambiente), confirme que a condição está satisfeita antes de concluir "não dispara" |
-| Logado / estado | fluxos autenticados exigem login; o componente-alvo precisa renderizar na tela testada |
+| Backend | the environment variable that decides the backend (not `--flavor` alone) — see the `mobile:marionette` skill |
+| Build with the full tracking layer | if the project has additional tracking beyond the direct SDK (middleware, decorator), confirm the build under test includes that layer — a build without it gives a false negative |
+| Extra layer only fires under a condition | if your extra tracking layer has a precondition (e.g. only fires with an authenticated session, or only in a given environment), confirm the condition is satisfied before concluding "doesn't fire" |
+| Logged in / state | authenticated flows require login; the target component needs to render on the tested screen |
 
-## Métodos de captura — 3 camadas que medem coisas DIFERENTES (não é "uma melhor")
+## Capture Methods — 3 layers measuring DIFFERENT things (not "one is better")
 
-Cada camada observa um ponto distinto do fluxo — escolha pela pergunta que precisa responder:
+Each layer observes a distinct point in the flow — choose based on the question you need to answer:
 
-- **A. Reader `vm_service` — *wire-truth*** (o que sai de fato, pós-sanitização de params). Agent-readable.
-- **B. DebugView — *recepção Firebase*** (o que o Firebase recebeu). Spot-check manual em prod; console web, o agente não lê/screenshota.
-- **C. Decorator/interceptor na interface de analytics — *boundary*** (o que o app **chamou**, antes de qualquer sanitização) — só existe se o projeto tiver esse seam. Mede a boundary, não o fio: params reconstruídos, pode não ver tracking adicional (middleware) que roda depois da chamada de analytics, e pode falso-flagar nomes que a sanitização normaliza (ex.: hífen virando underscore). Complementa A/B, não substitui.
+- **A. `vm_service` reader — *wire-truth*** (what actually goes out, post param-sanitization). Agent-readable.
+- **B. DebugView — *Firebase receipt*** (what Firebase received). Manual spot-check in prod; web console, the agent doesn't read/screenshot it.
+- **C. Decorator/interceptor on the analytics interface — *boundary*** (what the app **called**, before any sanitization) — only exists if the project has that seam. Measures the boundary, not the wire: reconstructed params, may not see additional tracking (middleware) that runs after the analytics call, and may false-flag names that sanitization normalizes (e.g. a hyphen becoming an underscore). Complements A/B, doesn't replace them.
 
-| Situação | Método |
+| Situation | Method |
 |---|---|
-| **ambiente sem stream de debug vinculado** (DebugView precisa de stream prod-like) | **A. Reader** |
-| **Registro reprodutível** (CTs, antes×depois, o agente precisa ler/screenshotar) | **A. Reader** |
-| **Camada de tracking adicional (middleware) do projeto** | zero-touch se o skill `mobile:export-logs` já cobrir a chamada HTTP · ou **A** instrumentando o ponto de envio · ou proxy (Charles/Proxyman). DebugView **não** mostra middleware fora do SDK de analytics. |
-| **prod + spot-check manual rápido** | **B. DebugView** |
-| **cobertura ampla zero-touch** (se o projeto já tiver o decorator) | **C. Decorator** |
+| **environment with no debug stream bound** (DebugView needs a prod-like stream) | **A. Reader** |
+| **Reproducible record** (CTs, before×after, the agent needs to read/screenshot) | **A. Reader** |
+| **Project's additional tracking layer (middleware)** | zero-touch if the `mobile:export-logs` skill already covers the HTTP call · or **A** instrumenting the send point · or a proxy (Charles/Proxyman). DebugView does **not** show middleware outside the analytics SDK. |
+| **prod + quick manual spot-check** | **B. DebugView** |
+| **broad zero-touch coverage** (if the project already has the decorator) | **C. Decorator** |
 
-### A. Reader `vm_service` (agent-readable)
+### A. `vm_service` Reader (agent-readable)
 
-**Gotcha central:** `dart:developer.log()` **NÃO cai no log do sistema operacional** (`simctl log stream` / equivalente); e os helpers de analytics geralmente só logam no `catch` (silêncio no sucesso). Então captura-se **instrumentando** + lendo o stream `Logging` do VM service.
+**Central gotcha:** `dart:developer.log()` **does NOT land in the OS log** (`simctl log stream` / equivalent); and analytics helpers usually only log on `catch` (silent on success). So capture works by **instrumenting** + reading the VM service's `Logging` stream.
 
-1. **Instrumentar (temporário — REVERTER no fim):** adicionar `log('[GA4] …')` logo **após** cada chamada de analytics bem-sucedida, por **âncora** (não por linha — linhas driftam), nos arquivos-alvo do seu projeto (config do projeto: onde a camada de analytics loga hoje). Logue o nome do evento + params-chave relevantes ao seu CT.
-   - Se o projeto bloqueia `print`/`debugPrint` em código de produção (hook de lint, config do projeto), use `log()` — ele passa por esse tipo de gate.
-2. **Capturar:** leia o stream `Logging` do VM service e filtre as linhas instrumentadas (ex.: `[GA4]`).
+1. **Instrument (temporary — REVERT at the end):** add `log('[GA4] …')` right **after** each successful analytics call, by **anchor** (not by line — lines drift), in your project's target files (project config: where the analytics layer logs today). Log the event name + the param keys relevant to your CT.
+   - If the project blocks `print`/`debugPrint` in production code (lint hook, project config), use `log()` — it passes that kind of gate.
+2. **Capture:** read the VM service's `Logging` stream and filter for the instrumented lines (e.g. `[GA4]`).
 
 ```dart
-// Recipe: conectar ao VM service e escutar o stream Logging.
-// Uso: dart run <este-arquivo>.dart <ws-uri>   (ws-uri vem do log do app: "Dart VM service is listening on")
+// Recipe: connect to the VM service and listen to the Logging stream.
+// Usage: dart run <this-file>.dart <ws-uri>   (ws-uri comes from the app log: "Dart VM service is listening on")
 import 'package:vm_service/vm_service.dart';
 import 'package:vm_service/vm_service_io.dart';
 
@@ -71,54 +71,54 @@ Future<void> main(List<String> args) async {
     final msg = e.logRecord?.message?.valueAsString;
     if (msg != null && msg.contains('[GA4]')) print(msg);
   });
-  print('reader GA4 escutando em ${args.first} — dirija o app; Ctrl+C pra parar');
+  print('GA4 reader listening on ${args.first} — drive the app; Ctrl+C to stop');
 }
 ```
 
-3. **Reverter:** `git checkout` nos arquivos instrumentados. **Confirme o repo limpo** (`git status --short lib/`) antes de encerrar.
+3. **Revert:** `git checkout` on the instrumented files. **Confirm the repo is clean** (`git status --short lib/`) before wrapping up.
 
-### B. DebugView (zero-touch — spot-check manual em prod)
+### B. DebugView (zero-touch — manual spot-check in prod)
 
 - **iOS sim:** `xcrun simctl launch booted <bundle> -FIRDebugEnabled YES`.
 - **Android:** `adb shell setprop debug.firebase.analytics.app <package>`.
-- Exige stream vinculado (prod); é console web — o agente não lê/screenshota programaticamente. Bom pra conferência manual, ruim pra registro reprodutível.
+- Requires a bound stream (prod); it's a web console — the agent doesn't read/screenshot it programmatically. Good for a manual check, bad for a reproducible record.
 
-## Fluxo
+## Flow
 
-1. **Preflight** — skill `mobile:marionette` disponível? Device booted? Build com a camada de tracking completa (se aplicável)? Ambiente = o esperado?
-2. **Preparar captura** — método A (instrumentar) ou B (DebugView).
-3. **Launch + connect** — skill `mobile:marionette` (`scripts/run.sh` → `marionette__connect`). Pegue a ws URI do log do app.
-4. **Dirigir + screenshot** — `get_interactive_elements` → `tap`/`scroll_to`. Screenshot em disco quando o marionette só devolve inline (`xcrun simctl io booted screenshot <path>.png` ou equivalente Android). Coords do marionette são **lógicas**, não pixels.
-5. **Capturar + casar** — o reader imprime o evento; **case tela × evento** e confirme a **origem** (o param de localização/tela = a tela testada — mata falso-positivo de outra tela).
-6. **Registrar** — preencha a tabela de CTs (esperado × capturado × veredito). Marque `EMPÍRICO` (visto ao vivo) / `código` (verificado no fan-out, não exercitado) / `não dispara` (by-design).
-7. **(Opcional) Report** — comece pela casca `ga4-report-template.html` e preencha as seções.
-8. **Reverter** — desfazer a instrumentação; confirmar repos limpos.
+1. **Preflight** — is the `mobile:marionette` skill available? Device booted? Build with the full tracking layer (if applicable)? Environment = the expected one?
+2. **Prepare capture** — method A (instrument) or B (DebugView).
+3. **Launch + connect** — `mobile:marionette` skill (`scripts/run.sh` → `marionette__connect`). Grab the ws URI from the app log.
+4. **Drive + screenshot** — `get_interactive_elements` → `tap`/`scroll_to`. Screenshot to disk when marionette only returns inline (`xcrun simctl io booted screenshot <path>.png` or the Android equivalent). Marionette coords are **logical**, not pixels.
+5. **Capture + match** — the reader prints the event; **match screen × event** and confirm the **origin** (the location/screen param = the screen under test — kills false positives from another screen).
+6. **Record** — fill in the CT table (expected × captured × verdict). Mark `EMPIRICAL` (seen live) / `code` (verified in fan-out, not exercised) / `doesn't fire` (by design).
+7. **(Optional) Report** — start from the `ga4-report-template.html` shell and fill in the sections.
+8. **Revert** — undo the instrumentation; confirm the repos are clean.
 
-## Regressivo — antes × depois
+## Regression — before × after
 
-- A **rodada baseline** é o "antes" (guarde a TABELA-CTS + screenshots).
-- Após a mudança, **re-rode IDÊNTICO** (mesmo método, device, build) → "depois".
-- **Compare CT a CT.** Sucesso = os CTs-alvo mudaram do esperado. Atualize a coluna "depois" e troque painéis ilustrativos por payload real.
+- The **baseline run** is the "before" (keep the CT-TABLE + screenshots).
+- After the change, **re-run IDENTICALLY** (same method, device, build) → "after".
+- **Compare CT by CT.** Success = the target CTs changed as expected. Update the "after" column and swap illustrative panels for real payloads.
 
-## Plataformas
+## Platforms
 
-| Plataforma | Status | Adaptação |
+| Platform | Status | Adaptation |
 |---|---|---|
-| **iOS Simulator / macOS / reader** | caminho canônico deste roteiro (provado numa rodada real) | — |
-| **Android** | reader = **o mesmo** (é VM Dart, agnóstico); DebugView via `adb setprop`; screenshot via `adb exec-out screencap -p`; ws URI do `flutter run`/logcat | validar na primeira vez |
-| **Windows** | **só Android** — iOS sim NÃO roda em Windows; `simctl` não existe (usar `adb`) | validar na primeira vez |
+| **iOS Simulator / macOS / reader** | this script's canonical path (proven in a real run) | — |
+| **Android** | reader = **the same** (it's Dart VM, platform-agnostic); DebugView via `adb setprop`; screenshot via `adb exec-out screencap -p`; ws URI from `flutter run`/logcat | validate the first time |
+| **Windows** | **Android only** — iOS sim does NOT run on Windows; `simctl` doesn't exist (use `adb`) | validate the first time |
 
-> Honestidade: valide cada adaptação de plataforma na primeira vez que for usada — não assuma que o mecanismo generaliza sem checar.
+> Honesty: validate each platform adaptation the first time it's used — don't assume the mechanism generalizes without checking.
 
 ## Gotchas
 
-- **Zero eventos da camada extra de tracking** → build sem essa camada, ou a pré-condição dela não foi satisfeita. Confirme ambos antes de reportar "não dispara".
-- **Nomenclatura de param pode divergir entre a camada de middleware e o GA4 puro** (singular vs. plural, ou nomes ligeiramente diferentes pro mesmo conceito) — confira contra o esperado do seu projeto antes de marcar como bug.
-- **Impressão por-componente** costuma ter threshold (ex.: ≥50% visível por 1s) e re-dispara ao voltar à tela — não é bug se disparar de novo.
-- **Instrumentação não revertida** = risco de vazar log em commit. Sempre `git checkout` + verificar.
+- **Zero events from the extra tracking layer** → build without that layer, or its precondition wasn't met. Confirm both before reporting "doesn't fire".
+- **Param naming can diverge between the middleware layer and plain GA4** (singular vs. plural, or slightly different names for the same concept) — check against your project's expectation before flagging as a bug.
+- **Per-component impression** usually has a threshold (e.g. ≥50% visible for 1s) and re-fires when returning to the screen — not a bug if it fires again.
+- **Instrumentation not reverted** = risk of leaking a log into a commit. Always `git checkout` + verify.
 
-## Referências
+## References
 
-- Dirigir o app: skill `mobile:marionette`
-- Transporte VM service (reuso): skill `mobile:export-logs`
-- Casca do report: `ga4-report-template.html` (este skill)
+- Driving the app: `mobile:marionette` skill
+- VM service transport (reuse): `mobile:export-logs` skill
+- Report shell: `ga4-report-template.html` (this skill)

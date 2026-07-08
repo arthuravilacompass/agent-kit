@@ -1,57 +1,57 @@
 # MobX Aspirational Patterns — Reference
 
-> Padrões sofisticados que valem **como norte**, não como gate. Aplique em código novo onde fizer sentido. **Não obrigam refactor de código existente.** Em PRs de bugfix, são `non-blocker`.
+> Sophisticated patterns that are worth **as a direction**, not as a gate. Apply in new code where it makes sense. **Do not force a refactor of existing code.** In bugfix PRs, they are `non-blocker`.
 
-Companion to `REFERENCE.md` (BLOCKER + STANDARD tiers). Use `RECIPES.md` para receitas de migração quando um smell já foi detectado.
+Companion to `REFERENCE.md` (BLOCKER + STANDARD tiers). Use `RECIPES.md` for migration recipes once a smell has already been detected.
 
-## Quando aplicar
+## When to Apply
 
-- Stores ou controllers novos tocando flow state, async results, ou multi-observable composition.
-- PRs introduzindo novos `@observable` fields ou `@action` methods com async.
-- Code review flagging estes codes: FSM001, SSOT001, CMD001, MOBX006.
-- Nunca bloqueia PRs de bugfix — são `non-blocker`.
+- New stores or controllers touching flow state, async results, or multi-observable composition.
+- PRs introducing new `@observable` fields or async `@action` methods.
+- Code review flagging these codes: FSM001, SSOT001, CMD001, MOBX006.
+- Never blocks bugfix PRs — they are `non-blocker`.
 
 ---
 
-### FSM001 — Estado de fluxo como sealed class — sem flags compostos
+### FSM001 — Flow State as a Sealed Class — No Compound Flags
 
-> enforced-by: agente `mobile:mobx-smell-hunter`
+> enforced-by: `mobile:mobx-smell-hunter` agent
 
-**Sinal**: 3+ `@observable` fields como `*State`, `*Mode`, `is*`, `has*`, `_pending*` que se influenciam mutuamente.
+**Signal**: 3+ `@observable` fields like `*State`, `*Mode`, `is*`, `has*`, `_pending*` that mutually influence each other.
 
 ```dart
-// ERRADO — 4 fields compondo um único conceito de fluxo
+// BAD — 4 fields composing a single flow concept
 @observable FlowMode _mode = FlowMode.list;
 @observable SubState _subState = SubState.initial;
 @observable bool _isEditingInput = false;
 @observable bool _needsCompletion = false;
 
-// CERTO — sealed class expressando estados mutuamente exclusivos
+// GOOD — sealed class expressing mutually exclusive states
 @observable FlowState _flowState = const FlowIdle();
 FlowState get flowState => _flowState;
 
 sealed class FlowState { const FlowState(); }
 final class FlowIdle extends FlowState { const FlowIdle(); }
-// FlowBrowsing, FlowEditing, FlowPendingCompletion seguem mesmo padrão
+// FlowBrowsing, FlowEditing, FlowPendingCompletion follow the same pattern
 ```
 
-**Quando NÃO se aplica**: Observables que são dados independentes (lista, entidade, mensagem de erro).
+**When it does NOT apply**: Observables that are independent data (a list, an entity, an error message).
 
 ---
 
-### Ação falível retorna sealed result, não bool/void
+### A Fallible Action Returns a Sealed Result, Not bool/void
 
-**Sinal**: `@action` que retorna `Future<bool>` ou `Future<void>` para operações que podem falhar.
+**Signal**: an `@action` that returns `Future<bool>` or `Future<void>` for operations that can fail.
 
 ```dart
-// ERRADO — bool como sinal de sucesso/falha
+// BAD — bool as a success/failure signal
 @action
 Future<bool> submit() async {
   try { await _repository.save(_draft); return true; }
   catch (_) { return false; }
 }
 
-// CERTO — resultado tipado com sealed class
+// GOOD — typed result with a sealed class
 @action
 Future<SubmitResult> submit() async {
   try {
@@ -67,23 +67,23 @@ sealed class SubmitResult { const SubmitResult(); }
 final class SubmitSuccess extends SubmitResult { final SavedEntity entity; const SubmitSuccess(this.entity); }
 ```
 
-**Quando NÃO se aplica**: Fire-and-forget genuíno (analytics, logging).
+**When it does NOT apply**: genuine fire-and-forget (analytics, logging).
 
 ---
 
-### Store gerenciada por Coordinator é pura — I/O no Coordinator
+### A Coordinator-Managed Store Is Pure — I/O Lives in the Coordinator
 
-**Sinal**: Store injetada por Coordinator que ainda tem `_repository` próprio.
+**Signal**: a store injected by a Coordinator that still has its own `_repository`.
 
 ```dart
-// ERRADO — Store com _repository próprio enquanto gerenciada por Coordinator
+// BAD — Store with its own _repository while managed by a Coordinator
 abstract class _ItemStoreBase with Store {
   _ItemStoreBase(this._repository);
   final ItemRepository _repository;
-  @action Future<void> loadItem(String id) async { /* I/O na store */ }
+  @action Future<void> loadItem(String id) async { /* I/O in the store */ }
 }
 
-// CERTO — Store pura (estado + computed), I/O no Coordinator
+// GOOD — Pure store (state + computed), I/O in the Coordinator
 abstract class _ItemStoreBase with Store {
   @observable ItemState _state = const ItemIdle();
   ItemState get state => _state;
@@ -91,28 +91,28 @@ abstract class _ItemStoreBase with Store {
   @action void applyLoading() => _state = const ItemLoading();
   @action void applyError(String msg) => _state = ItemError(msg);
 }
-// Coordinator chama _itemStore.applyLoading(), faz I/O, depois applyItem/applyError
+// Coordinator calls _itemStore.applyLoading(), does I/O, then applyItem/applyError
 ```
 
-**Quando NÃO se aplica**: Stores que operam de forma independente (sem Coordinator gerenciando seu ciclo de vida).
+**When it does NOT apply**: Stores that operate independently (with no Coordinator managing their lifecycle).
 
 ---
 
-### CMD001 — Discriminador primitivo vira sealed Command
+### CMD001 — Primitive Discriminator Becomes a Sealed Command
 
-> enforced-by: agente `mobile:mobx-smell-hunter`
+> enforced-by: `mobile:mobx-smell-hunter` agent
 
-**Sinal**: `bool` ou `String` passado como parâmetro seleciona QUAL comportamento executar.
+**Signal**: a `bool` or `String` passed as a parameter selects WHICH behavior to run.
 
 ```dart
-// ERRADO — discriminadores primitivos
+// BAD — primitive discriminators
 Future<void> processFlow(String id, bool isNew, String mode) async {
   if (isNew) { await _create(id); }
   else if (mode == 'quick') { await _quickUpdate(id); }
   else { await _fullUpdate(id); }
 }
 
-// CERTO — intenção tipada, switch exhaustivo
+// GOOD — typed intent, exhaustive switch
 Future<FlowResult> processFlow(FlowCommand command) async {
   return switch (command) {
     CreateItem(:final draft) => _create(draft),
@@ -123,52 +123,52 @@ sealed class FlowCommand { const FlowCommand(); }
 final class CreateItem extends FlowCommand { final ItemDraft draft; const CreateItem(this.draft); }
 ```
 
-**Quando NÃO se aplica**: Parâmetros que são dados de uma única operação (`loadItems(String query, int page)`).
+**When it does NOT apply**: Parameters that are data for a single operation (`loadItems(String query, int page)`).
 
 ---
 
-### SSOT001 — Estado tipado escrito por um único writer privado
+### SSOT001 — Typed State Written by a Single Private Writer
 
-> enforced-by: agente `mobile:mobx-smell-hunter`
+> enforced-by: `mobile:mobx-smell-hunter` agent
 
-`sealed class` state atom exposed as `@readonly` MUST be written through a single private `_set*` action.
+A `sealed class` state atom exposed as `@readonly` MUST be written through a single private `_set*` action.
 
 ```dart
-// ERRADO — múltiplos write sites diretos
+// BAD — multiple direct write sites
 @observable VariantSelection _selection = _emptySelection;
-_selection = _emptySelection;          // em resetOnExit
-_selection = _selection.copyWith(...); // em _reconcileVariants
-_selection = next;                     // em _applySelection
+_selection = _emptySelection;          // in resetOnExit
+_selection = _selection.copyWith(...); // in _reconcileVariants
+_selection = next;                     // in _applySelection
 
-// CERTO — sealed class + @readonly + single writer
+// GOOD — sealed class + @readonly + single writer
 @readonly
 SizeSelection _size = const SizeNotSelected();
 
 @action
 void _setSize(SizeSelection next) => _size = next;
-// Todo write no arquivo passa por _setSize — auditável via grep.
+// Every write in the file goes through _setSize — auditable via grep.
 ```
 
 ---
 
-### MOBX006 — Estado sintético de concorrência — absorva no enum ou use Future?
+### MOBX006 — Synthetic Concurrency State — Absorb into the Enum or Use Future?
 
-> enforced-by: agente `mobile:mobx-smell-hunter`
+> enforced-by: `mobile:mobx-smell-hunter` agent
 
-**Sinal**: enum `{ idle, inFlight }` cujo único propósito é impedir re-entrada, coexistindo com guards de staleness no mesmo arquivo.
+**Signal**: an `{ idle, inFlight }` enum whose sole purpose is preventing re-entry, coexisting with staleness guards in the same file.
 
 ```dart
-// ERRADO — lock como @observable cria segunda fonte para isLoading
+// BAD — lock as @observable creates a second source of truth for isLoading
 @observable _OpLock _lock = _OpLock.idle;
 @computed bool get isLoading =>
     _state == DomainState.loading || _lock == _OpLock.inFlight;
 
-// CERTO — absorver no enum de domínio
+// GOOD — absorb into the domain enum
 enum DomainState { idle, loading, operating, success, error }
 @computed bool get isLoading =>
     _state == DomainState.loading || _state == DomainState.operating;
 
-// CERTO — lock puramente mecânico como Future? não-observável
+// GOOD — purely mechanical lock as a non-observable Future?
 Future<Result>? _pending;
 Future<Result> _operate() async {
   if (_pending != null) return _pending!;
@@ -177,4 +177,4 @@ Future<Result> _operate() async {
 }
 ```
 
-**Quando NÃO se aplica**: Dois estados de loading genuinamente independentes que o usuário precisa distinguir na UI.
+**When it does NOT apply**: Two genuinely independent loading states that the user needs to distinguish in the UI.

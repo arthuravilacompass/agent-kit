@@ -1,151 +1,151 @@
 # Flutter Code Review Checklist
 
-Checklist universal de code review para Flutter/Dart (stack MobX + get_it/injectable + go_router + dartz). Sempre carregado em PR review.
+Universal code review checklist for Flutter/Dart (stack: MobX + get_it/injectable + go_router + dartz). Always loaded during PR review.
 
 ## Verification Discipline (mandatory)
 
-Antes de listar qualquer finding em report de review, releia as linhas exatas que vai marcar e cite-as. Se o problema já está corrigido no estado atual do arquivo, descarte o finding. Reviews perdem credibilidade quando listam issues já resolvidos.
+Before listing any finding in a review report, re-read the exact lines you're about to flag and cite them. If the issue is already fixed in the file's current state, drop the finding. Reviews lose credibility when they list issues that are already resolved.
 
-Aplica-se a:
-- Reviews de PRs remotos (o arquivo na branch remota pode diferir do snapshot inicial do diff)
-- Reviews depois que o autor pushou novos commits no meio do review
-- Qualquer finding produzido por subagent que não leu o arquivo diretamente
+Applies to:
+- Reviews of remote PRs (the file on the remote branch may differ from the diff's initial snapshot)
+- Reviews after the author pushed new commits mid-review
+- Any finding produced by a subagent that didn't read the file directly
 
-**Regra**: todo finding no report final precisa ter file path + line number, e você deve ter acabado de ler aquelas linhas.
+**Rule**: every finding in the final report needs a file path + line number, and you must have just read those lines.
 
 ## Workflow
 
-1. `git diff <base>...HEAD` (config: branch base do projeto) para ver todos os commits do PR
-2. Aplicar **Camada 1** abaixo — todo PR, sem exceção (17 itens)
-3. Aplicar **Camada 2** (este skill) — apenas quando o gatilho for verdadeiro
-4. Se for refactor: `mobile:refactor-review` (protocolo de 2 fases)
-5. Antes de commit/PR: rode o fluxo de commit/PR do seu setup (ex.: `core:commit`, `core:pr`)
+1. `git diff <base>...HEAD` (config: the project's base branch) to see all commits in the PR
+2. Apply **Layer 1** below — every PR, no exception (17 items)
+3. Apply **Layer 2** (this skill) — only when the trigger is true
+4. If it's a refactor: `mobile:refactor-review` (2-phase protocol)
+5. Before commit/PR: run your setup's commit/PR flow (e.g. `core:commit`, `core:pr`)
 
-## Camada 1 — Sempre Revisar
+## Layer 1 — Always Review
 
-| # | Item | Regra |
+| # | Item | Rule |
 |---|---|---|
-| 1 | Lógica de negócio correta | — |
-| 2 | State shape: sem boolean flags paralelos | MOBX001 |
-| 3 | `runInAction()` após await com múltiplas mutações | MOBX005 |
-| 4 | Error handling: `Either` no repo, `fold` no controller (ou o padrão de erro do seu projeto) | architecture |
-| 5 | Fix na camada certa (não compensar producer no consumer) | bugfix principles (config do projeto) |
-| 6 | Null safety: sem `!` excessivo, sem `dynamic` implícito | Dart |
-| 7 | `catch (e)` genérico sem `on` → especificar tipo da exceção | Dart |
-| 8 | Nunca capturar `Error` (indica bug, não deve ser tratado) | Dart |
-| 9 | Sem `print()` em produção → usar `dart:developer log()` | LOG001 |
-| 10 | Sem dados sensíveis em logs (tokens, PII) | Security |
-| 11 | Testes adicionados/atualizados para código novo | Testing |
-| 12 | Controllers não lançam exceções → mutam estado ou retornam sealed result | CTRL001 |
-| 13 | Chamada direta ao container de DI nunca dentro de Store/Controller | DI001/DI004 |
-| 14 | Tipo de retorno explícito em `@action` e métodos públicos | DART001 |
-| 15 | Estado de erro carrega informação para exibição (não só flag) | state shape |
-| 16 | Estado de loading não retém dados de fetch anterior | state shape |
-| 17 | Sem comentários explicando qual regra foi aplicada (`// MOBX004`, `// item 6`) em código produtivo — comentário descreve o *porquê*, não a regra | code hygiene |
+| 1 | Correct business logic | — |
+| 2 | State shape: no parallel boolean flags | MOBX001 |
+| 3 | `runInAction()` after await with multiple mutations | MOBX005 |
+| 4 | Error handling: `Either` in the repo, `fold` in the controller (or your project's error pattern) | architecture |
+| 5 | Fix at the right layer (don't compensate for the producer in the consumer) | bugfix principles (project config) |
+| 6 | Null safety: no excessive `!`, no implicit `dynamic` | Dart |
+| 7 | Generic `catch (e)` with no `on` → specify the exception type | Dart |
+| 8 | Never catch `Error` (indicates a bug, shouldn't be handled) | Dart |
+| 9 | No `print()` in production → use `dart:developer log()` | LOG001 |
+| 10 | No sensitive data in logs (tokens, PII) | Security |
+| 11 | Tests added/updated for new code | Testing |
+| 12 | Controllers don't throw exceptions → mutate state or return a sealed result | CTRL001 |
+| 13 | Direct call to the DI container never inside a Store/Controller | DI001/DI004 |
+| 14 | Explicit return type on `@action` and public methods | DART001 |
+| 15 | Error state carries information for display (not just a flag) | state shape |
+| 16 | Loading state doesn't retain data from a previous fetch | state shape |
+| 17 | No comments explaining which rule was applied (`// MOBX004`, `// item 6`) in production code — a comment describes the *why*, not the rule | code hygiene |
 
-## Prefixos de Comentário
+## Comment Prefixes
 
-Convenção comum de PR review (adapte à ferramenta do seu projeto — GitHub, Bitbucket, etc.):
+Common PR review convention (adapt to your project's tool — GitHub, Bitbucket, etc.):
 
-| Tier da regra | Regras | Prefixo |
+| Rule tier | Rules | Prefix |
 |---|---|---|
 | 🔴 BLOCKER | MOBX001-005, ARCH001, DI001-002, LOG001 | `blocker:` |
-| 🟡 STANDARD | codes em `STANDARDS.md` (on-demand) | `blocker:` |
+| 🟡 STANDARD | codes in `STANDARDS.md` (on-demand) | `blocker:` |
 | 🔵 ASPIRATIONAL | FSM001, ARCH002-003, CMD001, SSOT001, MOBX006 | `non-blocker:` |
-| Preferência pessoal | estilo, nomes, decomposição | `non-blocker:` |
+| Personal preference | style, names, decomposition | `non-blocker:` |
 
-`blocker:` = obrigatório corrigir antes do merge. `non-blocker:` = avaliar e responder — pode discordar com justificativa.
+`blocker:` = must fix before merge. `non-blocker:` = evaluate and respond — may disagree with justification.
 
-Formato: `blocker: MOBX001 — _isLoading e _hasError são flags paralelos, deveriam ser um enum (BasketStore.dart:42)`
+Format: `blocker: MOBX001 — _isLoading and _hasError are parallel flags, should be an enum (BasketStore.dart:42)`
 
-## Atalhos
+## Shortcuts
 
-- Este skill — Camada 2 (gatilhos contextuais) + reference (component structure, naming, imports, formatting)
-- `mobile:refactor-review` — protocolo de 2 fases para refactor
-- `mobile:mobx` `RECIPES.md` — receitas de fix por código de smell
-- Entry points de review do seu setup (config): review completo pré-PR, review pre-push, review de PR remoto
+- This skill — Layer 2 (contextual triggers) + reference (component structure, naming, imports, formatting)
+- `mobile:refactor-review` — 2-phase refactor protocol
+- `mobile:mobx` `RECIPES.md` — fix recipes by smell code
+- Your setup's review entry points (config): full pre-PR review, pre-push review, remote PR review
 
-## Fontes Canônicas
+## Canonical Sources
 
-- `mobile:mobx` `REFERENCE.md` — regras codificadas (MOBX*, DI*, ARCH*, LOG001) BLOCKER tier
-- `STANDARDS.md` (esta skill) — STANDARD codes on-demand
-- `SKILL.md` (esta skill) — Camada 2 contextual + component structure reference
-- `COOKBOOK.md` — exemplos DI, navegação, Either pattern, Security checklist, Testing
+- `mobile:mobx` `REFERENCE.md` — codified rules (MOBX*, DI*, ARCH*, LOG001) BLOCKER tier
+- `STANDARDS.md` (this skill) — on-demand STANDARD codes
+- `SKILL.md` (this skill) — contextual Layer 2 + component structure reference
+- `COOKBOOK.md` — DI, navigation, Either pattern, Security checklist, Testing examples
 
-## Camada 2 — Quando Aplicável
+## Layer 2 — When Applicable
 
-| # | Quando | Item | Regra |
+| # | When | Item | Rule |
 |---|---|---|---|
-| 18 | Há reactions | Reactions com dispose em `dispose()` | MOBX003 |
-| 19 | Há UI | Sem import de SDK/DTO na camada de UI | ACL001 |
-| 20 | Há UI | Componentes do design system + tokens visuais (config: sistema de tokens do projeto) | UI001/UI002 |
-| 21 | Há UI | `build()` < ~100 linhas, decompor em widgets | Widget |
-| 22 | Há UI | Subwidgets em classes próprias (element reuse + const propagation) | Widget |
-| 23 | Há UI | `const` constructors em widgets cujos campos são `final` | Widget |
-| 24 | Há Observer | Observer granular (menor escopo possível, não tela inteira) | Performance |
-| 25 | Há Observer | Subtrees estáticos dentro de Observer marcados como `const` | Performance |
-| 26 | Há listas | `ListView.builder` / `GridView.builder` para listas grandes | Performance |
-| 27 | Há rebuild complexo | `RepaintBoundary` em subtrees que repintam independentemente | Performance |
-| 28 | Há imagens de rede | Cache, resolução apropriada, `cacheWidth`/`cacheHeight`, placeholder/error | Performance |
-| 29 | Há animação de opacidade | `AnimatedOpacity`/`FadeTransition` em vez de `Opacity` direto | Performance |
-| 30 | Há layout | `IntrinsicHeight`/`IntrinsicWidth` com parcimônia (extra layout pass) | Performance |
-| 31 | Há MediaQuery | `MediaQuery.sizeOf(context)` em vez de `MediaQuery.of(context).size` | Performance |
-| 32 | Há async fire-and-forget | Race conditions: token de versão ou cancelamento | MobX |
-| 33 | Há coleções na UI | Sorting/filtering fora do `build()` → `@computed` | Performance |
-| 34 | Há strings novas | l10n presente em todas as locales suportadas (config: lista do projeto) | L10n |
-| 35 | Há strings localizadas | Sem concatenação — usar placeholders na chave | L10n |
-| 36 | Há data/moeda/número | Formatação locale-aware (não hardcodar o locale) | L10n |
-| 37 | Há l10n em store/controller | l10n resolvido na Page, injetado via parâmetro | L10N001 |
-| 38 | Há resolução de DI em widget | Nunca em `build()`, só em `initState()` ou campo final | DI003 |
-| 39 | Há `ObservableList/Map/Set` | Devem ser privados (`_`) com getter público | MOBX007 |
-| 40 | Há widget `const` | `const` constructor + resolução de DI em build = erro | WIDGET003 |
-| 41 | Há FocusNode | Listeners nunca chamam `setState()` → lógica no store | WIDGET002 |
-| 42 | Há `reaction()` em widget | Nunca chama `setState()` → usar Observer em vez disso | PERF001 |
-| 43 | Há paginação | Erro de página seguinte não destrói lista já carregada | Errors |
-| 44 | Há erros transientes | Retry disponível para o usuário | Errors |
-| 45 | Há navegação | Argumentos tipados via `extra` — sem `Map<String, dynamic>` ou cast de `Object?` | Navigation |
-| 46 | Há nova classe DI | Sem dependências circulares no grafo | DI |
-| 47 | Há testes | Edge cases: vazio, erro, loading, paginação, filtro | Testing |
-| 48 | Há testes | Cada arquivo de teste cobre uma única classe | Testing |
-| 49 | Há widget tests | `pumpWidget` + `pump`/`pumpAndSettle` corretamente (sem `sleep`) | Testing |
-| 50 | Há componentes visuais críticos | Golden tests cobrindo estados | Testing |
+| 18 | There are reactions | Reactions disposed in `dispose()` | MOBX003 |
+| 19 | There is UI | No SDK/DTO import in the UI layer | ACL001 |
+| 20 | There is UI | Design system components + visual tokens (config: your project's token system) | UI001/UI002 |
+| 21 | There is UI | `build()` < ~100 lines, decompose into widgets | Widget |
+| 22 | There is UI | Subwidgets in their own classes (element reuse + const propagation) | Widget |
+| 23 | There is UI | `const` constructors on widgets whose fields are `final` | Widget |
+| 24 | There is an Observer | Granular Observer (smallest possible scope, not the whole screen) | Performance |
+| 25 | There is an Observer | Static subtrees inside Observer marked `const` | Performance |
+| 26 | There are lists | `ListView.builder` / `GridView.builder` for large lists | Performance |
+| 27 | There is complex rebuild | `RepaintBoundary` on subtrees that repaint independently | Performance |
+| 28 | There are network images | Caching, appropriate resolution, `cacheWidth`/`cacheHeight`, placeholder/error | Performance |
+| 29 | There is opacity animation | `AnimatedOpacity`/`FadeTransition` instead of direct `Opacity` | Performance |
+| 30 | There is layout | `IntrinsicHeight`/`IntrinsicWidth` used sparingly (extra layout pass) | Performance |
+| 31 | There is MediaQuery | `MediaQuery.sizeOf(context)` instead of `MediaQuery.of(context).size` | Performance |
+| 32 | There is fire-and-forget async | Race conditions: version token or cancellation | MobX |
+| 33 | There are collections in the UI | Sorting/filtering outside `build()` → `@computed` | Performance |
+| 34 | There are new strings | l10n present in every supported locale (config: project's list) | L10n |
+| 35 | There are localized strings | No concatenation — use placeholders in the key | L10n |
+| 36 | There is date/currency/number | Locale-aware formatting (don't hardcode the locale) | L10n |
+| 37 | There is l10n in store/controller | l10n resolved in the Page, injected via parameter | L10N001 |
+| 38 | There is DI resolution in a widget | Never in `build()`, only in `initState()` or a final field | DI003 |
+| 39 | There is `ObservableList/Map/Set` | Must be private (`_`) with a public getter | MOBX007 |
+| 40 | There is a `const` widget | `const` constructor + DI resolution in build = error | WIDGET003 |
+| 41 | There is a FocusNode | Listeners never call `setState()` → logic goes in the store | WIDGET002 |
+| 42 | There is `reaction()` in a widget | Never calls `setState()` → use Observer instead | PERF001 |
+| 43 | There is pagination | An error on the next page doesn't destroy the already-loaded list | Errors |
+| 44 | There are transient errors | Retry available to the user | Errors |
+| 45 | There is navigation | Typed arguments via `extra` — no `Map<String, dynamic>` or `Object?` cast | Navigation |
+| 46 | There is a new DI class | No circular dependencies in the graph | DI |
+| 47 | There are tests | Edge cases: empty, error, loading, pagination, filter | Testing |
+| 48 | There are tests | Each test file covers a single class | Testing |
+| 49 | There are widget tests | `pumpWidget` + `pump`/`pumpAndSettle` used correctly (no `sleep`) | Testing |
+| 50 | There are critical visual components | Golden tests covering states | Testing |
 
-## Standards — Conteúdo de Apoio
+## Standards — Supporting Content
 
 ### Dart Language
 
-- **`late`** — usar somente quando necessário; preferir nullable ou inicialização no construtor
-- **`final`/`const`** — `final` para variáveis locais, `const` para constantes de compilação
-- **Switch expressions** — preferir a cascatas de `if/else is` para pattern matching (Dart 3+)
-- **Records** — `(String, int)` para retornos múltiplos simples em vez de classes descartáveis
-- **Sealed class** — modelar estados com variantes mutuamente exclusivas
-- **`unawaited()`** — `Future` retornado sem `await` deve ser marcado com `unawaited()` para indicar intenção
-- **`StringBuffer`** — usar em loops; sem concatenação de string (`+=`) em loops
+- **`late`** — use only when necessary; prefer nullable or constructor initialization
+- **`final`/`const`** — `final` for local variables, `const` for compile-time constants
+- **Switch expressions** — prefer over `if/else is` cascades for pattern matching (Dart 3+)
+- **Records** — `(String, int)` for simple multi-value returns instead of throwaway classes
+- **Sealed class** — model states with mutually exclusive variants
+- **`unawaited()`** — a `Future` returned without `await` must be marked with `unawaited()` to signal intent
+- **`StringBuffer`** — use in loops; no string concatenation (`+=`) in loops
 
 ### Widget Keys
 
-- **`ValueKey`** — usar em listas/grids para preservar estado entre reorders
-- **`GlobalKey`** — usar com parcimônia; nunca para state sharing entre widgets
-- **`UniqueKey`** — nunca em `build()` (força rebuild a cada frame)
+- **`ValueKey`** — use in lists/grids to preserve state across reorders
+- **`GlobalKey`** — use sparingly; never for state sharing between widgets
+- **`UniqueKey`** — never in `build()` (forces a rebuild every frame)
 
 ### Race Conditions
 
 ```dart
-// BAD — race condition se updateFilter for chamado duas vezes rápido
+// BAD — race condition if updateFilter is called twice quickly
 @action
 void updateFilter(FilterEntity newFilter) {
   _resetFilter();
-  fetchFilteredProducts();  // fire-and-forget, sem proteção
+  fetchFilteredProducts();  // fire-and-forget, no protection
 }
 
-// GOOD — token de versão descarta responses obsoletas
+// GOOD — version token discards stale responses
 int _filterVersion = 0;
 
 @action
 Future<void> fetchFilteredProducts() async {
   final version = ++_filterVersion;
   final result = await _repository.getProducts(filter);
-  if (version != _filterVersion) return;  // stale, descarta
+  if (version != _filterVersion) return;  // stale, discard
   runInAction(() {
     result.fold(
       (failure) => _state = ProductListState.error,
@@ -162,11 +162,11 @@ Future<void> fetchFilteredProducts() async {
 
 ### Navigation Guards
 
-- Auth guards centralizados em um middleware de rota — não replicar lógica de auth em cada rota
-- Deep links configurados em ambas plataformas (Android intent-filter + iOS Universal Links) — ver `mobile:deeplink-debug`
-- `context.pop()` consistente — não misturar `Navigator.of(context).pop()` e `context.pop()` no mesmo fluxo
-- Argumentos via `extra` tipado — nunca `Map<String, dynamic>` ou cast de `Object?`
+- Auth guards centralized in a route middleware — don't replicate auth logic in every route
+- Deep links configured on both platforms (Android intent-filter + iOS Universal Links) — see `mobile:deeplink-debug`
+- Consistent `context.pop()` — don't mix `Navigator.of(context).pop()` and `context.pop()` in the same flow
+- Typed arguments via `extra` — never `Map<String, dynamic>` or an `Object?` cast
 
 ### Coverage
 
-Target comum: 80% em stores/repos (config: meta do seu projeto). Padrões de `setUp()` e cobertura de transições de estado: ver `COOKBOOK.md` §Testing.
+Common target: 80% on stores/repos (config: your project's goal). `setUp()` patterns and state-transition coverage: see `COOKBOOK.md` §Testing.

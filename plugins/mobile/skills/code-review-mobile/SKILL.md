@@ -1,37 +1,37 @@
 ---
 name: code-review-mobile
-description: Invoque para revisar um PR/diff Flutter — checklist universal Camada 1 (17 itens, sempre) + Camada 2 contextual (UI, Observer, listas, l10n, navegação, testes) + referência de estrutura de módulo/componente. Gatilhos em pt-BR — "revisa esse PR Flutter", "checklist de review mobile", "onde devia ficar esse widget/store".
+description: Invoke to review a Flutter PR/diff — universal Layer 1 checklist (17 items, always) + contextual Layer 2 (UI, Observer, lists, l10n, navigation, tests) + module/component structure reference. Triggers — "review this Flutter PR", "mobile review checklist", "where should this widget/store live".
 ---
 
-# Code Review Mobile — Casa Única de Review Flutter
+# Code Review Mobile — Single Home for Flutter Review
 
-Este skill é a casa única do conhecimento de review Flutter/MobX genérico (stack: Flutter + MobX + get_it/injectable + go_router + dartz `Either`). Companions na mesma pasta:
+This skill is the single home for generic Flutter/MobX review knowledge (stack: Flutter + MobX + get_it/injectable + go_router + dartz `Either`). Companions in the same folder:
 
-| Companion | Conteúdo |
+| Companion | Content |
 |---|---|
-| `CHECKLIST.md` | Verification discipline + workflow + Camada 1 (17 itens) + prefixos de comentário + Camada 2 (itens 18–50) |
-| `STRUCTURE.md` | Estrutura de módulo/componente: folder layout, naming, barrel files, widget extraction, modal sheets, import org, formatting |
-| `STANDARDS.md` | STANDARD codes em prosa (acordos de time — genéricos, adapte à convenção do seu projeto) |
-| `COOKBOOK.md` | Exemplos canônicos (DI, navegação, testing, Either pattern, security checklist, page template) |
+| `CHECKLIST.md` | Verification discipline + workflow + Layer 1 (17 items) + comment prefixes + Layer 2 (items 18–50) |
+| `STRUCTURE.md` | Module/component structure: folder layout, naming, barrel files, widget extraction, modal sheets, import org, formatting |
+| `STANDARDS.md` | STANDARD codes in prose (team agreements — generic, adapt to your project's convention) |
+| `COOKBOOK.md` | Canonical examples (DI, navigation, testing, Either pattern, security checklist, page template) |
 
-## Config do projeto
+## Project Config
 
-Este skill assume o stack Flutter + MobX + `get_it`/`injectable` + `go_router` + `dartz` (`Either`) — troque os exemplos se seu projeto usar outro state-management/DI/navigation stack. Assume também que o projeto define:
-- **Sistema de design tokens** próprio (se houver) — os itens de Camada 2 que mencionam "tokens visuais" apontam para a config do seu design system, não para um específico.
-- **Locales suportadas** (se o app for multi-idioma) — os itens de l10n assumem que você preenche a lista real.
-- **Branch base** para `git diff` (default sugerido: `main`).
+This skill assumes the Flutter + MobX + `get_it`/`injectable` + `go_router` + `dartz` (`Either`) stack — swap the examples if your project uses a different state-management/DI/navigation stack. It also assumes the project defines:
+- Its own **design tokens system** (if any) — Layer 2 items that mention "visual tokens" point to your design system's config, not to a specific one.
+- **Supported locales** (if the app is multi-language) — l10n items assume you fill in the real list.
+- **Base branch** for `git diff` (suggested default: `main`).
 
-## Camada 1 + Workflow
+## Layer 1 + Workflow
 
-Read `CHECKLIST.md` §Camada 1 for the universal 17-item checklist, PR workflow, and comment prefixes (`blocker:` / `non-blocker:`). Apply before Camada 2.
+Read `CHECKLIST.md` §Layer 1 for the universal 17-item checklist, PR workflow, and comment prefixes (`blocker:` / `non-blocker:`). Apply before Layer 2.
 
-## Camada 2 — Contextual Checks
+## Layer 2 — Contextual Checks
 
-Read `CHECKLIST.md` §Camada 2 (items 18–50). Apply only when the trigger condition in the "Quando" column is present in the diff.
+Read `CHECKLIST.md` §Layer 2 (items 18–50). Apply only when the trigger condition in the "When" column is present in the diff.
 
 ## Standards Reference
 
-Read `STANDARDS.md` when the check involves any STANDARD-tier code — acordos de time que geralmente valem a pena adotar, mas não são universais como Camada 1.
+Read `STANDARDS.md` when the check involves any STANDARD-tier code — team agreements that are usually worth adopting, but aren't universal like Layer 1.
 
 Read `CHECKLIST.md` §Standards when the check involves: Dart language patterns (late, final, switch expressions, records, sealed classes), widget keys, race condition patterns, or navigation guards.
 
@@ -39,11 +39,11 @@ Read `CHECKLIST.md` §Standards when the check involves: Dart language patterns 
 
 Read `STRUCTURE.md` when the check involves: module folder layout, naming conventions, barrel files, widget extraction rules, modal bottom sheets, import organization, or formatting.
 
-## Exemplos Canônicos
+## Canonical Examples
 
 Read `COOKBOOK.md` for DI, navigation, testing patterns, Either pattern, security checklist, and page template.
 
 ## After This Skill
 
-1. `/superpowers:verification-before-completion` (ou o equivalente do seu setup)
-2. `mobile:refactor-review` se a mudança for um refactor
+1. `/superpowers:verification-before-completion` (or your setup's equivalent)
+2. `mobile:refactor-review` if the change is a refactor

@@ -1,185 +1,185 @@
 # MobX & DI Quality — Reference
 
-## Filosofia — Antes de Propor Qualquer Mudança de Estado
+## Philosophy — Before Proposing Any State Change
 
-**1. Esse estado já existe no store?** → observe diretamente. Nunca crie controle imperativo paralelo (`GlobalKey`, callbacks, `State` exposto).
+**1. Does this state already exist in the store?** → observe it directly. Never create parallel imperative control (`GlobalKey`, callbacks, exposed `State`).
 
-**2. Vou adicionar um boolean flag?** → quase sempre sinal de enum ou sealed class. `isLoading + isError` → `enum State { idle, loading, success, error }`.
+**2. Am I adding a boolean flag?** → almost always a signal for an enum or sealed class. `isLoading + isError` → `enum State { idle, loading, success, error }`.
 
-**3. Estou usando contador para rastrear algo?** → anti-pattern. Use lista observável ou estado derivado. `@computed int get count => items.length`.
+**3. Am I using a counter to track something?** → anti-pattern. Use an observable list or derived state. `@computed int get count => items.length`.
 
-**4. Esse `@observable` poderia ser `@computed`?** → se deriva de outro estado, é `@computed`. Observáveis redundantes causam dessync.
+**4. Could this `@observable` be a `@computed`?** → if it derives from other state, it's `@computed`. Redundant observables cause desync.
 
-**5. O nome reflete o domínio, não o mecanismo?** → `isEditingInput` → ruim · `addressInputState` → certo. Nome = conceito de negócio.
+**5. Does the name reflect the domain, not the mechanism?** → `isEditingInput` → bad · `addressInputState` → good. Name = business concept.
 
 ---
 
-## Quando aplicar
+## When to Apply
 
-Ao gerar, editar ou revisar qualquer `*_store.dart`, `*_controller.dart`, `*_page.dart`, `*_screen.dart`, ou `*_widget.dart`. Cobre smells que linter não detecta.
+When generating, editing, or reviewing any `*_store.dart`, `*_controller.dart`, `*_page.dart`, `*_screen.dart`, or `*_widget.dart`. Covers smells the linter doesn't detect.
 
-## Tiers — geografia de enforcement
+## Tiers — Enforcement Geography
 
-| Tier | Onde vive | Comportamento em review |
+| Tier | Where it lives | Behavior in review |
 |---|---|---|
-| 🔴 **BLOCKER (hook)** | Esta skill + `hooks/smell-checker.sh` (config do projeto — ver Task de hooks deste plugin) | Bloqueia mecanicamente (exit 2) — DI001, ARCH001, LOG001 |
-| 🔴 **BLOCKER (on-demand)** | Esta skill (REFERENCE.md) | `blocker:` — carregado por review agents e advisor; sem gate mecânico |
-| 🟡 **STANDARD (on-demand)** | Esta skill + `mobile:code-review-mobile` STANDARDS.md | `blocker:` por padrão; exceção precisa de justificativa no PR |
-| 🔵 **ASPIRATIONAL** | `PATTERNS.md` (esta skill) | `non-blocker:` — sugestão. Aplica em código novo; não obriga refactor |
+| 🔴 **BLOCKER (hook)** | This skill + `hooks/smell-checker.sh` (project config — see this plugin's hooks Task) | Blocks mechanically (exit 2) — DI001, ARCH001, LOG001 |
+| 🔴 **BLOCKER (on-demand)** | This skill (REFERENCE.md) | `blocker:` — loaded by review agents and the advisor; no mechanical gate |
+| 🟡 **STANDARD (on-demand)** | This skill + `mobile:code-review-mobile` STANDARDS.md | `blocker:` by default; an exception needs justification in the PR |
+| 🔵 **ASPIRATIONAL** | `PATTERNS.md` (this skill) | `non-blocker:` — suggestion. Applies to new code; doesn't force a refactor |
 
-> **Importante:** ASPIRATIONAL ≠ "regra ruim". É padrão sofisticado que vale enforcement gradual. Bloquear PR de bugfix pequeno por ASPIRATIONAL é fricção sem benefício proporcional.
+> **Important:** ASPIRATIONAL ≠ "weak rule". It's a sophisticated pattern that deserves gradual enforcement. Blocking a small bugfix PR over an ASPIRATIONAL item is friction with no proportional benefit.
 
 ## Enforcement
 
-Code com ID só nasce junto com seu validador-máquina (hook, eval ou agent); sem validador, escreva prosa com título forte. IDs com validador mecânico:
+Code with an ID is only born together with its machine-validator (hook, eval, or agent); with no validator, write prose with a strong title. IDs with a mechanical validator:
 
-- **DI001, ARCH001, LOG001** — `hooks/smell-checker.sh` deste plugin (exit 2, add-only). Os demais BLOCKER (MOBX001-005, "Store não nasce em build()") ficam só em prosa nesta skill — não há gate automático para eles.
-- **FSM001 / SSOT001 / CMD001 / MOBX006** — agente `mobile:mobx-smell-hunter`.
+- **DI001, ARCH001, LOG001** — this plugin's `hooks/smell-checker.sh` (exit 2, add-only). The remaining BLOCKER items (MOBX001-005, "Store isn't created in build()") stay prose-only in this skill — there's no automatic gate for them.
+- **FSM001 / SSOT001 / CMD001 / MOBX006** — `mobile:mobx-smell-hunter` agent.
 
 ---
 
 ## 🔴 BLOCKER
 
-### MOBX001 — Boolean flags paralelos em Store
+### MOBX001 — Parallel Boolean Flags in a Store
 
-**You MUST NOT** criar dois ou mais `@observable bool` mutuamente exclusivos no mesmo store.
+**You MUST NOT** create two or more mutually exclusive `@observable bool` in the same store.
 
-**Why**: o estado real é um enum/sealed class. Boolean flags paralelos permitem combinações inválidas (`isLoading=true && isError=true`) e causam reactions em estados intermediários inconsistentes.
+**Why**: the real state is an enum/sealed class. Parallel boolean flags allow invalid combinations (`isLoading=true && isError=true`) and cause reactions on inconsistent intermediate states.
 
-**Sinal**: dois+ `@observable bool` no mesmo store sem enum correspondente, com nomes complementares (`is*`, `has*`, `_pending*`, `_needs*`).
+**Signal**: two+ `@observable bool` in the same store with no corresponding enum, with complementary names (`is*`, `has*`, `_pending*`, `_needs*`).
 
-**Failure mode**: UI renderiza estado impossível (spinner + erro simultâneos); Observer rebuilds em combinações que não deveriam existir; debug ruim.
-
----
-
-### MOBX002 — `@computed` com side effect
-
-`@computed` é função pura. Sem I/O, sem async, sem mutações, sem chamadas que alteram estado.
-
-**Sinal**: chamada de método que muta estado, `await`, ou `setState()` dentro de `@computed`.
-
-**Failure mode**: `@computed` com side effect pode executar em momentos inesperados (MobX rastreia acesso, não chamada explícita); I/O em computed cria loops e comportamento não-determinístico.
+**Failure mode**: UI renders an impossible state (spinner + error simultaneously); Observer rebuilds on combinations that shouldn't exist; poor debugging.
 
 ---
 
-### MOBX003 — reaction/autorun/when sem dispose
+### MOBX002 — `@computed` with a Side Effect
 
-Todo `ReactionDisposer` deve ser armazenado e chamado no teardown. Em classes gerenciadas por DI, use o hook de dispose do seu container (ex.: `@disposeMethod` do `injectable`).
+`@computed` is a pure function. No I/O, no async, no mutations, no calls that alter state.
 
-**Sinal**: `reaction(`, `autorun(`, `when(` sem atribuição a `ReactionDisposer`; ou `ReactionDisposer` sem dispose correspondente.
+**Signal**: a method call that mutates state, `await`, or `setState()` inside `@computed`.
 
-**Failure mode**: memory leak — reaction continua rodando mesmo depois que o objeto é "destruído"; em widgets isso causa `setState` após dispose.
-
----
-
-### MOBX004 — Observable e getter (reconciliado)
-
-**Formulação original** (não reflete a prática — ver correção abaixo): "`@observable` deve ser campo privado (`_field`) com getter público."
-
-**Correção registrada**: medido em um projeto real (2026), **61% dos `@observable` em stores reais eram públicos** (sem underscore) e reativamente corretos — o padrão dominante era `class X = _XBase with _$X;` + campo público `@observable` na classe base abstrata, com `mobx_codegen` gerando o accessor trackado via mixin. Campo público **não** quebra reatividade quando o mixin gerado é quem expõe o accessor. Um review que tratou `@observable` público como violação clara errou — a prática real estava do lado do código, não da regra.
-
-**You MUST NOT** declarar um getter manual que bypassa o mixin gerado.
-
-**Sinal real**: getter escrito à mão (`Type get x => _x;`) sobre um campo que deveria ser exposto só pela classe gerada (`_$Store`). Isso sim quebra o tracking — o MobX não sabe que `x` depende de `_x` fora do mecanismo do codegen.
-
-**Sinal que NÃO deve ser tratado como violação por si só**: `@observable` sem underscore no nome do campo. Verifique a convenção do projeto antes de sinalizar — pode ser o padrão dominante e reativamente são.
-
-**Failure mode (do smell real)**: getter manual não é rastreado como dependência pelo MobX; `Observer` que lê o getter não rebuilda quando `_x` muda.
-
-**Como aplicar**: se o projeto usa o padrão privado+getter, mantenha consistência com o restante do arquivo. Se o projeto usa campo público direto (classe base abstrata com mixin), não force a migração — sinalize apenas o getter manual.
+**Failure mode**: `@computed` with a side effect can run at unexpected times (MobX tracks access, not explicit calls); I/O in a computed creates loops and non-deterministic behavior.
 
 ---
 
-### MOBX005 — Múltiplas mutações pós-await sem `runInAction()`
+### MOBX003 — reaction/autorun/when Without Dispose
 
-**You MUST NOT** atribuir a `@observable` após `await` fora de `runInAction()`.
+Every `ReactionDisposer` must be stored and called at teardown. In DI-managed classes, use your container's dispose hook (e.g. `injectable`'s `@disposeMethod`).
 
-**Why**: sem `runInAction()`, cada atribuição dispara uma reaction separada. Observers veem estados intermediários inválidos (e.g., `data` populado mas `isLoading` ainda true).
+**Signal**: `reaction(`, `autorun(`, `when(` with no assignment to a `ReactionDisposer`; or a `ReactionDisposer` with no corresponding dispose.
 
-**Sinal**: atribuição a `@observable` (ou chamada a setter de observable) após `await` sem envelopar em `runInAction(() { ... })`.
-
-**Failure mode**: UI pisca / renderiza estado inconsistente; reactions disparam em momentos errados; race conditions difíceis de reproduzir.
+**Failure mode**: memory leak — the reaction keeps running even after the object is "destroyed"; in widgets this causes `setState` after dispose.
 
 ---
 
-### ARCH001 — `BuildContext` / `GoRouter` / `Navigator` dentro de Store
+### MOBX004 — Observable and Getter (Reconciled)
+
+**Original formulation** (doesn't reflect practice — see the correction below): "`@observable` must be a private field (`_field`) with a public getter."
+
+**Recorded correction**: measured in a real project (2026), **61% of `@observable`s in real stores were public** (no underscore) and reactively correct — the dominant pattern was `class X = _XBase with _$X;` + a public `@observable` field on the abstract base class, with `mobx_codegen` generating the tracked accessor via the mixin. A public field does **not** break reactivity when the generated mixin is what exposes the accessor. A review that treated a public `@observable` as a clear violation was wrong — the real practice was on the code's side, not the rule's.
+
+**You MUST NOT** declare a manual getter that bypasses the generated mixin.
+
+**Real signal**: a hand-written getter (`Type get x => _x;`) over a field that should only be exposed by the generated class (`_$Store`). This IS what breaks tracking — MobX doesn't know that `x` depends on `_x` outside the codegen mechanism.
+
+**Signal that should NOT be treated as a violation by itself**: `@observable` with no underscore in the field name. Check the project's convention before flagging it — it may be the dominant pattern and reactively sound.
+
+**Failure mode (of the real smell)**: a manual getter isn't tracked as a dependency by MobX; an `Observer` reading the getter doesn't rebuild when `_x` changes.
+
+**How to apply**: if the project uses the private+getter pattern, keep it consistent with the rest of the file. If the project uses a direct public field (abstract base class with mixin), don't force the migration — only flag the manual getter.
+
+---
+
+### MOBX005 — Multiple Post-await Mutations Without `runInAction()`
+
+**You MUST NOT** assign to an `@observable` after `await` outside of `runInAction()`.
+
+**Why**: without `runInAction()`, each assignment fires a separate reaction. Observers see invalid intermediate states (e.g., `data` populated but `isLoading` still true).
+
+**Signal**: assignment to an `@observable` (or a call to an observable setter) after `await` with no wrapping `runInAction(() { ... })`.
+
+**Failure mode**: UI flickers / renders an inconsistent state; reactions fire at the wrong times; hard-to-reproduce race conditions.
+
+---
+
+### ARCH001 — `BuildContext` / `GoRouter` / `Navigator` Inside a Store
 
 > enforced-by: `hooks/smell-checker.sh` (exit 2)
 
-**You MUST NOT** referenciar `BuildContext`, `Navigator`, `GoRouter`, `ScaffoldMessenger`, `showDialog` dentro de `*_store.dart` ou `*_controller.dart`.
+**You MUST NOT** reference `BuildContext`, `Navigator`, `GoRouter`, `ScaffoldMessenger`, `showDialog` inside `*_store.dart` or `*_controller.dart`.
 
-**Why**: stores são camada de domínio/aplicação. Não conhecem UI. Acoplar a `BuildContext` impede teste sem widget tree e quebra a separação de camadas.
+**Why**: stores are the domain/application layer. They don't know about UI. Coupling to `BuildContext` prevents testing without a widget tree and breaks the layer separation.
 
-**Sinal**: `context.push`, `context.pop`, `Navigator.of`, `GoRouter.of`, `showDialog`, `ScaffoldMessenger.of` dentro de arquivo de store/controller.
+**Signal**: `context.push`, `context.pop`, `Navigator.of`, `GoRouter.of`, `showDialog`, `ScaffoldMessenger.of` inside a store/controller file.
 
-**Failure mode**: store impossível de testar sem widget; refactor de navegação cascateia em N stores; coordenação fica espalhada.
+**Failure mode**: the store becomes impossible to test without a widget; a navigation refactor cascades across N stores; coordination ends up scattered.
 
-**Como aplicar**: store expõe `@observable State` → Page observa via `Observer` e chama `context.push` / `Navigator.pop` no callback do widget.
+**How to apply**: the store exposes `@observable State` → the Page observes via `Observer` and calls `context.push` / `Navigator.pop` in the widget callback.
 
 ---
 
-### DI001 — `GetIt.I<T>()` dentro de Store ou Controller
+### DI001 — `GetIt.I<T>()` Inside a Store or Controller
 
 > enforced-by: `hooks/smell-checker.sh` (exit 2)
 
-**You MUST NOT** chamar `GetIt.I<>`, `GetIt.instance.get`, ou wrappers equivalentes dentro de `*_store.dart` ou `*_controller.dart`.
+**You MUST NOT** call `GetIt.I<>`, `GetIt.instance.get`, or equivalent wrappers inside `*_store.dart` or `*_controller.dart`.
 
-**Why**: dependências chegam via construtor (`injectable` + `@injectable`/`@lazySingleton`, ou o equivalente do seu container de DI). O container de DI é responsabilidade do módulo de registro, não do consumer.
+**Why**: dependencies arrive via the constructor (`injectable` + `@injectable`/`@lazySingleton`, or your DI container's equivalent). The DI container is the registration module's responsibility, not the consumer's.
 
-**Sinal**: `GetIt.I<`, `GetIt.instance`, `GetIt.I.get`, ou o wrapper de resolução de DI do projeto (config) dentro de store/controller.
+**Signal**: `GetIt.I<`, `GetIt.instance`, `GetIt.I.get`, or the project's DI-resolution wrapper (config) inside a store/controller.
 
-**Failure mode**: dependências invisíveis quebram teste (precisa stub do container global); ciclo de vida não controlado; refactor de DI fica perigoso.
+**Failure mode**: invisible dependencies break tests (need a stub for the global container); uncontrolled lifecycle; a DI refactor becomes risky.
 
-**Como aplicar**: store recebe dependências via constructor (`MyStore(this._repo, this._coordinator)`); registro fica no módulo de DI do projeto com a anotação apropriada.
-
----
-
-### "Store não nasce em build()"
-
-Store criada em `build()` é destruída e recriada a cada rebuild — perde todo o estado.
-
-**Sinal**: `StoreClass()` ou `ControllerClass()` instanciado dentro de método `build()`.
-
-**Failure mode**: estado perdido a cada rebuild; o container de DI não gerencia ciclo de vida; possível vazamento se o store não for disposto.
+**How to apply**: the store receives dependencies via the constructor (`MyStore(this._repo, this._coordinator)`); registration lives in the project's DI module with the appropriate annotation.
 
 ---
 
-### LOG001 — `print()`/`debugPrint()` trocado por `dart:developer log()`
+### "Store Isn't Created in build()"
+
+A store created in `build()` is destroyed and recreated on every rebuild — it loses all its state.
+
+**Signal**: `StoreClass()` or `ControllerClass()` instantiated inside a `build()` method.
+
+**Failure mode**: state lost on every rebuild; the DI container doesn't manage the lifecycle; possible leak if the store is never disposed.
+
+---
+
+### LOG001 — `print()`/`debugPrint()` Replaced With `dart:developer log()`
 
 > enforced-by: `hooks/smell-checker.sh` (exit 2)
 
-`print()` e `debugPrint()` em código de produção (`lib/src/` ou equivalente — config do projeto) devem ser substituídos por `dart:developer log()`.
-`print()` não é filtrado por nível, não carrega stackTrace, e polui o console em produção.
+`print()` and `debugPrint()` in production code (`lib/src/` or equivalent — project config) must be replaced with `dart:developer log()`.
+`print()` isn't filtered by level, doesn't carry a stackTrace, and pollutes the console in production.
 
-**Sinal**: `print(` ou `debugPrint(` em arquivos de produção.
-**Exceção**: arquivos de teste podem usar `print()`.
+**Signal**: `print(` or `debugPrint(` in production files.
+**Exception**: test files may use `print()`.
 
 ---
 
 ## 🟡 STANDARD on-demand
 
-Ver `mobile:code-review-mobile` STANDARDS.md: valor de negócio configurável não fica hardcoded no cliente, UI não importa tipos de SDK/DTO diretamente, `ObservableList`/`Map`/`Set` privado com getter, `@observable bool` isolado absorvido no enum de fluxo, resolução de dependência fora do `build()`, chamada de resolução de DI não entra no store, action muta estado de erro em vez de lançar exceção, todo método público tem tipo de retorno explícito, `FocusNode` listener não chama `setState` (lógica vai pro store), `const` constructor não resolve dependência em `build()`, `reaction()` não chama `setState` (use `Observer` granular), l10n pertence à camada de UI (store recebe string pronta).
+See `mobile:code-review-mobile` STANDARDS.md: configurable business value isn't hardcoded on the client, UI doesn't import SDK/DTO types directly, `ObservableList`/`Map`/`Set` is private with a getter, an isolated `@observable bool` is absorbed into the flow enum, dependency resolution outside `build()`, a DI-resolution call doesn't enter the store, an action mutates error state instead of throwing an exception, every public method has an explicit return type, a `FocusNode` listener doesn't call `setState` (logic goes in the store), a `const` constructor doesn't resolve a dependency in `build()`, `reaction()` doesn't call `setState` (use a granular `Observer`), l10n belongs to the UI layer (the store receives a ready-made string).
 
 ## 🔵 ASPIRATIONAL — PATTERNS.md (on-demand)
 
-FSM001, CMD001, SSOT001, MOBX006 (com IDs — validados pelo agente `mobile:mobx-smell-hunter`). Formas narrativas: ação falível retorna sealed result, store gerenciada por Coordinator é pura. `non-blocker:` em review.
+FSM001, CMD001, SSOT001, MOBX006 (with IDs — validated by the `mobile:mobx-smell-hunter` agent). Narrative forms: a fallible action returns a sealed result; a Coordinator-managed store is pure. `non-blocker:` in review.
 
 ---
 
-## Política de codes
+## Code Policy
 
-Code com ID só nasce junto com seu validador-máquina (hook, eval ou agent); sem validador, escreva prosa com título forte nesta seção.
+Code with an ID is only born together with its machine-validator (hook, eval, or agent); with no validator, write prose with a strong title in this section.
 
-## Adicionar novos codes
+## Adding New Codes
 
-Default: nova orientação STANDARD nasce em `mobile:code-review-mobile` STANDARDS.md. Promoção para BLOCKER com gate mecânico (hook) requer decisão explícita — apenas quando o code captura bug, leak, correctness ou segurança.
+Default: new STANDARD guidance is born in `mobile:code-review-mobile` STANDARDS.md. Promotion to BLOCKER with a mechanical gate (hook) requires an explicit decision — only when the code captures a bug, leak, correctness, or security issue.
 
 ---
 
-## Observer e builders deferidos
+## Observer and Deferred Builders
 
-`Observer` (flutter_mobx) só rastreia observables lidos **sincronamente dentro do seu próprio `builder`**. Reads dentro de um builder deferido aninhado — `ListenableBuilder`, `Builder`, `LayoutBuilder`, `AnimatedBuilder`, `FutureBuilder`, `ValueListenableBuilder`, `StreamBuilder` — não são rastreados: essa closure roda fora do `reaction.track()` do Observer.
+`Observer` (flutter_mobx) only tracks observables read **synchronously inside its own `builder`**. Reads inside a nested deferred builder — `ListenableBuilder`, `Builder`, `LayoutBuilder`, `AnimatedBuilder`, `FutureBuilder`, `ValueListenableBuilder`, `StreamBuilder` — are not tracked: that closure runs outside the Observer's `reaction.track()`.
 
-**Sintoma**: o widget só reage ao que é lido direto no builder do Observer; estado que muda depois (ex.: assíncrono) não dispara rebuild.
+**Symptom**: the widget only reacts to what's read directly in the Observer's builder; state that changes later (e.g., asynchronously) doesn't trigger a rebuild.
 
-**Fix**: inverta o aninhamento — o builder deferido por fora, o `Observer` por dentro envolvendo a subtree. É mais robusto que hoistar cada read manualmente pro builder do Observer, porque não depende de lembrar disso a cada novo read introduzido depois.
+**Fix**: invert the nesting — the deferred builder on the outside, the `Observer` on the inside wrapping the subtree. This is more robust than hoisting each read manually into the Observer's builder, because it doesn't depend on remembering to do so for every new read introduced later.

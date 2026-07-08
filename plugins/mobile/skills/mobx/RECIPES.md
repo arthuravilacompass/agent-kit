@@ -1,4 +1,4 @@
-# MobX Smell Fix — Receitas Canônicas
+# MobX Smell Fix — Canonical Recipes
 
 Companion to the `mobile:mobx-smell-hunter` agent. The hunter *finds* smells; this file *fixes* them with the canonical pattern. Each entry below is a fix recipe — read `REFERENCE.md` for the exhaustive signal/why/failure-mode, and use these steps to drive the migration in the right order.
 
@@ -21,17 +21,17 @@ Companion to the `mobile:mobx-smell-hunter` agent. The hunter *finds* smells; th
 
 | Smell | Signal | Canonical fix |
 |---|---|---|
-| **MOBX001 — Sem boolean flags paralelos** | 2+ mutually exclusive `@observable bool` | Replace with `enum` or `sealed class`. Use sealed class when each state carries different data. |
-| **MOBX002 — `@computed` é puro** | `@computed` calls async / mutates state | Move side effect into `@action`. `@computed` must be a pure projection. |
-| **MOBX003 — Toda reaction tem dispose** | `reaction/autorun/when` without disposer stored | Store the `ReactionDisposer` in a `late final` field; call it from your DI container's dispose hook or widget `dispose()`. |
-| **MOBX004 — Observable e getter (reconciliado)** | Manual getter (`Type get x => _x;`) bypassing the codegen mixin | Remove the manual getter — let the generated `_$Store` mixin expose the accessor. Do NOT rename a public `@observable` to private just because it lacks an underscore; check the project's dominant convention first. |
-| **MOBX005 — Mutação pós-await dentro de runInAction** | Multiple post-`await` mutations without `runInAction` | Wrap *all* post-await observable assignments in a single `runInAction(() { ... })`. |
-| **ARCH001 — BuildContext/GoRouter fora do store** | `BuildContext` / `GoRouter` / `Navigator` / `showDialog` inside store | Expose state (`@observable CheckoutStep? _pendingStep`) and let the Page/Coordinator observe via `reaction` and navigate. |
-| **DI001 — Container de DI não entra no store** | `GetIt.I<T>()` or the project's DI-resolver wrapper inside store/controller | Move resolution to constructor: `MyStore(this._repo)` with the appropriate DI annotation (`@lazySingleton`/equivalent). |
-| **"Store não nasce em build()"** | Store created in `build()` | Resolve once in the page constructor or `initState()`: `MyPage() : _store = resolve<MyStore>();` |
+| **MOBX001 — No parallel boolean flags** | 2+ mutually exclusive `@observable bool` | Replace with `enum` or `sealed class`. Use sealed class when each state carries different data. |
+| **MOBX002 — `@computed` is pure** | `@computed` calls async / mutates state | Move side effect into `@action`. `@computed` must be a pure projection. |
+| **MOBX003 — Every reaction has a disposer** | `reaction/autorun/when` without disposer stored | Store the `ReactionDisposer` in a `late final` field; call it from your DI container's dispose hook or widget `dispose()`. |
+| **MOBX004 — Observable and getter (reconciled)** | Manual getter (`Type get x => _x;`) bypassing the codegen mixin | Remove the manual getter — let the generated `_$Store` mixin expose the accessor. Do NOT rename a public `@observable` to private just because it lacks an underscore; check the project's dominant convention first. |
+| **MOBX005 — Post-await mutation inside runInAction** | Multiple post-`await` mutations without `runInAction` | Wrap *all* post-await observable assignments in a single `runInAction(() { ... })`. |
+| **ARCH001 — BuildContext/GoRouter outside the store** | `BuildContext` / `GoRouter` / `Navigator` / `showDialog` inside store | Expose state (`@observable CheckoutStep? _pendingStep`) and let the Page/Coordinator observe via `reaction` and navigate. |
+| **DI001 — DI container doesn't enter the store** | `GetIt.I<T>()` or the project's DI-resolver wrapper inside store/controller | Move resolution to constructor: `MyStore(this._repo)` with the appropriate DI annotation (`@lazySingleton`/equivalent). |
+| **"Store isn't created in build()"** | Store created in `build()` | Resolve once in the page constructor or `initState()`: `MyPage() : _store = resolve<MyStore>();` |
 | **SSOT001** | `@readonly` (or sealed class observable) written in 2+ sites | Introduce a single `_setX(next)` `@action`. Make every assignment go through it. The `@readonly` annotation makes external writes a compile error. |
 | **CMD001** | `bool`/`String` parameter selects *which behavior* the method runs | Replace with sealed `Command` class + exhaustive `switch`. |
-| **Action muta estado de erro — não lança exceção** | `throw` inside `@action` | Mutate `_errorMessage` and `_state` instead. Caller observes; doesn't catch. |
+| **Action mutates error state — doesn't throw an exception** | `throw` inside `@action` | Mutate `_errorMessage` and `_state` instead. Caller observes; doesn't catch. |
 | **LOG001** | `print()` / `debugPrint()` in production code | Replace with `dart:developer log()` with `name`, `error`, `stackTrace`. |
 
 ### WARNING / STANDARD smells
@@ -39,22 +39,22 @@ Companion to the `mobile:mobx-smell-hunter` agent. The hunter *finds* smells; th
 | Smell | Signal | Canonical fix |
 |---|---|---|
 | **FSM001** | 3+ observables jointly representing one flow concept | Single `sealed class` state atom; each variant carries its own data. |
-| **Ação falível retorna sealed result, não bool/void** | `@action Future<bool>` or `Future<void>` for fallible op | Return a sealed `XResult` class: `XSuccess`, `XValidationError`, `XError`. |
-| **Store gerenciada por Coordinator é pura — I/O no Coordinator** | Coordinator-managed store with its own `_repository` | Remove repo from store; store becomes pure state + `apply*` actions. Coordinator orchestrates I/O. |
-| **UI não importa SDK nem tipos DTO diretamente** | UI imports from the project's SDK/repository package or types `*DTO` parameters | Replace DTO types with domain entities. Add a `fromDTO` mapper if missing. |
+| **A fallible action returns a sealed result, not bool/void** | `@action Future<bool>` or `Future<void>` for fallible op | Return a sealed `XResult` class: `XSuccess`, `XValidationError`, `XError`. |
+| **A Coordinator-managed store is pure — I/O lives in the Coordinator** | Coordinator-managed store with its own `_repository` | Remove repo from store; store becomes pure state + `apply*` actions. Coordinator orchestrates I/O. |
+| **UI doesn't import the SDK or DTO types directly** | UI imports from the project's SDK/repository package or types `*DTO` parameters | Replace DTO types with domain entities. Add a `fromDTO` mapper if missing. |
 | **MOBX006** | Synthetic concurrency `enum { idle, inFlight }` as `@observable` | Either fold "in-flight" into the domain enum, or replace with non-observable `Future<T>? _pending`. Pick based on whether the user needs to *see* the in-flight state. ASPIRATIONAL — see `PATTERNS.md`. |
-| **ObservableList/Map/Set é privado com getter** | Public `ObservableList`/`Map`/`Set` (no underscore) | Privatize + getter. All mutations go through `@action setX(list)`. |
-| **@observable bool isolado absorvido no enum de fluxo** | Isolated `@observable bool` that's part of a flow | Fold into the existing flow enum, or convert to `@computed` if derivable. |
-| **Resolução de dependência fora do build()** | DI resolver call inside `build()` | Move to constructor (`StatelessWidget`) or `initState()` (`StatefulWidget`). |
-| **FocusNode listener não chama setState — lógica vai pro store** | `FocusNode.addListener` calling `setState()` | Move validation into store; widget uses `Observer` to react. |
-| **const constructor não resolve dependência em build()** | `const` constructor + DI resolver call in `build()` | Drop `const`; resolve in constructor. |
-| **reaction() não chama setState — use Observer granular** | `reaction()` calling `setState()` | Replace with granular `Observer` widget. Use `reaction` only for genuine side effects (navigation, scroll, analytics). |
-| **l10n pertence à camada de UI — store recebe string pronta** | l10n resolved inside store / static field | Move to Page; pass localized strings as parameters when the store needs them (rare). |
-| **Todo método público tem tipo de retorno explícito** | Public method without explicit return type | Add `void` / `Future<void>` / concrete type. |
+| **ObservableList/Map/Set is private with a getter** | Public `ObservableList`/`Map`/`Set` (no underscore) | Privatize + getter. All mutations go through `@action setX(list)`. |
+| **An isolated @observable bool absorbed into the flow enum** | Isolated `@observable bool` that's part of a flow | Fold into the existing flow enum, or convert to `@computed` if derivable. |
+| **Dependency resolution outside build()** | DI resolver call inside `build()` | Move to constructor (`StatelessWidget`) or `initState()` (`StatefulWidget`). |
+| **FocusNode listener doesn't call setState — logic goes in the store** | `FocusNode.addListener` calling `setState()` | Move validation into store; widget uses `Observer` to react. |
+| **const constructor doesn't resolve a dependency in build()** | `const` constructor + DI resolver call in `build()` | Drop `const`; resolve in constructor. |
+| **reaction() doesn't call setState — use a granular Observer** | `reaction()` calling `setState()` | Replace with granular `Observer` widget. Use `reaction` only for genuine side effects (navigation, scroll, analytics). |
+| **l10n belongs to the UI layer — the store receives a ready-made string** | l10n resolved inside store / static field | Move to Page; pass localized strings as parameters when the store needs them (rare). |
+| **Every public method has an explicit return type** | Public method without explicit return type | Add `void` / `Future<void>` / concrete type. |
 
 ## Migration recipes for the hardest cases
 
-### MOBX001 — Sem boolean flags paralelos — use enum/sealed
+### MOBX001 — No parallel boolean flags — use enum/sealed
 
 ```
 1. Identify the booleans that are mutually exclusive (read together, never simultaneously true).
@@ -97,7 +97,7 @@ Companion to the `mobile:mobx-smell-hunter` agent. The hunter *finds* smells; th
 5. Update all callers to construct the right Command variant.
 ```
 
-### Ação falível retorna sealed result, não bool/void
+### A fallible action returns a sealed result, not bool/void
 
 ```
 1. Enumerate the failure modes the caller cares about (validation? network? domain rule?).
@@ -108,7 +108,7 @@ Companion to the `mobile:mobx-smell-hunter` agent. The hunter *finds* smells; th
 
 ## Cross-references
 
-- **`REFERENCE.md`** (this skill) — full BLOCKER catalogue (hook-enforced: DI001/ARCH001/LOG001; on-demand: MOBX001-005, "Store não nasce em build()") + tier policy.
+- **`REFERENCE.md`** (this skill) — full BLOCKER catalogue (hook-enforced: DI001/ARCH001/LOG001; on-demand: MOBX001-005, "Store isn't created in build()") + tier policy.
 - **`PATTERNS.md`** (this skill) — ASPIRATIONAL codes with full examples (FSM001, SSOT001, CMD001, MOBX006).
 - **`mobile:code-review-mobile`** STANDARDS.md — canonical signals for STANDARD-tier guidance (on-demand).
 - **`mobile:mobx-smell-hunter`** — the agent that detects FSM001, SSOT001, CMD001, MOBX006.

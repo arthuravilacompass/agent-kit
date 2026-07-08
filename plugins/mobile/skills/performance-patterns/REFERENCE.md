@@ -1,15 +1,15 @@
 # Performance Patterns — Reference
 
-> Regras de MobX (rebuild em `Observer` inteiro, `@computed` puro, disposers de reaction) estão em `mobile:mobx` `REFERENCE.md`.
+> MobX rules (rebuilding the whole `Observer`, pure `@computed`, reaction disposers) are in `mobile:mobx` `REFERENCE.md`.
 
 ## MobX Rebuild Optimization
 
 ### Granular Observers
 
-Quebrar `Observer` grandes em vários menores, cada um observando só o que precisa.
+Break large `Observer`s into several smaller ones, each observing only what it needs.
 
 ```dart
-// BAD — tela inteira rebuilda quando qualquer observable muda
+// BAD — the whole screen rebuilds when any observable changes
 Observer(
   builder: (_) => Column(
     children: [
@@ -20,7 +20,7 @@ Observer(
   ),
 )
 
-// GOOD — cada seção rebuilda independente
+// GOOD — each section rebuilds independently
 Column(
   children: [
     Observer(builder: (_) => HeaderSection(title: store.title)),
@@ -36,7 +36,7 @@ Column(
 Observer(
   builder: (_) => Column(
     children: [
-      const SectionTitle(text: 'Cart'),  // const — não recriado
+      const SectionTitle(text: 'Cart'),  // const — not recreated
       Text(store.itemCount.toString()),
       const Divider(),
     ],
@@ -47,10 +47,10 @@ Observer(
 ### Use @computed for Derived Values
 
 ```dart
-// BAD — recalculado a cada build
+// BAD — recalculated on every build
 Observer(builder: (_) => Text(store.items.where((i) => i.isAvailable).length.toString()))
 
-// GOOD — cached, recalcula só quando items muda
+// GOOD — cached, only recalculates when items changes
 @computed
 int get availableCount => _items.where((i) => i.isAvailable).length;
 
@@ -60,12 +60,12 @@ Observer(builder: (_) => Text(store.availableCount.toString()))
 ### Batch Observable Updates
 
 ```dart
-// BAD — dispara 3 rebuilds separados
+// BAD — fires 3 separate rebuilds
 _state = MyState.success;
 _data = result;
 _errorMessage = null;
 
-// GOOD — dispara 1 rebuild
+// GOOD — fires 1 rebuild
 runInAction(() {
   _state = MyState.success;
   _data = result;
@@ -91,10 +91,10 @@ class ProductBadge extends StatelessWidget {
 ### ListView.builder for Long Lists
 
 ```dart
-// BAD — constrói todos os children imediatamente
+// BAD — builds all children immediately
 ListView(children: items.map((item) => ProductCard(item: item)).toList())
 
-// GOOD — constrói só os children visíveis
+// GOOD — builds only the visible children
 ListView.builder(
   itemCount: items.length,
   itemBuilder: (context, index) => ProductCard(item: items[index]),
@@ -109,7 +109,7 @@ RepaintBoundary(child: NetworkImageWidget(url: product.imageUrl, width: 200, hei
 
 ### AnimatedOpacity over Opacity
 
-`Opacity` força saveLayer a cada frame mesmo estático.
+`Opacity` forces a saveLayer every frame even when static.
 
 ```dart
 // BAD
@@ -125,15 +125,15 @@ AnimatedOpacity(
 
 ### IntrinsicHeight / IntrinsicWidth
 
-Forçam um layout pass extra. Use apenas quando não houver alternativa via `Expanded`/`Flexible`/aspect ratio.
+Force an extra layout pass. Use only when there's no alternative via `Expanded`/`Flexible`/aspect ratio.
 
 ### MediaQuery.sizeOf over MediaQuery.of(context).size
 
 ```dart
-// BAD — rebuild quando teclado abre/fecha
+// BAD — rebuilds when the keyboard opens/closes
 final size = MediaQuery.of(context).size;
 
-// GOOD — rebuild apenas quando size muda
+// GOOD — rebuilds only when size changes
 final size = MediaQuery.sizeOf(context);
 ```
 
@@ -162,11 +162,11 @@ void dispose() => _cancelToken.cancel('Controller disposed');
 ### Parallel API Calls
 
 ```dart
-// BAD — sequencial, total time = t1 + t2
+// BAD — sequential, total time = t1 + t2
 final products = await _repository.fetchProducts();
 final categories = await _repository.fetchCategories();
 
-// GOOD — paralelo, total time = max(t1, t2)
+// GOOD — parallel, total time = max(t1, t2)
 final results = await Future.wait([
   _repository.fetchProducts(),
   _repository.fetchCategories(),
@@ -194,7 +194,7 @@ Always provide dimensions — enables CDN resize and prevents extra layout pass.
 NetworkImageWidget(url: product.imageUrl, width: 120, height: 120, fit: BoxFit.cover)
 ```
 
-`NetworkImageWidget` é um placeholder — troque pelo widget de imagem do seu projeto (com suporte a dimensões explícitas).
+`NetworkImageWidget` is a placeholder — swap in your project's image widget (with support for explicit dimensions).
 
 ---
 
@@ -232,28 +232,28 @@ void dispose() {
 
 ## Impeller (Flutter ≥ 3.38)
 
-Default no iOS e Android. Jank de compilação de shader eliminado. Nenhuma ação necessária — considere só durante profiling.
+Default on iOS and Android. Shader-compilation jank eliminated. No action needed — consider it only during profiling.
 
 ---
 
-## RUM (ferramenta de Real User Monitoring do projeto)
+## RUM (Real User Monitoring Tool)
 
-Setup vive na camada de observabilidade do app (config do projeto). Um observer de navegação (config do projeto: nome real, ex. um `NavigatorObserver` custom) costuma reportar mudanças de rota automaticamente pra ferramenta de RUM escolhida (Datadog, Firebase Performance, Sentry, etc.).
+Setup lives in the app's observability layer (project config). A navigation observer (project config: real name, e.g. a custom `NavigatorObserver`) usually reports route changes automatically to whichever RUM tool is chosen (Datadog, Firebase Performance, Sentry, etc.).
 
 ---
 
 ## Performance Checklist
 
-- [ ] Cada seção reativa tem seu próprio `Observer` (não envolvendo a tela inteira)
-- [ ] Filhos estáticos dentro de `Observer` são `const`
-- [ ] Valores derivados usam `@computed`, não computação inline em `build()`
-- [ ] Múltiplos updates de observable após `await` usam `runInAction()`
-- [ ] Todas as reactions MobX têm disposer correspondente
-- [ ] Listas longas usam `ListView.builder`
-- [ ] Widget de imagem tem width/height explícitos
-- [ ] Chamadas de API independentes usam `Future.wait()`
-- [ ] `CancelToken` usado em requests Dio dentro de controllers descartáveis
-- [ ] `TextEditingController`/`ScrollController` descartados em `State.dispose()`
-- [ ] Sem computação pesada em `build()`
-- [ ] Widgets usam construtores `const` onde possível
-- [ ] `RepaintBoundary` em subtrees caras que repintam independentemente
+- [ ] Each reactive section has its own `Observer` (not wrapping the whole screen)
+- [ ] Static children inside `Observer` are `const`
+- [ ] Derived values use `@computed`, not inline computation in `build()`
+- [ ] Multiple observable updates after `await` use `runInAction()`
+- [ ] Every MobX reaction has a matching disposer
+- [ ] Long lists use `ListView.builder`
+- [ ] Image widgets have explicit width/height
+- [ ] Independent API calls use `Future.wait()`
+- [ ] `CancelToken` used on Dio requests inside disposable controllers
+- [ ] `TextEditingController`/`ScrollController` disposed in `State.dispose()`
+- [ ] No heavy computation in `build()`
+- [ ] Widgets use `const` constructors where possible
+- [ ] `RepaintBoundary` on expensive subtrees that repaint independently

@@ -1,12 +1,12 @@
-# Flutter Cookbook — Padrões e Exemplos
+# Flutter Cookbook — Patterns and Examples
 
-> **Reference, not enforcement.** Esses padrões são exemplos de boas práticas — não regras com peso de review. Para regras com peso (BLOCKER/STANDARD/ASPIRATIONAL), consulte `mobile:mobx` `REFERENCE.md` (BLOCKER on-demand + tier policy) e `STANDARDS.md` (esta skill).
+> **Reference, not enforcement.** These patterns are good-practice examples — not rules with review weight. For rules with weight (BLOCKER/STANDARD/ASPIRATIONAL), see `mobile:mobx` `REFERENCE.md` (on-demand BLOCKER + tier policy) and `STANDARDS.md` (this skill).
 
-## Config do projeto
+## Project Config
 
-Os exemplos assumem `get_it` + `injectable` (DI), `go_router` (navegação), `mockito` (mocks), `dartz` `Either` (erros). Se seu projeto usa outro stack, adapte o exemplo — a estrutura (onde a decisão é tomada, o que é testado) é o que vale a pena portar. Nomes de componentes de design system (`AppHeader`, `AppCta` abaixo) são placeholders — troque pelos do seu projeto.
+The examples assume `get_it` + `injectable` (DI), `go_router` (navigation), `mockito` (mocks), `dartz` `Either` (errors). If your project uses a different stack, adapt the example — the structure (where the decision is made, what's tested) is what's worth porting. Design system component names (`AppHeader`, `AppCta` below) are placeholders — swap in your project's.
 
-## Índice
+## Index
 
 - [Dependency Injection](#dependency-injection)
 - [Navigation](#navigation)
@@ -23,18 +23,18 @@ Os exemplos assumem `get_it` + `injectable` (DI), `go_router` (navegação), `mo
 
 ## Dependency Injection
 
-Stack: `get_it` + `injectable` (com codegen). Registro central no módulo de DI do projeto (ex.: `lib/core/di/service_locator.dart`).
+Stack: `get_it` + `injectable` (with codegen). Central registration in the project's DI module (e.g., `lib/core/di/service_locator.dart`).
 
-### Quando usar cada anotação
+### When to Use Each Annotation
 
-| Anotação | Comportamento | Use para |
+| Annotation | Behavior | Use for |
 |---|---|---|
-| `@injectable` | Nova instância a cada `get<T>()` | Use cases stateless, factories |
-| `@singleton` | Uma instância criada no startup do app | Services que precisam estar prontos imediatamente (logger, analytics) |
-| `@lazySingleton` | Uma instância criada na primeira chamada | **Default preferido** — Stores, Coordinators, Repositories |
-| `@Injectable(as: IInterface)` | Registra implementação sob tipo da interface | Repositories com interface abstrata |
+| `@injectable` | New instance on every `get<T>()` | Stateless use cases, factories |
+| `@singleton` | One instance created at app startup | Services that need to be ready immediately (logger, analytics) |
+| `@lazySingleton` | One instance created on first call | **Preferred default** — Stores, Coordinators, Repositories |
+| `@Injectable(as: IInterface)` | Registers the implementation under the interface type | Repositories with an abstract interface |
 
-### Exemplo — Repository com interface
+### Example — Repository With Interface
 
 ```dart
 // abstract interface
@@ -55,21 +55,21 @@ class BasketRepositoryImpl implements BasketRepository {
 }
 ```
 
-### Após mudar anotações
+### After Changing Annotations
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-> **Regras relacionadas:** `mobile:mobx` DI001 (no `GetIt.I` em store), "Store não nasce em build()".
+> **Related rules:** `mobile:mobx` DI001 (no `GetIt.I` in a store), "Store isn't created in build()".
 
 ---
 
 ## Navigation
 
-Stack: `go_router`. Rotas definidas em um arquivo central de router (config do projeto). Constantes de path em um arquivo de rotas (config do projeto).
+Stack: `go_router`. Routes defined in a central router file (project config). Path constants in a routes file (project config).
 
-### Definição de rota
+### Route Definition
 
 ```dart
 final appRouter = GoRouter(
@@ -86,24 +86,24 @@ final appRouter = GoRouter(
 );
 ```
 
-### Navegação
+### Navigation
 
 ```dart
-// PUSH na stack — usuário pode voltar
+// PUSH onto the stack — user can go back
 context.push(AppRoutes.checkoutDelivery);
 
-// REPLACE current — sem botão voltar
+// REPLACE current — no back button
 context.go(AppRoutes.home);
 
-// Com path parameter
+// With a path parameter
 context.push('${AppRoutes.productDetailsBase}/$productId');
 ```
 
-**Não usar:**
-- `Navigator.push` direto (perde middleware de auth/analytics, se houver)
+**Don't use:**
+- Direct `Navigator.push` (loses auth/analytics middleware, if any)
 - `Navigator.of(context).pushReplacement` (use `context.go`)
 
-> **Regra relacionada:** `mobile:mobx` ARCH001 — navegação NUNCA dentro de Store. Use `@observable pendingNavigation` + `reaction` na Page.
+> **Related rule:** `mobile:mobx` ARCH001 — navigation NEVER inside a Store. Use `@observable pendingNavigation` + `reaction` on the Page.
 
 ---
 
@@ -111,12 +111,12 @@ context.push('${AppRoutes.productDetailsBase}/$productId');
 
 Stack: `mockito` + `@GenerateMocks` annotation + codegen.
 
-### Geração de mocks
+### Generating Mocks
 
 ```dart
-// arquivo de teste — declarar mocks no topo
+// test file — declare mocks at the top
 import 'package:mockito/annotations.dart';
-import 'basket_store_test.mocks.dart'; // gerado
+import 'basket_store_test.mocks.dart'; // generated
 
 @GenerateMocks([BasketRepository, CatalogStore])
 void main() {
@@ -124,12 +124,12 @@ void main() {
 }
 ```
 
-Após adicionar/mudar:
+After adding/changing:
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-Mocks ficam em arquivo `<nome_test>.mocks.dart` ao lado do teste.
+Mocks live in a `<test_name>.mocks.dart` file next to the test.
 
 ---
 
@@ -186,10 +186,10 @@ void main() {
 }
 ```
 
-**Notas:**
-- `Right(value)` = sucesso, `Left(failure)` = erro (dartz `Either`)
-- Reset state em `setUp()` — nunca compartilhar entre testes
-- Asserções verificam o **estado observável final** (não exceções)
+**Notes:**
+- `Right(value)` = success, `Left(failure)` = error (dartz `Either`)
+- Reset state in `setUp()` — never share between tests
+- Assertions check the **final observable state** (not exceptions)
 
 ---
 
@@ -238,18 +238,18 @@ void main() {
 }
 ```
 
-**Notas:**
-- Pages devem aceitar store opcional via construtor (`BasketPage.withStore(...)`) para facilitar test injection
-- Em código de produção, resolva a dependência no construtor padrão (não em `build()` — quebra DI001/equivalente)
-- Prefira shimmer/skeleton a spinner onde a convenção do time definir isso (config do projeto)
+**Notes:**
+- Pages should accept an optional store via constructor (`BasketPage.withStore(...)`) to ease test injection
+- In production code, resolve the dependency in the default constructor (not in `build()` — breaks DI001/equivalent)
+- Prefer shimmer/skeleton over a spinner where your team's convention says so (project config)
 
 ---
 
 ## Testing — Naming & Coverage
 
-### Naming convention
+### Naming Convention
 
-Estrutura BDD-style com 3 níveis:
+BDD-style structure with 3 levels:
 
 ```dart
 group('ClassName', () {
@@ -266,28 +266,28 @@ group('ClassName', () {
 ### Coverage
 
 ```bash
-# Rodar com coverage
+# Run with coverage
 flutter test --coverage
 
-# Gerar HTML report
+# Generate HTML report
 genhtml coverage/lcov.info -o coverage/html && open coverage/html/index.html
 ```
 
 ### Common Pitfalls
 
-- ❌ **Não testar métodos privados** — teste através da interface pública
-- ❌ **Não usar `sleep()`** — use `tester.pumpAndSettle()` (animações) ou `tester.pump(Duration(...))` (timers)
-- ❌ **Não compartilhar estado entre testes** — reset em `setUp()`
-- ❌ **Não esquecer de regenerar mocks** após mudar `@GenerateMocks` — `dart run build_runner build`
-- ❌ **Não esquecer `tester.pump()`** após trigger de state change em widget test
-- ✅ Para testes que envolvem `Future`, use `await tester.pump()` ou `await tester.pumpAndSettle()`
-- ✅ Para testar reactions/observers, dispare a mudança via store e verifique o subtree atualizado
+- ❌ **Don't test private methods** — test through the public interface
+- ❌ **Don't use `sleep()`** — use `tester.pumpAndSettle()` (animations) or `tester.pump(Duration(...))` (timers)
+- ❌ **Don't share state between tests** — reset in `setUp()`
+- ❌ **Don't forget to regenerate mocks** after changing `@GenerateMocks` — `dart run build_runner build`
+- ❌ **Don't forget `tester.pump()`** after triggering a state change in a widget test
+- ✅ For tests involving a `Future`, use `await tester.pump()` or `await tester.pumpAndSettle()`
+- ✅ To test reactions/observers, trigger the change via the store and check the updated subtree
 
 ---
 
 ## Either Pattern
 
-Repositories retornam `Either<Failure, T>` (dartz). Caller usa `fold` para tratar success vs failure explicitamente.
+Repositories return `Either<Failure, T>` (dartz). The caller uses `fold` to explicitly handle success vs. failure.
 
 ### Repository
 
@@ -297,7 +297,7 @@ Future<Either<Failure, List<OrderEntity>>> getOrders() async {
     final result = await _sdk.getOrders();
     return Right(result.map((e) => OrderEntity.fromDTO(e)).toList());
   } catch (error, stack) {
-    log('Erro ao buscar orders: $error', name: 'OrderRepository', error: error, stackTrace: stack);
+    log('Error fetching orders: $error', name: 'OrderRepository', error: error, stackTrace: stack);
     return Left(Failure(error.toString()));
   }
 }
@@ -325,12 +325,12 @@ Future<void> loadOrders() async {
 }
 ```
 
-**Notas:**
-- `try/catch` SEMPRE no repository — controller só faz `fold`
-- Exceções cruas mapeadas para `Failure` antes de chegar na UI
-- Erro de paginação não destrói lista carregada — diferenciar erro inicial vs erro de próxima página
+**Notes:**
+- `try/catch` ALWAYS in the repository — the controller only does `fold`
+- Raw exceptions are mapped to `Failure` before reaching the UI
+- A pagination error doesn't destroy the loaded list — differentiate an initial error from a next-page error
 
-> **Regras relacionadas:** ARCH001 (sem navegação no store), "action muta estado de erro" (`mobile:code-review-mobile` STANDARDS.md), MOBX005 (runInAction após await).
+> **Related rules:** ARCH001 (no navigation in the store), "action mutates error state" (`mobile:code-review-mobile` STANDARDS.md), MOBX005 (runInAction after await).
 
 ---
 
@@ -338,32 +338,32 @@ Future<void> loadOrders() async {
 
 ### Storage
 
-- [ ] Dados sensíveis (tokens, credenciais) em storage seguro/encriptado — nunca preferências não-encriptadas
-- [ ] Sem secrets em código fonte ou hardcoded
+- [ ] Sensitive data (tokens, credentials) in secure/encrypted storage — never unencrypted preferences
+- [ ] No secrets in source code or hardcoded
 
 ### API Keys
 
-- [ ] API keys via `--dart-define-from-file` (ou equivalente) — nunca hardcoded em Dart
-- [ ] Arquivo de env no `.gitignore`
-- [ ] Backend proxy para chaves verdadeiramente secretas
+- [ ] API keys via `--dart-define-from-file` (or equivalent) — never hardcoded in Dart
+- [ ] Env file in `.gitignore`
+- [ ] Backend proxy for truly secret keys
 
 ### Input
 
-- [ ] Input do usuário validado antes de enviar para API
-- [ ] Deep link URLs validadas e sanitizadas antes de navegação
-- [ ] Sem interpolação direta de input do usuário em queries
+- [ ] User input validated before sending to the API
+- [ ] Deep link URLs validated and sanitized before navigation
+- [ ] No direct interpolation of user input into queries
 
 ### Network
 
-- [ ] HTTPS obrigatório para todas as chamadas API
-- [ ] Tokens de autenticação com refresh e expiração adequados
-- [ ] Sem dados sensíveis em logs (`log()` não deve imprimir tokens, senhas, PII)
+- [ ] HTTPS mandatory for every API call
+- [ ] Auth tokens with proper refresh and expiration
+- [ ] No sensitive data in logs (`log()` must not print tokens, passwords, PII)
 
 ---
 
 ## Page Template
 
-Pages usam `StatefulWidget` quando precisam de lifecycle (text controllers, scroll controllers, focus nodes), ou `StatelessWidget` para telas read-only simples.
+Pages use `StatefulWidget` when they need a lifecycle (text controllers, scroll controllers, focus nodes), or `StatelessWidget` for simple read-only screens.
 
 ```dart
 class MyFeaturePage extends StatefulWidget {
@@ -392,7 +392,7 @@ class _MyFeaturePageState extends State<MyFeaturePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppHeader(title: 'Page Title'),  // placeholder — componente do seu design system
+      appBar: AppHeader(title: 'Page Title'),  // placeholder — your design system's component
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Column(
@@ -402,7 +402,7 @@ class _MyFeaturePageState extends State<MyFeaturePage> {
           ],
         ),
       ),
-      bottomNavigationBar: AppCta.onlyButton(   // placeholder — componente do seu design system
+      bottomNavigationBar: AppCta.onlyButton(   // placeholder — your design system's component
         buttonLabel: 'Continue',
         onPressed: () {},
       ),
@@ -414,11 +414,11 @@ class _MyFeaturePageState extends State<MyFeaturePage> {
 }
 ```
 
-**Regras de extração de widget:**
-- Subtree 15-50 linhas, usado uma vez → método privado `_buildSectionX`
-- Subtree 50+ linhas ou precisa estado próprio → classe widget privada
-- Reutilizado em pages do módulo → widget público em `widgets/`
-- Reutilizado entre módulos → mover para o pacote de design system compartilhado (config do projeto)
+**Widget extraction rules:**
+- 15-50 line subtree, used once → private method `_buildSectionX`
+- 50+ line subtree or needs its own state → private widget class
+- Reused across pages in the module → public widget in `widgets/`
+- Reused across modules → move to the shared design-system package (project config)
 
 ---
 
@@ -428,11 +428,11 @@ class _MyFeaturePageState extends State<MyFeaturePage> {
 
 ```dart
 class MyWidget extends StatelessWidget {
-  // Required — sempre necessário para o widget funcionar
+  // Required — always needed for the widget to work
   final String title;
   final VoidCallback onPressed;
 
-  // Optional — tem default sensato ou pode estar ausente
+  // Optional — has a sensible default or can be absent
   final String? subtitle;
   final bool isEnabled;
 
@@ -448,13 +448,13 @@ class MyWidget extends StatelessWidget {
 
 ### Callbacks
 
-- `VoidCallback` — callback sem argumento
-- `ValueChanged<T>` — callback com 1 argumento
-- `typedef` próprio — assinaturas complexas
-- Naming: prefixo `on` (`onPressed`, `onItemSelected`, `onDismissed`)
+- `VoidCallback` — callback with no argument
+- `ValueChanged<T>` — callback with 1 argument
+- Custom `typedef` — complex signatures
+- Naming: `on` prefix (`onPressed`, `onItemSelected`, `onDismissed`)
 
-## Ver também
+## See Also
 
-- `mobile:mobx` `REFERENCE.md` — regras enforce de MobX e DI
-- `mobile:code-review-mobile` `STANDARDS.md` — STANDARD codes on-demand
-- `mobile:refactor-review` — protocolo de 2 fases para refactor
+- `mobile:mobx` `REFERENCE.md` — enforced MobX and DI rules
+- `mobile:code-review-mobile` `STANDARDS.md` — on-demand STANDARD codes
+- `mobile:refactor-review` — 2-phase refactor protocol

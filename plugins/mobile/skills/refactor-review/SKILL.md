@@ -1,27 +1,27 @@
 ---
 name: refactor-review
-description: Invoque antes de commitar um refactor que toca stores/repositories/coordinators compartilhados ou navegação — protocolo de 2 fases (regressão + qualidade). Gatilhos em pt-BR — "revisa esse refactor antes de eu commitar", "confirma que esse refactor não quebrou nada", "checklist pós-refactor".
+description: Invoke before committing a refactor that touches shared stores/repositories/coordinators or navigation — 2-phase protocol (regression + quality). Triggers — "review this refactor before I commit", "confirm this refactor didn't break anything", "post-refactor checklist".
 ---
 
 # Refactor Review
 
-Duas fases. Checklists detalhados em `CHECKLIST.md` (mesma pasta) — leia antes de executar cada fase.
+Two phases. Detailed checklists in `CHECKLIST.md` (same folder) — read before running each phase.
 
-## Fase 1 — Regression Analysis
+## Phase 1 — Regression Analysis
 
-Leia `CHECKLIST.md` §§1.1–1.7. Aplique cada dimensão em `git diff --cached` (ou `git diff`). Reporte findings por dimensão. Declare "No issues found" explicitamente pra dimensões limpas — não pule nenhuma.
+Read `CHECKLIST.md` §§1.1–1.7. Apply each dimension to `git diff --cached` (or `git diff`). Report findings per dimension. Explicitly state "No issues found" for clean dimensions — don't skip any.
 
-## Fase 2 — Code Quality
+## Phase 2 — Code Quality
 
-Leia `CHECKLIST.md` §§2.1–2.8. Rode `/simplify`, `mobile:code-review-mobile`, e onde fragilidade for sinalizada, trace os touchpoints manualmente.
+Read `CHECKLIST.md` §§2.1–2.8. Run `/simplify`, `mobile:code-review-mobile`, and where fragility is flagged, trace the touchpoints manually.
 
 ## Output
 
-Use o template no fim de `CHECKLIST.md`.
+Use the template at the end of `CHECKLIST.md`.
 
 ## After This Skill
 
-1. `/superpowers:verification-before-completion` (ou o equivalente do seu setup)
-2. `mobile:code-review-mobile` (pule se já foi feito na Fase 2 sem mudanças novas)
-3. Se seu projeto tem um sistema de design tokens com regras de uso próprias, confira conformidade agora
-4. Fluxo de commit/PR do seu setup (ex.: `core:commit` → `core:pr`)
+1. `/superpowers:verification-before-completion` (or your setup's equivalent)
+2. `mobile:code-review-mobile` (skip if already done in Phase 2 with no new changes)
+3. If your project has a design tokens system with its own usage rules, check conformance now
+4. Your setup's commit/PR flow (e.g. `core:commit` → `core:pr`)

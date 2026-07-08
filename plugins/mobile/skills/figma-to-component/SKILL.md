@@ -1,6 +1,6 @@
 ---
 name: figma-to-component
-description: Extrai um design do Figma via MCP (get_design_context/get_screenshot) e produz uma especificação de widget tree mapeada aos componentes do design system do projeto consumidor — tabela de mapeamento, tokens e lista de gaps sem equivalente. Use com /mobile:figma-to-component ao converter uma tela/componente do Figma pra Flutter.
+description: Extracts a Figma design via MCP (get_design_context/get_screenshot) and produces a widget tree spec mapped to the consuming project's design-system components — mapping table, tokens, and a list of gaps with no equivalent. Use with /mobile:figma-to-component when converting a Figma screen/component to Flutter.
 disable-model-invocation: true
 ---
 
@@ -44,7 +44,7 @@ Extract fileKey and nodeId from Figma URLs:
 
 ## Figma → Flutter Component Mapping
 
-Este é um exemplo ILUSTRATIVO da forma da tabela — não é o design system de nenhum projeto real. Preencha com o vocabulário de componentes real do projeto Flutter consumidor ao usar esta skill; este kit não tem design system próprio pra preencher aqui.
+This is an ILLUSTRATIVE example of the table's shape — it is not the design system of any real project. Fill it in with the consuming Flutter project's real component vocabulary when using this skill; this kit has no design system of its own to fill in here.
 
 | Figma Component | Flutter Widget | Factory/Variant | Package Path |
 |---|---|---|---|
@@ -55,13 +55,13 @@ Este é um exemplo ILUSTRATIVO da forma da tabela — não é o design system de
 | Button | `<ButtonComponent>` | `.primary()`, `.secondary()`, `.tertiary()` | `<design_system>/components/button/...` |
 | Divider | `<DividerComponent>` | thin/medium/thick, solid/dashed | `<design_system>/components/divider/...` |
 | CTA bar | `<CtaComponent>` | `.onlyButton()`, `.defaultType()` | `<design_system>/components/cta/...` |
-| Image | `<ImageComponent>` | — (legacy fallback, se houver) | `<legacy>/components/image/...` |
+| Image | `<ImageComponent>` | — (legacy fallback, if any) | `<legacy>/components/image/...` |
 
 ## Token Quick Reference
 
-Genérico: descreva a estrutura de acesso a tokens do projeto (ex.: `<DesignTokens>.colors.brand.*`, `<DesignTokens>.colors.neutral.*`, `<DesignTokens>.colors.support.*`) e adapte ao path real.
+Generic: describe the project's token-access structure (e.g. `<DesignTokens>.colors.brand.*`, `<DesignTokens>.colors.neutral.*`, `<DesignTokens>.colors.support.*`) and adapt to the real path.
 
-Para a referência completa de tokens (typography, spacing, borders, sizes, opacity), consulte a skill de design-tokens do projeto (se existir).
+For the full token reference (typography, spacing, borders, sizes, opacity), see the project's design-tokens skill (if it exists).
 
 ## Output Format
 

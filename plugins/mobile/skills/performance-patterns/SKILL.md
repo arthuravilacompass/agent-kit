@@ -1,36 +1,36 @@
 ---
 name: performance-patterns
-description: Invoque para revisar ou aplicar padrões de performance num app Flutter/MobX — rebuilds de Observer, chamadas de rede (Dio), imagens, memória. Gatilhos em pt-BR — "esse Observer está rebuildando demais", "essa lista tá lenta", "revisão de performance dessa tela".
+description: Invoke to review or apply performance patterns in a Flutter/MobX app — Observer rebuilds, network calls (Dio), images, memory. Triggers — "this Observer is rebuilding too much", "this list is slow", "performance review of this screen".
 ---
 
 # Performance Patterns
 
-Padrões de performance para o stack Flutter + MobX cobrindo rebuilds de Observer, Dio, imagens, memória, e RUM. Detalhes em `REFERENCE.md` (mesma pasta) — leia as seções relevantes antes de aplicar.
+Performance patterns for the Flutter + MobX stack covering Observer rebuilds, Dio, images, memory, and RUM. Details in `REFERENCE.md` (same folder) — read the relevant sections before applying.
 
-## Config do projeto
+## Project Config
 
-Os exemplos assumem MobX (`Observer`/`@computed`/`runInAction`) e Dio para rede. Referências a "ferramenta de RUM" apontam pra config do seu projeto (Datadog, Firebase Performance, Sentry, etc.) — troque pelo nome real.
+The examples assume MobX (`Observer`/`@computed`/`runInAction`) and Dio for networking. References to a "RUM tool" point to your project's config (Datadog, Firebase Performance, Sentry, etc.) — swap in the real name.
 
 ## MobX Rebuild Optimization
 
-Leia `REFERENCE.md` §MobX Rebuild Optimization: split granular de `Observer`, filhos `const` dentro de `Observer`, `@computed` pra valores derivados, batching com `runInAction`.
+Read `REFERENCE.md` §MobX Rebuild Optimization: granular `Observer` splitting, `const` children inside `Observer`, `@computed` for derived values, batching with `runInAction`.
 
-> As regras de MobX (rebuild em `Observer` inteiro, `@computed` puro, disposers de reaction) estão codificadas em `mobile:mobx` `REFERENCE.md`.
+> MobX rules (rebuilding the whole `Observer`, pure `@computed`, reaction disposers) are codified in `mobile:mobx` `REFERENCE.md`.
 
 ## Widget Tree Optimization
 
-Leia `REFERENCE.md` §Widget Tree Optimization: construtores `const`, `ListView.builder`, `RepaintBoundary`, `AnimatedOpacity` vs `Opacity`, ressalvas de `IntrinsicHeight`, `MediaQuery.sizeOf`.
+Read `REFERENCE.md` §Widget Tree Optimization: `const` constructors, `ListView.builder`, `RepaintBoundary`, `AnimatedOpacity` vs `Opacity`, `IntrinsicHeight` caveats, `MediaQuery.sizeOf`.
 
 ## Network and Images
 
-Leia `REFERENCE.md` §Network Performance (Dio): `CancelToken` no dispose, `Future.wait` para chamadas paralelas, cache de resultado.
+Read `REFERENCE.md` §Network Performance (Dio): `CancelToken` on dispose, `Future.wait` for parallel calls, result caching.
 
-Leia `REFERENCE.md` §Image Performance: sempre passar dimensões explícitas pro widget de imagem do seu projeto.
+Read `REFERENCE.md` §Image Performance: always pass explicit dimensions to your project's image widget.
 
 ## Memory Management
 
-Leia `REFERENCE.md` §Memory Management: disposers de reaction MobX, dispose de controllers Flutter, limpar estado grande na navegação.
+Read `REFERENCE.md` §Memory Management: MobX reaction disposers, disposing Flutter controllers, clearing large state on navigation.
 
 ## Performance Checklist
 
-Leia `REFERENCE.md` §Performance Checklist para o checklist completo pré-review.
+Read `REFERENCE.md` §Performance Checklist for the full pre-review checklist.
