@@ -89,9 +89,9 @@ If the bullet is purely informative and raises no question, reply briefly: "✓ 
 - Implementation or architecture suggestions
 - Subtask generation
 
-### 4. "fecha" — Consolidation
+### 4. "close" — Consolidation
 
-When the user types **"fecha"**, consolidate the session state:
+When the user types **"close"**, consolidate the session state:
 
 1. Generate the structured summary below
 2. Save to `docs/refine/refine-<card-id>.md` (make sure the directory exists: `mkdir -p docs/refine`; use the external_id if available, e.g.: `refine-<TICKET>.md`)
@@ -126,7 +126,7 @@ When the user types **"fecha"**, consolidate the session state:
 - date: <YYYY-MM-DD>
 ```
 
-The session stays active after "fecha" — the user can run another `/team:refine-live` with a different card ID.
+The session stays active after "close" — the user can run another `/team:refine-live` with a different card ID.
 
 ## Important
 
