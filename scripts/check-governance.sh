@@ -50,8 +50,9 @@ else
   fi
 fi
 
-# 3) Contrato de SKILL.md (D14): todo arquivo na §Conformidade existe e respeita o teto de linhas
-CONTRACT="docs/SKILL-CONTRACT.md"
+# 3) Contrato de SKILL.md (D14, §Contrato de SKILL.md do GOVERNANCE): todo arquivo
+# na §Conformidade existe e respeita o teto de linhas
+CONTRACT="docs/GOVERNANCE.md"
 MAX_LINES=120
 if [ ! -f "$CONTRACT" ]; then
   echo "ERRO: ${CONTRACT} ausente — conformidade D14 não verificada"
@@ -61,7 +62,7 @@ else
   # Crase SEM escape: em GNU grep -E, '\`' é âncora de início de buffer (extensão
   # GNU) e o padrão nunca casa — foi o que deixou o gate vermelho no CI (ubuntu)
   # enquanto o BSD grep local tratava '\`' como crase literal.
-  paths=$(sed -n '/^## Conformidade/,$p' "$CONTRACT" | grep -oE '`plugins/[^`]+`' | tr -d '`')
+  paths=$(sed -n '/^### Conformidade/,/^## /p' "$CONTRACT" | grep -oE '`plugins/[^`]+`' | tr -d '`')
   if [ -z "$paths" ]; then
     echo "ERRO: §Conformidade vazia ou ilegível em ${CONTRACT} (D14)"
     fail=1

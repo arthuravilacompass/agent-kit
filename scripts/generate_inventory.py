@@ -81,12 +81,12 @@ def collect_provisional():
     return result
 
 
-CONTRACT_PATH = os.path.join(REPO_ROOT, "docs", "SKILL-CONTRACT.md")
+CONTRACT_PATH = os.path.join(REPO_ROOT, "docs", "GOVERNANCE.md")
 CONFORMITY_LINE_RE = re.compile(r"^- `(plugins/[^`]+)` — ([a-zA-Zà-ú-]+)$")
 
 
 def collect_conformity():
-    """path do SKILL.md -> esqueleto, da seção '## Conformidade' de docs/SKILL-CONTRACT.md."""
+    """path do SKILL.md -> esqueleto, da seção '### Conformidade' de docs/GOVERNANCE.md."""
     if not os.path.isfile(CONTRACT_PATH):
         return {}
     result = {}
@@ -94,10 +94,10 @@ def collect_conformity():
     with open(CONTRACT_PATH, encoding="utf-8") as f:
         for raw in f:
             line = raw.rstrip("\n")
-            if line.startswith("## Conformidade"):
+            if line.startswith("### Conformidade"):
                 in_section = True
                 continue
-            if in_section and line.startswith("## "):
+            if in_section and (line.startswith("## ") or line.startswith("### ")):
                 break
             if in_section:
                 m = CONFORMITY_LINE_RE.match(line)
@@ -381,7 +381,7 @@ def generate():
         "",
         "Skills marcadas **slash-only** têm `disable-model-invocation: true` no frontmatter: "
         "rodam só via comando explícito (`/<plugin>:<nome>`), nunca por "
-        "iniciativa do modelo (critério: `docs/SKILL-CONTRACT.md` §Critério slash-only).",
+        "iniciativa do modelo (critério: `docs/GOVERNANCE.md` §Contrato de SKILL.md).",
         "",
         "Itens com “provisório até <data>” estão wired sob a exceção de deadline "
         "(`docs/GOVERNANCE.md` §Provisórios ativos) — prazo vencido deixa o gate vermelho.",

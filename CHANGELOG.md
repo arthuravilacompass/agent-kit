@@ -17,6 +17,8 @@
 
 ### Alterado
 
+- **Docs 4→2 (Fase 3, 2026-07-08)** — `docs/GOVERNANCE.md` absorveu `docs/SKILL-CONTRACT.md` (§Contrato de SKILL.md, D14) e `docs/OPERATIONS.md` absorveu `unwired/README.md` (§5, tabela de itens preservada sem datas; o README de `unwired/` virou ponteiro). Parsers de §Conformidade (`check-governance.sh` check 3, `generate_inventory.py`) atualizados pro novo local. Nota de numeração migrada do GOVERNANCE: a numeração do ledger é esparsa por origem — os IDs nasceram na numeração contínua do material de auditoria/spec do projeto de origem (fora deste repo; o gate de proveniência recusa importá-lo); o ledger cobre os IDs citados no repo, reconstituídos de evidência in-repo.
+
 - D14 §Escopo: correção cirúrgica (linhas pontuais, sem mudar esqueleto/propósito) não constitui reforma nem obriga conformidade — decisão do dono, 2026-07-07.
 - `review-local` (fix cirúrgico): mandato de tool Read para evidência citável no dispatch + claim do read-ledger anotada com o veredito do teste de runtime de 2026-07-07 (reads de subagent via Read entram no ledger da sessão-mãe; via Bash não).
 - `using-agent-kit` §Vocabulário de Posturas: as 6 posturas agora são todas wired (4 skills in-thread + 2 subagents) com ponteiro pro índice `core:council`.

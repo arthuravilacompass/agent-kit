@@ -12,7 +12,7 @@
 # A rodada de revisão pós-construção (censo cego, 2026-07-06) avaliou o mérito do
 # mecanismo de forma independente (nota 4/5) e o artefato foi resgatado pra cá:
 # preserva a opção sem custo de contexto. Promoção a wired segue a regra do
-# unwired/README.md — exige uso real, não mérito percebido.
+# docs/GOVERNANCE.md — exige uso real, não mérito percebido.
 #
 # Notas pra promoção (se um dia subir pra plugins/core):
 #   1. Registrar em hooks/hooks.json no evento Stop.
