@@ -2,7 +2,7 @@
 
 Guia operacional do dia-a-dia: **quando** você pega cada ferramenta e **como** dirige. É o manual do operador.
 
-> Genericizado a partir do manual de um projeto de origem — os nomes de skill/comando abaixo já refletem o vocabulário deste kit (`core` + `mobile`), não o original. Onde o original tinha algo que não foi portado (dashboard de release, design-tokens do design system específico), a lacuna fica marcada, não inventada.
+> Genericizado a partir do manual de um projeto de origem — os nomes de skill/comando abaixo já refletem o vocabulário deste kit (`core`, `council`, `team`, `mobile`), não o original. Onde o original tinha algo que não foi portado (dashboard de release, design-tokens do design system específico), a lacuna fica marcada, não inventada.
 
 ---
 
@@ -116,6 +116,6 @@ Servidores externos conectados à sessão. Prefira a tool do MCP a aproximar com
 
 ## 5. Ponteiros
 
-- **Inventário deste kit:** `.claude-plugin/marketplace.json` + READMEs de `plugins/core/` e `plugins/mobile/`.
+- **Inventário deste kit:** `INVENTORY.md` (gerado, na raiz) + `.claude-plugin/marketplace.json` + `README.md` raiz.
 - **Regra de promoção de `unwired/` → `plugins/`:** `docs/GOVERNANCE.md`.
 - **Convenções, arquitetura, padrões-chave do projeto consumidor:** o `CLAUDE.md` do projeto — ver `assets/claude-md-starter.md` pra um esqueleto de partida.
