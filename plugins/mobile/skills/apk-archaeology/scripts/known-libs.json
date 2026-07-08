@@ -1,0 +1,31 @@
+{
+  "libraries": [
+    {"name": "Kotlin stdlib", "prefixes": ["kotlin"]},
+    {"name": "Kotlin coroutines", "prefixes": ["kotlinx"]},
+    {"name": "AndroidX", "prefixes": ["androidx"]},
+    {"name": "Android framework", "prefixes": ["android"]},
+    {"name": "OkHttp", "prefixes": ["okhttp3"]},
+    {"name": "Okio", "prefixes": ["okio"]},
+    {"name": "Retrofit", "prefixes": ["retrofit2"]},
+    {"name": "Ktor", "prefixes": ["io.ktor"]},
+    {"name": "RxJava", "prefixes": ["io.reactivex"]},
+    {"name": "Dagger/Hilt", "prefixes": ["dagger"]},
+    {"name": "Javax inject", "prefixes": ["javax"]},
+    {"name": "Koin", "prefixes": ["org.koin"]},
+    {"name": "Google (Firebase/GMS/Protobuf)", "prefixes": ["com.google"]},
+    {"name": "Squareup (Retrofit deps/Moshi/Picasso)", "prefixes": ["com.squareup"]},
+    {"name": "Glide", "prefixes": ["com.bumptech"]},
+    {"name": "Lottie", "prefixes": ["com.airbnb"]},
+    {"name": "ButterKnife", "prefixes": ["butterknife"]},
+    {"name": "EventBus", "prefixes": ["org.greenrobot"]},
+    {"name": "Timber", "prefixes": ["timber"]},
+    {"name": "Coil", "prefixes": ["coil"]},
+    {"name": "Protocol Buffers runtime", "prefixes": ["com.google.protobuf"]},
+    {"name": "JUnit", "prefixes": ["junit"]},
+    {"name": "JUnit (org)", "prefixes": ["org.junit"]},
+    {"name": "Jetbrains annotations", "prefixes": ["org.jetbrains"]},
+    {"name": "Facebook SDK", "prefixes": ["com.facebook"]},
+    {"name": "Adjust attribution", "prefixes": ["com.adjust"]},
+    {"name": "ClearSale antifraude", "prefixes": ["br.com.clearsale"]}
+  ]
+}
