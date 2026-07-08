@@ -48,6 +48,32 @@ def simple_name(qualified):
     return qualified.strip().split(".")[-1].split("<")[0].strip()
 
 
+def split_type_list(blob):
+    """Divide uma lista de tipos separada por vírgula respeitando profundidade
+    de <>, pra não quebrar um generic multi-argumento no meio (ex.:
+    `BaseRepo<Response, Handler<Foo>>` é UM tipo, não dois — split ingênuo por
+    vírgula fabricava uma aresta falsa pro nome que sobrava depois do split,
+    caso ele coincidisse com uma classe real descoberta; achado de revisão)."""
+    parts = []
+    depth = 0
+    current = []
+    for ch in blob:
+        if ch == "<":
+            depth += 1
+            current.append(ch)
+        elif ch == ">":
+            depth -= 1
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        parts.append("".join(current))
+    return parts
+
+
 def parse_file(path):
     with open(path, encoding="utf-8", errors="replace") as f:
         content = f.read()
@@ -56,12 +82,12 @@ def parse_file(path):
         class_name, extends, implements = m.group(1), m.group(2), m.group(3)
         interfaces = []
         if implements:
-            interfaces = [simple_name(i) for i in implements.split(",") if i.strip()]
+            interfaces = [simple_name(i) for i in split_type_list(implements) if i.strip()]
         # extends admite múltiplos pais: classe só tem 1 na prática, mas interface
         # Java permite `interface Foo extends A, B` — tratamos os dois com a mesma
         # lista (achado de revisão: capturar só 1 fazia o match INTEIRO falhar
         # quando havia vírgula, derrubando o node e todas as edges dele, sem aviso)
-        parents = [simple_name(e) for e in extends.split(",") if e.strip()] if extends else []
+        parents = [simple_name(e) for e in split_type_list(extends) if e.strip()] if extends else []
         declarations.append((class_name, parents, interfaces))
     return declarations
 

@@ -65,6 +65,30 @@ def main():
             "package br.com.zup.app;\n"
             "public class MultiParentImpl implements MultiParent {\n}\n",
         )
+        # generic multi-argumento com generic ANINHADO num dos argumentos — achado de
+        # revisão: split ingênuo por vírgula quebrava "BaseRepo<Response, Handler<Foo>>"
+        # no meio do generic, e o nome residual "Handler" coincidia com uma classe real,
+        # fabricando uma ARESTA FALSA (Foo não tem relação nenhuma com Handler)
+        write(
+            os.path.join(sources, "br/com/zup/app/GenericChild.java"),
+            "package br.com.zup.app;\n"
+            "public class GenericChild extends BaseRepo<Response, Handler<GenericChild>> {\n}\n",
+        )
+        write(
+            os.path.join(sources, "br/com/zup/app/BaseRepo.java"),
+            "package br.com.zup.app;\n"
+            "public class BaseRepo<A, B> {\n}\n",
+        )
+        write(
+            os.path.join(sources, "br/com/zup/app/Handler.java"),
+            "package br.com.zup.app;\n"
+            "public class Handler {\n}\n",
+        )
+        write(
+            os.path.join(sources, "br/com/zup/app/Response.java"),
+            "package br.com.zup.app;\n"
+            "public class Response {\n}\n",
+        )
 
         result = extract_graph(sources, CLASSIFY_RESULT)
 
@@ -84,6 +108,16 @@ def main():
         assert ("MultiParent", "BaseActivity", "extends") in edges, edges
         assert ("MultiParent", "Callback", "extends") in edges, edges
         assert ("MultiParentImpl", "MultiParent", "implements") in edges, edges
+
+        # generic multi-argumento com generic aninhado: só a edge real (BaseRepo),
+        # NUNCA uma edge falsa pro "Handler" que sobraria de um split ingênuo
+        assert ("GenericChild", "BaseRepo", "extends") in edges, edges
+        assert ("GenericChild", "Handler", "extends") not in edges, (
+            f"ARESTA FALSA: split ingênuo vazou 'Handler' como pai espúrio. edges: {edges}"
+        )
+        assert ("GenericChild", "Response", "extends") not in edges, (
+            f"ARESTA FALSA: split ingênuo vazou 'Response' como pai espúrio. edges: {edges}"
+        )
 
         assert any("ExternalSyntheticLambda0" in w for w in result["artifact_warnings"]), result[
             "artifact_warnings"
