@@ -1,20 +1,20 @@
 ---
 name: council-log
-description: Invoque após rodar uma postura do Conselho (council:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia.
+description: Invoke after running a Council posture (council:schrodinger/bohr/epicurus/sagan or agents maxwell/zeno) on a high-cost-to-reverse decision worth remembering — logs the brief to the episodic corpus (~/.claude/epistemic/<posture>.jsonl, append-only). Advisory; never blocks.
 ---
 
-# /council:council-log — registrar deliberação
+# /council:council-log — log a deliberation
 
-Persiste UM brief (append-only, sob flock). Não decide nada; é infra de recall.
+Persists ONE brief (append-only, under flock). Decides nothing; it's recall infrastructure.
 
-Monte o objeto JSON do brief e appenda:
+Assemble the brief's JSON object and append it:
 ```bash
-echo '{"posture":"<bohr|schrodinger|epicurus|sagan|maxwell|zeno>","topic":"<1 linha>","move":"<output verbatim da postura>","claim_status":"APOSTA|FATO","mode":"light|escalated","surface_class":"<repository|...|other>","keywords":["..."],"evidence":["file:linha"]}' \
+echo '{"posture":"<bohr|schrodinger|epicurus|sagan|maxwell|zeno>","topic":"<1 line>","move":"<the posture's verbatim output>","claim_status":"APOSTA|FATO","mode":"light|escalated","surface_class":"<repository|...|other>","keywords":["..."],"evidence":["file:line"]}' \
   | python3 "${CLAUDE_PLUGIN_ROOT}/skills/council-log/log.py"
 ```
 
-Regras:
-- `claim_status=FATO` **exige** `evidence` (≥1 `file:linha`/`doc:seção`) — senão o script recusa (assimetria deliberada: um FATO errado no recall é mais danoso que um APOSTA errado).
-- `move` > 800 chars vai pra `blobs/<id>.txt`; o JSONL guarda o truncado + `move_blob`.
-- Correção = NOVO brief com `supersedes:"<id-antigo>"` (UM nível; nunca edite/apague linha).
-- **Outcome (desfecho):** para registrar como um caso terminou, logue um NOVO brief com `outcome:"<o que aconteceu>"` + `outcome_of:"<id-do-brief-original>"` (append-only; nunca edita a linha original). `recall` exibe o outcome no caso original mas **não ranqueia por ele** (corpus segue "casos que aconteceram"; você julga).
+Rules:
+- `claim_status=FATO` **requires** `evidence` (≥1 `file:line`/`doc:section`) — otherwise the script refuses (deliberate asymmetry: a wrong FATO in recall is more damaging than a wrong APOSTA).
+- `move` > 800 chars goes to `blobs/<id>.txt`; the JSONL stores the truncated version + `move_blob`.
+- Correction = a NEW brief with `supersedes:"<old-id>"` (ONE level; never edit/delete a line).
+- **Outcome:** to record how a case ended, log a NEW brief with `outcome:"<what happened>"` + `outcome_of:"<original-brief-id>"` (append-only; never edits the original line). `recall` displays the outcome on the original case but **does not rank by it** (the corpus stays "cases that happened"; you judge).
