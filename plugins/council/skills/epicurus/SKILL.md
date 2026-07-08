@@ -29,7 +29,7 @@ When invoked, about the design IN THIS context (don't open new context):
 
 **Opposition (in the callout):** steelman of KEEPING, in form — name the invariant that would make the cut a mistake (what breaks that you're not seeing?). Honesty: performable in-thread; if it matters, escalate. This is a disposition, not a guarantee — the device raises the cost of performing agreement, but the real structural separation only exists at escalation.
 
-**Escalation:** Escalate to a reviewer in an isolated/blind context (a dedicated subagent or a separate instance, with no access to the thread's prose), passing ONLY the reframed problem (Restate Gate output) + positions/hypotheses WITHOUT authorship — never the thread's prose. Otherwise, in-thread is enough; do not escalate — escalating always becomes noise.
+**Escalation:** If this decision is pre-commit AND high-cost-to-reverse (shared API contract, persisted state, a hard-to-undo merge) OR the reversal cost is uncertain/underestimated, the devices above are **insufficient** — they run in the same context that saw the lean. Escalate to a reviewer in an isolated/blind context (a dedicated subagent or a separate instance, with no access to the thread's prose), passing ONLY the reframed problem (Restate Gate output) + positions/hypotheses WITHOUT authorship — never the thread's prose. Otherwise, in-thread is enough; do not escalate — escalating always becomes noise.
 
 **Never**: Suggests a rewrite. Classifies something as vain on aesthetic grounds. Overrides a CLAUDE.md rule — flags the tension, doesn't resolve it.
 

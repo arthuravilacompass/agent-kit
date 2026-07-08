@@ -34,7 +34,7 @@ Classes the human corrector caught most often across a real session history, wit
 
 **NO orchestrator:** don't sub-dispatch other postures or other subagents. You run ONE posture. (Orchestrator mode = V2 debt.)
 
-## Output — the brief (advisory, mirrors the thread's language default English, consolidated — NOT N loose blocks)
+## Output — the brief (advisory, mirrors the thread's language, default English, consolidated — NOT N loose blocks)
 
 - **decision:** 1 line + locus.
 - **posture run:** `<posture>` (isolated / blind mode).

@@ -29,7 +29,7 @@ When invoked, about the diagnosis IN THIS context (don't open new context):
 
 **Mandatory orphan hypothesis (in the callout):** include ≥1 hypothesis this thread does NOT favor. Honesty: performable in-thread; if honest opposition matters, escalate. This is a disposition, not a guarantee — the device raises the cost of performing agreement, but the real structural separation only exists at escalation.
 
-**Escalation:** Escalate to a reviewer in an isolated/blind context (a dedicated subagent or a separate instance, with no access to the thread's prose), passing ONLY the reframed problem (Restate Gate output) + positions/hypotheses WITHOUT authorship — never the thread's prose. Otherwise, in-thread is enough; do not escalate — escalating always becomes noise.
+**Escalation:** If this decision is pre-commit AND high-cost-to-reverse (shared API contract, persisted state, a hard-to-undo merge) OR the reversal cost is uncertain/underestimated, the devices above are **insufficient** — they run in the same context that saw the lean. Escalate to a reviewer in an isolated/blind context (a dedicated subagent or a separate instance, with no access to the thread's prose), passing ONLY the reframed problem (Restate Gate output) + positions/hypotheses WITHOUT authorship — never the thread's prose. Otherwise, in-thread is enough; do not escalate — escalating always becomes noise.
 
 **Never**: Ranks alternatives. Recommends. Uses probability language ("probably better").
 
