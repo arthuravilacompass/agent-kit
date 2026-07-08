@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# desc: Verifica resolução de imports Dart internos numa árvore git mergeada (sem checkout).
+# desc: Checks internal Dart import resolution in a merged git tree (no checkout).
 """Check internal Dart import resolution inside a git TREE object (no checkout).
 
 Finds the failure mode that `git merge-tree` hides: after a rename-heavy

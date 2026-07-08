@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: PostToolUse(Edit|Write|MultiEdit) — roda dart analyze escopado ao arquivo, feedback sempre advisory.
+# desc: PostToolUse(Edit|Write|MultiEdit) — runs dart analyze scoped to the file, feedback always advisory.
 # dart-analyze-file.sh — PostToolUse hook (Edit|Write|MultiEdit)
 # Runs `dart analyze` scoped to the SINGLE edited .dart file and feeds any
 # errors/warnings/lints back to Claude as advisory context. Never blocks the edit.

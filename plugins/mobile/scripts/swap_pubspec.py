@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# desc: Troca dependências git-ref do pubspec.yaml por dependências de path local, e volta.
+# desc: Swaps pubspec.yaml git-ref dependencies for local path dependencies, and back.
 """Swap pubspec.yaml git-ref dependencies for local path dependencies, and back.
 
 Generic for any multi-repo Flutter/Dart workspace where a subset of packages is

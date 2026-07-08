@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# desc: Lê um grafo de imports (dot) e reporta violações de layering contra config do projeto.
+# desc: Reads an import graph (dot) and reports layering violations against the project's config.
 """arch_violations.py — reads a lakos .dot import graph and reports layering-
 direction violations against a project-supplied config.
 

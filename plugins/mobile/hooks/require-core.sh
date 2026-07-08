@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia).
+# desc: SessionStart — warns if core@agent-kit is not registered as installed among the plugins (checks installation, not per-session enablement; fails open on any anomaly).
 set -uo pipefail
 command -v python3 >/dev/null 2>&1 || exit 0
 REG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/installed_plugins.json"
@@ -7,11 +7,11 @@ REG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/installed_plugins.json"
 python3 - "$REG" "${CLAUDE_PLUGIN_ROOT:-}" <<'PY'
 import json, sys
 
-# Limitação documentada: o registro diz o que está INSTALADO (qualquer escopo),
-# não o que está habilitado nesta sessão. Entry project-scoped de outro projeto
-# conta como presente (falso-silêncio aceito; falso-aviso é pior — meta-princípio
-# advisory-nudge em docs/GOVERNANCE.md). Formato do registro é contrato interno
-# do Claude Code ("version": 2 hoje) — qualquer forma inesperada = silêncio.
+# Documented limitation: the registry says what's INSTALLED (any scope),
+# not what's enabled in this session. A project-scoped entry from another
+# project counts as present (accepted false-silence; a false warning is worse —
+# see the advisory-nudge meta-principle in docs/GOVERNANCE.md). Registry format is
+# an internal Claude Code contract ("version": 2 today) — any unexpected shape = silence.
 try:
     with open(sys.argv[1], encoding="utf-8") as f:
         entries = json.load(f).get("plugins", {}).get("core@agent-kit") or []
@@ -20,7 +20,7 @@ except Exception:
 if entries:
     sys.exit(0)
 
-plugin = "este plugin"
+plugin = "this plugin"
 try:
     with open(sys.argv[2] + "/.claude-plugin/plugin.json", encoding="utf-8") as f:
         plugin = json.load(f).get("name", plugin)
@@ -29,8 +29,8 @@ except Exception:
 
 print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
     "additionalContext": (
-        f"[require-core] O plugin '{plugin}' assume as regras sempre-ativas e o "
-        "pipeline do core@agent-kit, que não consta como instalado. Instale com: "
+        f"[require-core] Plugin '{plugin}' assumes the always-on rules and the "
+        "core@agent-kit pipeline, which is not registered as installed. Install with: "
         "claude plugin install core@agent-kit"
     )}}))
 PY

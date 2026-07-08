@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: PostToolUse(Edit|Write) — pub get em background pra pubspec.yaml editado; lembrete de teste pra _test.dart editado, uma vez por sessão.
+# desc: PostToolUse(Edit|Write) — background pub get for an edited pubspec.yaml; test reminder for an edited _test.dart, once per session.
 # package-feedback.sh — PostToolUse Edit|Write|MultiEdit hook
 # Fast rungs of the feedback ladder for a couple of file kinds a Flutter/Dart
 # multi-package workspace touches often:
