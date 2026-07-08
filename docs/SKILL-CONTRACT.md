@@ -42,7 +42,7 @@ Conteúdo técnico inline num roteador é sinal de extração pendente para `REF
 
 - Corpo em **pt-BR**. `name`, comandos, código, paths e termos técnicos em inglês.
 - `description` em pt-BR, com gatilhos citáveis — frases que o usuário realmente diria.
-- Exceção grandfathered: `plugins/core/skills/grill-me/SKILL.md` — corpo-prompt em inglês por decisão do dono (2026-07-07). Não reformar sem decisão nova.
+- Exceção grandfathered (alargada na fusão de 2026-07-08): `plugins/core/skills/grill-me/SKILL.md` e o `REFERENCE.md` do mesmo diretório — corpo em inglês por decisão do dono (aproveitamento verbatim do advisor-check absorvido). A `description` e o output pro usuário seguem pt-BR; demais skills seguem o default.
 
 ## Teto de linhas
 
@@ -68,3 +68,4 @@ Lista lida pelo gate: cada arquivo abaixo existe e respeita o teto de linhas. Fo
 - `plugins/mobile/skills/mobx/SKILL.md` — roteador
 - `plugins/core/skills/commit/SKILL.md` — procedimento
 - `plugins/core/skills/archaeology/SKILL.md` — procedimento
+- `plugins/core/skills/grill-me/SKILL.md` — procedimento

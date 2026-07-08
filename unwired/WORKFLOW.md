@@ -20,9 +20,9 @@ planejar (modelo forte)  →  /clear  →  executar (modelo de execução)  → 
 
 Os três tipos de trabalho seguem o mesmo esqueleto, com paradas diferentes:
 
-- **Feature.** `advisor-check pre-plan <TICKET>` → `superpowers:brainstorming` → `superpowers:writing-plans` → `advisor-check post-plan` → execução → `advisor-check pre-done` → `review-local` (ou `review-remote` sem o plugin de review) → `commit`/`pr`. (O post-plan é obrigatório antes de executar — ver §2.)
+- **Feature.** `grill-me pre-plan <TICKET>` → `superpowers:brainstorming` → `superpowers:writing-plans` → `grill-me post-plan` → execução → `grill-me pre-done` → `review-local` (ou `review-remote` sem o plugin de review) → `commit`/`pr`. (O post-plan é obrigatório antes de executar — pula-lo deixa bugs landarem horas adentro.)
 - **Bugfix.** Mapeie a cadeia completa (UI → validação → estado → origem) antes do fix; siga as 4 perguntas de bugfix-principles do projeto (contrato violado? ausente≠vazio? ciclo de vida do estado? invariante implícito?). Ao fechar, se o bug passou pelo harness, adicione o caso em `docs/evals/` (tier 1 se mecanizável, tier 2 se julgamento).
-- **Refactor.** Ancore o smell antes de brainstormar; rode `advisor-check pre-plan` quando há alternativas reais; feche com a skill `refactor-review` em todos os callers afetados antes do commit.
+- **Refactor.** Ancore o smell antes de brainstormar; rode `grill-me pre-plan` quando há alternativas reais; feche com a skill `refactor-review` em todos os callers afetados antes do commit.
 
 ---
 
@@ -35,7 +35,7 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 - **`superpowers:writing-plans`** — transforma o spec num plano de implementação passo a passo. Salva em `docs/plans/`.
 - **`tech-breakdown <TICKET>`** — para TL: busca o ticket, roda brainstorming + refinamento adversarial + writing-plans, e devolve um plano pronto pra dev.
 - **`spec-refine`** — refinamento adversarial de um spec: caça error paths faltando, estados ambíguos, invariantes não-escritos.
-- **`grill-me`** — entrevista relentless pra stress-test de um plano ou decisão de design antes de construir.
+- **`grill-me`** — dois modos. **Entrevista** (default): stress-test relentless de um plano ou decisão de design antes de construir. **Escalação** (`pre-plan`/`post-plan`/`pre-done`): escalada controlada a um reviewer mais forte nos checkpoints de decisão — advisor nativo (contexto cheio) em `pre-plan`/`post-plan`, subagent cego adversarial (só diff + ACs) em `pre-done`; absorve o antigo checkpoint de escalação.
 
 ### Execução
 - **`feature-scaffold`** — scaffold de módulo Flutter completo (entity, repository, controller, page) seguindo a estrutura em camadas do projeto.
@@ -75,11 +75,6 @@ Seis modos de raciocínio que você veste de propósito — *como* interrogar um
 
 ## 2. Commands / checkpoints
 
-- **`advisor-check <modo>`** — escalada controlada em checkpoints de decisão. Três modos:
-  - `pre-plan <TICKET> [--greenfield]` — advisor nativo (contexto cheio) antes de escolher a abordagem. `--greenfield` firewalla as rules pra não re-ancorar um conceito novo no que já existe.
-  - `post-plan` — advisor nativo, plano aprovado e antes de codar. **Obrigatório no track de feature** antes de qualquer skill de execução (pula-lo deixa bugs landarem horas adentro).
-  - `pre-done` — subagent **cego** adversarial (só diff + ACs, sem sua narrativa); findings verificados por `validate_citations.py`. Roda no "acho que terminei", antes do review.
-  - Complementa o advisor nativo, não substitui: o nativo vê tudo (ideal pra planning); o `pre-done` esconde a narrativa de propósito, pra quebrar a bolha epistêmica.
 - **`archaeology`** — mapa do codebase pré-US: o terreno antes de começar.
 - **`/core:refine-live` / `/core:refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Promovidos a wired em 2026-07-07 (`plugins/core/skills/`) — ainda dependem de um MCP de board/kanban específico do projeto consumidor, que este kit não embute; placeholders de ticket/board seguem no lugar dos nomes reais até adaptar.
 - **Dashboard de prontidão de release** — o projeto de origem tinha uma skill de operação bem específica (git delta + QA + board + pubspec) que não generalizou o bastante pra portar; se o novo projeto precisar de algo assim, escreva a própria a partir do zero em vez de herdar esta.

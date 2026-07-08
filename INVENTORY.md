@@ -11,16 +11,15 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 
 ## Plugin `core`
 
-### Skills (15)
+### Skills (14)
 
 | Skill | Contrato (D14) | Descrição |
 |---|---|---|
-| `advisor-check` (slash-only: `/core:advisor-check`) | pendente | Invoque em 3 checkpoints deterministicos — pre-plan (antes de escolher abordagem), post-plan (plano aprovado, antes de codar), pre-done ("acho que terminei" / "tá pronto") — para escalar a um reviewer mais forte com contexto controlado ou cego, quebrando a bolha epistêmica da própria sessão. |
 | `archaeology` (slash-only: `/core:archaeology`) | procedimento | Invoque para mapear o estado atual do código antes de qualquer planejamento técnico numa US, ticket ou domínio com histórico no app — dispatch de agentes de exploração em paralelo, mapa arqueológico consolidado com decisões ranqueadas por severidade. |
 | `bug-report` (slash-only: `/core:bug-report`) ⏳ provisório até 2026-08-06 | pendente | Investiga um bug e produz relatório com citações verificadas — gate determinístico (validate_citations --gate) + verifier semântico em contexto fresco. Use ao investigar/reportar bug onde afirmar comportamento de código sem ler a fonte é o risco. |
 | `commit` (slash-only: `/core:commit`) | procedimento | Invoque para rodar validação pré-commit (lint + testes) e criar um commit convencional a partir do diff staged — nunca commita sem aprovação explícita do usuário. |
 | `compound` (slash-only: `/core:compound`) | pendente | Write-back Estrutural de Fim de Track |
-| `grill-me` | pendente | Invoque quando o usuário pedir para "me grillar" / "grill me", pressionar uma decisão de design, ou antes de dar um plano por pronto para execução — entrevista estruturada e implacável que resolve dependências entre decisões uma a uma. |
+| `grill-me` | procedimento | Invoque quando o usuário pedir para "me grillar" / "grill me", pressionar uma decisão de design, ou antes de dar um plano por pronto (modo entrevista); ou nos checkpoints determinísticos pre-plan / post-plan / pre-done para escalar a um reviewer mais forte com contexto controlado ou cego (modo escalação, ex.: `/core:grill-me pre-done`). |
 | `learn` | pendente | Invoque quando o usuário disser "salva isso", "captura esse aprendizado", "usa a skill learn", ou antes de um /clear ou compact quando a sessão acumulou correções e decisões não capturadas — escaneia a conversa e propõe entries de memória para aprovação. |
 | `methodology` | pendente | Invoque quando o tier sempre-ativo (using-agent-kit) não bastar — metodologia de aplicação específica (verificação, evidência, escopo, investigação, exploração, tooling compartilhado) e referência técnica portável de Claude Code (hooks, advisor), git (rerere, revert parcial) e Flutter/Dart (build_runner). Gatilhos: "esse gate pode dar falso-negativo", "esse critério é proxy do objetivo real?", "hook não disparou", "revert parcial pós-release", "vou dar por pronto/executar — verifiquei o artefato final?". |
 | `pipeline` | pendente | Invoque ao receber uma intenção crua de trabalho substancial (feature, bug, investigação, refactor, ticket/US) sem fluxo em andamento definido, ou quando o usuário pedir "por onde começo", "qual o fluxo pra isso", "me conduz nesse trabalho". NÃO invoque para pergunta conceitual ou lookup pontual ("como funciona X?"), nem quando já há um fluxo em andamento (brainstorming, plano em execução, review). Condutor de fluxo — detecta o estágio real da tarefa, classifica a intenção e roteia pelas skills do kit um estágio por vez; recomenda a próxima rota, nunca executa a cadeia inteira sozinho. |

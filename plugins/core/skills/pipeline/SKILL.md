@@ -36,14 +36,14 @@ Se a tarefa já está em andamento: diga em que estágio ela está, com a evidê
 | Diagnosticar | `superpowers:systematic-debugging` (+ `core:schrodinger` se >1 hipótese viva) | `core:schrodinger` + protocolo de debugging do always-on | causa raiz com evidência |
 | Clarificar | `superpowers:brainstorming` ou `core:grill-me` | `core:grill-me` | decisões acordadas |
 | Especificar/refinar | brainstorming (spec) ou `core:spec-refine` | `core:spec-refine` | spec em `docs/superpowers/specs/` |
-| Checkpoint | `core:advisor-check` post-plan | — | veredito |
+| Checkpoint | `core:grill-me` modo escalação `post-plan` | — | veredito |
 | Quebrar | `superpowers:writing-plans` ou `core:tech-breakdown` | `core:tech-breakdown` | plano em `docs/superpowers/plans/` |
 | Implementar | `superpowers:executing-plans` ou subagent-driven | execução direta com o gate do projeto | código + commits |
-| Revisar | `core:review-local` + `core:advisor-check` pre-done | — | findings resolvidos |
+| Revisar | `core:review-local` + `core:grill-me` modo escalação `pre-done` | — | findings resolvidos |
 | Entregar | `core:commit` → `core:pr` | — | commit/PR |
 | Capturar | `core:learn` + `core:compound` | — | memória + handoff |
 
-Skills marcadas `core:*` slash-only (`archaeology`, `spec-refine`, `advisor-check`, `tech-breakdown`, `review-local`, `commit`, `pr`, `compound`): recomende o comando exato (`/core:<nome>`) pro usuário disparar — a tool Skill não as invoca.
+Skills marcadas `core:*` slash-only (`archaeology`, `spec-refine`, `tech-breakdown`, `review-local`, `commit`, `pr`, `compound`): recomende o comando exato (`/core:<nome>`) pro usuário disparar — a tool Skill não as invoca.
 
 Notas de estágio:
 - Terminal de Investigação ("relatório/handoff"): produzido via `core:compound` (handoff) ou handoff manual proporcional — não há skill própria.

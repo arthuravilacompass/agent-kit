@@ -1,16 +1,19 @@
----
-name: advisor-check
-description: Invoque em 3 checkpoints deterministicos — pre-plan (antes de escolher abordagem), post-plan (plano aprovado, antes de codar), pre-done ("acho que terminei" / "tá pronto") — para escalar a um reviewer mais forte com contexto controlado ou cego, quebrando a bolha epistêmica da própria sessão.
-disable-model-invocation: true
----
-
-# advisor-check — Advisor Escalation at Decision Checkpoints
+# grill-me escalation mode — reference
 
 Deterministic, controlled-context escalation at a checkpoint **you** choose. This skill **complements** Claude Code's native advisor (`/advisor`) — it does not replace it.
 
 The native advisor escalates to a stronger model with the **full conversation**, whenever *Claude* decides to consult it. This skill fires at a checkpoint *you* pick, with the context and framing *you* control — including the one thing the native advisor structurally **cannot** do: review **blind**, to break your epistemic bubble instead of inheriting it.
 
-## Config do projeto
+## Two mechanisms, by design
+
+| Mechanism | Context it gets | Who triggers | Used by |
+|---|---|---|---|
+| **Native advisor** (`/advisor opus`) | Full conversation, always | Claude (model-driven; requestable) | `pre-plan`, `post-plan` |
+| **Blind adversarial subagent** (Agent tool, `model: opus`) | Only what you pass (diff + ACs); reads the repo fresh | You, deterministically | `pre-done` |
+
+**Why split:** the native advisor sees everything — ideal when the reviewer needs the whole problem (planning, approach choice). But "sees everything" means it inherits your framing, and a model that shares your blind spot can't catch what you missed (the *self-correction illusion*: models reliably correct **others**, not **themselves**). For the "I think I'm done" check, that correlation is the enemy — so `pre-done` withholds your narrative and gives a fresh reviewer an adversarial mandate.
+
+## Consumer-project config
 
 Este skill assume que o projeto consumidor define:
 - **Doc de arquitetura** carregado em `pre-plan` (ex.: `CLAUDE.md §Architecture` ou equivalente).
@@ -22,32 +25,27 @@ Este skill assume que o projeto consumidor define:
 
 Sem essas configs, o skill ainda roda — só com menos contexto especializado carregado automaticamente.
 
-## Two mechanisms, by design
-
-| Mechanism | Context it gets | Who triggers | Used by |
-|---|---|---|---|
-| **Native advisor** (`/advisor opus`) | Full conversation, always | Claude (model-driven; requestable) | `pre-plan`, `post-plan` |
-| **Blind adversarial subagent** (Agent tool, `model: opus`) | Only what you pass (diff + ACs); reads the repo fresh | You, deterministically | `pre-done` |
-
-**Why split:** the native advisor sees everything — ideal when the reviewer needs the whole problem (planning, approach choice). But "sees everything" means it inherits your framing, and a model that shares your blind spot can't catch what you missed (the *self-correction illusion*: models reliably correct **others**, not **themselves**). For the "I think I'm done" check, that correlation is the enemy — so `pre-done` withholds your narrative and gives a fresh reviewer an adversarial mandate.
+## Advisor prerequisite
 
 **Prerequisite for `pre-plan` / `post-plan`:** an advisor model must be configured — run `/advisor opus` (persists) or set `"advisorModel": "opus"` in settings. Requires Claude Code ≥ v2.1.98 on the Anthropic API. If no advisor is configured, those modes fall back to a full-context subagent dispatch (`model: opus`) so the checkpoint still runs.
-
-## Usage
-
-```
-advisor-check pre-plan <TICKET> [--greenfield]
-advisor-check post-plan
-advisor-check pre-done
-```
-
-`--greenfield` (pre-plan only): the work is a **new concept judged on its own merit**. Firewall the advisor from the project's rules/skills so it does not re-anchor the design to what already exists.
 
 ## Ticket source
 
 `pre-plan` and `pre-done` need the ticket text / ACs. **Do not hardcode an MCP tool name.** Resolve the *get-issue* tool available in the session at runtime (e.g. via tool search) — MCP server aliases change over time and a hardcoded name silently breaks the fetch. If no tracker tool is available, ask the user to paste the ticket text / ACs. The skill depends on the **ticket content**, never on a specific integration.
 
-## When to Use Each Mode
+## Steps per mode
+
+### Usage
+
+```
+/core:grill-me pre-plan <TICKET> [--greenfield]
+/core:grill-me post-plan
+/core:grill-me pre-done
+```
+
+`--greenfield` (pre-plan only): the work is a **new concept judged on its own merit**. Firewall the advisor from the project's rules/skills so it does not re-anchor the design to what already exists.
+
+### When to Use Each Mode
 
 | Mode | Mechanism | Checkpoint | When |
 |---|---|---|---|
@@ -55,7 +53,7 @@ advisor-check pre-done
 | `post-plan` | native advisor (full ctx) | Plan approved, before coding | Right after a plan is approved and before the first implementation file is touched |
 | `pre-done` | blind subagent (diff + ACs only) | "I think I'm done" / "acho que terminei" / "tá pronto" | Right before wrapping up / opening a PR / final review |
 
-## Steps
+### Steps
 
 1. **Parse the arguments**
 
@@ -121,6 +119,8 @@ advisor-check pre-done
 
    Complementary, not a substitute: re-read the cited lines and drop findings already addressed in the diff.
 
+## Presentation format
+
 5. **Present findings to the user in pt-BR**
 
    Format:
@@ -156,4 +156,4 @@ advisor-check pre-done
 - Never modify code inside this skill. It only loads context, escalates, verifies, presents, and asks. Fixes are a separate step taken after user approval.
 - Do not commit memory entries or update project docs based on findings — that's a separate capture via skill `core:learn` (or inline write with approval).
 - Invocation order in a typical feature track: `pre-plan` (before `superpowers:writing-plans`) → `post-plan` (after plan approval) → `pre-done` (before `core:review-local`).
-- **Native advisor vs. this skill:** for a routine second opinion with full context, the native `/advisor` is lighter — Claude calls it on its own. Use `advisor-check` when you need a **guaranteed checkpoint**, **controlled or blind context**, or **citation-verified structured findings**.
+- **Native advisor vs. this mode:** for a routine second opinion with full context, the native `/advisor` is lighter — Claude calls it on its own. Use grill-me's escalation mode when you need a **guaranteed checkpoint**, **controlled or blind context**, or **citation-verified structured findings**.
