@@ -19,6 +19,8 @@
 
 ### Alterado
 
+- **README na hierarquia de identidade pública (Fase 3, 2026-07-08)** — frase de identidade → ledger de citação como bandeira → fluxo de entrega → tabela dos 4 plugins → seções avançadas (Conselho, governança, estrutura) → glossário de 5 termos (wired, unwired, grillado, gate, censo). Slot de demo (asciinema/GIF do pipeline) marcado como comentário até a gravação manual do operador.
+
 - **Docs 4→2 (Fase 3, 2026-07-08)** — `docs/GOVERNANCE.md` absorveu `docs/SKILL-CONTRACT.md` (§Contrato de SKILL.md, D14) e `docs/OPERATIONS.md` absorveu `unwired/README.md` (§5, tabela de itens preservada sem datas; o README de `unwired/` virou ponteiro). Parsers de §Conformidade (`check-governance.sh` check 3, `generate_inventory.py`) atualizados pro novo local. Nota de numeração migrada do GOVERNANCE: a numeração do ledger é esparsa por origem — os IDs nasceram na numeração contínua do material de auditoria/spec do projeto de origem (fora deste repo; o gate de proveniência recusa importá-lo); o ledger cobre os IDs citados no repo, reconstituídos de evidência in-repo.
 
 - D14 §Escopo: correção cirúrgica (linhas pontuais, sem mudar esqueleto/propósito) não constitui reforma nem obriga conformidade — decisão do dono, 2026-07-07.

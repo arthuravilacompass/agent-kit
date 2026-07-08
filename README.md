@@ -1,43 +1,37 @@
 # agent-kit
 
-Configuração padronizada de Claude Code para todos os meus repositórios. Fornece regras sempre-ativas, workflows de entrega, skills, agents e hooks — distribuídos como quatro plugins instaláveis via marketplace local: **`core`** (metodologia, qualquer stack), **`council`** (lentes de decisão), **`team`** (cerimônias ágeis) e **`mobile`** (Flutter/Dart).
+Memória executável de disciplina de engenharia para Claude Code: toda regra aqui nasceu de um erro real, virou mecanismo quando texto falhou, e só continua carregada enquanto provar uso. Quatro plugins instaláveis levam essa disciplina de um projeto ao próximo — a correção aprendida num cliente vira enforcement portável no seguinte.
 
-## Por que este kit?
+## A bandeira: citação verificada
 
-Agentes de código sem guardrails produzem resultado inconsistente — e quem troca de projeto com frequência recomeça a disciplina do zero a cada cliente. O agent-kit resolve os dois problemas:
+Neste kit, "evidência antes de claim" não é lembrete — é mecanismo. O hook `read-ledger.sh` registra cada `Read`/`Grep` da sessão num ledger; `validate_citations.py --gate` recusa relatório cuja citação `arquivo:linha` não tenha leitura registrada correspondente. A skill `core:bug-report` executa esse gate por padrão: investigação que afirma comportamento de código sem ter lido a fonte não passa.
 
-- **Regras epistêmicas sempre-ativas** — evidência antes de claim, grep antes de responder convenção, disciplina de escopo e de bugfix, injetadas em toda sessão via SessionStart.
-- **Workflows de entrega** — um condutor de fluxo (`core:pipeline`) que detecta o estágio real da tarefa e roteia pelos estágios: clarificar, especificar, quebrar, implementar, revisar, entregar, capturar.
-- **Enforcement determinístico** — hooks que auto-aprovam leitura segura, bloqueiam smells de correctness em Dart, protegem diretórios críticos e mantêm ledger de citação. Não dependem de o modelo obedecer.
-- **Portabilidade por construção** — zero conteúdo de projeto de origem, garantido por gate mecânico (`scripts/check-provenance.sh`) sobre o repo inteiro. Correções de um projeto viram enforcement portável pro próximo.
+## O fluxo de entrega
 
-## O que está incluído
+```
+intenção crua ("adiciona autenticação", "esse deeplink quebrou", ticket do board)
+  ↓ core:pipeline — detecta o estágio real, classifica a intenção, propõe a rota
+clarificar        → core:grill-me / brainstorming
+especificar       → /core:spec-refine
+quebrar           → /core:tech-breakdown
+implementar       → execução com hooks de enforcement ativos
+revisar           → /core:review-local (+ mobile:refactor-review em refactor)
+entregar          → /core:commit → /core:pr
+capturar          → core:learn + handoff
+```
 
-### `core` — metodologia de engenharia, qualquer stack
+Um estágio por vez — o pipeline recomenda a próxima rota e para; nunca executa a cadeia inteira sozinho. Rota mínima é legítima em tarefa pequena.
 
-14 skills, 1 agent, 7 hooks e 5 scripts. Destaques:
+<!-- demo: asciinema/GIF 30s do pipeline — gravação manual do operador; incorporar aqui -->
 
-- `core:pipeline` — condutor de fluxo: classifica a intenção crua e conduz pelas skills do kit, um estágio por vez
-- `/core:commit`, `/core:pr`, `/core:review-local` — fluxo de entrega com validação pré-commit e reviewers em paralelo
-- `/core:tech-breakdown`, `/core:spec-refine`, `/core:archaeology` — de ticket a plano de implementação grillado contra o codebase real
-- `core:learn` + `/core:compound` — captura de aprendizado e handoff no fim da sessão
+## Os quatro plugins
 
-### `council` — lentes epistêmicas (instalar junto do `core`)
-
-7 skills, 3 agents, 1 hook. Conselho de Posturas: 6 lentes (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno) para decisões de alto custo de reversão — índice em `council:council`.
-
-### `team` — cerimônias ágeis
-
-3 skills, 1 hook. `/team:refine-live` (copiloto da agenda de refinamento com o PO), `/team:refine-async` (triage pós-agenda) e `team:chat-draft` (mensagens de squad).
-
-### `mobile` — toolkit Flutter/Dart (pressupõe `core`)
-
-10 skills, 1 agent, 5 hooks, 5 scripts e 2 MCP servers (`dart`, `marionette`). Destaques:
-
-- `mobile:code-review-mobile`, `mobile:refactor-review` — review Flutter com checklist em camadas e protocolo pós-refactor
-- `mobile:mobx`, `mobile:performance-patterns` — smells de MobX/DI e padrões de performance que o linter não pega, com bloqueio determinístico dos casos de correctness
-- `mobile:deeplink-debug`, `mobile:ga4-validate`, `mobile:marionette` — debug de deeplink, validação de tracking GA4 e condução visual do app no simulador
-- `mobile:feature-scaffold`, `/mobile:figma-to-component` — scaffold em camadas e conversão Figma → widget tree
+| Plugin | Identidade | Conteúdo | Instale quando |
+|---|---|---|---|
+| `core` | Metodologia de entrega com enforcement determinístico, do ticket ao PR, qualquer stack | 14 skills, 1 agent, 7 hooks, 5 scripts | Sempre — é a base dos demais |
+| `council` | Lentes epistêmicas para decisões de alto custo de reversão | 7 skills, 3 agents, 1 hook | Junto do `core`, sempre — condição do censo das posturas |
+| `team` | Copiloto de cerimônias ágeis — refinamento com PO, comunicação de squad | 3 skills, 1 hook | Se você conduz refinamento ou comunica squad |
+| `mobile` | Toolkit Flutter/Dart | 10 skills, 1 agent, 5 hooks, 5 scripts, 2 MCP servers | Só em projeto Flutter/Dart |
 
 Inventário completo, gerado por script e verificado no gate: **[INVENTORY.md](INVENTORY.md)**.
 
@@ -95,37 +89,39 @@ claude plugin uninstall core@agent-kit
 claude plugin marketplace remove agent-kit
 ```
 
-## Fluxo de trabalho
+## Seções avançadas
 
-```
-intenção crua ("adiciona autenticação", "esse deeplink quebrou", ticket do board)
-  ↓ core:pipeline — detecta o estágio real, classifica a intenção, propõe a rota
-clarificar        → core:grill-me / brainstorming
-especificar       → /core:spec-refine
-quebrar           → /core:tech-breakdown
-implementar       → execução com hooks de enforcement ativos
-revisar           → /core:review-local (+ mobile:refactor-review em refactor)
-entregar          → /core:commit → /core:pr
-capturar          → core:learn + handoff
-```
+### Conselho de Posturas (`council`)
 
-Um estágio por vez — o pipeline recomenda a próxima rota e para; nunca executa a cadeia inteira sozinho. Rota mínima é legítima em tarefa pequena.
+Seis modos de raciocínio pra vestir deliberadamente diante de uma decisão — Schrödinger (diagnóstico ambíguo), Bohr (falsa dicotomia), Epicurus (escopo), Sagan (calibragem de esforço), Maxwell (propagação de mudança), Zeno (stress de invariantes). Índice, formato de saída e escalonamento pro modo cego: skill `council:council`.
 
-## Requisitos
+### Governança
 
-- [Claude Code](https://claude.com/claude-code) com suporte a plugins
-- **Opcional:** marketplace [superpowers](https://github.com/obra/superpowers) — alguns fluxos do `core` o referenciam (brainstorming, writing-plans, systematic-debugging); sem ele nada quebra, o pipeline indica o fallback interno de cada estágio
-- Para o `mobile`: projeto Flutter/Dart. Os MCP servers registrados são só os genéricos de toolchain — nenhum server de backend/projeto
+Modelo de 3 estados (wired/unwired/deletado), regra de promoção, teto do tier sempre-ativo, contrato de SKILL.md (esqueletos, idioma, tetos de linhas e de descriptions) e ledger de decisões `D*`/`R*`: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**. Operação do dono — publicação, gate de qualidade quíntuplo, `unwired/`: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
-## Estrutura do repositório
+### Estrutura do repositório
 
 | Diretório | O que é |
 |---|---|
 | `plugins/` | Os quatro plugins instaláveis (`core`, `council`, `team`, `mobile`) |
 | `unwired/` | Matéria-prima genericizada aguardando prova de uso — nada é carregado, custo de contexto zero ([detalhe](docs/OPERATIONS.md)) |
 | `assets/` | Templates de cópia manual: status line, esqueleto de `CLAUDE.md`, snippets de `settings.json` |
-| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (ciclo de vida, contrato de SKILL.md, ledger de decisões) e [OPERATIONS.md](docs/OPERATIONS.md) (operação do dono, incl. unwired/) |
+| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (ciclo de vida, contrato de SKILL.md, ledger) e [OPERATIONS.md](docs/OPERATIONS.md) (operação do dono) |
 | `scripts/` | Gate de proveniência, gerador de inventário e tooling de manutenção |
+
+### Requisitos
+
+- [Claude Code](https://claude.com/claude-code) com suporte a plugins
+- **Opcional:** marketplace [superpowers](https://github.com/obra/superpowers) — alguns fluxos do `core` o referenciam (brainstorming, writing-plans, systematic-debugging); sem ele nada quebra, o pipeline indica o fallback interno de cada estágio
+- Para o `mobile`: projeto Flutter/Dart. Os MCP servers registrados são só os genéricos de toolchain — nenhum server de backend/projeto
+
+## Glossário
+
+- **wired** — artefato que vive em `plugins/` e é carregado pelo Claude Code; custa contexto toda sessão, e por isso exige uso real comprovado pra entrar e pra permanecer.
+- **unwired** — matéria-prima genericizada em `unwired/`; custo de contexto zero, aguardando prova de uso pra ser promovida.
+- **grillado** — que passou pelo `grill-me`: interrogatório adversarial (entrevista ou escalação a um reviewer mais forte) que pressiona as decisões antes de dar um plano ou entrega por pronto.
+- **gate** — verificação mecânica que precisa sair verde antes de qualquer commit: proveniência, manifests, evals, inventário e governança. Não depende de o modelo obedecer.
+- **censo** — medição de uso real ao fim de um ciclo de cliente (`census_usage.py`) que decide o que continua wired, o que é demovido e o que sai; também resolve os prazos dos itens provisórios.
 
 ## Princípios
 
