@@ -52,6 +52,19 @@ def main():
             "package a;\n"
             "public class b extends c {\n}\n",
         )
+        # interface com múltiplos pais via extends (idioma comum em Java) — achado de
+        # revisão: regex antiga só capturava 1 nome, e a vírgula fazia o MATCH INTEIRO
+        # falhar, derrubando o node e toda edge que apontasse pra ele, sem aviso
+        write(
+            os.path.join(sources, "br/com/zup/app/MultiParent.java"),
+            "package br.com.zup.app;\n"
+            "public interface MultiParent extends BaseActivity, Callback {\n}\n",
+        )
+        write(
+            os.path.join(sources, "br/com/zup/app/MultiParentImpl.java"),
+            "package br.com.zup.app;\n"
+            "public class MultiParentImpl implements MultiParent {\n}\n",
+        )
 
         result = extract_graph(sources, CLASSIFY_RESULT)
 
@@ -63,6 +76,14 @@ def main():
         edges = {(e["from"], e["to"], e["kind"]) for e in result["edges"]}
         assert ("LoginActivity", "BaseActivity", "extends") in edges, edges
         assert ("LoginActivity", "Callback", "implements") in edges, edges
+
+        # MultiParent precisa existir como node e ter AMBOS os pais como edges "extends"
+        assert "MultiParent" in result["nodes"], (
+            f"interface com múltiplos pais desapareceu do grafo. nodes: {result['nodes']}"
+        )
+        assert ("MultiParent", "BaseActivity", "extends") in edges, edges
+        assert ("MultiParent", "Callback", "extends") in edges, edges
+        assert ("MultiParentImpl", "MultiParent", "implements") in edges, edges
 
         assert any("ExternalSyntheticLambda0" in w for w in result["artifact_warnings"]), result[
             "artifact_warnings"

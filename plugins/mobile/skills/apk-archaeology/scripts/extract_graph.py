@@ -28,7 +28,7 @@ CLASS_DECL_RE = re.compile(
     r"\b(?:public|private|protected|abstract|final|static|\s)*"
     r"(?:class|interface|enum)\s+(\w+)"
     r"(?:<[^>]*>)?"
-    r"(?:\s+extends\s+([\w.]+)(?:<[^>]*>)?)?"
+    r"(?:\s+extends\s+([\w.,\s<>]+?))?"
     r"(?:\s+implements\s+([\w.,\s<>]+))?"
     r"\s*\{"
 )
@@ -57,8 +57,12 @@ def parse_file(path):
         interfaces = []
         if implements:
             interfaces = [simple_name(i) for i in implements.split(",") if i.strip()]
-        parent = simple_name(extends) if extends else None
-        declarations.append((class_name, parent, interfaces))
+        # extends admite múltiplos pais: classe só tem 1 na prática, mas interface
+        # Java permite `interface Foo extends A, B` — tratamos os dois com a mesma
+        # lista (achado de revisão: capturar só 1 fazia o match INTEIRO falhar
+        # quando havia vírgula, derrubando o node e todas as edges dele, sem aviso)
+        parents = [simple_name(e) for e in extends.split(",") if e.strip()] if extends else []
+        declarations.append((class_name, parents, interfaces))
     return declarations
 
 
@@ -80,9 +84,9 @@ def extract_graph(sources_dir, classify_result):
                     artifact_warnings.append(f"classe sintética ignorada: {fname}")
                     continue
                 full = os.path.join(root, fname)
-                for class_name, parent, interfaces in parse_file(full):
+                for class_name, parents, interfaces in parse_file(full):
                     all_classes.add(class_name)
-                    if parent:
+                    for parent in parents:
                         raw_edges.append((class_name, parent, "extends"))
                     for iface in interfaces:
                         raw_edges.append((class_name, iface, "implements"))
