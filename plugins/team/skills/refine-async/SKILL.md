@@ -1,177 +1,177 @@
 ---
 name: refine-async
-description: Triage pós-refinamento — consolida o contexto salvo pelo /team:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown).
+description: Post-refinement triage — consolidates the context saved by /team:refine-live, runs light codebase exploration (budgeted grep, no deep architecture) and generates [INTERIM] subtasks for approval and creation on the board. Use right after the refinement session, before the technical pipeline (archaeology → tech-breakdown).
 disable-model-invocation: true
 ---
 
-# /refine-async -- Triage Pós-Refinamento
+# /refine-async -- Post-Refinement Triage
 
-Processamento assíncrono após a agenda de refinamento. Consolida o contexto capturado no `/team:refine-live`, executa exploração leve do codebase, gera subtarefas para aprovação e cria no board.
+Asynchronous processing after the refinement session. Consolidates the context captured in `/team:refine-live`, runs light codebase exploration, generates subtasks for approval, and creates them on the board.
 
-**Posição no workflow:**
+**Position in the workflow:**
 ```
-/team:refine-live <card-id>                ← durante a agenda
+/team:refine-live <card-id>                ← during the session
         ↓
-/team:refine-async <card-id>               ← você está aqui (pós-agenda)
+/team:refine-async <card-id>               ← you are here (post-session)
         ↓
-archaeology → tech-breakdown → spec-refine → plano
+archaeology → tech-breakdown → spec-refine → plan
 ```
 
-## Quando Usar
+## When to Use
 
-Execute **após a agenda de refinamento**, quando o `/team:refine-live` já consolidou o contexto da US. Pode ser imediatamente depois (mesma sessão) ou em outro momento (lê do state file).
+Run **after the refinement session**, once `/team:refine-live` has already consolidated the US's context. Can be immediately after (same session) or at another time (reads from the state file).
 
-Não usar para: exploração arquitetural profunda (use `/core:archaeology`), decomposição técnica detalhada (use `/core:tech-breakdown`), stress-test de spec (use `/core:spec-refine`).
+Not for: deep architectural exploration (use `/core:archaeology`), detailed technical decomposition (use `/core:tech-breakdown`), spec stress-testing (use `/core:spec-refine`).
 
 ## Input
 
 ```
 /team:refine-async <TICKET>
-/team:refine-async <card-id-numérico>
+/team:refine-async <numeric-card-id>
 ```
 
-Aceita os mesmos formatos de card ID do `/team:refine-live`.
+Accepts the same card ID formats as `/team:refine-live`.
 
 ## Steps
 
-### 1. Carregar estado do live
+### 1. Load state from the live session
 
-Busque o state file em `docs/refine/refine-<card-id>.md`:
-- Tente primeiro com external_id: `refine-<TICKET>.md`
-- Se não encontrado, tente com numérico: `refine-<card-id-numérico>.md`
-- Se encontrado: carregue e apresente resumo ("Encontrei o contexto do live: [título], [N bullets], [N gaps pendentes]")
-- Se **não encontrado em nenhum formato**: pergunte ao usuário se deseja:
-  - (a) Fornecer o contexto manualmente (colar resumo)
-  - (b) Rodar sem contexto prévio (apenas card do board)
+Look for the state file at `docs/refine/refine-<card-id>.md`:
+- Try first with the external_id: `refine-<TICKET>.md`
+- If not found, try with the numeric one: `refine-<numeric-card-id>.md`
+- If found: load it and present a summary ("Found the live session's context: [title], [N bullets], [N open gaps]")
+- If **not found in either format**: ask the user whether they want to:
+  - (a) Provide the context manually (paste a summary)
+  - (b) Run without prior context (board card only)
 
-Se opção (b): busque card via a tool do MCP de board do projeto consumidor (este kit não embute nenhum — adapte ao servidor real conectado na sessão) e use apenas título + descrição como base.
+If option (b): fetch the card via the consumer project's board MCP tool (this kit doesn't bundle one — adapt to the real server connected in the session) and use only the title + description as the basis.
 
-### 2. Light grep — exploração leve do codebase
+### 2. Light grep — light codebase exploration
 
-Com base nos termos do card (título, contexto do PO, módulos mencionados), execute exploração leve:
+Based on the card's terms (title, PO context, modules mentioned), run a light exploration:
 
 **Budget:**
-- Máximo **10 grep queries**
-- Tempo total < **30 segundos**
-- Foco em **confirmar existência** (não mapear arquitetura)
-- Se atingir budget antes de completar: pare e reporte o que encontrou até então
+- Maximum **10 grep queries**
+- Total time < **30 seconds**
+- Focus on **confirming existence** (not mapping architecture)
+- If the budget is hit before completing: stop and report what was found so far
 
-**O que buscar** (tools do Claude Code — `Glob`/`Grep`):
-| Alvo | Exemplo |
+**What to search for** (Claude Code tools — `Glob`/`Grep`):
+| Target | Example |
 |---|---|
-| Módulo/feature existe? | `Glob("**/*<feature>*")` |
-| Store/Controller existe? | `Grep("<Feature>Store\|<Feature>Controller")` |
-| Endpoint/Repository existe? | `Grep("<feature>Repository\|<feature>DataSource")` |
-| Rota existe? | `Grep("<RoutesTable>.*<feature>")` |
+| Does the module/feature exist? | `Glob("**/*<feature>*")` |
+| Does the Store/Controller exist? | `Grep("<Feature>Store\|<Feature>Controller")` |
+| Does the Endpoint/Repository exist? | `Grep("<feature>Repository\|<feature>DataSource")` |
+| Does the route exist? | `Grep("<RoutesTable>.*<feature>")` |
 
-**Output do grep** — resumo conciso:
+**Grep output** — concise summary:
 ```
-🔍 Exploração leve:
-- ✅ Módulo `<feature_module>` existe em lib/src/modules/<feature_module>/
-- ✅ <FeatureX>Store encontrado (<feature>_store.dart)
-- ❌ Endpoint de recomendação NÃO encontrado no repositório de dados
-- ⚠️ Rota existente: <RoutesTable>.<feature> (escopo restrito)
+🔍 Light exploration:
+- ✅ Module `<feature_module>` exists at lib/src/modules/<feature_module>/
+- ✅ <FeatureX>Store found (<feature>_store.dart)
+- ❌ Recommendation endpoint NOT found in the data repository
+- ⚠️ Existing route: <RoutesTable>.<feature> (restricted scope)
 ```
 
-### 3. Gerar subtarefas [INTERIM]
+### 3. Generate [INTERIM] subtasks
 
-Com base no contexto consolidado (live + grep), gere subtarefas para a US:
+Based on the consolidated context (live + grep), generate subtasks for the US:
 
-**Regras de geração:**
-- Cada subtarefa é uma unidade de trabalho independente ou sequencial
-- Título: verbo no imperativo + escopo claro (ex: "Criar endpoint X no backend")
-- Descrição: 2-3 linhas com o que precisa ser feito
-- Tag: `[INTERIM]` — subtarefas são ponto de partida, não verdade final
-- Sem acceptance criteria detalhado (isso é pra `/core:tech-breakdown`)
-- Sem estimativa de tempo
+**Generation rules:**
+- Each subtask is an independent or sequential unit of work
+- Title: imperative verb + clear scope (e.g.: "Create endpoint X on the backend")
+- Description: 2-3 lines on what needs to be done
+- Tag: `[INTERIM]` — subtasks are a starting point, not final truth
+- No detailed acceptance criteria (that's for `/core:tech-breakdown`)
+- No time estimate
 
-**Formato de apresentação:**
+**Presentation format:**
 
 ```
-## Subtarefas propostas — <TICKET> [INTERIM]
+## Proposed subtasks — <TICKET> [INTERIM]
 
-1. **Criar endpoint de recomendação no backend**
-   Endpoint que retorna itens relacionados ao contexto atual.
-   Dependência: definição de regra de elegibilidade com PO.
+1. **Create recommendation endpoint on the backend**
+   Endpoint that returns items related to the current context.
+   Dependency: eligibility rule definition with the PO.
 
-2. **Implementar <Feature>Repository + DataSource**
-   Integração com o novo endpoint. Usar padrão de erro do projeto (ex.: Either<Failure, T>).
+2. **Implement <Feature>Repository + DataSource**
+   Integration with the new endpoint. Use the project's error pattern (e.g., Either<Failure, T>).
 
-3. **Criar UI da feature na tela alvo**
-   Componente do design system com lista/seção de itens recomendados.
-   Ref: módulo `<feature_module>` existente (se houver) pode ser reutilizado.
+3. **Create the feature's UI on the target screen**
+   Design system component with a list/section of recommended items.
+   Ref: existing `<feature_module>` module (if any) can be reused.
 
-4. **[QA] Testes de integração da feature**
-   Validar fluxo completo ponta a ponta.
+4. **[QA] Feature integration tests**
+   Validate the full end-to-end flow.
 
 ---
-Aprovar? Opções:
-- `aprovar tudo` — crio todas no board
-- `aprovar N` — selecione quais (ex: "aprovar 1,2,3")
-- `editar N` — peça alteração em subtarefa específica
-- `refazer` — regenero com novas instruções
+Approve? Options:
+- `approve all` — I create all of them on the board
+- `approve N` — select which ones (e.g.: "approve 1,2,3")
+- `edit N` — request a change to a specific subtask
+- `redo` — regenerate with new instructions
 ```
 
-### 4. Aprovação + Criação no board
+### 4. Approval + Creation on the board
 
-**Depende de um MCP de board/kanban específico do projeto consumidor — este kit não inclui nenhum.** Após aprovação do usuário:
+**Depends on a board/kanban MCP specific to the consumer project — this kit doesn't include one.** After the user's approval:
 
-1. **Tente criar via a tool do MCP de board**: batch de criação de subtarefa com as subtarefas aprovadas, adaptado ao servidor real conectado na sessão
-2. **Se não houver MCP de board conectado, ou a chamada falhar** (indisponível, erro, permissão): exporte como texto formatado:
-
-```
-⚠️ API do board indisponível. Subtarefas prontas para criação manual:
-
-□ Criar endpoint de recomendação no backend
-□ Implementar <Feature>Repository + DataSource
-□ Criar UI da feature na tela alvo
-□ [QA] Testes de integração da feature
-```
-
-3. **Não retry**: reportar falha, sem retry automático.
-
-### 5. Sinal de pipeline
-
-Após subtarefas criadas (ou exportadas), pergunte:
+1. **Try to create via the board MCP's tool**: subtask batch creation with the approved subtasks, adapted to the real server connected in the session
+2. **If no board MCP is connected, or the call fails** (unavailable, error, permission): export as formatted text:
 
 ```
-## Próximo passo
+⚠️ Board API unavailable. Subtasks ready for manual creation:
 
-Esta US está pronta para entrar no pipeline técnico?
-
-- `pronta` — pode rodar `/core:archaeology` → `/core:tech-breakdown` quando um dev pegar
-- `bloqueada` — ainda tem gaps que precisam do PO (liste quais)
-- `parcial` — parte está pronta, parte precisa de esclarecimento
-
-Qual o status?
+□ Create recommendation endpoint on the backend
+□ Implement <Feature>Repository + DataSource
+□ Create the feature's UI on the target screen
+□ [QA] Feature integration tests
 ```
 
-Registre a resposta no state file.
+3. **No retry**: report the failure, no automatic retry.
 
-### 6. Atualizar estado
+### 5. Pipeline signal
 
-Atualize o state file em `docs/refine/refine-<card-id>.md` (garanta que o diretório existe: `mkdir -p docs/refine`):
+After subtasks are created (or exported), ask:
+
+```
+## Next step
+
+Is this US ready to enter the technical pipeline?
+
+- `ready` — can run `/core:archaeology` → `/core:tech-breakdown` once a dev picks it up
+- `blocked` — still has gaps that need the PO (list which)
+- `partial` — part is ready, part needs clarification
+
+What's the status?
+```
+
+Record the answer in the state file.
+
+### 6. Update state
+
+Update the state file at `docs/refine/refine-<card-id>.md` (make sure the directory exists: `mkdir -p docs/refine`):
 
 ```markdown
-## Async (adicionado)
-- data_async: <YYYY-MM-DD>
-- grep_findings: [resumo 1 linha por achado]
-- subtarefas_criadas: [lista de títulos]
-- subtarefas_rejeitadas: [lista, se houver]
-- pipeline_status: pronta | bloqueada (motivo) | parcial (motivo)
+## Async (added)
+- async_date: <YYYY-MM-DD>
+- grep_findings: [1-line summary per finding]
+- subtasks_created: [list of titles]
+- subtasks_rejected: [list, if any]
+- pipeline_status: ready | blocked (reason) | partial (reason)
 
 ## Status
-- fase: async_done
-- pronto_para_pipeline: <atualizado>
+- phase: async_done
+- ready_for_pipeline: <updated>
 ```
 
 ## Important
 
-- **Triage, não arquitetura**: o objetivo é organizar a US em pedaços trabalháveis, não fazer design de solução. Isso é do `/core:tech-breakdown`.
-- **Subtarefas são [INTERIM]**: vão ser refinadas quando o dev rodar o pipeline completo. Não trate como verdade final.
-- **Approval gate obrigatório**: NUNCA crie subtarefas no board sem aprovação explícita do usuário.
-- **Grep leve, não archaeology**: max 10 queries, max 30s. Se precisar de mais, sinalize: "Recomendo rodar `/core:archaeology` pra mapeamento completo."
-- **Fallback gracioso**: sem MCP de board ou se a chamada falhar, exporte texto. Não bloqueie o workflow.
-- **Sem spec detalhado**: não gere acceptance criteria, test plans, ou design docs. Esses são outputs de `/core:tech-breakdown` + `/core:spec-refine`.
-- **Idempotência**: se rodar duas vezes no mesmo card, detecte subtarefas existentes e pergunte: "Subtarefas já existem no card. Adicionar novas ou substituir?"
-- **`<TICKET>`, nomes de módulo/store/repositório e o board neste arquivo são placeholders** — adapte aos nomes reais do projeto consumidor ao usar esta skill; este kit não tem uma stack própria pra preencher aqui.
+- **Triage, not architecture**: the goal is to organize the US into workable pieces, not to design the solution. That's `/core:tech-breakdown`'s job.
+- **Subtasks are [INTERIM]**: they'll be refined when the dev runs the full pipeline. Don't treat them as final truth.
+- **Approval gate is mandatory**: NEVER create subtasks on the board without the user's explicit approval.
+- **Light grep, not archaeology**: max 10 queries, max 30s. If more is needed, flag it: "I recommend running `/core:archaeology` for full mapping."
+- **Graceful fallback**: without a board MCP, or if the call fails, export text. Don't block the workflow.
+- **No detailed spec**: don't generate acceptance criteria, test plans, or design docs. Those are outputs of `/core:tech-breakdown` + `/core:spec-refine`.
+- **Idempotency**: if run twice on the same card, detect existing subtasks and ask: "Subtasks already exist on the card. Add new ones or replace?"
+- **`<TICKET>`, module/store/repository names, and the board in this file are placeholders** — adapt them to the consumer project's real names when using this skill; this kit has no stack of its own to fill these in with.

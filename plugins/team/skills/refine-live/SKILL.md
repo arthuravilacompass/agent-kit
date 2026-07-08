@@ -1,139 +1,139 @@
 ---
 name: refine-live
-description: Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /team:refine-async na sequência.
+description: Live copilot for the refinement session with the PO — takes the board card + PO's real-time bullets and generates clarifying questions by priority (scope, implicit criteria, dependencies). Use during the refinement call; consolidates state for the follow-up /team:refine-async.
 disable-model-invocation: true
 ---
 
-# /refine-live -- Assistente de Refinamento ao Vivo
+# /refine-live -- Live Refinement Assistant
 
-Copiloto para uso durante a agenda semanal de refinamento com o PO. Recebe o card do board + contexto verbal do PO em bullets, e gera perguntas de esclarecimento em tempo real para maximizar o entendimento da US.
+Copilot for use during the weekly refinement session with the PO. Takes the board card + the PO's verbal context in bullets, and generates clarifying questions in real time to maximize understanding of the US.
 
-**Posição no workflow:**
+**Position in the workflow:**
 ```
-/team:refine-live <card-id>                ← você está aqui (durante a agenda)
+/team:refine-live <card-id>                ← you are here (during the session)
         ↓
-/team:refine-async <card-id>               ← pós-agenda (triage + subtarefas)
+/team:refine-async <card-id>               ← post-session (triage + subtasks)
         ↓
-archaeology → tech-breakdown → spec-refine → plano
+archaeology → tech-breakdown → spec-refine → plan
 ```
 
-(`archaeology`, `tech-breakdown`, `spec-refine` são skills do plugin `core` deste kit — invoque como `/core:archaeology`, `/core:tech-breakdown`, `/core:spec-refine`.)
+(`archaeology`, `tech-breakdown`, `spec-refine` are skills from this kit's `core` plugin — invoke as `/core:archaeology`, `/core:tech-breakdown`, `/core:spec-refine`.)
 
-## Quando Usar
+## When to Use
 
-Execute **durante a agenda de refinamento** quando o PO apresentar uma US. Use em paralelo com o PO falando — você digita bullets do que ele diz e a IA gera perguntas pra fazer na hora.
+Run **during the refinement session** when the PO presents a US. Use in parallel with the PO talking — you type bullets of what they say and the AI generates questions to ask on the spot.
 
-Não usar para: exploração técnica profunda (use `/core:archaeology`), stress-test de spec (use `/core:spec-refine`), decomposição em subtarefas (use `/team:refine-async`).
+Not for: deep technical exploration (use `/core:archaeology`), spec stress-testing (use `/core:spec-refine`), decomposition into subtasks (use `/team:refine-async`).
 
 ## Input
 
 ```
 /team:refine-live <TICKET>
-/team:refine-live <card-id-numérico>
+/team:refine-live <numeric-card-id>
 ```
 
-Aceita:
-- **Custom ID** (formato ticket do board, ex. `<TICKET>`): resolve via a tool de busca do board MCP do projeto consumidor (ex.: `search_cards(custom_id: "<TICKET>")` — sintaxe ilustrativa; adapte ao MCP de board real disponível na sessão, este kit não embute nenhum)
-- **Card ID numérico**: valida via a mesma tool, ou tool equivalente de detalhe
+Accepts:
+- **Custom ID** (board ticket format, e.g. `<TICKET>`): resolved via the consumer project's board MCP search tool (e.g., `search_cards(custom_id: "<TICKET>")` — illustrative syntax; adapt to the real board MCP available in the session, this kit doesn't bundle one)
+- **Numeric card ID**: validated via the same tool, or an equivalent detail tool
 
 ## Steps
 
-### 1. Fetch card do board
+### 1. Fetch card from the board
 
-**Depende de um MCP de board/kanban específico do projeto consumidor — este kit não inclui nenhum.** Busque o card via a tool desse MCP (ex.: `search_cards`/detalhe de card — adapte ao servidor real conectado na sessão):
-- Se formato de ticket: use a busca com `custom_id` para obter o `card_id` numérico
-- Se numérico: valide existência no board
+**Depends on a board/kanban MCP specific to the consumer project — this kit doesn't include one.** Fetch the card via that MCP's tool (e.g., `search_cards`/card detail — adapt to the real server connected in the session):
+- If ticket format: use the search with `custom_id` to obtain the numeric `card_id`
+- If numeric: validate existence on the board
 
-Recupere: título e descrição (via tool de detalhe se disponível; se tool disabled, use apenas o resultado da busca + título).
+Retrieve: title and description (via the detail tool if available; if the tool is disabled, use only the search result + title).
 
-Se card não encontrado: informe o usuário e peça pra confirmar o ID.
+If card not found: inform the user and ask them to confirm the ID.
 
-Apresente um resumo breve:
+Present a brief summary:
 ```
-📋 Card: <TICKET> — "<título do card>"
-Descrição: [primeiras 3 linhas ou "sem descrição"]
+📋 Card: <TICKET> — "<card title>"
+Description: [first 3 lines or "no description"]
 
-Pronto. Cole bullets do PO ou pergunte algo.
+Ready. Paste PO bullets or ask something.
 ```
 
-### 2. Bloco inicial de perguntas
+### 2. Initial question block
 
-Com base no título + descrição do card, gere **3-5 perguntas** organizadas por prioridade:
+Based on the card's title + description, generate **3-5 questions** organized by priority:
 
-| Prioridade | Categoria | Exemplos |
+| Priority | Category | Examples |
 |---|---|---|
-| 1 | **Escopo/Contexto** | "Isso é extensão de feature existente ou nova?", "Afeta apenas uma plataforma?", "Qual(is) segmento(s)/marca(s)?" |
-| 2 | **Critérios implícitos** | "Tem estado vazio/loading definido?", "O que acontece em erro?", "Funciona offline?" |
-| 3 | **Dependências/Bloqueios** | "Precisa de endpoint novo do backend?", "Depende de outra US?", "Tem design/Figma pronto?" |
+| 1 | **Scope/Context** | "Is this an extension of an existing feature or new?", "Does it affect only one platform?", "Which segment(s)/brand(s)?" |
+| 2 | **Implicit criteria** | "Is there a defined empty/loading state?", "What happens on error?", "Does it work offline?" |
+| 3 | **Dependencies/Blockers** | "Does it need a new backend endpoint?", "Does it depend on another US?", "Is there design/Figma ready?" |
 
-Formato de cada pergunta:
+Format for each question:
 ```
-[Escopo] — <pergunta curta e direta>
+[Scope] — <short, direct question>
 ```
 
-Não exceda 5 perguntas neste bloco. O objetivo é ser rápido e digerível durante a call.
+Don't exceed 5 questions in this block. The goal is to be fast and digestible during the call.
 
-### 3. Modo incremental (loop principal)
+### 3. Incremental mode (main loop)
 
-O usuário cola bullets do que o PO está falando. Para cada input:
+The user pastes bullets of what the PO is saying. For each input:
 
-1. **Leia o bullet** — entenda o contexto adicionado
-2. **Grep oportunístico** (opcional): se o bullet menciona módulo/tela/feature que pode existir no código, faça 1 grep rápido (<2s). Se confirmar existência, use na pergunta ("PO, isso é extensão do `<FeatureX>Store` que já temos, ou é fluxo novo?")
-3. **Gere 1-2 perguntas adicionais** relevantes ao bullet — mantenha as 3 categorias prioritárias
+1. **Read the bullet** — understand the added context
+2. **Opportunistic grep** (optional): if the bullet mentions a module/screen/feature that might exist in the code, do 1 quick grep (<2s). If it confirms existence, use it in the question ("PO, is this an extension of the `<FeatureX>Store` we already have, or is it a new flow?")
+3. **Generate 1-2 additional questions** relevant to the bullet — keep the 3 priority categories
 
-Se o bullet é puramente informativo e não levanta dúvida, responda brevemente: "✓ Entendido. Próximo bullet ou pergunta?"
+If the bullet is purely informative and raises no question, reply briefly: "✓ Got it. Next bullet or question?"
 
-**Não faça no modo incremental:**
-- Exploração pesada de código (>2s)
-- Perguntas de edge case técnico (error paths, race conditions)
-- Sugestão de implementação ou arquitetura
-- Geração de subtarefas
+**Don't do in incremental mode:**
+- Heavy code exploration (>2s)
+- Technical edge-case questions (error paths, race conditions)
+- Implementation or architecture suggestions
+- Subtask generation
 
-### 4. "fecha" — Consolidação
+### 4. "fecha" — Consolidation
 
-Quando o usuário digita **"fecha"**, consolide o estado da sessão:
+When the user types **"fecha"**, consolidate the session state:
 
-1. Gere o resumo estruturado abaixo
-2. Salve em `docs/refine/refine-<card-id>.md` (garanta que o diretório existe: `mkdir -p docs/refine`; use o external_id se disponível, ex: `refine-<TICKET>.md`)
-3. Confirme ao usuário: "Estado salvo. Pode rodar `/team:refine-async <TICKET>` quando quiser."
+1. Generate the structured summary below
+2. Save to `docs/refine/refine-<card-id>.md` (make sure the directory exists: `mkdir -p docs/refine`; use the external_id if available, e.g.: `refine-<TICKET>.md`)
+3. Confirm to the user: "State saved. You can run `/team:refine-async <TICKET>` whenever you want."
 
-**Schema do estado:**
+**State schema:**
 
 ```markdown
 # Refine: <external_id>
 
 ## Card
-- title: <título do card>
-- card_id: <numérico>
+- title: <card title>
+- card_id: <numeric>
 - external_id: <TICKET>
 - board: <BOARD_NAME>
 
-## Contexto do PO
+## PO Context
 - <bullet 1>
 - <bullet 2>
 - ...
 
-## Perguntas Feitas
-- Q: <pergunta> → A: <resposta do PO | "sem resposta">
+## Questions Asked
+- Q: <question> → A: <PO's answer | "no answer">
 - ...
 
-## Gaps Pendentes
-- <perguntas não respondidas ou temas que ficaram em aberto>
+## Open Gaps
+- <unanswered questions or topics left open>
 
 ## Status
-- fase: live_closed
-- pronto_para_pipeline: <sim | não (motivo)>
-- data: <YYYY-MM-DD>
+- phase: live_closed
+- ready_for_pipeline: <yes | no (reason)>
+- date: <YYYY-MM-DD>
 ```
 
-A sessão continua ativa após "fecha" — o usuário pode rodar outro `/team:refine-live` com outro card ID.
+The session stays active after "fecha" — the user can run another `/team:refine-live` with a different card ID.
 
 ## Important
 
-- **Velocidade > completude**: perguntas curtas, diretas, 1 linha. O PO está falando — você não pode gerar parágrafos.
-- **Sem jargão técnico nas perguntas**: o PO é de negócio. Pergunte sobre comportamento esperado, não sobre stores/repositories.
-- **Sem codebase exploration pesada**: grep oportunístico ok (<2s). Qualquer coisa além disso, deixe pro async.
-- **Sem subtarefas**: geração de subtarefas é responsabilidade do `/team:refine-async`.
-- **Sem spec-level questions**: error paths, race conditions, state transitions complexas → `/core:spec-refine` faz isso melhor com contexto completo.
-- **Uma US por invocação**: não misture contexto de cards diferentes na mesma chamada.
-- **`<BOARD_NAME>`, `<TICKET>` e nomes de módulo/store neste arquivo são placeholders** — adapte aos nomes reais do board e do projeto consumidor ao usar esta skill; este kit não tem um board próprio pra preencher aqui.
+- **Speed > completeness**: short, direct, 1-line questions. The PO is talking — you can't generate paragraphs.
+- **No technical jargon in the questions**: the PO is business-side. Ask about expected behavior, not about stores/repositories.
+- **No heavy codebase exploration**: opportunistic grep is ok (<2s). Anything beyond that, leave for the async step.
+- **No subtasks**: subtask generation is `/team:refine-async`'s responsibility.
+- **No spec-level questions**: error paths, race conditions, complex state transitions → `/core:spec-refine` does this better with full context.
+- **One US per invocation**: don't mix context from different cards in the same call.
+- **`<BOARD_NAME>`, `<TICKET>`, and module/store names in this file are placeholders** — adapt them to the real board and consumer project names when using this skill; this kit has no board of its own to fill these in with.
