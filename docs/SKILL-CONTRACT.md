@@ -64,7 +64,7 @@ Conteúdo técnico inline num roteador é sinal de extração pendente para `REF
 
 Lista lida pelo gate: cada arquivo abaixo existe e respeita o teto de linhas. Formato de entrada: `` - `<path>` — <esqueleto> ``.
 
-- `plugins/core/skills/council/SKILL.md` — roteador
+- `plugins/council/skills/council/SKILL.md` — roteador
 - `plugins/mobile/skills/mobx/SKILL.md` — roteador
 - `plugins/core/skills/commit/SKILL.md` — procedimento
 - `plugins/core/skills/archaeology/SKILL.md` — procedimento

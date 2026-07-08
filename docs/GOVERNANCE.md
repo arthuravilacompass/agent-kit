@@ -6,7 +6,7 @@ Doc canônico do ciclo de vida dos artefatos do agent-kit. Toda regra normativa 
 
 Todo artefato que já existiu neste kit está num destes três estados, nunca em limbo:
 
-- **wired** — vive em `plugins/core/` ou `plugins/mobile/`. Foi admitido porque tem uso real comprovado (não só "parecia bom"). Custa contexto toda sessão que carrega o plugin.
+- **wired** — vive em `plugins/<plugin>/` (hoje: `core`, `council`, `team`, `mobile`). Foi admitido porque tem uso real comprovado (não só "parecia bom"). Custa contexto toda sessão que carrega o plugin.
 - **unwired** — vive em `unwired/`. Genericizável, scrub mecânico aplicado, mas sem prova de uso no novo projeto. Custo de contexto **zero** — só é lido se alguém abrir o arquivo.
 - **deletado** — não existe no repo. Foi avaliado e descartado (vestigial, específico demais do projeto de origem pra genericizar, ou substituído por outra coisa melhor).
 
@@ -20,7 +20,7 @@ Ao promover:
 
 1. **Reescreva a `description`** com o gatilho específico do novo contexto — a description arquivada carrega vocabulário/gatilho do projeto de origem (às vezes já genérico, às vezes não).
 2. **Preencha os placeholders de proveniência** (`<TICKET>`, `<DesignTokens>`, `<BOARD_NAME>`, nomes de componente entre `<>`) com os nomes reais do projeto novo. O scrub que colocou o item em `unwired/` foi mecânico, não uma reescrita — o trabalho de reancorar no domínio novo é seu, não deste kit.
-3. **Mova o arquivo** para `plugins/<core|mobile|novo-plugin>/` na estrutura padrão (skills em `skills/<nome>/SKILL.md`, agents em `agents/<nome>.md`, etc.) e rode `claude plugin validate .`.
+3. **Mova o arquivo** para `plugins/<plugin>/` na estrutura padrão (skills em `skills/<nome>/SKILL.md`, agents em `agents/<nome>.md`, etc.) e rode `claude plugin validate .`.
 4. **Delete a cópia em `unwired/`** — um item promovido não fica duplicado nos dois estados.
 
 ### Exceção: promoção provisória por deadline de rotação
@@ -32,17 +32,17 @@ Quando a desalocação de um workspace de origem ameaça perder a janela de vali
 Itens atualmente wired sob a exceção acima. Formato de linha (contrato lido por `scripts/generate_inventory.py` e `scripts/check-governance.sh`): `` - `<path relativo do artefato>` — valida até AAAA-MM-DD ``. Skills são listadas pelo diretório da skill (`plugins/<p>/skills/<nome>`), agents pelo arquivo `.md` (`plugins/<p>/agents/<nome>.md`). Item validado por uso sai da lista (vira wired pleno); prazo vencido deixa o gate vermelho até a decisão — validar ou demover (D17).
 
 - `plugins/core/skills/bug-report` — valida até 2026-08-06
-- `plugins/core/skills/refine-live` — valida até 2026-08-06
-- `plugins/core/skills/refine-async` — valida até 2026-08-06
+- `plugins/team/skills/refine-live` — valida até 2026-08-06
+- `plugins/team/skills/refine-async` — valida até 2026-08-06
 - `plugins/mobile/skills/figma-to-component` — valida até 2026-08-06
-- `plugins/core/skills/council` — valida até 2026-08-06
-- `plugins/core/skills/bohr` — valida até 2026-08-06
-- `plugins/core/skills/sagan` — valida até 2026-08-06
-- `plugins/core/skills/council-log` — valida até 2026-08-06
-- `plugins/core/skills/council-recall` — valida até 2026-08-06
-- `plugins/core/agents/maxwell.md` — valida até 2026-08-06
-- `plugins/core/agents/zeno.md` — valida até 2026-08-06
-- `plugins/core/agents/epistemic-council.md` — valida até 2026-08-06
+- `plugins/council/skills/council` — valida até 2026-08-06
+- `plugins/council/skills/bohr` — valida até 2026-08-06
+- `plugins/council/skills/sagan` — valida até 2026-08-06
+- `plugins/council/skills/council-log` — valida até 2026-08-06
+- `plugins/council/skills/council-recall` — valida até 2026-08-06
+- `plugins/council/agents/maxwell.md` — valida até 2026-08-06
+- `plugins/council/agents/zeno.md` — valida até 2026-08-06
+- `plugins/council/agents/epistemic-council.md` — valida até 2026-08-06
 
 Nota: `schrodinger` e `epicurus` NÃO entram — foram wired na extração original com linhagem de uso, não sob a exceção (CHANGELOG, leva 2026-07-07 lista 8 arquivos).
 
@@ -63,9 +63,10 @@ O tier sempre-ativo do `core` — o corpo de `using-agent-kit` injetado por sess
 
 Registro das decisões identificadas por ID (série `D*` = decisão de design, `R*` = requisito de aceite) citadas neste repo. A numeração é esparsa por origem: os IDs nasceram na numeração contínua do material de auditoria/spec do projeto de origem (fora deste repo — o gate de proveniência recusa importá-lo); este ledger cobre os IDs citados aqui, reconstituídos de evidência in-repo. **Decisão nova pega o próximo ID livre da série `D` e nasce com entrada neste ledger** — citar ID sem entrada aqui deixa o gate vermelho. Formato de entrada (contrato lido pelo gate): item de lista iniciando com `- **<ID>** — <decisão>`.
 
-- **D6** — Corpus episódico do Conselho: `outcome` é armazenado e exibido, nunca entra no score/ranqueamento — o corpus registra "casos que aconteceram"; a interpretação é do leitor. Citado em `plugins/core/skills/council-recall/SKILL.md`.
+- **D6** — Corpus episódico do Conselho: `outcome` é armazenado e exibido, nunca entra no score/ranqueamento — o corpus registra "casos que aconteceram"; a interpretação é do leitor. Citado em `plugins/council/skills/council-recall/SKILL.md`.
 - **D10** — Modelo de 3 estados (wired/unwired/deletado) para todo artefato do kit; elimina a categoria fantasma "testado mas não ligado". Texto normativo: seção "O modelo de 3 estados" deste doc.
 - **D13** — Métricas de aceite da extração do kit: tag `gate-day3-pass` e métrica-2-semanas (primeiro uso real em projeto fora do projeto de origem dentro do prazo, senão o resultado foi "inventário com README"). Registro e datas: `CHANGELOG.md` §Métricas D13.
 - **R2** — Requisito de aceite da extração: medir o custo real de payload do kit (tokens/turno + injeção de sessão) e rodar A/B comportamental com e sem o kit. Resultados e lacunas conhecidas da medição: `CHANGELOG.md` §Aceite final (c).
 - **D14** — Contrato de SKILL.md: três esqueletos nomeados (postura / procedimento / roteador), política de idioma (corpo pt-BR; exceção grandfathered: grill-me) e teto de 120 linhas com extração para arquivos de apoio. Texto normativo e lista de conformidade: `docs/SKILL-CONTRACT.md`; enforcement: `scripts/check-governance.sh` (conformidade + proibição de narração de proveniência em `plugins/`).
+- **D15** — Identidade e estrutura em 4 plugins: `core` (metodologia de entrega com enforcement determinístico, do ticket ao PR, qualquer stack), `council` (lentes epistêmicas para decisões de alto custo de reversão), `team` (copiloto de cerimônias ágeis — refinamento com PO, comunicação de squad), `mobile` (toolkit Flutter/Dart). Teste de coerência para skill nova: não cabe em nenhuma frase de identidade ⇒ não entra em nenhum plugin. Inclui a emenda ao texto de D10 (wired vive em `plugins/<plugin>/`). Condição do censo preservada na extração do council: zero reforma interna, descriptions idênticas módulo namespace, `council` instalado onde `core` estiver (`docs/OPERATIONS.md` §1). Validadores: `claude plugin validate .` (manual, fora do CI) + `python3 scripts/generate_inventory.py --check` (CI).
 - **D17** — Marcador wired-provisório machine-readable com prazo (§Provisórios ativos deste doc): INVENTORY marca o item, prazo vencido deixa o gate vermelho até validar ou demover. Enforcement: `scripts/check-governance.sh` (check 5) + `scripts/generate_inventory.py` (marcador ⏳).

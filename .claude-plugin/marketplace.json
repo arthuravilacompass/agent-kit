@@ -12,11 +12,23 @@
       "category": "development"
     },
     {
+      "name": "council",
+      "source": "./plugins/council",
+      "description": "Lentes epistêmicas para decisões de alto custo de reversão — instalar sempre junto do core",
+      "category": "development"
+    },
+    {
+      "name": "team",
+      "source": "./plugins/team",
+      "description": "Copiloto de cerimônias ágeis: refinamento com PO, triage pós-agenda, comunicação de squad",
+      "category": "development"
+    },
+    {
       "name": "mobile",
       "source": "./plugins/mobile",
       "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking",
       "category": "development"
     }
   ],
-  "description": "Metodologia pessoal de engenharia com agentes: disciplina epistêmica portável entre projetos (core) + toolkit Flutter/MobX (mobile). Extraído de uso real, genericizado, com governança de promoção por uso."
+  "description": "Metodologia pessoal de engenharia com agentes em 4 plugins: disciplina epistêmica e workflow (core), lentes de decisão (council), cerimônias ágeis (team) e toolkit Flutter/MobX (mobile). Extraído de uso real, genericizado, com governança de promoção por uso."
 }

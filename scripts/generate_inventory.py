@@ -30,7 +30,7 @@ import re
 import sys
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PLUGINS = ["core", "mobile"]
+PLUGINS = ["core", "council", "team", "mobile"]
 INVENTORY_PATH = os.path.join(REPO_ROOT, "INVENTORY.md")
 
 GENERATED_BANNER = (
@@ -380,7 +380,7 @@ def generate():
         "`python3 scripts/generate_inventory.py`.",
         "",
         "Skills marcadas **slash-only** têm `disable-model-invocation: true` no frontmatter: "
-        "rodam só via comando explícito (`/core:<nome>`, `/mobile:<nome>`), nunca por "
+        "rodam só via comando explícito (`/<plugin>:<nome>`), nunca por "
         "iniciativa do modelo (critério: `docs/SKILL-CONTRACT.md` §Critério slash-only).",
         "",
         "Itens com “provisório até <data>” estão wired sob a exceção de deadline "
