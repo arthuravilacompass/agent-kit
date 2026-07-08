@@ -67,12 +67,25 @@ filtradas são esperadas, não bug.
 
 ### 5. Síntese da Dimensão A (agente — fan-out)
 
+> **Ressalva conhecida (achada rodando a demo v0, não corrigida ainda — whole-branch review):**
+> `graph.json` guarda nome de classe simples, sem pacote/arquivo (`extract_graph.py` descarta isso
+> em `simple_name()`) — não tem como juntar mecanicamente um node do grafo com o arquivo/endpoint
+> correspondente sem resolução humana. E componente conexo, no único app real testado, degenerou
+> num único componente de 678 nodes (de 2067 totais) — não é uma unidade de trabalho usável como
+> está. Na demo, os 2 clusters usados foram escolhidos à mão (nome reconhecível + tamanho pequeno),
+> não por essa regra mecânica. Até isso ser corrigido (`node → arquivo` em `extract_graph.py` é o
+> candidato), trate o texto abaixo como a INTENÇÃO do passo 5, não como algo executável sem
+> julgamento humano no meio.
+
 Particione `graph.json` em unidades de trabalho (componente conexo do grafo é o método
 mais simples pra v0 — duas classes ligadas por edge caem na mesma partição; classes
-sem edge formam partições de 1). Para CADA partição, dispare um agente com este
-contexto:
+sem edge formam partições de 1; **na prática, escolha clusters pequenos e com nome
+reconhecível à mão, não confie no componente conexo bruto** — ver ressalva acima). Para
+CADA partição, dispare um agente com este contexto:
 
-- As classes da partição (código-fonte de `jadx/sources/<pacote>/`).
+- As classes da partição (código-fonte de `jadx/sources/<pacote>/` — você precisa
+  localizar o arquivo real de cada classe do cluster manualmente, `graph.json` não
+  guarda esse mapeamento).
 - Endpoints de `endpoints.json` que citam arquivos dessa partição.
 - Entry points nomeados (Activities/Fragments/ViewModels do manifest ou reconhecíveis
   por convenção de nome) e string resources de `apktool/res/values/strings.xml`, como

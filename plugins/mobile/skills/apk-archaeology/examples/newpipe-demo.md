@@ -26,15 +26,24 @@
 
 ### Scorecard de fidelidade (grading não-circular, spec §9)
 
-| Passo de correção | real_count | true_positive | false_positive | false_negative | recall |
-|---|---|---|---|---|---|
-| Ingênuo (app-only, com `test/`) | 96 | 30 | 95 | 66 | 0.31 |
-| + só `app/src/main` (exclui teste) | 51 | 29 | 96 | 22 | 0.57 |
-| + inclui `NewPipeExtractor` (versão correta, só produção) | 138 | 82 | 43 | 56 | 0.59 |
-| + exclui comentário Javadoc do gabarito (contaminação do PRÓPRIO grader) | **99** | **82** | 43 | **17** | **0.83** |
+| Passo de correção | real_count | true_positive | false_positive | false_negative | recall | Reproduzível com o `grade_fidelity.py` como está? |
+|---|---|---|---|---|---|---|
+| Ingênuo (app-only, com `test/`) | 96 | 30 | 95 | 66 | 0.31 | Sim |
+| + só `app/src/main` (exclui teste) | 51 | 29 | 96 | 22 | 0.57 | Sim (apontando o script pro dir certo) |
+| + inclui `NewPipeExtractor` (versão correta, só produção) | 138 | 82 | 43 | 56 | **0.59** | **Sim — este é o número que a ferramenta shipada produz de verdade** |
+| + exclui comentário Javadoc do gabarito (contaminação do PRÓPRIO grader) | 99 | 82 | 43 | 17 | 0.83 | **NÃO — passo manual, não codificado no script** |
 
-**Recall final: 0.83** (82/99) — reportado com o percurso completo, não só o número final; cada
-correção acima é rastreável e foi genuinamente descoberta rodando o pipeline, não estimada.
+**Número reproduzível pela ferramenta shipada: 0.59.** `grade_fidelity.py` não distingue string
+literal de comentário Javadoc (`URL_RE` casa `"https://..."` dentro de `<a href="...">` igual a
+qualquer literal de código) — isso é uma limitação do MÉTODO de comparação, documentada mas **não
+corrigida no script nesta rodada** (candidato a v2 se o padrão se repetir em uso real). O 0,83 é uma
+correção manual sobre esse número, feita nesta sessão: classifiquei os 56 falsos-negativos linha a
+linha (regex `^\s*(\*|//)` no início da linha onde a URL aparece) e achei que **39 dos 56 só
+existem dentro de comentário/Javadoc, nunca compilados** — sobram 17 falsos-negativos genuínos.
+Isso é auditável (o método está descrito aqui, a lista completa das 39 URLs excluídas está em
+`~/dev/apk-archaeology-lab/demo-run/newpipe/` como artefato de sessão, fora do repo), mas **não é o
+que alguém obtém rodando o pipeline do jeito que ele está hoje** — reportar os dois números,
+não só o mais bonito, é o ponto.
 
 **43 falsos-positivos, categorizados** (nenhum verificado como alucinação pura):
 - ~6 são de `org.jsoup` (lib de terceiro real, não cadastrada em `known-libs.json` → cai em

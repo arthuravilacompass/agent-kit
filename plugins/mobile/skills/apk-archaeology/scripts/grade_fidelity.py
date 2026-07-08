@@ -7,6 +7,18 @@ existem de fato no repositório-fonte real (clone git, não o output do próprio
 compound) — grading não-circular. O gabarito TEM que vir de um clone real do
 repo-fonte, nunca da árvore decompilada pelo próprio pipeline.
 
+Limitações conhecidas (achadas na demo v0, não corrigidas nesta rodada — ver design
+doc, seção Lições da demo):
+- `URL_RE` não distingue string literal de comentário Javadoc (`<a href="...">`
+  tem aspas igual a um literal de código) — o gabarito pode incluir URL nunca
+  compilada. Correção manual foi necessária na demo v0; não codificada aqui.
+- `real_urls()` NUNCA redige o que lê do source real antes de persistir em
+  `--out` — diferente de `extract_endpoints.py` (5 rounds de hardening de
+  redação, spec §7). Se `real_source_dir` for código de cliente real (não
+  público como neste demo), um segredo no source vira segredo no scorecard
+  persistido. Sem trigger real na demo (NewPipe é público), mas real em uso
+  contra fonte de cliente — candidato a fix antes de reuso fora de demo.
+
 Stdlib puro.
 
 Uso:
