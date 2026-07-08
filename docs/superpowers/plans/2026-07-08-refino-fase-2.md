@@ -291,7 +291,7 @@ description: Invoque quando o usuário pedir para "me grillar" / "grill me", pre
 One skill, two modes. Mode selection happens in the first lines of the request:
 
 - **No argument** (or a "grill me" / challenge-my-decision request) → **interview mode**.
-- **Argument `pre-plan <TICKET> [--greenfield]` | `post-plan` | `pre-done`** → **escalation mode** (absorbs the former `advisor-check`; same checkpoint semantics).
+- **Argument `pre-plan <TICKET> [--greenfield]` | `post-plan` | `pre-done`** → **escalation mode** (absorbs the former escalation-checkpoint skill; same checkpoint semantics).
 - Invalid argument → show the usage above and stop.
 
 ## Interview mode
@@ -346,7 +346,7 @@ Contar linhas: `wc -l plugins/core/skills/grill-me/SKILL.md` ≤ 120.
 7. `## Presentation format` — o bloco de formato do original verbatim, INCLUSIVE a instrução "Present findings to the user in pt-BR" e o template pt-BR (Críticos 🔴 / Atenção 🟡 / Considerações 🟣 / ⚠️ Não-verificadas): o corpo da skill é EN, mas o output pro usuário permanece pt-BR.
 8. `## Important` — os bullets finais do original verbatim (sinal-não-decisão; independência estrutural do pre-done; sem captura de memória dentro da skill — apontar `core:learn`; ordem típica: pre-plan → antes de writing-plans, post-plan → após aprovação, pre-done → antes de `core:review-local`; quando usar o advisor nativo vs esta skill).
 
-Invariantes do aproveitamento (o reviewer da task confere): nenhum passo/seção omitido do original; schema e comandos intactos; toda string de invocação `advisor-check <modo>` atualizada para `/core:grill-me <modo>`; nenhuma menção a "advisor-check" como skill viva (só "absorbed by grill-me" onde inevitável); zero narração de proveniência ("promovido de" etc.).
+Invariantes do aproveitamento (o reviewer da task confere): nenhum passo/seção omitido do original; schema e comandos intactos; toda string de invocação do antigo comando atualizada para `/core:grill-me <modo>`; **o token literal do nome da skill antiga NÃO aparece em nenhum arquivo produzido** (SKILL.md, REFERENCE.md — o grep de aceite das Tasks 3/8 exige zero hits em `plugins/`; referências à origem reformuladas como "the former escalation-checkpoint skill"); zero narração de proveniência ("promovido de" etc.).
 
 - [ ] **Step 3: Delete**
 
@@ -378,7 +378,7 @@ git rm -r plugins/core/skills/advisor-check
 
 - Linha ~23 (fluxo Feature): `advisor-check pre-plan <TICKET>` → `grill-me pre-plan <TICKET>`; `advisor-check post-plan` → `grill-me post-plan`; `advisor-check pre-done` → `grill-me pre-done`.
 - Linha ~25 (fluxo Refactor): `advisor-check pre-plan` → `grill-me pre-plan`.
-- Linha ~38 (entrada `grill-me` na lista de skills): reescrever para citar os dois modos (entrevista default; escalação `pre-plan`/`post-plan`/`pre-done` absorvida do antigo advisor-check).
+- Linha ~38 (entrada `grill-me` na lista de skills): reescrever para citar os dois modos (entrevista default; escalação `pre-plan`/`post-plan`/`pre-done` absorvida do antigo checkpoint de escalação — NÃO escrever o token literal do nome da skill antiga: o grep de aceite da Task 8 exige zero hits em `unwired/`).
 - Linhas ~78–82 (bloco `advisor-check <modo>`): remover o bloco; o conteúdo já está resumido na entrada do grill-me.
 
 - [ ] **Step 7: Regen + gates** — `python3 scripts/generate_inventory.py` (linha advisor-check some; description do grill-me muda; core: 14 skills). Gate quíntuplo. Conferir: `grep -rn "advisor-check" plugins/ INVENTORY.md` → zero hits.
@@ -417,7 +417,7 @@ Substituição mecânica. Nos artefatos do council: SÓ namespace/path, nenhuma 
 - `agents/maxwell.md` e `agents/zeno.md`: description `(skill core:council)` → `(skill council:council)`; linha 16 `ver a skill \`core:council\`` → `\`council:council\``.
 - `agents/epistemic-council.md`: description `(skill core:council)` → `(skill council:council)`; `/core:council-recall` → `/council:council-recall` (linha 43); `/core:council-log` → `/council:council-log` (linha 47).
 
-- [ ] **Step 2: Substituições no team**: em `refine-live/SKILL.md` e `refine-async/SKILL.md`, TODAS as ocorrências de `/core:refine-live` → `/team:refine-live` e `/core:refine-async` → `/team:refine-async` (≈11 ocorrências somadas). NÃO tocar `/core:archaeology`, `/core:spec-refine`, `archaeology → tech-breakdown` (ficam no core). `chat-draft/SKILL.md`: grep confirma zero refs — não tocar.
+- [ ] **Step 2: Substituições no team**: em `refine-live/SKILL.md` e `refine-async/SKILL.md`, TODAS as ocorrências de `/core:refine-live` → `/team:refine-live` e `/core:refine-async` → `/team:refine-async` (≈16 ocorrências somadas — o grep de aceite é a fonte de verdade, não esta contagem). NÃO tocar `/core:archaeology`, `/core:spec-refine`, `archaeology → tech-breakdown` (ficam no core). `chat-draft/SKILL.md`: contém `core:commit`/`core:pr` (linha ~39) — apontam para skills que PERMANECEM no core; **NÃO converter** (o padrão de aceite não cobre `commit`/`pr`, então uma conversão indevida passaria pelos gates até a Task 8).
 
 - [ ] **Step 3: Consumidores no core**: `using-agent-kit/SKILL.md` linha 183 `em \`core:council\`` → `em \`council:council\``; `pipeline/SKILL.md` linha 36: `core:schrodinger` → `council:schrodinger` (2×).
 
@@ -512,7 +512,7 @@ Aviso mecânico de dependência inter-plugin (spec 2.5). Checa **instalação** 
 - Create: `plugins/team/hooks/require-core.sh`, `plugins/council/hooks/require-core.sh`, `plugins/mobile/hooks/require-core.sh` (byte-idênticos)
 - Create: `plugins/team/hooks/hooks.json`, `plugins/council/hooks/hooks.json`
 - Modify: `plugins/mobile/hooks/hooks.json`, `plugins/mobile/.claude-plugin/plugin.json` (0.1.1 → 0.2.0)
-- Modify: `evals/run-evals.sh` (fixtures + cmp anti-drift), `evals/cases/hook-cases.jsonl` (+5 casos)
+- Modify: `evals/run-evals.sh` (fixtures + cmp anti-drift), `evals/cases/hook-cases.jsonl` (+5 casos), `README.md` (linha do mobile: contagem de hooks)
 - Regen: `INVENTORY.md`
 
 **Interfaces:**
@@ -541,9 +541,12 @@ printf '{"version":2,"plugins":{"team@agent-kit":[{"scope":"user","installPath":
   > "$EVAL_ROOT/require-core-absent/plugins/installed_plugins.json"
 
 # require-core existe em 3 plugins por cópia byte-idêntica — drift entre as
-# cópias falha a suíte antes de qualquer caso rodar.
+# cópias falha a suíte antes de qualquer caso rodar. Tolerante a arquivo
+# ausente (cópia faltando é pega pelos próprios casos de eval, "hook não
+# encontrado" — o cmp valida só o drift entre cópias existentes).
 for rc_copy in plugins/team/hooks/require-core.sh plugins/council/hooks/require-core.sh; do
-  if ! cmp -s "$REPO_ROOT/$rc_copy" "$REPO_ROOT/plugins/mobile/hooks/require-core.sh"; then
+  if [ -f "$REPO_ROOT/$rc_copy" ] && [ -f "$REPO_ROOT/plugins/mobile/hooks/require-core.sh" ] \
+     && ! cmp -s "$REPO_ROOT/$rc_copy" "$REPO_ROOT/plugins/mobile/hooks/require-core.sh"; then
     echo "ERRO: $rc_copy diverge de plugins/mobile/hooks/require-core.sh (cópias devem ser byte-idênticas)" >&2
     exit 1
   fi
@@ -610,9 +613,9 @@ PY
 
 Em `plugins/mobile/hooks/hooks.json`, adicionar a chave `SessionStart` com o mesmo bloco, antes de `PreToolUse`.
 
-- [ ] **Step 6: Bump mobile** — `plugins/mobile/.claude-plugin/plugin.json`: `"0.1.1"` → `"0.2.0"`.
+- [ ] **Step 6: Bump mobile + contagem no README** — `plugins/mobile/.claude-plugin/plugin.json`: `"0.1.1"` → `"0.2.0"`. No `README.md`, linha do mobile (`10 skills, 1 agent, 4 hooks, 5 scripts e 2 MCP servers`): `4 hooks` → `5 hooks` (o mobile ganha o require-core nesta task; a Task 4 editou o README antes do hook existir).
 
-- [ ] **Step 7: Verificar** — `./evals/run-evals.sh` → 5 casos novos PASSAM (47 total); `shellcheck plugins/team/hooks/require-core.sh plugins/council/hooks/require-core.sh plugins/mobile/hooks/require-core.sh` limpo; `python3 scripts/generate_inventory.py` (3 hooks novos entram); gate quíntuplo completo.
+- [ ] **Step 7: Verificar** — `./evals/run-evals.sh` → 5 casos novos PASSAM (esperado: `Evals tier-1: 40 passou, 0 falhou.` — baseline atual é 35, não 42; 42 é contagem de linhas do arquivo, não de casos); `shellcheck plugins/team/hooks/require-core.sh plugins/council/hooks/require-core.sh plugins/mobile/hooks/require-core.sh` limpo; `python3 scripts/generate_inventory.py` (3 hooks novos entram); gate quíntuplo completo.
 
 - [ ] **Step 8: Commit**
 
