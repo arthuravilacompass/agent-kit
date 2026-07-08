@@ -68,29 +68,29 @@ Description aggregate (D16): 3762 bytes.
 
 | Skill | Contract (D14) | Description |
 |---|---|---|
-| `bohr` ⏳ provisional until 2026-08-06 | pending | Invoque quando uma decisão desta conversa travar num "A ou B" ("refatorar ou entregar", "hook ou texto", "wired ou unwired"). Postura do Conselho (council:council) — recusa a falsa escolha e busca o eixo que dissolve o trade-off; lente in-thread sobre o raciocínio atual, não abre contexto novo. |
-| `council` ⏳ provisional until 2026-08-06 | router | Invoque pra consultar o índice do Conselho de Posturas do kit — as 6 posturas wired (4 skills in-thread, 2 subagents isolados), o que cada uma interroga, quando vestir, o formato de saída (callout) e quando escalar pro modo cego (agent epistemic-council). O trabalho vive em cada postura; aqui é o mapa. |
-| `council-log` ⏳ provisional until 2026-08-06 | pending | Invoque após rodar uma postura do Conselho (council:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia. |
-| `council-recall` ⏳ provisional until 2026-08-06 | pending | Invoque antes de uma decisão de alto custo de reversão, junto com a postura do Conselho que vai vesti-la — consulta a memória episódica (~/.claude/epistemic/) e lista até 3 casos passados que rimam por FORMA (mesma postura + surface_class + overlap). Silencioso se nada rima. Advisory. |
-| `epicurus` | pending | Invoque antes de dar um design, escopo ou plano por pronto — classifica cada elemento como necessário, desejado-mas-dispensável ou vão, e corta os dois últimos. |
-| `sagan` ⏳ provisional until 2026-08-06 | pending | Invoque antes de investir esforço numa decisão ou tarefa desta conversa — calibra se importa, em que escala, e se sobrevive ao tempo. Postura do Conselho (council:council). Distinta de council:epicurus, que corta elementos de um design já julgado digno; Sagan calibra a altitude da decisão inteira. |
-| `schrodinger` | pending | Invoque quando um diagnóstico tiver mais de uma explicação plausível e a tentação for fechar em uma sem a observação que a discrimine — mantém as hipóteses vivas até existir essa observação. |
+| `bohr` ⏳ provisional until 2026-08-06 | pending | Invoke when a decision in this conversation gets stuck on an "A or B" ("refactor or ship," "hook or prose," "wired or unwired"). Council posture (council:council) — refuses the false choice and looks for the axis that dissolves the trade-off; an in-thread lens on the current reasoning, doesn't open new context. |
+| `council` ⏳ provisional until 2026-08-06 | router | Invoke to consult the kit's index for the Council of Postures — the 6 wired postures (4 in-thread skills, 2 isolated subagents), what each interrogates, when to wear it, the output format (callout), and when to escalate to blind mode (agent epistemic-council). The work lives in each posture; this is the map. |
+| `council-log` ⏳ provisional until 2026-08-06 | pending | Invoke after running a Council posture (council:schrodinger/bohr/epicurus/sagan or agents maxwell/zeno) on a high-cost-to-reverse decision worth remembering — logs the brief to the episodic corpus (~/.claude/epistemic/<posture>.jsonl, append-only). Advisory; never blocks. |
+| `council-recall` ⏳ provisional until 2026-08-06 | pending | Invoke before a high-cost-to-reverse decision, together with the Council posture that will wear it — queries episodic memory (~/.claude/epistemic/) and lists up to 3 past cases that rhyme by FORM (same posture + surface_class + overlap). Silent if nothing rhymes. Advisory. |
+| `epicurus` | pending | Invoke before calling a design, scope, or plan done — classifies each element as necessary, wanted-but-dispensable, or vain, and cuts the latter two. |
+| `sagan` ⏳ provisional until 2026-08-06 | pending | Invoke before investing effort in a decision or task in this conversation — calibrates whether it matters, at what scale, and whether it survives time. Council posture (council:council). Distinct from council:epicurus, which cuts elements from a design already judged worthy; Sagan calibrates the altitude of the whole decision. |
+| `schrodinger` | pending | Invoke when a diagnosis has more than one plausible explanation and the temptation is to settle on one without the observation that would discriminate between them — keeps the hypotheses alive until that observation exists. |
 
-Description aggregate (D16): 1858 bytes.
+Description aggregate (D16): 1880 bytes.
 
 ### Agents (3)
 
 | Agent | Description |
 |---|---|
-| `epistemic-council` ⏳ provisional until 2026-08-06 | Modo cego do Conselho (skill council:council) — invoque no escalonamento das posturas (decisão pré-commit de alto custo de reversão) ou como verificador de conclusão. Recebe SÓ o problema reformulado + posições SEM autoria, nunca a prosa do thread nem o lean; roda UMA postura (bohr\|schrodinger\|epicurus\|sagan\|maxwell\|zeno) e verifica executando. Único ponto de separação estrutural real do Conselho. Output em pt-BR. Advisory. |
-| `maxwell` ⏳ provisional until 2026-08-06 | Postura do Conselho (skill council:council) em subagent isolado — invoque antes de mexer em algo acoplado ou numa mudança não-trivial deste repo. Mapeia como a mudança propaga (dependências, efeitos, acoplamento) e que invariantes viajam; reporta touchpoints reais com file:linha. Output em pt-BR. |
-| `zeno` ⏳ provisional until 2026-08-06 | Postura do Conselho (skill council:council) em subagent isolado — invoque ao validar uma solução já proposta, colando no dispatch as premissas vivas da conversa. Empurra os invariantes ao limite (zero, um, infinito, null, vazio, concorrente, falho-no-meio) até achar a borda concreta onde quebra. Output em pt-BR. |
+| `epistemic-council` ⏳ provisional until 2026-08-06 | Blind mode of the Council (skill council:council) — invoke at posture escalation (a pre-commit, high-cost-to-reverse decision) or as a completion verifier. Receives ONLY the reframed problem + positions WITHOUT authorship, never the thread's prose or the lean; runs ONE posture (bohr\|schrodinger\|epicurus\|sagan\|maxwell\|zeno) and verifies by executing. The Council's only point of real structural separation. Output mirrors the thread's language, default English. Advisory. |
+| `maxwell` ⏳ provisional until 2026-08-06 | Council posture (skill council:council) in an isolated subagent — invoke before touching something coupled or making a non-trivial change in this repo. Maps how the change propagates (dependencies, effects, coupling) and which invariants travel; reports real touchpoints with file:line. Output mirrors the thread's language, default English. |
+| `zeno` ⏳ provisional until 2026-08-06 | Council posture (skill council:council) in an isolated subagent — invoke when validating an already-proposed solution, pasting the conversation's live premises into the dispatch. Pushes invariants to the limit (zero, one, infinity, null, empty, concurrent, fail-midway) until it finds the concrete edge where it breaks. Output mirrors the thread's language, default English. |
 
 ### Hooks (1)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
-| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia). |
+| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — warns if core@agent-kit is not registered as installed among the plugins (checks installation, not per-session enablement; fails open on any anomaly). |
 
 ### Scripts (0)
 
@@ -105,11 +105,11 @@ Description aggregate (D16): 1858 bytes.
 
 | Skill | Contract (D14) | Description |
 |---|---|---|
-| `chat-draft` | pending | Invoque para redigir mensagens informais em pt-BR para Teams/Slack — recap de tech-sync, atualização de squad, ou qualquer pedido rotulado "mensagem para o time / chat / Teams / Slack". |
-| `refine-async` (slash-only: `/team:refine-async`) ⏳ provisional until 2026-08-06 | pending | Triage pós-refinamento — consolida o contexto salvo pelo /team:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown). |
-| `refine-live` (slash-only: `/team:refine-live`) ⏳ provisional until 2026-08-06 | pending | Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /team:refine-async na sequência. |
+| `chat-draft` | pending | Invoke to draft informal pt-BR chat messages for Teams/Slack — recap of a tech-sync, squad update, or any request labeled "message for the team / chat / Teams / Slack". |
+| `refine-async` (slash-only: `/team:refine-async`) ⏳ provisional until 2026-08-06 | pending | Post-refinement triage — consolidates the context saved by /team:refine-live, runs light codebase exploration (budgeted grep, no deep architecture) and generates [INTERIM] subtasks for approval and creation on the board. Use right after the refinement session, before the technical pipeline (archaeology → tech-breakdown). |
+| `refine-live` (slash-only: `/team:refine-live`) ⏳ provisional until 2026-08-06 | pending | Live copilot for the refinement session with the PO — takes the board card + PO's real-time bullets and generates clarifying questions by priority (scope, implicit criteria, dependencies). Use during the refinement call; consolidates state for the follow-up /team:refine-async. |
 
-Description aggregate (D16): 811 bytes.
+Description aggregate (D16): 775 bytes.
 
 ### Agents (0)
 
@@ -120,7 +120,7 @@ Description aggregate (D16): 811 bytes.
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
-| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia). |
+| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — warns if core@agent-kit is not registered as installed among the plugins (checks installation, not per-session enablement; fails open on any anomaly). |
 
 ### Scripts (0)
 
@@ -135,45 +135,45 @@ Description aggregate (D16): 811 bytes.
 
 | Skill | Contract (D14) | Description |
 |---|---|---|
-| `apk-archaeology` (slash-only: `/mobile:apk-archaeology`) | pending | "STATUS: provisional — invoque para extrair valor de um APK Android legado (descompilado) rumo a uma migração pra Flutter: fluxos/regras de negócio, contratos de API, grafo de módulo, com bandas de confiança explícitas. Não wired — refinar após primeiro uso real." |
-| `code-review-mobile` | pending | Invoque para revisar um PR/diff Flutter — checklist universal Camada 1 (17 itens, sempre) + Camada 2 contextual (UI, Observer, listas, l10n, navegação, testes) + referência de estrutura de módulo/componente. Gatilhos em pt-BR — "revisa esse PR Flutter", "checklist de review mobile", "onde devia ficar esse widget/store". |
-| `deeplink-debug` | pending | Invoque quando um deeplink/App Link abre no navegador em vez do app, falha ao rotear, abre a tela errada, ou você precisa validar comportamento de deeplink num device. Sintomas — "abre no navegador", "não abre o app", link está verified mas ainda abre no navegador, funciona numa versão de Android/iOS mas não em outra. |
-| `export-logs` | pending | Invoque para exportar logs de rede HTTP de uma sessão Flutter debug rodando, filtrados por intervalo de tempo, como JSON estruturado. Gatilhos em pt-BR — "exporta os logs de rede desse intervalo", "pega as requisições HTTP entre HH:MM:SS e HH:MM:SS", "captura o tráfego de rede desse teste". |
-| `feature-scaffold` | pending | Invoque para gerar o scaffold de uma feature Flutter nova — page, MobX store/controller, repository, entity — seguindo o padrão em camadas (UI → State → Domain → Data) do projeto. Gatilhos em pt-BR — "cria uma feature nova", "faz o scaffold de <nome>", "gera store+repository+page pra isso". |
-| `figma-to-component` (slash-only: `/mobile:figma-to-component`) ⏳ provisional until 2026-08-06 | pending | Extrai um design do Figma via MCP (get_design_context/get_screenshot) e produz uma especificação de widget tree mapeada aos componentes do design system do projeto consumidor — tabela de mapeamento, tokens e lista de gaps sem equivalente. Use com /mobile:figma-to-component ao converter uma tela/componente do Figma pra Flutter. |
-| `ga4-validate` | pending | Invoque para validar tracking GA4 (tela × evento, antes × depois de uma mudança) num app Flutter no simulador — dirige o app, captura o evento real com params e monta a tabela de CTs com report visual. Gatilhos em pt-BR — "valida os eventos GA4 dessa tela", "confirma o tracking antes e depois dessa mudança". |
-| `marionette` | pending | Invoque para validar visualmente mudanças de UI Flutter no app rodando no simulador — lançar o app em debug pra checks dirigidos por agente, tirar screenshots, tocar/rolar/dirigir telas, hot-reload após edits. Gatilhos em pt-BR — "confirma essa tela no simulador", "valida essa mudança visualmente", "screenshot do app rodando". |
-| `mobx` | router | Invoque para revisar ou escrever qualquer store/controller MobX (Flutter) — smells que o linter não pega, do correctness blocker à direção arquitetural aspiracional. Gatilhos em pt-BR — "esse observable está certo?", "esse estado deveria ser enum?", "por que esse getter não atualiza a UI?", "revisão de MobX/DI". |
-| `performance-patterns` | pending | Invoque para revisar ou aplicar padrões de performance num app Flutter/MobX — rebuilds de Observer, chamadas de rede (Dio), imagens, memória. Gatilhos em pt-BR — "esse Observer está rebuildando demais", "essa lista tá lenta", "revisão de performance dessa tela". |
-| `refactor-review` | pending | Invoque antes de commitar um refactor que toca stores/repositories/coordinators compartilhados ou navegação — protocolo de 2 fases (regressão + qualidade). Gatilhos em pt-BR — "revisa esse refactor antes de eu commitar", "confirma que esse refactor não quebrou nada", "checklist pós-refactor". |
+| `apk-archaeology` (slash-only: `/mobile:apk-archaeology`) | pending | "STATUS: provisional — invoke to extract value from a legacy (decompiled) Android APK toward a migration to Flutter: business flows/rules, API contracts, module graph, with explicit confidence bands. Not wired — refine after first real use." |
+| `code-review-mobile` | pending | Invoke to review a Flutter PR/diff — universal Layer 1 checklist (17 items, always) + contextual Layer 2 (UI, Observer, lists, l10n, navigation, tests) + module/component structure reference. Triggers — "review this Flutter PR", "mobile review checklist", "where should this widget/store live". |
+| `deeplink-debug` | pending | Invoke when a deeplink/App Link opens in the browser instead of the app, fails to route, opens the wrong screen, or you need to validate deeplink behavior on a device. Symptoms — "opens in the browser", "doesn't open the app", the link is verified but still opens in the browser, works on one Android/iOS version but not another. |
+| `export-logs` | pending | Invoke to export HTTP network logs from a running Flutter debug session, filtered by time range, as structured JSON. Triggers — "export the network logs for this time range", "get the HTTP requests between HH:MM:SS and HH:MM:SS", "capture the network traffic from this test". |
+| `feature-scaffold` | pending | Invoke to scaffold a new Flutter feature — page, MobX store/controller, repository, entity — following the project's layered pattern (UI → State → Domain → Data). Triggers — "create a new feature", "scaffold <name>", "generate store+repository+page for this". |
+| `figma-to-component` (slash-only: `/mobile:figma-to-component`) ⏳ provisional until 2026-08-06 | pending | Extracts a Figma design via MCP (get_design_context/get_screenshot) and produces a widget tree spec mapped to the consuming project's design-system components — mapping table, tokens, and a list of gaps with no equivalent. Use with /mobile:figma-to-component when converting a Figma screen/component to Flutter. |
+| `ga4-validate` | pending | Invoke to validate GA4 tracking (screen × event, before × after a change) on a Flutter app in the simulator — drives the app, captures the real event with params, and builds the CT table with a visual report. Triggers — "validate the GA4 events for this screen", "confirm the tracking before and after this change". |
+| `marionette` | pending | Invoke to visually validate Flutter UI changes in the app running in the simulator — launch the app in debug for agent-driven checks, take screenshots, tap/scroll/drive screens, hot-reload after edits. Triggers — "confirm this screen in the simulator", "validate this change visually", "screenshot of the running app". |
+| `mobx` | router | Invoke to review or write any MobX store/controller (Flutter) — smells the linter doesn't catch, from correctness blockers to aspirational architectural direction. Triggers — "is this observable correct?", "should this state be an enum?", "why doesn't this getter update the UI?", "MobX/DI review". |
+| `performance-patterns` | pending | Invoke to review or apply performance patterns in a Flutter/MobX app — Observer rebuilds, network calls (Dio), images, memory. Triggers — "this Observer is rebuilding too much", "this list is slow", "performance review of this screen". |
+| `refactor-review` | pending | Invoke before committing a refactor that touches shared stores/repositories/coordinators or navigation — 2-phase protocol (regression + quality). Triggers — "review this refactor before I commit", "confirm this refactor didn't break anything", "post-refactor checklist". |
 
-Description aggregate (D16): 3414 bytes.
+Description aggregate (D16): 3193 bytes.
 
 ### Agents (1)
 
 | Agent | Description |
 |---|---|
-| `mobx-smell-hunter` | Specialist subagent that hunts four specific MobX smells not caught by a linter — FSM001 (multi-flag flow composition), SSOT001 (multi-writer typed state), CMD001 (primitive discriminator), MOBX006 (synthetic concurrency state). Use when a store or controller has been modified in the current diff. Output is in Portuguese (pt-BR). |
+| `mobx-smell-hunter` | Specialist subagent that hunts four specific MobX smells not caught by a linter — FSM001 (multi-flag flow composition), SSOT001 (multi-writer typed state), CMD001 (primitive discriminator), MOBX006 (synthetic concurrency state). Use when a store or controller has been modified in the current diff. Output mirrors the user's language, default English. |
 
 ### Hooks (5)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
-| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia). |
-| `smell-checker.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — bloqueia (exit 2, add-only) smells de correctness em Dart: DI direto, BuildContext vazando, print em produção. |
-| `dart-auto-format.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — roda dart format no arquivo editado. |
-| `dart-analyze-file.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — roda dart analyze escopado ao arquivo, feedback sempre advisory. |
-| `package-feedback.sh` | PostToolUse | Edit\|Write | PostToolUse(Edit\|Write) — pub get em background pra pubspec.yaml editado; lembrete de teste pra _test.dart editado, uma vez por sessão. |
+| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — warns if core@agent-kit is not registered as installed among the plugins (checks installation, not per-session enablement; fails open on any anomaly). |
+| `smell-checker.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — blocks (exit 2, add-only) Dart correctness smells: direct DI, leaking BuildContext, print in production. |
+| `dart-auto-format.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — runs dart format on the edited file. |
+| `dart-analyze-file.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — runs dart analyze scoped to the file, feedback always advisory. |
+| `package-feedback.sh` | PostToolUse | Edit\|Write | PostToolUse(Edit\|Write) — background pub get for an edited pubspec.yaml; test reminder for an edited _test.dart, once per session. |
 
 ### Scripts (5)
 
 | Script | Description |
 |---|---|
-| `arch_graph.sh` | Mede o grafo de imports (lakos) e regenera o bloco de dados do ARCHITECTURE.md. |
-| `arch_violations.py` | Lê um grafo de imports (dot) e reporta violações de layering contra config do projeto. |
-| `check_merged_imports.py` | Verifica resolução de imports Dart internos numa árvore git mergeada (sem checkout). |
-| `export_network_logs.py` | Exporta logs de rede HTTP do Dart VM Service para JSON. |
-| `swap_pubspec.py` | Troca dependências git-ref do pubspec.yaml por dependências de path local, e volta. |
+| `arch_graph.sh` | Measures the import graph (lakos) and regenerates the data block of ARCHITECTURE.md. |
+| `arch_violations.py` | Reads an import graph (dot) and reports layering violations against the project's config. |
+| `check_merged_imports.py` | Checks internal Dart import resolution in a merged git tree (no checkout). |
+| `export_network_logs.py` | Exports HTTP network logs from the Dart VM Service to JSON. |
+| `swap_pubspec.py` | Swaps pubspec.yaml git-ref dependencies for local path dependencies, and back. |
 
 ### MCP (2)
 
