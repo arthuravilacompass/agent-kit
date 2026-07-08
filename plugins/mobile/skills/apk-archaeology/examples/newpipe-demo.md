@@ -17,7 +17,9 @@
 
 ## B — Contratos de API (fato)
 
-- **213 endpoints extraídos** (business-candidate ∪ unclassifiable, known-third-party excluído) ·
+- **213 endpoints extraídos** (business-candidate ∪ unclassifiable, known-third-party excluído; a mesma
+  URL pode aparecer em vários arquivo:linha, ex.: uma constante de base URL referenciada em várias
+  classes — **125 URLs únicas** após dedup, que é a base do scorecard abaixo) ·
   **324 literais de alta entropia redigidos** (nenhum aparece no output; a grande maioria são hashes/IDs
   isolados fora de contexto de URL, não segredo embutido em endpoint — só 2 dos 213 endpoints têm
   `[REDACTED]` embutido)
@@ -76,6 +78,9 @@ erro zero pro conjunto inteiro.
 ## O que isto NÃO é
 
 - Não mede produtividade — sem baseline, sem migração real feita.
+- **Comportamento legado recuperado ≠ comportamento desejado aprovado.** Todo claim de A é observação
+  do que o app FAZ hoje, não decisão sobre o que ele DEVERIA fazer — o gate do PO permanece (ver
+  §11.1 do design doc: comportamento legado pode ser bug legado, não regra a preservar).
 - Fidelidade medida em referência limpa (NewPipe, sem ofuscação) — não em código ofuscado
   (ver apêndice Telecorp abaixo, só estatística agregada).
 - Dimensão A demonstrada em referência pobre em regra de **negócio** (NewPipe é player de mídia —
