@@ -50,7 +50,7 @@ Nota: `schrodinger` e `epicurus` NÃO entram — foram wired na extração origi
 
 - **Code com ID só nasce com validador.** Toda regra, hook ou skill identificada por um ID nasce junto com o mecanismo que verifica sua aplicação (gate, hook, script) — nunca como texto solto sem enforcement. Este doc aplica a regra a si mesmo: todo ID D*/R* citado no repo precisa resolver no ledger abaixo, verificado por `scripts/check-governance.sh` no gate.
 - **Regra textual que falha repetido vira mecanismo.** Sob orçamento de atenção finito, instrução marginal é omitida (não desobedecida) — empilhar mais texto reduz o compliance agregado, não só deixa de melhorar. A regra de maior taxa de falha vira hook, schema de output obrigatório ou gate determinístico, não mais texto.
-- **Advisory-nudge não entra em `plugins/` sem medição.** Mecanismo só-lembrete precisa provar conversão real antes de ser wired; caso concreto: `learning-pulse` (tabela por-item em `unwired/README.md`), que mediu ~0 conversão no projeto de origem e só volta com medição nova que sustente o custo.
+- **Advisory-nudge não entra em `plugins/` sem medição.** Mecanismo só-lembrete precisa provar conversão real antes de ser wired; caso concreto: `learning-pulse` (tabela por-item em `docs/OPERATIONS.md` §5), que mediu ~0 conversão no projeto de origem e só volta com medição nova que sustente o custo.
 
 ## Teto do tier sempre-ativo
 
