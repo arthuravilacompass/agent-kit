@@ -44,7 +44,10 @@ if [[ ! -d "$OUT/jadx/sources" ]] || [[ -z "$(find "$OUT/jadx/sources" -name "*.
 fi
 
 echo "[2/2] apktool (manifest/resources)..." >&2
-apktool d "$APK" -o "$OUT/apktool" -f >/dev/null 2>&1
+if ! apktool d "$APK" -o "$OUT/apktool" -f 2>&1 | tail -5; then
+  echo "ERRO: apktool falhou — ver saída acima" >&2
+  exit 1
+fi
 
 CLASS_COUNT=$(find "$OUT/jadx/sources" -name "*.java" | wc -l | tr -d ' ')
 echo "OK: $CLASS_COUNT classes em $OUT/jadx/sources; manifest em $OUT/apktool/AndroidManifest.xml" >&2
