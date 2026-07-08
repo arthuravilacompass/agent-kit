@@ -24,15 +24,15 @@ Agentes de código sem guardrails produzem resultado inconsistente — e quem tr
 
 ### `council` — lentes epistêmicas (instalar junto do `core`)
 
-7 skills, 3 agents. Conselho de Posturas: 6 lentes (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno) para decisões de alto custo de reversão — índice em `council:council`.
+7 skills, 3 agents, 1 hook. Conselho de Posturas: 6 lentes (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno) para decisões de alto custo de reversão — índice em `council:council`.
 
 ### `team` — cerimônias ágeis
 
-3 skills. `/team:refine-live` (copiloto da agenda de refinamento com o PO), `/team:refine-async` (triage pós-agenda) e `team:chat-draft` (mensagens de squad).
+3 skills, 1 hook. `/team:refine-live` (copiloto da agenda de refinamento com o PO), `/team:refine-async` (triage pós-agenda) e `team:chat-draft` (mensagens de squad).
 
 ### `mobile` — toolkit Flutter/Dart (pressupõe `core`)
 
-10 skills, 1 agent, 4 hooks, 5 scripts e 2 MCP servers (`dart`, `marionette`). Destaques:
+10 skills, 1 agent, 5 hooks, 5 scripts e 2 MCP servers (`dart`, `marionette`). Destaques:
 
 - `mobile:code-review-mobile`, `mobile:refactor-review` — review Flutter com checklist em camadas e protocolo pós-refactor
 - `mobile:mobx`, `mobile:performance-patterns` — smells de MobX/DI e padrões de performance que o linter não pega, com bloqueio determinístico dos casos de correctness
@@ -80,7 +80,7 @@ Numa sessão nova, as regras do `core` já entram via SessionStart. Jogue uma ta
 Depois de um novo commit no kit:
 
 ```bash
-claude plugin update core@agent-kit     # e/ou mobile@agent-kit
+claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
 Reinício de sessão necessário.

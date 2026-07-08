@@ -82,10 +82,11 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | `maxwell` ⏳ provisório até 2026-08-06 | Postura do Conselho (skill council:council) em subagent isolado — invoque antes de mexer em algo acoplado ou numa mudança não-trivial deste repo. Mapeia como a mudança propaga (dependências, efeitos, acoplamento) e que invariantes viajam; reporta touchpoints reais com file:linha. Output em pt-BR. |
 | `zeno` ⏳ provisório até 2026-08-06 | Postura do Conselho (skill council:council) em subagent isolado — invoque ao validar uma solução já proposta, colando no dispatch as premissas vivas da conversa. Empurra os invariantes ao limite (zero, um, infinito, null, vazio, concorrente, falho-no-meio) até achar a borda concreta onde quebra. Output em pt-BR. |
 
-### Hooks (0)
+### Hooks (1)
 
 | Hook | Evento | Matcher | Descrição |
 |---|---|---|---|
+| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia). |
 
 ### Scripts (0)
 
@@ -109,10 +110,11 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | Agent | Descrição |
 |---|---|
 
-### Hooks (0)
+### Hooks (1)
 
 | Hook | Evento | Matcher | Descrição |
 |---|---|---|---|
+| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia). |
 
 ### Scripts (0)
 
@@ -144,10 +146,11 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 |---|---|
 | `mobx-smell-hunter` | Specialist subagent that hunts four specific MobX smells not caught by a linter — FSM001 (multi-flag flow composition), SSOT001 (multi-writer typed state), CMD001 (primitive discriminator), MOBX006 (synthetic concurrency state). Use when a store or controller has been modified in the current diff. Output is in Portuguese (pt-BR). |
 
-### Hooks (4)
+### Hooks (5)
 
 | Hook | Evento | Matcher | Descrição |
 |---|---|---|---|
+| `require-core.sh` | SessionStart | startup\|clear\|compact | SessionStart — avisa se core@agent-kit não consta como instalado no registro de plugins (checa instalação, não enablement por sessão; fail-open em qualquer anomalia). |
 | `smell-checker.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — bloqueia (exit 2, add-only) smells de correctness em Dart: DI direto, BuildContext vazando, print em produção. |
 | `dart-auto-format.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — roda dart format no arquivo editado. |
 | `dart-analyze-file.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — roda dart analyze escopado ao arquivo, feedback sempre advisory. |
