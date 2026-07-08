@@ -2,3 +2,4 @@
 *.log
 .superpowers/
 .eval-tmp/
+.worktrees/
