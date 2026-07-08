@@ -52,6 +52,14 @@ def main():
             '    String u = "https://androidx.internal.example/should-not-appear";\n'
             '}\n',
         )
+        # business-candidate: URL com segredo embutido no query parameter
+        write(
+            os.path.join(sources, "br/com/zup/app/ApiWithSecret.java"),
+            'package br.com.zup.app;\n'
+            'public class ApiWithSecret {\n'
+            '    String url = "https://api.example.com.br/track?api_key=AKIAABCDEFGHIJKLMNOP";\n'
+            '}\n',
+        )
 
         result = extract(sources, CLASSIFY_RESULT)
         urls = {e["url"] for e in result["endpoints"]}
@@ -60,15 +68,31 @@ def main():
         assert "https://sdk.thirdparty.io/track" in urls, urls
         assert "https://androidx.internal.example/should-not-appear" not in urls, urls
 
+        # URL com segredo embutido deve aparecer COM o segredo redigido
+        url_with_secret_redacted = "https://api.example.com.br/track?api_key=[REDACTED]"
+        assert url_with_secret_redacted in urls, (
+            f"URL com segredo redigido não encontrada. URLs: {urls}"
+        )
+
         by_url = {e["url"]: e for e in result["endpoints"]}
         assert by_url["https://api.example.com.br/v1/login"]["tag"] == "business"
         assert by_url["https://sdk.thirdparty.io/track"]["tag"] == "unclassifiable"
+        assert by_url[url_with_secret_redacted]["tag"] == "business"
 
-        assert result["secrets_redacted"] == 1, result["secrets_redacted"]
+        # 2 secrets redacted: 1 standalone key + 1 embedded in URL
+        assert result["secrets_redacted"] == 2, result["secrets_redacted"]
         raw_json = json.dumps(result)
         assert "AKIAABCDEFGHIJKLMNOP" not in raw_json, "SEGREDO VAZOU NO OUTPUT"
 
-    print("OK: todas as asserções passaram (URLs corretas, lib excluída, segredo redigido)")
+        # Verify URL structure is preserved (non-secret parts still present)
+        assert "https://api.example.com.br/track" in url_with_secret_redacted, (
+            "URL structure não preservada"
+        )
+        assert "api_key" in url_with_secret_redacted, (
+            "Query parameter key não preservado"
+        )
+
+    print("OK: todas as asserções passaram (URLs corretas, lib excluída, segredo redigido, URL com segredo embutido redaçado)")
 
 
 if __name__ == "__main__":

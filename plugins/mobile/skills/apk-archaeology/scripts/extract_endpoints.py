@@ -101,9 +101,30 @@ def extract(sources_dir, classify_result):
                         literal = m.group(1)
                         url_match = URL_RE.match(literal)
                         if url_match:
+                            url = url_match.group(1)
+                            # Split URL on delimiters to find embedded secrets
+                            parts = re.split(r'([/?&=])', url)  # Keep delimiters
+                            redacted_count = 0
+                            redacted_parts = []
+
+                            for part in parts:
+                                if re.match(r'[/?&=]', part):
+                                    # It's a delimiter, keep as-is
+                                    redacted_parts.append(part)
+                                elif looks_like_secret(part):
+                                    # It's a secret token
+                                    redacted_count += 1
+                                    redacted_parts.append("[REDACTED]")
+                                else:
+                                    # It's a regular token
+                                    redacted_parts.append(part)
+
+                            redacted_url = ''.join(redacted_parts)
+                            secrets_redacted += redacted_count
+
                             endpoints.append(
                                 {
-                                    "url": url_match.group(1),
+                                    "url": redacted_url,
                                     "file": rel,
                                     "line": lineno,
                                     "tag": tag,
