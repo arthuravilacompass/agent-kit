@@ -50,7 +50,18 @@ Notas de estágio:
 - `consumer-simulation` é um AGENT, não skill: dispatch como subagente (tool Agent), passando SÓ o texto do ticket + critérios de aceite, nunca a implementação.
 - Revisar num projeto com o plugin mobile instalado: some `mobile:refactor-review` quando a mudança for refactor.
 
-## 4. Regras de condução
+## 4. "Desafie meu plano" — qual mecanismo
+
+| Mecanismo | Estágio | Insumo | Cobre o que os outros não |
+|---|---|---|---|
+| `core:grill-me` (entrevista) | clarificar; antes de dar plano por pronto | decisões em aberto no thread | extrai o que só o operador sabe; resolve dependências decisão-a-decisão |
+| `core:grill-me` (escalação `pre-plan`/`post-plan`/`pre-done`) | checkpoints determinísticos do track | conversa (advisor) ou diff+ACs (subagent cego) | segunda opinião de reviewer mais forte; quebra a bolha epistêmica; não decide pelo operador |
+| `/core:spec-refine` | especificar | spec/ticket escrito | stress-test do artefato com Gap Summary formal |
+| Conselho (`council:council`) | decisão de alto custo de reversão, em qualquer estágio | a decisão + o lean da conversa | modo de raciocínio (reframe, limites, propagação) — não é review de artefato |
+
+Sobreposição aparente se resolve pelo objeto: entrevista interroga **o operador**; escalação interroga **o trabalho** com outro reviewer; spec-refine interroga **o documento**; o Conselho interroga **o raciocínio**.
+
+## 5. Regras de condução
 
 - **Um estágio por vez.** Ao fechar um estágio, recomende as 2-3 próximas rotas com 1 linha de porquê — e PARE. Nunca invoque o próximo estágio sem confirmação do usuário.
 - **Coordenação com superpowers.** Se um fluxo superpowers já está ativo (brainstorming em curso, plano em execução), NÃO assuma a condução: faça só a detecção de estágio, se útil, e defira à skill de estágio ativa.
