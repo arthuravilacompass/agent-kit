@@ -58,7 +58,10 @@ if [ ! -f "$CONTRACT" ]; then
   fail=1
 else
   # shellcheck disable=SC2016  # crase e '$' são literais do padrão sed/grep, não expansão
-  paths=$(sed -n '/^## Conformidade/,$p' "$CONTRACT" | grep -oE '\`plugins/[^\`]+\`' | tr -d '\`')
+  # Crase SEM escape: em GNU grep -E, '\`' é âncora de início de buffer (extensão
+  # GNU) e o padrão nunca casa — foi o que deixou o gate vermelho no CI (ubuntu)
+  # enquanto o BSD grep local tratava '\`' como crase literal.
+  paths=$(sed -n '/^## Conformidade/,$p' "$CONTRACT" | grep -oE '`plugins/[^`]+`' | tr -d '`')
   if [ -z "$paths" ]; then
     echo "ERRO: §Conformidade vazia ou ilegível em ${CONTRACT} (D14)"
     fail=1
