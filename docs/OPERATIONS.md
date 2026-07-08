@@ -30,12 +30,16 @@ Lado do consumidor: troca a marketplace local por uma `extraKnownMarketplaces` a
 ```bash
 claude plugin marketplace add <usuario>/agent-kit
 claude plugin install core@agent-kit
-claude plugin install mobile@agent-kit
+claude plugin install council@agent-kit   # acompanha o core SEMPRE — condição do censo de validação das posturas
+claude plugin install team@agent-kit      # opcional: cerimônias de refinamento/squad
+claude plugin install mobile@agent-kit    # só em projeto Flutter/Dart
 ```
+
+A dependência inter-plugin tem aviso mecânico numa direção só: `team`/`council`/`mobile` avisam no SessionStart se o `core` não consta como instalado (hook `require-core.sh`). A direção reversa (`core` referenciando o Conselho) é coberta por esta instrução de instalação acoplada, não por hook — o `core` funciona sem o `council`, mas o censo de conversão das posturas exige os dois instalados juntos para não confundir conversão com disponibilidade.
 
 A marketplace local (`claude plugin marketplace add "$HOME/dev/agent-kit"`) continua funcionando como caminho de desenvolvimento mesmo depois do remote publicado — o fonte se edita em `$HOME/dev/agent-kit`; o GitHub é canal de distribuição, não o lugar de edição.
 
-Fluxo de update do consumidor após um novo commit no kit: `claude plugin update core@agent-kit` (e/ou `mobile@agent-kit`), seguido de reinício da sessão — sem o reinício a atualização não é aplicada.
+Fluxo de update do consumidor após um novo commit no kit: `claude plugin update core@agent-kit` (e/ou `council@agent-kit`, `team@agent-kit`, `mobile@agent-kit`), seguido de reinício da sessão — sem o reinício a atualização não é aplicada.
 
 ---
 
@@ -52,7 +56,7 @@ Sinal para desabilitar o hook: se o `defaultMode` do usuário já aprova a maior
 
 ## 3. Nota de double-loading
 
-Se este marketplace é instalado dentro de um workspace que já tem cópia própria commitada de skills/rules equivalentes (ex.: monorepo com `.claude/skills/` próprio), as duas fontes coexistem — o Claude Code carrega ambas. Coexistência benigna: não há conflito de nome garantido porque o plugin usa namespace (`core:`/`mobile:`); o custo é contexto duplicado, não comportamento incorreto. Não é motivo para deixar de instalar — é um custo a pesar na decisão de manter as duas fontes ou migrar o workspace para consumir só o plugin.
+Se este marketplace é instalado dentro de um workspace que já tem cópia própria commitada de skills/rules equivalentes (ex.: monorepo com `.claude/skills/` próprio), as duas fontes coexistem — o Claude Code carrega ambas. Coexistência benigna: não há conflito de nome garantido porque o plugin usa namespace (`core:`/`council:`/`team:`/`mobile:`); o custo é contexto duplicado, não comportamento incorreto. Não é motivo para deixar de instalar — é um custo a pesar na decisão de manter as duas fontes ou migrar o workspace para consumir só o plugin.
 
 ---
 
