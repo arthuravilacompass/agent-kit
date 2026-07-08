@@ -7,9 +7,13 @@ known-third-party. Cada endpoint é tagueado pela proveniência do pacote onde f
 achado. Qualquer string de alta entropia ou formato de chave conhecido é redigida
 ANTES de qualquer coisa ir pro output — nunca aparece o valor literal (spec §7).
 
-Limitação documentada: não deduz segredo EMBUTIDO dentro de uma URL (ex. query
-string com api_key=...) — só literais isolados. Cobertura de padrão de chave é
-uma lista curada pequena, não uma ferramenta de scanning de segredo dedicada.
+Limitação documentada: os 5 formatos de chave conhecida (KEY_PATTERNS) são buscados
+de forma NÃO-ANCORADA na URL inteira — sobrevivem à fusão com qualquer caractere
+adjacente (ponto, hífen, underscore, etc). A heurística de entropia, por outro lado,
+só roda sobre tokens ISOLADOS (delimitados por / ? & = : @) e é fundamentalmente
+contornável por fusão — um segredo genérico (sem formato conhecido) fundido a texto
+de baixa entropia pode escapar dela. Isso é aceito como limitação best-effort desta
+heurística, não perseguido com mais delimitadores.
 
 Stdlib puro. Determinístico.
 
@@ -34,6 +38,8 @@ KEY_PATTERNS = [
     re.compile(r"^ghp_[0-9A-Za-z]{36}$"),  # GitHub token
     re.compile(r"^xox[baprs]-[0-9A-Za-z-]{10,}$"),  # Slack token
 ]
+
+DELIM_CHARS = "/?&=:@"
 
 
 def shannon_entropy(s):
@@ -102,24 +108,38 @@ def extract(sources_dir, classify_result):
                         url_match = URL_RE.match(literal)
                         if url_match:
                             url = url_match.group(1)
-                            # Split URL on delimiters to find embedded secrets
-                            parts = re.split(r'([/?&=:@])', url)  # Keep delimiters
-                            redacted_count = 0
-                            redacted_parts = []
 
+                            # Pass 1: unanchored search for KNOWN KEY FORMATS across the
+                            # whole raw URL, independent of tokenization. This is robust
+                            # against fusion with any adjacent character (a delimiter-based
+                            # split can never close this — see module docstring).
+                            redacted_count = 0
+                            for pattern in KEY_PATTERNS:
+                                unanchored_src = pattern.pattern.strip("^$")
+                                unanchored = re.compile(unanchored_src)
+                                matches = list(unanchored.finditer(url))
+                                for match in reversed(matches):
+                                    url = url[: match.start()] + "[REDACTED]" + url[match.end():]
+                                    redacted_count += 1
+
+                            # Pass 2: entropy heuristic on ISOLATED tokens only (best-effort,
+                            # documented limitation — can be defeated by fusing a secret with
+                            # adjacent in-charset, non-delimiter characters like '.', '-', '_';
+                            # this branch does not attempt to close that gap, see docstring).
+                            parts = re.split(f"([{DELIM_CHARS}])", url)
+                            redacted_parts = []
                             for part in parts:
-                                if re.match(r'[/?&=]', part):
-                                    # It's a delimiter, keep as-is
+                                if re.match(f"[{DELIM_CHARS}]", part):
+                                    redacted_parts.append(part)
+                                elif "[REDACTED]" in part:
                                     redacted_parts.append(part)
                                 elif looks_like_secret(part):
-                                    # It's a secret token
                                     redacted_count += 1
                                     redacted_parts.append("[REDACTED]")
                                 else:
-                                    # It's a regular token
                                     redacted_parts.append(part)
 
-                            redacted_url = ''.join(redacted_parts)
+                            redacted_url = "".join(redacted_parts)
                             secrets_redacted += redacted_count
 
                             endpoints.append(

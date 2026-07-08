@@ -68,6 +68,23 @@ def main():
             '    String dsn = "https://AKIAABCDEFGHIJKLMNOP@api.example.com/telemetry";\n'
             '}\n',
         )
+        # business-candidate: chave de formato conhecido fundida a sufixo de baixa entropia
+        # (round 3 — derrota o delimiter-split E o fallback de entropia simultaneamente)
+        write(
+            os.path.join(sources, "br/com/zup/app/CdnAsset.java"),
+            'package br.com.zup.app;\n'
+            'public class CdnAsset {\n'
+            '    String u = "https://cdn.example.com/AKIAIOSFODNN7EXAMPLE.txt";\n'
+            '}\n',
+        )
+        # business-candidate: mesma classe de fusão, sufixo "-v1" em vez de extensão de arquivo
+        write(
+            os.path.join(sources, "br/com/zup/app/VersionedAsset.java"),
+            'package br.com.zup.app;\n'
+            'public class VersionedAsset {\n'
+            '    String u = "https://api.example.com/v/AKIAIOSFODNN7EXAMPLE-v1";\n'
+            '}\n',
+        )
 
         result = extract(sources, CLASSIFY_RESULT)
         urls = {e["url"] for e in result["endpoints"]}
@@ -93,10 +110,40 @@ def main():
             f"URL com segredo na userinfo não encontrada. URLs: {urls}"
         )
 
-        # 3 secrets redacted: 1 standalone key + 1 in query parameter + 1 in userinfo
-        assert result["secrets_redacted"] == 3, result["secrets_redacted"]
+        # round 3, caso 1: chave de formato conhecido fundida a extensão de arquivo (.txt)
+        url_fused_extension_redacted = "https://cdn.example.com/[REDACTED].txt"
+        assert url_fused_extension_redacted in urls, (
+            f"URL com chave fundida a .txt não encontrada. URLs: {urls}"
+        )
+        assert by_url[url_fused_extension_redacted]["tag"] == "business"
+        assert "https://cdn.example.com/" in url_fused_extension_redacted, (
+            "Host/path não preservados na URL fundida a .txt"
+        )
+        assert ".txt" in url_fused_extension_redacted, (
+            "Sufixo .txt não preservado na URL fundida"
+        )
+
+        # round 3, caso 2: chave de formato conhecido fundida a sufixo de versão (-v1)
+        url_fused_version_redacted = "https://api.example.com/v/[REDACTED]-v1"
+        assert url_fused_version_redacted in urls, (
+            f"URL com chave fundida a -v1 não encontrada. URLs: {urls}"
+        )
+        assert by_url[url_fused_version_redacted]["tag"] == "business"
+        assert "https://api.example.com/v/" in url_fused_version_redacted, (
+            "Host/path não preservados na URL fundida a -v1"
+        )
+        assert "-v1" in url_fused_version_redacted, (
+            "Sufixo -v1 não preservado na URL fundida"
+        )
+
+        # 5 secrets redacted: 1 standalone key + 1 in query parameter + 1 in userinfo
+        # + 2 known-format keys fused to adjacent in-charset, non-delimiter text (round 3)
+        assert result["secrets_redacted"] == 5, result["secrets_redacted"]
         raw_json = json.dumps(result)
         assert "AKIAABCDEFGHIJKLMNOP" not in raw_json, "SEGREDO VAZOU NO OUTPUT"
+        assert "AKIAIOSFODNN7EXAMPLE" not in raw_json, (
+            "SEGREDO VAZOU NO OUTPUT (chave fundida round 3)"
+        )
 
         # Verify URL structure is preserved (non-secret parts still present)
         assert "https://api.example.com.br/track" in url_with_secret_redacted, (
@@ -109,7 +156,7 @@ def main():
             "URL structure with userinfo não preservada"
         )
 
-    print("OK: todas as asserções passaram (URLs corretas, lib excluída, segredo redigido, URL com segredo embutido redaçado)")
+    print("OK: todas as asserções passaram (URLs corretas, lib excluída, segredo redigido, URL com segredo embutido redaçado, chave fundida a sufixo redigida)")
 
 
 if __name__ == "__main__":
