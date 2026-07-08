@@ -19,4 +19,9 @@ jobs:
       - name: Hook evals (tier 1)
         run: ./evals/run-evals.sh
       - name: Shellcheck
-        run: find plugins scripts evals -name '*.sh' -print0 | xargs -0 shellcheck
+        # Versão pinada = a mesma usada localmente (shellcheck-py). O shellcheck
+        # do apt no runner (0.9.x) diverge do local (0.11.x) e flagra regras
+        # diferentes — o gate precisa ser determinístico entre os dois ambientes.
+        run: |
+          pip install shellcheck-py==0.11.0.1
+          find plugins scripts evals -name '*.sh' -print0 | xargs -0 shellcheck
