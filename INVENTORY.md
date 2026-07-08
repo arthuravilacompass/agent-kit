@@ -15,50 +15,50 @@ Items with “provisional until <date>” are wired under the deadline exception
 
 | Skill | Contract (D14) | Description |
 |---|---|---|
-| `archaeology` (slash-only: `/core:archaeology`) | procedure | Invoque para mapear o estado atual do código antes de qualquer planejamento técnico numa US, ticket ou domínio com histórico no app — dispatch de agentes de exploração em paralelo, mapa arqueológico consolidado com decisões ranqueadas por severidade. |
-| `bug-report` (slash-only: `/core:bug-report`) ⏳ provisional until 2026-08-06 | pending | Investiga um bug e produz relatório com citações verificadas — gate determinístico (validate_citations --gate) + verifier semântico em contexto fresco. Use ao investigar/reportar bug onde afirmar comportamento de código sem ler a fonte é o risco. |
-| `commit` (slash-only: `/core:commit`) | procedure | Invoque para rodar validação pré-commit (lint + testes) e criar um commit convencional a partir do diff staged — nunca commita sem aprovação explícita do usuário. |
-| `compound` (slash-only: `/core:compound`) | pending | Invoque no fim de um track de trabalho relevante — gera o handoff estruturado da sessão (estado, decisões, próximos passos) que sobrevive ao /clear e alimenta a retomada via plan-autoload. |
-| `grill-me` | procedure | Invoque quando o usuário pedir para "me grillar" / "grill me", pressionar uma decisão de design, ou antes de dar um plano por pronto (modo entrevista); ou nos checkpoints determinísticos pre-plan / post-plan / pre-done para escalar a um reviewer mais forte com contexto controlado ou cego (modo escalação, ex.: `/core:grill-me pre-done`). |
-| `learn` | pending | Invoque quando o usuário disser "salva isso", "captura esse aprendizado", "usa a skill learn", ou antes de um /clear ou compact quando a sessão acumulou correções e decisões não capturadas — escaneia a conversa e propõe entries de memória para aprovação. |
-| `methodology` | pending | Invoque quando o tier sempre-ativo (using-agent-kit) não bastar — metodologia de aplicação específica (verificação, evidência, escopo, investigação, exploração, tooling compartilhado) e referência técnica portável de Claude Code (hooks, advisor), git (rerere, revert parcial) e Flutter/Dart (build_runner). Gatilhos: "esse gate pode dar falso-negativo", "esse critério é proxy do objetivo real?", "hook não disparou", "revert parcial pós-release", "vou dar por pronto/executar — verifiquei o artefato final?". |
-| `pipeline` | pending | Invoque ao receber uma intenção crua de trabalho substancial (feature, bug, investigação, refactor, ticket/US) sem fluxo em andamento definido, ou quando o usuário pedir "por onde começo", "qual o fluxo pra isso", "me conduz nesse trabalho". NÃO invoque para pergunta conceitual ou lookup pontual ("como funciona X?"), nem quando já há um fluxo em andamento (brainstorming, plano em execução, review). Condutor de fluxo — detecta o estágio real da tarefa, classifica a intenção e roteia pelas skills do kit um estágio por vez; recomenda a próxima rota, nunca executa a cadeia inteira sozinho. |
-| `pr` (slash-only: `/core:pr`) | pending | Invoque para analisar todos os commits da branch, rodar verificação e montar a descrição de um Pull Request pronta para revisão — nunca faz push ou cria o PR sem aprovação explícita. |
-| `review-local` (slash-only: `/core:review-local`) | pending | Invoque para disparar reviewers especializados em paralelo contra o diff da branch atual — última linha de defesa antes de `core:pr`. Requer o plugin `pr-review-toolkit`; sem ele, use `core:review-remote` (sequencial). |
-| `review-remote` (slash-only: `/core:review-remote`) | pending | Invoque para revisar código sem depender de plugins externos — pre-push do próprio trabalho (Flow A) ou review de PR alheio via `--branch` (Flow B), com comparação de escopo contra ticket via `--ticket`. Sequencial, plugin-free. |
-| `spec-refine` (slash-only: `/core:spec-refine`) | pending | Invoque para estress-testar uma spec ou design doc antes de virar plano de implementação — expõe gaps, estados ambíguos, error paths ausentes e invariantes não escritos, uma pergunta focada por vez. Rode depois de `core:tech-breakdown` (se disponível) e antes de `superpowers:writing-plans`. |
-| `tech-breakdown` (slash-only: `/core:tech-breakdown`) | pending | Invoque para transformar um ticket em plano de implementação pronto para desenvolvedor — busca o ticket, roda brainstorming + refinamento adversarial + writing-plans, e faz o critic-phase grillar o plano contra o codebase real. Uso típico do Tech Lead. |
+| `archaeology` (slash-only: `/core:archaeology`) | procedure | Invoke to map the current state of the code before any technical planning on a US, ticket, or domain with history in the app — dispatches exploration agents in parallel, consolidated archaeological map with decisions ranked by severity. |
+| `bug-report` (slash-only: `/core:bug-report`) ⏳ provisional until 2026-08-06 | pending | Investigate a bug and produce a report with verified citations — deterministic gate (validate_citations --gate) + semantic verifier in a fresh context. Use when investigating/reporting a bug where asserting code behavior without reading the source is the risk. |
+| `commit` (slash-only: `/core:commit`) | procedure | Invoke to run pre-commit validation (lint + tests) and create a conventional commit from the staged diff — never commits without explicit user approval. |
+| `compound` (slash-only: `/core:compound`) | pending | Invoke at the end of a relevant work track — generates the session's structured handoff (state, decisions, next steps) that survives /clear and feeds resumption via plan-autoload. |
+| `grill-me` | procedure | Invoke when the user asks to "grill me" / press on a design decision, or before calling a plan done (interview mode); or at the deterministic checkpoints pre-plan / post-plan / pre-done to escalate to a stronger reviewer with controlled or blind context (escalation mode, e.g., `/core:grill-me pre-done`). |
+| `learn` | pending | Invoke when the user says "save this", "capture this learning", "use skill learn", or before a /clear or compact when the session has accumulated uncaptured corrections and decisions — scans the conversation and proposes memory entries for approval. |
+| `methodology` | pending | Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?". |
+| `pipeline` | pending | Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route, never executes the whole chain by itself. |
+| `pr` (slash-only: `/core:pr`) | pending | Invoke to analyze all commits in the branch, run verification, and assemble a Pull Request description ready for review — never pushes or creates the PR without explicit approval. |
+| `review-local` (slash-only: `/core:review-local`) | pending | Invoke to dispatch specialized reviewers in parallel against the current branch's diff — last line of defense before `core:pr`. Requires the `pr-review-toolkit` plugin; without it, use `core:review-remote` (sequential). |
+| `review-remote` (slash-only: `/core:review-remote`) | pending | Invoke to review code without depending on external plugins — pre-push of your own work (Flow A) or review of someone else's PR via `--branch` (Flow B), with scope comparison against a ticket via `--ticket`. Sequential, plugin-free. |
+| `spec-refine` (slash-only: `/core:spec-refine`) | pending | Invoke to stress-test a spec or design doc before it becomes an implementation plan — exposes gaps, ambiguous states, missing error paths, and unwritten invariants, one focused question at a time. Run after `core:tech-breakdown` (if available) and before `superpowers:writing-plans`. |
+| `tech-breakdown` (slash-only: `/core:tech-breakdown`) | pending | Invoke to turn a ticket into a developer-ready implementation plan — fetches the ticket, runs brainstorming + adversarial refinement + writing-plans, and has the critic phase grill the plan against the real codebase. Typical Tech Lead use. |
 | `using-agent-kit` | pending | Sempre carregado via SessionStart — regras epistêmicas e de disciplina do agent-kit |
 
-Description aggregate (D16): 3918 bytes.
+Description aggregate (D16): 3762 bytes.
 
 ### Agents (1)
 
 | Agent | Description |
 |---|---|
-| `consumer-simulation` | Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output is in Portuguese (pt-BR). |
+| `consumer-simulation` | Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output mirrors the ticket's language, default English. |
 
 ### Hooks (7)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
-| `session-start.sh` | SessionStart | startup\|clear\|compact | SessionStart — injeta o corpo de using-agent-kit como contexto sempre-ativo. |
-| `plan-autoload.sh` | SessionStart |  | SessionStart — injeta ponteiro de retomada quando existe plano recente (<72h). |
-| `bash-autoapprove-readonly.sh` | PreToolUse | Bash | PreToolUse(Bash) — auto-aprova comandos de leitura reconhecidos como seguros; escrita, rede e mutação de deps deferem. |
-| `claude-dir-guard.sh` | PreToolUse | Bash | PreToolUse(Bash) — bloqueia comandos rm que atingem .claude/. |
-| `scope-inject.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — injeta ponteiro de escopo quando o arquivo editado casa um mapa de conhecimento do projeto. |
-| `context-monitor.sh` | PostToolUse | Bash | PostToolUse(Bash) — avisa quando o transcript da sessão cresce além de um limiar. |
-| `read-ledger.sh` | PostToolUse | Read\|Grep | PostToolUse(Read\|Grep) — registra o range lido no ledger da sessão (base do mecanismo de citação). |
+| `session-start.sh` | SessionStart | startup\|clear\|compact | SessionStart — injects the body of using-agent-kit as always-on context. |
+| `plan-autoload.sh` | SessionStart |  | SessionStart — injects a resume pointer when a recent plan (<72h) exists. |
+| `bash-autoapprove-readonly.sh` | PreToolUse | Bash | PreToolUse(Bash) — auto-approves commands recognized as safe reads; writes, network, and dep mutation defer. |
+| `claude-dir-guard.sh` | PreToolUse | Bash | PreToolUse(Bash) — blocks rm commands that touch .claude/. |
+| `scope-inject.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — injects a scope pointer when the edited file matches a project knowledge map. |
+| `context-monitor.sh` | PostToolUse | Bash | PostToolUse(Bash) — warns when the session transcript grows past a threshold. |
+| `read-ledger.sh` | PostToolUse | Read\|Grep | PostToolUse(Read\|Grep) — records the range read into the session ledger (basis of the citation mechanism). |
 
 ### Scripts (5)
 
 | Script | Description |
 |---|---|
-| `analyze_tokens.py` | Analisa custo de contexto (tokens) por componente do setup Claude Code. |
-| `census_usage.py` | Censo de uso dos artefatos invocáveis (commands/skills) por janela de tempo. |
-| `conflict_triage.py` | Faz triage de conflitos de merge entre uma branch base e branches feature/team. |
-| `prune_branches.sh` | Lista branches remotos candidatos a deleção; nunca deleta, gera arquivo para revisão manual. |
-| `validate_citations.py` | Valida citações de findings contra o read-ledger da sessão (Camada 1). |
+| `analyze_tokens.py` | Analyzes context cost (tokens) per component of the Claude Code setup. |
+| `census_usage.py` | Usage census of invokable artifacts (commands/skills) by time window. |
+| `conflict_triage.py` | Triages merge conflicts between a base branch and feature/team branches. |
+| `prune_branches.sh` | Lists remote branches that are deletion candidates; never deletes, generates a file for manual review. |
+| `validate_citations.py` | Validates finding citations against the session's read-ledger (Layer 1). |
 
 ---
 
