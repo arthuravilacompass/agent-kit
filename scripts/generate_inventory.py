@@ -191,6 +191,10 @@ def collect_skills(plugin, provisional):
             raise InventoryError(f"{rel(skill_md)}: frontmatter sem 'name'")
         if "description" not in fm:
             raise InventoryError(f"{rel(skill_md)}: frontmatter sem 'description'")
+        if fm["name"] != name:
+            raise InventoryError(
+                f"{rel(skill_md)}: frontmatter name '{fm['name']}' difere do diretório '{name}'"
+            )
         slash_only = fm.get("disable-model-invocation", "").strip().lower() == "true"
         key = f"plugins/{plugin}/skills/{name}"
         deadline = provisional.pop(key, None)

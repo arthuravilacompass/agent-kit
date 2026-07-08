@@ -96,7 +96,7 @@ fi
 # 5) Provisórios (D17): prazo vencido, entrada malformada ou data inválida =
 # gate vermelho — fail-loud, nunca silenciosamente ignorado.
 # shellcheck disable=SC2016  # '$' é a ancora de fim-de-linha do regex, não expansão
-section=$(sed -n '/^### Provisórios ativos/,/^## /p' "$LEDGER")
+section=$(sed -n '/^### Provisórios ativos/,/^##\{1,2\} /p' "$LEDGER")
 # shellcheck disable=SC2016  # crase é literal do padrão grep, não expansão
 entries=$(printf '%s\n' "$section" | grep -E '^- `' || true)
 # shellcheck disable=SC2016  # crase e '$' são literais do padrão grep, não expansão
