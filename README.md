@@ -1,6 +1,6 @@
 # agent-kit
 
-Configuração padronizada de Claude Code para todos os meus repositórios. Fornece regras sempre-ativas, workflows de entrega, skills, agents e hooks — distribuídos como dois plugins instaláveis via marketplace local: **`core`** (qualquer stack) e **`mobile`** (Flutter/Dart).
+Configuração padronizada de Claude Code para todos os meus repositórios. Fornece regras sempre-ativas, workflows de entrega, skills, agents e hooks — distribuídos como quatro plugins instaláveis via marketplace local: **`core`** (metodologia, qualquer stack), **`council`** (lentes de decisão), **`team`** (cerimônias ágeis) e **`mobile`** (Flutter/Dart).
 
 ## Por que este kit?
 
@@ -15,13 +15,20 @@ Agentes de código sem guardrails produzem resultado inconsistente — e quem tr
 
 ### `core` — metodologia de engenharia, qualquer stack
 
-25 skills, 4 agents, 7 hooks e 5 scripts. Destaques:
+14 skills, 1 agent, 7 hooks e 5 scripts. Destaques:
 
 - `core:pipeline` — condutor de fluxo: classifica a intenção crua e conduz pelas skills do kit, um estágio por vez
 - `/core:commit`, `/core:pr`, `/core:review-local` — fluxo de entrega com validação pré-commit e reviewers em paralelo
 - `/core:tech-breakdown`, `/core:spec-refine`, `/core:archaeology` — de ticket a plano de implementação grillado contra o codebase real
-- `core:council` — Conselho de Posturas: 6 lentes epistêmicas (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno) para decisões de alto custo de reversão
 - `core:learn` + `/core:compound` — captura de aprendizado e handoff no fim da sessão
+
+### `council` — lentes epistêmicas (instalar junto do `core`)
+
+7 skills, 3 agents. Conselho de Posturas: 6 lentes (Schrödinger, Bohr, Epicurus, Sagan, Maxwell, Zeno) para decisões de alto custo de reversão — índice em `council:council`.
+
+### `team` — cerimônias ágeis
+
+3 skills. `/team:refine-live` (copiloto da agenda de refinamento com o PO), `/team:refine-async` (triage pós-agenda) e `team:chat-draft` (mensagens de squad).
 
 ### `mobile` — toolkit Flutter/Dart (pressupõe `core`)
 
@@ -49,6 +56,8 @@ git clone <url-deste-repositorio> ~/dev/agent-kit
 ```bash
 claude plugin marketplace add "$HOME/dev/agent-kit"
 claude plugin install core@agent-kit
+claude plugin install council@agent-kit  # acompanha o core — condição do censo de validação das posturas
+claude plugin install team@agent-kit     # opcional: cerimônias ágeis com PO/squad
 claude plugin install mobile@agent-kit   # só em projeto Flutter/Dart
 ```
 
@@ -59,7 +68,7 @@ Rode de dentro do projeto onde o kit deve ficar ativo.
 Abra uma sessão de Claude Code e confirme:
 
 ```bash
-claude plugin list   # deve listar core@agent-kit (e mobile@agent-kit, se instalado)
+claude plugin list   # deve listar core@agent-kit, council@agent-kit, team@agent-kit e mobile@agent-kit (os que você instalou)
 ```
 
 Numa sessão nova, as regras do `core` já entram via SessionStart. Jogue uma tarefa crua, sem estruturar — o `core:pipeline` detecta o estágio e conduz:
@@ -80,6 +89,8 @@ Reinício de sessão necessário.
 
 ```bash
 claude plugin uninstall mobile@agent-kit   # se instalado
+claude plugin uninstall team@agent-kit
+claude plugin uninstall council@agent-kit
 claude plugin uninstall core@agent-kit
 claude plugin marketplace remove agent-kit
 ```
@@ -110,7 +121,7 @@ Um estágio por vez — o pipeline recomenda a próxima rota e para; nunca execu
 
 | Diretório | O que é |
 |---|---|
-| `plugins/` | Os dois plugins instaláveis (`core`, `mobile`) |
+| `plugins/` | Os quatro plugins instaláveis (`core`, `council`, `team`, `mobile`) |
 | `unwired/` | Matéria-prima genericizada aguardando prova de uso — nada é carregado, custo de contexto zero ([detalhe](unwired/README.md)) |
 | `assets/` | Templates de cópia manual: status line, esqueleto de `CLAUDE.md`, snippets de `settings.json` |
 | `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (ciclo de vida, promoção, ledger de decisões), [SKILL-CONTRACT.md](docs/SKILL-CONTRACT.md) (formato de autoria de skills) e [OPERATIONS.md](docs/OPERATIONS.md) (operação do dono) |

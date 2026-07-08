@@ -180,7 +180,7 @@ Quando o bug reportado é "ação X não faz nada", o fix precisa fazer X funcio
 
 ## Vocabulário de Posturas
 
-Seis modos de raciocínio pra vestir deliberadamente diante de uma decisão — quatro como skill in-thread, dois como subagent isolado; índice e formato de saída em `core:council`:
+Seis modos de raciocínio pra vestir deliberadamente diante de uma decisão — quatro como skill in-thread, dois como subagent isolado; índice e formato de saída em `council:council`:
 
 - **Schrödinger** — diagnóstico ambíguo: mantém hipóteses vivas até existir observação que discrimine.
 - **Bohr** — falsa dicotomia ("A ou B"): busca o eixo que dissolve o trade-off.

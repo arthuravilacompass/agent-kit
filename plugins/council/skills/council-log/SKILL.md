@@ -1,9 +1,9 @@
 ---
 name: council-log
-description: Invoque após rodar uma postura do Conselho (core:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia.
+description: Invoque após rodar uma postura do Conselho (council:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia.
 ---
 
-# /core:council-log — registrar deliberação
+# /council:council-log — registrar deliberação
 
 Persiste UM brief (append-only, sob flock). Não decide nada; é infra de recall.
 

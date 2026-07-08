@@ -33,7 +33,7 @@ Se a tarefa já está em andamento: diga em que estágio ela está, com a evidê
 | Estágio | Skill | Fallback sem superpowers | Saída |
 |---|---|---|---|
 | Mapear | `core:archaeology` | — | mapa com citações |
-| Diagnosticar | `superpowers:systematic-debugging` (+ `core:schrodinger` se >1 hipótese viva) | `core:schrodinger` + protocolo de debugging do always-on | causa raiz com evidência |
+| Diagnosticar | `superpowers:systematic-debugging` (+ `council:schrodinger` se >1 hipótese viva) | `council:schrodinger` + protocolo de debugging do always-on | causa raiz com evidência |
 | Clarificar | `superpowers:brainstorming` ou `core:grill-me` | `core:grill-me` | decisões acordadas |
 | Especificar/refinar | brainstorming (spec) ou `core:spec-refine` | `core:spec-refine` | spec em `docs/superpowers/specs/` |
 | Checkpoint | `core:grill-me` modo escalação `post-plan` | — | veredito |

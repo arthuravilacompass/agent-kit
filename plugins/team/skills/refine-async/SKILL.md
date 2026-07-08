@@ -1,36 +1,36 @@
 ---
 name: refine-async
-description: Triage pós-refinamento — consolida o contexto salvo pelo /core:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown).
+description: Triage pós-refinamento — consolida o contexto salvo pelo /team:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown).
 disable-model-invocation: true
 ---
 
 # /refine-async -- Triage Pós-Refinamento
 
-Processamento assíncrono após a agenda de refinamento. Consolida o contexto capturado no `/core:refine-live`, executa exploração leve do codebase, gera subtarefas para aprovação e cria no board.
+Processamento assíncrono após a agenda de refinamento. Consolida o contexto capturado no `/team:refine-live`, executa exploração leve do codebase, gera subtarefas para aprovação e cria no board.
 
 **Posição no workflow:**
 ```
-/core:refine-live <card-id>                ← durante a agenda
+/team:refine-live <card-id>                ← durante a agenda
         ↓
-/core:refine-async <card-id>               ← você está aqui (pós-agenda)
+/team:refine-async <card-id>               ← você está aqui (pós-agenda)
         ↓
 archaeology → tech-breakdown → spec-refine → plano
 ```
 
 ## Quando Usar
 
-Execute **após a agenda de refinamento**, quando o `/core:refine-live` já consolidou o contexto da US. Pode ser imediatamente depois (mesma sessão) ou em outro momento (lê do state file).
+Execute **após a agenda de refinamento**, quando o `/team:refine-live` já consolidou o contexto da US. Pode ser imediatamente depois (mesma sessão) ou em outro momento (lê do state file).
 
 Não usar para: exploração arquitetural profunda (use `/core:archaeology`), decomposição técnica detalhada (use `/core:tech-breakdown`), stress-test de spec (use `/core:spec-refine`).
 
 ## Input
 
 ```
-/core:refine-async <TICKET>
-/core:refine-async <card-id-numérico>
+/team:refine-async <TICKET>
+/team:refine-async <card-id-numérico>
 ```
 
-Aceita os mesmos formatos de card ID do `/core:refine-live`.
+Aceita os mesmos formatos de card ID do `/team:refine-live`.
 
 ## Steps
 

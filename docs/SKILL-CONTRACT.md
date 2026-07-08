@@ -15,7 +15,7 @@ Muda o raciocínio em curso; não produz artefato.
 1. Frontmatter: `name` + `description` com o gatilho situacional citável.
 2. Identidade (1–3 linhas): a pergunta que a postura força.
 3. Ritual: Restate Gate → deliberação → dispositivo de oposição → cláusula de escalonamento.
-4. Formato de saída: o callout do Conselho (`core:council`).
+4. Formato de saída: o callout do Conselho (`council:council`).
 
 ### `procedimento` — fluxo com efeitos
 

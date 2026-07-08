@@ -66,21 +66,21 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 
 | Skill | Contrato (D14) | Descrição |
 |---|---|---|
-| `bohr` ⏳ provisório até 2026-08-06 | pendente | Invoque quando uma decisão desta conversa travar num "A ou B" ("refatorar ou entregar", "hook ou texto", "wired ou unwired"). Postura do Conselho (core:council) — recusa a falsa escolha e busca o eixo que dissolve o trade-off; lente in-thread sobre o raciocínio atual, não abre contexto novo. |
+| `bohr` ⏳ provisório até 2026-08-06 | pendente | Invoque quando uma decisão desta conversa travar num "A ou B" ("refatorar ou entregar", "hook ou texto", "wired ou unwired"). Postura do Conselho (council:council) — recusa a falsa escolha e busca o eixo que dissolve o trade-off; lente in-thread sobre o raciocínio atual, não abre contexto novo. |
 | `council` ⏳ provisório até 2026-08-06 | roteador | Invoque pra consultar o índice do Conselho de Posturas do kit — as 6 posturas wired (4 skills in-thread, 2 subagents isolados), o que cada uma interroga, quando vestir, o formato de saída (callout) e quando escalar pro modo cego (agent epistemic-council). O trabalho vive em cada postura; aqui é o mapa. |
-| `council-log` ⏳ provisório até 2026-08-06 | pendente | Invoque após rodar uma postura do Conselho (core:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia. |
+| `council-log` ⏳ provisório até 2026-08-06 | pendente | Invoque após rodar uma postura do Conselho (council:schrodinger/bohr/epicurus/sagan ou agents maxwell/zeno) numa decisão de alto custo de reversão que vale lembrar — grava o brief no corpus episódico (~/.claude/epistemic/<postura>.jsonl, append-only). Advisory; nunca bloqueia. |
 | `council-recall` ⏳ provisório até 2026-08-06 | pendente | Invoque antes de uma decisão de alto custo de reversão, junto com a postura do Conselho que vai vesti-la — consulta a memória episódica (~/.claude/epistemic/) e lista até 3 casos passados que rimam por FORMA (mesma postura + surface_class + overlap). Silencioso se nada rima. Advisory. |
 | `epicurus` | pendente | Invoque antes de dar um design, escopo ou plano por pronto — classifica cada elemento como necessário, desejado-mas-dispensável ou vão, e corta os dois últimos. |
-| `sagan` ⏳ provisório até 2026-08-06 | pendente | Invoque antes de investir esforço numa decisão ou tarefa desta conversa — calibra se importa, em que escala, e se sobrevive ao tempo. Postura do Conselho (core:council). Distinta de core:epicurus, que corta elementos de um design já julgado digno; Sagan calibra a altitude da decisão inteira. |
+| `sagan` ⏳ provisório até 2026-08-06 | pendente | Invoque antes de investir esforço numa decisão ou tarefa desta conversa — calibra se importa, em que escala, e se sobrevive ao tempo. Postura do Conselho (council:council). Distinta de council:epicurus, que corta elementos de um design já julgado digno; Sagan calibra a altitude da decisão inteira. |
 | `schrodinger` | pendente | Invoque quando um diagnóstico tiver mais de uma explicação plausível e a tentação for fechar em uma sem a observação que a discrimine — mantém as hipóteses vivas até existir essa observação. |
 
 ### Agents (3)
 
 | Agent | Descrição |
 |---|---|
-| `epistemic-council` ⏳ provisório até 2026-08-06 | Modo cego do Conselho (skill core:council) — invoque no escalonamento das posturas (decisão pré-commit de alto custo de reversão) ou como verificador de conclusão. Recebe SÓ o problema reformulado + posições SEM autoria, nunca a prosa do thread nem o lean; roda UMA postura (bohr\|schrodinger\|epicurus\|sagan\|maxwell\|zeno) e verifica executando. Único ponto de separação estrutural real do Conselho. Output em pt-BR. Advisory. |
-| `maxwell` ⏳ provisório até 2026-08-06 | Postura do Conselho (skill core:council) em subagent isolado — invoque antes de mexer em algo acoplado ou numa mudança não-trivial deste repo. Mapeia como a mudança propaga (dependências, efeitos, acoplamento) e que invariantes viajam; reporta touchpoints reais com file:linha. Output em pt-BR. |
-| `zeno` ⏳ provisório até 2026-08-06 | Postura do Conselho (skill core:council) em subagent isolado — invoque ao validar uma solução já proposta, colando no dispatch as premissas vivas da conversa. Empurra os invariantes ao limite (zero, um, infinito, null, vazio, concorrente, falho-no-meio) até achar a borda concreta onde quebra. Output em pt-BR. |
+| `epistemic-council` ⏳ provisório até 2026-08-06 | Modo cego do Conselho (skill council:council) — invoque no escalonamento das posturas (decisão pré-commit de alto custo de reversão) ou como verificador de conclusão. Recebe SÓ o problema reformulado + posições SEM autoria, nunca a prosa do thread nem o lean; roda UMA postura (bohr\|schrodinger\|epicurus\|sagan\|maxwell\|zeno) e verifica executando. Único ponto de separação estrutural real do Conselho. Output em pt-BR. Advisory. |
+| `maxwell` ⏳ provisório até 2026-08-06 | Postura do Conselho (skill council:council) em subagent isolado — invoque antes de mexer em algo acoplado ou numa mudança não-trivial deste repo. Mapeia como a mudança propaga (dependências, efeitos, acoplamento) e que invariantes viajam; reporta touchpoints reais com file:linha. Output em pt-BR. |
+| `zeno` ⏳ provisório até 2026-08-06 | Postura do Conselho (skill council:council) em subagent isolado — invoque ao validar uma solução já proposta, colando no dispatch as premissas vivas da conversa. Empurra os invariantes ao limite (zero, um, infinito, null, vazio, concorrente, falho-no-meio) até achar a borda concreta onde quebra. Output em pt-BR. |
 
 ### Hooks (0)
 
@@ -101,8 +101,8 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | Skill | Contrato (D14) | Descrição |
 |---|---|---|
 | `chat-draft` | pendente | Invoque para redigir mensagens informais em pt-BR para Teams/Slack — recap de tech-sync, atualização de squad, ou qualquer pedido rotulado "mensagem para o time / chat / Teams / Slack". |
-| `refine-async` (slash-only: `/team:refine-async`) ⏳ provisório até 2026-08-06 | pendente | Triage pós-refinamento — consolida o contexto salvo pelo /core:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown). |
-| `refine-live` (slash-only: `/team:refine-live`) ⏳ provisório até 2026-08-06 | pendente | Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /core:refine-async na sequência. |
+| `refine-async` (slash-only: `/team:refine-async`) ⏳ provisório até 2026-08-06 | pendente | Triage pós-refinamento — consolida o contexto salvo pelo /team:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown). |
+| `refine-live` (slash-only: `/team:refine-live`) ⏳ provisório até 2026-08-06 | pendente | Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /team:refine-async na sequência. |
 
 ### Agents (0)
 

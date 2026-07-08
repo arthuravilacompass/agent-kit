@@ -3,7 +3,7 @@ name: council-recall
 description: Invoque antes de uma decisão de alto custo de reversão, junto com a postura do Conselho que vai vesti-la — consulta a memória episódica (~/.claude/epistemic/) e lista até 3 casos passados que rimam por FORMA (mesma postura + surface_class + overlap). Silencioso se nada rima. Advisory.
 ---
 
-# /core:council-recall — recuperar análogos
+# /council:council-recall — recuperar análogos
 
 Lista até 3 casos que rimam por forma-de-decisão. Filtro duro = postura; sinal forte = `surface_class`; médio = overlap de keywords/topic; recência só desempata. **Silêncio** se nada passa o limiar (não inventa caso).
 

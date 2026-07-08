@@ -69,14 +69,14 @@ Invocação: `/<nome>` (humano) ou descoberta pelo modelo, conforme o frontmatte
 - **`chat-draft`** — draft de mensagens informais pt-BR pra Teams/Slack (squad update, recap de tech-sync).
 
 ### Conselho de Posturas (wired em 2026-07-07)
-Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Promovido por inteiro a `plugins/core/` (skills `bohr`/`sagan`/`council`/`council-log`/`council-recall`, agents `maxwell`/`zeno`/`epistemic-council`) — promoção provisória com prazo de validação por uso (ver `docs/GOVERNANCE.md` §exceção).
+Seis modos de raciocínio que você veste de propósito — *como* interrogar um problema, não *o quê*. Silêncio é a feature no trabalho rotineiro. Promovido por inteiro a `plugins/council/` (skills `bohr`/`sagan`/`council`/`council-log`/`council-recall`, agents `maxwell`/`zeno`/`epistemic-council`) — promoção provisória com prazo de validação por uso (ver `docs/GOVERNANCE.md` §exceção).
 
 ---
 
 ## 2. Commands / checkpoints
 
 - **`archaeology`** — mapa do codebase pré-US: o terreno antes de começar.
-- **`/core:refine-live` / `/core:refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Promovidos a wired em 2026-07-07 (`plugins/core/skills/`) — ainda dependem de um MCP de board/kanban específico do projeto consumidor, que este kit não embute; placeholders de ticket/board seguem no lugar dos nomes reais até adaptar.
+- **`/team:refine-live` / `/team:refine-async`** — assistente de refinamento ao vivo + triage pós-refinamento. Promovidos a wired em 2026-07-07 (`plugins/team/skills/`) — ainda dependem de um MCP de board/kanban específico do projeto consumidor, que este kit não embute; placeholders de ticket/board seguem no lugar dos nomes reais até adaptar.
 - **Dashboard de prontidão de release** — o projeto de origem tinha uma skill de operação bem específica (git delta + QA + board + pubspec) que não generalizou o bastante pra portar; se o novo projeto precisar de algo assim, escreva a própria a partir do zero em vez de herdar esta.
 
 ---

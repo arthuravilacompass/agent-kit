@@ -1,6 +1,6 @@
 ---
 name: sagan
-description: Invoque antes de investir esforço numa decisão ou tarefa desta conversa — calibra se importa, em que escala, e se sobrevive ao tempo. Postura do Conselho (core:council). Distinta de core:epicurus, que corta elementos de um design já julgado digno; Sagan calibra a altitude da decisão inteira.
+description: Invoque antes de investir esforço numa decisão ou tarefa desta conversa — calibra se importa, em que escala, e se sobrevive ao tempo. Postura do Conselho (council:council). Distinta de council:epicurus, que corta elementos de um design já julgado digno; Sagan calibra a altitude da decisão inteira.
 ---
 
 # Sagan — escala e perspectiva
@@ -12,7 +12,7 @@ description: Invoque antes de investir esforço numa decisão ou tarefa desta co
 **Falha se**: aplicado a algo pequeno/urgente → filosofa demais, atrasa o trivial.
 **Silencia**: Quando o esforço é pequeno e o impacto direto, ou a decisão já foi avaliada em escala e o trade-off é consciente.
 **Prova de trabalho** `[julgamento-assistido]`: muda a prioridade/altitude da decisão — OU confirma que importa, com a escala (tempo × impacto). "Tudo é cósmico" = não trabalhou.
-**Saída**: a recalibração de altitude (não um sim/não), no **callout do Conselho** (`∴ Sagan percebe:` em code-fence — ver a skill `core:council`, §Formato de saída) — um movimento sobre o raciocínio.
+**Saída**: a recalibração de altitude (não um sim/não), no **callout do Conselho** (`∴ Sagan percebe:` em code-fence — ver a skill `council:council`, §Formato de saída) — um movimento sobre o raciocínio.
 
 Quando invocado, sobre a decisão NESTE contexto:
 

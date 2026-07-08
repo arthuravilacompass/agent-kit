@@ -1,6 +1,6 @@
 ---
 name: refine-live
-description: Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /core:refine-async na sequência.
+description: Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /team:refine-async na sequência.
 disable-model-invocation: true
 ---
 
@@ -10,9 +10,9 @@ Copiloto para uso durante a agenda semanal de refinamento com o PO. Recebe o car
 
 **Posição no workflow:**
 ```
-/core:refine-live <card-id>                ← você está aqui (durante a agenda)
+/team:refine-live <card-id>                ← você está aqui (durante a agenda)
         ↓
-/core:refine-async <card-id>               ← pós-agenda (triage + subtarefas)
+/team:refine-async <card-id>               ← pós-agenda (triage + subtarefas)
         ↓
 archaeology → tech-breakdown → spec-refine → plano
 ```
@@ -23,13 +23,13 @@ archaeology → tech-breakdown → spec-refine → plano
 
 Execute **durante a agenda de refinamento** quando o PO apresentar uma US. Use em paralelo com o PO falando — você digita bullets do que ele diz e a IA gera perguntas pra fazer na hora.
 
-Não usar para: exploração técnica profunda (use `/core:archaeology`), stress-test de spec (use `/core:spec-refine`), decomposição em subtarefas (use `/core:refine-async`).
+Não usar para: exploração técnica profunda (use `/core:archaeology`), stress-test de spec (use `/core:spec-refine`), decomposição em subtarefas (use `/team:refine-async`).
 
 ## Input
 
 ```
-/core:refine-live <TICKET>
-/core:refine-live <card-id-numérico>
+/team:refine-live <TICKET>
+/team:refine-live <card-id-numérico>
 ```
 
 Aceita:
@@ -95,7 +95,7 @@ Quando o usuário digita **"fecha"**, consolide o estado da sessão:
 
 1. Gere o resumo estruturado abaixo
 2. Salve em `docs/refine/refine-<card-id>.md` (garanta que o diretório existe: `mkdir -p docs/refine`; use o external_id se disponível, ex: `refine-<TICKET>.md`)
-3. Confirme ao usuário: "Estado salvo. Pode rodar `/core:refine-async <TICKET>` quando quiser."
+3. Confirme ao usuário: "Estado salvo. Pode rodar `/team:refine-async <TICKET>` quando quiser."
 
 **Schema do estado:**
 
@@ -126,14 +126,14 @@ Quando o usuário digita **"fecha"**, consolide o estado da sessão:
 - data: <YYYY-MM-DD>
 ```
 
-A sessão continua ativa após "fecha" — o usuário pode rodar outro `/core:refine-live` com outro card ID.
+A sessão continua ativa após "fecha" — o usuário pode rodar outro `/team:refine-live` com outro card ID.
 
 ## Important
 
 - **Velocidade > completude**: perguntas curtas, diretas, 1 linha. O PO está falando — você não pode gerar parágrafos.
 - **Sem jargão técnico nas perguntas**: o PO é de negócio. Pergunte sobre comportamento esperado, não sobre stores/repositories.
 - **Sem codebase exploration pesada**: grep oportunístico ok (<2s). Qualquer coisa além disso, deixe pro async.
-- **Sem subtarefas**: geração de subtarefas é responsabilidade do `/core:refine-async`.
+- **Sem subtarefas**: geração de subtarefas é responsabilidade do `/team:refine-async`.
 - **Sem spec-level questions**: error paths, race conditions, state transitions complexas → `/core:spec-refine` faz isso melhor com contexto completo.
 - **Uma US por invocação**: não misture contexto de cards diferentes na mesma chamada.
 - **`<BOARD_NAME>`, `<TICKET>` e nomes de módulo/store neste arquivo são placeholders** — adapte aos nomes reais do board e do projeto consumidor ao usar esta skill; este kit não tem um board próprio pra preencher aqui.

@@ -1,6 +1,6 @@
 ---
 name: bohr
-description: Invoque quando uma decisão desta conversa travar num "A ou B" ("refatorar ou entregar", "hook ou texto", "wired ou unwired"). Postura do Conselho (core:council) — recusa a falsa escolha e busca o eixo que dissolve o trade-off; lente in-thread sobre o raciocínio atual, não abre contexto novo.
+description: Invoque quando uma decisão desta conversa travar num "A ou B" ("refatorar ou entregar", "hook ou texto", "wired ou unwired"). Postura do Conselho (council:council) — recusa a falsa escolha e busca o eixo que dissolve o trade-off; lente in-thread sobre o raciocínio atual, não abre contexto novo.
 ---
 
 # Bohr — complementaridade
@@ -12,7 +12,7 @@ description: Invoque quando uma decisão desta conversa travar num "A ou B" ("re
 **Falha se**: força reframe onde o trade-off é real e irredutível → paralisia.
 **Silencia**: Quando o debate foi resolvido por evidência (não por autoridade), ou há só uma posição fundamentada.
 **Prova de trabalho** `[julgamento-assistido]`: surge uma terceira opção ou eixo que a passada default NÃO levantou — OU declara "dicotomia real" **com bar evidencial: por que o eixo é irredutível** (afirmar não basta).
-**Saída**: o reframe no **callout do Conselho** (`∴ Bohr percebe:` em code-fence — ver a skill `core:council`, §Formato de saída) — um movimento sobre o raciocínio, não um artefato.
+**Saída**: o reframe no **callout do Conselho** (`∴ Bohr percebe:` em code-fence — ver a skill `council:council`, §Formato de saída) — um movimento sobre o raciocínio, não um artefato.
 
 Quando invocado, sobre a decisão NESTE contexto (não abra contexto novo):
 
