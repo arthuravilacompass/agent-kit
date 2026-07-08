@@ -103,7 +103,7 @@ def extract(sources_dir, classify_result):
                         if url_match:
                             url = url_match.group(1)
                             # Split URL on delimiters to find embedded secrets
-                            parts = re.split(r'([/?&=])', url)  # Keep delimiters
+                            parts = re.split(r'([/?&=:@])', url)  # Keep delimiters
                             redacted_count = 0
                             redacted_parts = []
 

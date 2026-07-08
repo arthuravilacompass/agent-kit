@@ -60,6 +60,14 @@ def main():
             '    String url = "https://api.example.com.br/track?api_key=AKIAABCDEFGHIJKLMNOP";\n'
             '}\n',
         )
+        # business-candidate: URL com segredo embutido na posição userinfo (Sentry DSN style)
+        write(
+            os.path.join(sources, "br/com/zup/app/SentryConfig.java"),
+            'package br.com.zup.app;\n'
+            'public class SentryConfig {\n'
+            '    String dsn = "https://AKIAABCDEFGHIJKLMNOP@api.example.com/telemetry";\n'
+            '}\n',
+        )
 
         result = extract(sources, CLASSIFY_RESULT)
         urls = {e["url"] for e in result["endpoints"]}
@@ -79,8 +87,14 @@ def main():
         assert by_url["https://sdk.thirdparty.io/track"]["tag"] == "unclassifiable"
         assert by_url[url_with_secret_redacted]["tag"] == "business"
 
-        # 2 secrets redacted: 1 standalone key + 1 embedded in URL
-        assert result["secrets_redacted"] == 2, result["secrets_redacted"]
+        # URL com segredo embutido na posição userinfo deve aparecer COM o segredo redigido
+        url_with_userinfo_secret_redacted = "https://[REDACTED]@api.example.com/telemetry"
+        assert url_with_userinfo_secret_redacted in urls, (
+            f"URL com segredo na userinfo não encontrada. URLs: {urls}"
+        )
+
+        # 3 secrets redacted: 1 standalone key + 1 in query parameter + 1 in userinfo
+        assert result["secrets_redacted"] == 3, result["secrets_redacted"]
         raw_json = json.dumps(result)
         assert "AKIAABCDEFGHIJKLMNOP" not in raw_json, "SEGREDO VAZOU NO OUTPUT"
 
@@ -90,6 +104,9 @@ def main():
         )
         assert "api_key" in url_with_secret_redacted, (
             "Query parameter key não preservado"
+        )
+        assert "api.example.com/telemetry" in url_with_userinfo_secret_redacted, (
+            "URL structure with userinfo não preservada"
         )
 
     print("OK: todas as asserções passaram (URLs corretas, lib excluída, segredo redigido, URL com segredo embutido redaçado)")
