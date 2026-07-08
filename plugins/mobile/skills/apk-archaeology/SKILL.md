@@ -103,7 +103,9 @@ Uma síntese, 3 bandas SEMPRE separadas visualmente, nunca achatadas:
 
 ## O que isto NÃO é
 [ver design doc §10 — não mede produtividade, comportamento legado ≠ aprovado,
- regra de baixa frequência pode ter sido esquecida, etc.]
+ regra de baixa frequência pode ter sido esquecida, etc. Válido pra QUALQUER
+ execução, não só a demo: inferência de A pode errar mesmo em tier alto —
+ o tier é calibrado, não garantido.]
 ```
 
 ## Regras invioláveis
