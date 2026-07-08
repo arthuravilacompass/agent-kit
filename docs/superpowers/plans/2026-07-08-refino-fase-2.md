@@ -613,7 +613,7 @@ PY
 
 Em `plugins/mobile/hooks/hooks.json`, adicionar a chave `SessionStart` com o mesmo bloco, antes de `PreToolUse`.
 
-- [ ] **Step 6: Bump mobile + contagem no README** — `plugins/mobile/.claude-plugin/plugin.json`: `"0.1.1"` → `"0.2.0"`. No `README.md`, linha do mobile (`10 skills, 1 agent, 4 hooks, 5 scripts e 2 MCP servers`): `4 hooks` → `5 hooks` (o mobile ganha o require-core nesta task; a Task 4 editou o README antes do hook existir).
+- [ ] **Step 6: Bump mobile + contagem no README** — `plugins/mobile/.claude-plugin/plugin.json`: `"0.1.1"` → `"0.2.0"`. No `README.md`, linha do mobile (`10 skills, 1 agent, 4 hooks, 5 scripts e 2 MCP servers`): `4 hooks` → `5 hooks`; nas seções de `council` e `team`, acrescentar a contagem `1 hook` (ex.: `7 skills, 3 agents, 1 hook.` / `3 skills, 1 hook.`) — a Task 4 corretamente omitiu o hook dessas contagens porque ele só nasce nesta task. Na seção "Atualizar" do README, trocar `claude plugin update core@agent-kit     # e/ou mobile@agent-kit` por linha equivalente citando os quatro plugins (finding Minor do review da Task 4).
 
 - [ ] **Step 7: Verificar** — `./evals/run-evals.sh` → 5 casos novos PASSAM (esperado: `Evals tier-1: 40 passou, 0 falhou.` — baseline atual é 35, não 42; 42 é contagem de linhas do arquivo, não de casos); `shellcheck plugins/team/hooks/require-core.sh plugins/council/hooks/require-core.sh plugins/mobile/hooks/require-core.sh` limpo; `python3 scripts/generate_inventory.py` (3 hooks novos entram); gate quíntuplo completo.
 
