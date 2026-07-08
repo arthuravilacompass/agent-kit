@@ -43,7 +43,7 @@ Also usable standalone: paste any spec or design doc and run this skill.
    | **External dependencies** | Fields assumed present in an external contract but not guaranteed by it |
    | **Invariants** | Assumptions stated as "always" or "never" without enforcement mechanism |
 
-   If the project defined domain-specific checks (see **Config do projeto**), treat each as an additional category.
+   If the project defined domain-specific checks (see **Project config**), treat each as an additional category.
 
    Prioritize: ask about gaps where an unstated assumption would cause a real user-facing bug first.
 
@@ -122,4 +122,4 @@ If 2+ signals appear, there's probably ~30% cuttable fat. Whether to cut or just
 - Every question must include a recommended answer — the goal is to close the gap, not just surface it.
 - Do not ask more than 8 questions unless the spec is unusually large (>500 lines). Depth beats breadth.
 - Do not ask about implementation choices already resolved in the spec — only gaps.
-- Domain-specific checks defined in **Config do projeto** count as first-class gap categories, not an afterthought.
+- Domain-specific checks defined in **Project config** count as first-class gap categories, not an afterthought.
