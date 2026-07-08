@@ -3,3 +3,5 @@
 .superpowers/
 .eval-tmp/
 .worktrees/
+__pycache__/
+*.pyc
