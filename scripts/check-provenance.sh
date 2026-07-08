@@ -4,7 +4,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 DENY='TF-[0-9]{3,}|TF-\\d|BM-[0-9]+|ID-[0-9]{6}|tfsports|tf\.com\.br|[Bb]usinessmap|TFTokens|TFC Market|TF Mall|squad-produtos|[Bb]itrise|release_26|snapshot/26|tf-[a-z]+-mobile|tf-mobile-workspace|arthuravila'
-grep -rInE "$DENY" --exclude-dir=.git --exclude-dir=.superpowers --exclude=check-provenance.sh .
+grep -rInE "$DENY" --exclude-dir=.git --exclude-dir=.superpowers --exclude-dir=.worktrees --exclude=check-provenance.sh .
 rc=$?
 if [ "$rc" -eq 0 ]; then
   echo "FALHOU: conteúdo de proveniência encontrado (acima)"
