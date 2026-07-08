@@ -10,7 +10,7 @@
     {"name": "Ktor", "prefixes": ["io.ktor"]},
     {"name": "RxJava", "prefixes": ["io.reactivex"]},
     {"name": "Dagger/Hilt", "prefixes": ["dagger"]},
-    {"name": "Javax inject", "prefixes": ["javax.inject"]},
+    {"name": "Javax inject", "prefixes": ["javax"]},
     {"name": "Koin", "prefixes": ["org.koin"]},
     {"name": "Google (Firebase/GMS/Protobuf)", "prefixes": ["com.google"]},
     {"name": "Squareup (Retrofit deps/Moshi/Picasso)", "prefixes": ["com.squareup"]},

@@ -18,6 +18,8 @@ def make_fixture(base):
     os.makedirs(os.path.join(base, "kotlin"))
     # lib conhecida sob namespace compartilhado: known-third-party
     os.makedirs(os.path.join(base, "com", "google"))
+    # lib conhecida com cabeça não-compartilhada multi-segmento: known-third-party
+    os.makedirs(os.path.join(base, "javax", "inject"))
     # negócio real sob namespace compartilhado triplo: business-candidate
     os.makedirs(os.path.join(base, "br", "com", "zup"))
     # negócio real direto: business-candidate
@@ -31,6 +33,7 @@ def write_known_libs(path):
                 {"name": "AndroidX", "prefixes": ["androidx"]},
                 {"name": "Kotlin stdlib", "prefixes": ["kotlin"]},
                 {"name": "Google", "prefixes": ["com.google"]},
+                {"name": "Javax inject", "prefixes": ["javax"]},
             ]
         }, f)
 
@@ -54,10 +57,39 @@ def main():
         assert packages["androidx"]["matched_lib"] == "AndroidX"
         assert packages["kotlin"]["bucket"] == "known-third-party", packages["kotlin"]
         assert packages["com/google"]["bucket"] == "known-third-party", packages["com/google"]
+        assert packages["javax"]["bucket"] == "known-third-party", packages["javax"]
+        assert packages["javax"]["matched_lib"] == "Javax inject"
         assert packages["br/com/zup"]["bucket"] == "business-candidate", packages["br/com/zup"]
         assert packages["org/schabi"]["bucket"] == "business-candidate", packages["org/schabi"]
 
-    print("OK: 7/7 asserções passaram")
+    # Regression test: verify unreachable multi-segment non-shared prefixes are NOT matched.
+    # This documents that prefixes like "foo.bar" (non-shared head, multiple segments) cannot
+    # be reached by the algorithm, which stops after matching the head "foo" alone.
+    with tempfile.TemporaryDirectory() as tmp:
+        sources = os.path.join(tmp, "sources")
+        os.makedirs(sources)
+        os.makedirs(os.path.join(sources, "foo", "bar"))
+
+        libs_path = os.path.join(tmp, "known-libs.json")
+        with open(libs_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "libraries": [
+                    {"name": "Some Multi Segment Non-Shared", "prefixes": ["foo.bar"]},
+                ]
+            }, f)
+
+        known_libs = load_known_libs(libs_path)
+        result = classify(sources, known_libs)
+        packages = result["packages"]
+
+        # foo/bar package lands at "foo" (non-shared head), so it classifies as business-candidate,
+        # NOT as known-third-party (it never matches the unreachable "foo.bar" prefix).
+        assert packages["foo"]["bucket"] == "business-candidate", packages["foo"]
+        assert packages["foo"]["matched_lib"] is None, (
+            "Regression: unreachable prefix 'foo.bar' should not match at 'foo' head"
+        )
+
+    print("OK: 10/10 asserções passaram")
 
 
 if __name__ == "__main__":
