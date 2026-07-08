@@ -28,7 +28,9 @@ fi
 # git grep -E não suporta \b — usar grep do sistema, no mesmo padrão do
 # check-provenance.sh (sem xargs: robusto a filename com espaço, rc verificável).
 # superpowers/.superpowers é resíduo de construção, fora do escopo do censo.
-ids=$(grep -rhoE --include='*.md' --exclude-dir=superpowers --exclude-dir=.superpowers \
+# .worktrees é workspace isolado de outro branch (gitignored), com ledger próprio —
+# seus IDs não resolvem no ledger da branch atual e não são deliverable dela.
+ids=$(grep -rhoE --include='*.md' --exclude-dir=superpowers --exclude-dir=.superpowers --exclude-dir=.worktrees \
   '\b[DR][0-9]+\b' . | sort -u)
 rc=$?
 if [ "$rc" -ge 2 ]; then
