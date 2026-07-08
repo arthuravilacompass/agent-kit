@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: SessionStart — injeta ponteiro de retomada quando existe plano recente (<72h).
+# desc: SessionStart — injects a resume pointer when a recent plan (<72h) exists.
 # plan-autoload.sh — SessionStart hook
 # Detects the most recently modified plan file across the canonical doc locations.
 # Notifies user via stderr (visible in terminal before session starts).
@@ -39,11 +39,11 @@ if not docs_dir:
 
 contexts = []
 
-# ── Curadoria de memória: alerta acoplado a limiar ──
-# MEMORY.md é always-on; acima de ~5k tokens (≈20k chars) vira o maior custo próprio.
-# Localização segue a mesma convenção de sanitização do Claude Code para o diretório
-# de projeto (~/.claude/projects/<path-com-/-trocado-por-->/memory/MEMORY.md) —
-# nenhum path de workspace fica hardcoded aqui, é derivado de CLAUDE_PROJECT_DIR.
+# ── Memory curation: threshold-coupled alert ──
+# MEMORY.md is always-on; above ~5k tokens (≈20k chars) it becomes the single biggest
+# fixed cost. Location follows Claude Code's own sanitization convention for the
+# project directory (~/.claude/projects/<path-with-/-swapped-for-->/memory/MEMORY.md) —
+# no workspace path is hardcoded here, it's derived from CLAUDE_PROJECT_DIR.
 if project_dir:
     proj_key = os.path.normpath(os.path.abspath(project_dir)).replace(os.sep, "-")
     memory_index = os.path.expanduser(f"~/.claude/projects/{proj_key}/memory/MEMORY.md")
@@ -51,9 +51,9 @@ if project_dir:
         idx_size = os.path.getsize(memory_index)
         if idx_size > 20_000:
             contexts.append(
-                f"[memory-budget] MEMORY.md está em ~{idx_size // 4} tokens always-on (>5k). "
-                "Quando houver folga na sessão, rode curadoria: mesclar duplicatas, arquivar entradas "
-                "stale em memory/archive/, encurtar hooks verbosos do índice."
+                f"[memory-budget] MEMORY.md is at ~{idx_size // 4} tokens always-on (>5k). "
+                "When the session has slack, run curation: merge duplicates, archive stale "
+                "entries to memory/archive/, shorten verbose index hooks."
             )
     except OSError:
         pass
@@ -95,7 +95,7 @@ rel_path = os.path.relpath(latest, docs_dir)
 age_str = f"{int(age_hours)}h ago" if age_hours >= 1 else f"{int(age_hours * 60)}m ago"
 
 # Notify user via stderr — they see this and decide
-print(f"\n[plan-autoload] Plan encontrado / found: docs/{rel_path} ({age_str})\n  → Diga \"continuar plano\" ou \"continue plan\" para retomar, ou ignore para começar do zero.\n", file=sys.stderr)
+print(f"\n[plan-autoload] Plan found: docs/{rel_path} ({age_str})\n  → Say \"continue plan\" to resume, or ignore to start fresh.\n", file=sys.stderr)
 
 # Inject relative path into Claude's context so it can act if user says "continue plan" / "continuar plano"
 contexts.append(f'[plan-autoload] If the user says "continue plan" or "continuar plano", read `docs/{rel_path}` and resume from the last incomplete step.')

@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# desc: PostToolUse(Read|Grep) — registra o range lido no ledger da sessão (base do mecanismo de citação).
-# read-ledger.sh — PostToolUse Read|Grep hook (Camada 1 / verificação por citação)
+# desc: PostToolUse(Read|Grep) — records the range read into the session ledger (basis of the citation mechanism).
+# read-ledger.sh — PostToolUse Read|Grep hook (Layer 1 / citation verification)
 #
-# Registra, por sessão, os ranges file:line que o agente REALMENTE leu. O validador
-# determinístico de citação (scripts/validate_citations.py) cruza depois: finding cuja
-# evidence.file:lines não sobrepõe nada no ledger → UNVERIFIED. Apenas OBSERVA; nunca
-# bloqueia (PostToolUse, sempre exit 0).
+# Records, per session, the file:line ranges the agent ACTUALLY read. The deterministic
+# citation validator (scripts/validate_citations.py) cross-checks later: a finding whose
+# evidence.file:lines doesn't overlap anything in the ledger → UNVERIFIED. Purely OBSERVES;
+# never blocks (PostToolUse, always exit 0).
 #
-# Ledger: ${CLAUDE_PLUGIN_DATA}/state/read-ledger-<session_id>.jsonl (1 linha JSON/leitura)
-# Campos: {"file","start","end","tool","ts"}  · range 0-0 = arquivo tocado, linhas desconhecidas.
+# Ledger: ${CLAUDE_PLUGIN_DATA}/state/read-ledger-<session_id>.jsonl (1 JSON line per read)
+# Fields: {"file","start","end","tool","ts"}  · range 0-0 = file touched, lines unknown.
 #
-# DESIGN NB: a forma exata de `tool_response` para Read/Grep não é documentada — o hook
-# PREFERE parsear o range realmente retornado (cat -n); se não conseguir, cai para
-# tool_input (offset/limit, ou arquivo inteiro).
+# DESIGN NB: the exact shape of `tool_response` for Read/Grep isn't documented — the hook
+# PREFERS parsing the range actually returned (cat -n); if it can't, it falls back to
+# tool_input (offset/limit, or the whole file).
 
 set -uo pipefail
 
@@ -24,7 +24,7 @@ fi
 INPUT_JSON=$(cat)
 export INPUT_JSON
 
-# Estado persistente do hook — nunca workspace path, nunca ${HOME}/.claude direto.
+# Hook's persistent state — never a workspace path, never ${HOME}/.claude directly.
 STATE_DIR="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/agent-kit-core}/state"
 export STATE_DIR
 
@@ -41,7 +41,7 @@ if tool_name not in ("Read", "Grep"):
     print("{}"); sys.exit(0)
 
 tool_input = data.get("tool_input", {}) or {}
-tool_response = data.get("tool_response", {})        # campo correto (não tool_output)
+tool_response = data.get("tool_response", {})        # correct field (not tool_output)
 session_id = data.get("session_id", "unknown")
 
 state_dir = os.environ.get("STATE_DIR", "")
@@ -53,7 +53,7 @@ ledger = os.path.join(state_dir, f"read-ledger-{session_id}.jsonl")
 
 
 def resp_text(r):
-    """Coage tool_response (shape variável) numa string escaneável."""
+    """Coerces tool_response (variable shape) into a scannable string."""
     if isinstance(r, str):
         return r
     if isinstance(r, dict):
@@ -78,12 +78,12 @@ entries = []  # (file, start, end)
 if tool_name == "Read":
     fp = tool_input.get("file_path", "")
     if fp:
-        # 1) preferir o range REALMENTE retornado (linhas "   123\t..." do cat -n)
+        # 1) prefer the range ACTUALLY returned (lines "   123\t..." from cat -n)
         nums = [int(m) for m in re.findall(r"(?m)^\s*(\d+)\t", resp_text(tool_response))]
         if nums:
             start, end = min(nums), max(nums)
         else:
-            # 2) fallback: tool_input offset/limit, senão arquivo inteiro
+            # 2) fallback: tool_input offset/limit, else the whole file
             off, lim = tool_input.get("offset"), tool_input.get("limit")
             if isinstance(off, int):
                 start = off
@@ -99,10 +99,10 @@ if tool_name == "Read":
 
 elif tool_name == "Grep":
     txt = resp_text(tool_response)
-    # content mode (com -n): "path:line:conteúdo"
+    # content mode (with -n): "path:line:content"
     for m in re.finditer(r"(?m)^(.+?):(\d+):", txt):
         entries.append((m.group(1), int(m.group(2)), int(m.group(2))))
-    # files_with_matches: só paths → arquivo tocado, range desconhecido (0-0)
+    # files_with_matches: paths only → file touched, range unknown (0-0)
     if not entries:
         for m in re.finditer(r"(?m)^(/.+?)\s*$", txt):
             entries.append((m.group(1).strip(), 0, 0))
@@ -116,7 +116,7 @@ try:
         for fp, s, e in entries:
             f.write(json.dumps({"file": fp, "start": s, "end": e, "tool": tool_name, "ts": ts}) + "\n")
 except Exception:
-    pass  # ledger nunca bloqueia nem falha o hook
+    pass  # the ledger never blocks or fails the hook
 
 print("{}")
 sys.exit(0)

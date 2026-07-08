@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: SessionStart — injeta o corpo de using-agent-kit como contexto sempre-ativo.
+# desc: SessionStart — injects the body of using-agent-kit as always-on context.
 set -euo pipefail
 python3 - "${CLAUDE_PLUGIN_ROOT}/skills/using-agent-kit/SKILL.md" <<'PY'
 import json, sys

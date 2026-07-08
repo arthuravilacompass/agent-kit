@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# desc: PreToolUse(Edit|Write|MultiEdit) — injeta ponteiro de escopo quando o arquivo editado casa um mapa de conhecimento do projeto.
+# desc: PreToolUse(Edit|Write|MultiEdit) — injects a scope pointer when the edited file matches a project knowledge map.
 # scope-inject.sh — PreToolUse Edit|Write|MultiEdit hook
-# Responsabilidade:
-#   Knowledge map: ao tocar uma área mapeada (path → ponteiro de decisão), injeta o
-#   ponteiro uma vez por sessão por área (C3 — consumidor de decisões).
+# Responsibility:
+#   Knowledge map: when touching a mapped area (path → decision pointer), injects the
+#   pointer once per session per area (C3 — decision consumer).
 #
-# Genérico por design — zero área hardcoded. Lê os mapeamentos de um arquivo de
-# config do PRÓPRIO projeto: ${CLAUDE_PROJECT_DIR}/.claude/knowledge-map.tsv, uma
-# mapping por linha, formato `substring<TAB>mensagem do ponteiro`. `substring` casa
-# case-insensitive contra tool_input.file_path. Ausência do arquivo (ou de
-# CLAUDE_PROJECT_DIR) → no-op limpo. Cada projeto que quiser este comportamento cria
-# o próprio knowledge-map.tsv; o kit não assume nenhum domínio.
+# Generic by design — zero hardcoded area. Reads the mappings from a config file of
+# the project ITSELF: ${CLAUDE_PROJECT_DIR}/.claude/knowledge-map.tsv, one mapping per
+# line, format `substring<TAB>pointer message`. `substring` matches case-insensitive
+# against tool_input.file_path. Absence of the file (or of CLAUDE_PROJECT_DIR) → clean
+# no-op. Any project that wants this behavior creates its own knowledge-map.tsv; the
+# kit assumes no domain.
 #
-# Formato do arquivo (linhas em branco e iniciadas por `#` são ignoradas):
-#   pubspec.yaml<TAB>[knowledge-map] Mudança em pubspec.yaml: leia docs/pubspec.md
-#   deeplink<TAB>[knowledge-map] Área de deeplink: decisões em docs/deeplink.md
+# File format (blank lines and lines starting with `#` are ignored):
+#   pubspec.yaml<TAB>[knowledge-map] Change to pubspec.yaml: read docs/pubspec.md
+#   deeplink<TAB>[knowledge-map] Deeplink area: decisions in docs/deeplink.md
 
 set -euo pipefail
 
@@ -33,7 +33,7 @@ fi
 
 INPUT_JSON=$(cat)
 
-# Estado persistente do hook — nunca workspace path, nunca ${HOME}/.claude direto.
+# Hook's persistent state — never a workspace path, never ${HOME}/.claude directly.
 STATE_DIR="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/agent-kit-core}/state"
 mkdir -p "$STATE_DIR"
 
@@ -60,7 +60,7 @@ fp_lower = file_path.lower()
 if not fp_lower:
     print("{}"); sys.exit(0)
 
-# ── Carrega mapeamentos do config do projeto: `substring<TAB>mensagem` por linha ──
+# ── Loads mappings from the project's config: `substring<TAB>message` per line ──
 mappings = []  # (key, pattern, message)
 try:
     with open(map_file, encoding="utf-8") as f:
@@ -79,9 +79,9 @@ try:
 except Exception:
     print("{}"); sys.exit(0)
 
-# Uma área por edit é suficiente: primeiro match (ordem do arquivo) vence, mesmo que
-# já tenha sido injetado antes nesta sessão (nesse caso fica em silêncio, não cai
-# para o próximo candidato).
+# One area per edit is enough: first match (file order) wins, even if it was already
+# injected earlier this session (in that case it stays silent, it doesn't fall through
+# to the next candidate).
 matched = None
 for key, pattern, message in mappings:
     if pattern in fp_lower:

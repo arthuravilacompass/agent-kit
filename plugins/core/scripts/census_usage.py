@@ -1,32 +1,33 @@
 #!/usr/bin/env python3
-# desc: Censo de uso dos artefatos invocáveis (commands/skills) por janela de tempo.
-"""census_usage.py — censo de uso dos artefatos invocáveis de um projeto Claude Code
-(.claude/commands + .claude/skills): quantas vezes cada um foi realmente invocado, por
-janela de tempo.
+# desc: Usage census of invokable artifacts (commands/skills) by time window.
+"""census_usage.py — usage census of a Claude Code project's invokable artifacts
+(.claude/commands + .claude/skills): how many times each one was actually invoked, by
+time window.
 
-Correções sobre a v1 (census_claude_usage.py):
+Fixes over v1 (census_claude_usage.py):
 
-1. Baseline discount — a v1 contava toda ocorrência textual de "/nome" no transcript
-   inteiro como proxy de invocação. Mas o nome de um artefato também aparece, todo
-   turno, dentro dos blocos <system-reminder> que o harness reinjeta (a listagem de
-   "available skills/commands" com nome + descrição) — e várias descrições citam o
-   próprio comando com a barra (`/nome ...`). Isso infla a contagem de TODO artefato
-   igualmente, mascarando os que ninguém de fato chama. Esta versão remove os spans
-   <system-reminder>...</system-reminder> ANTES de contar — o que sobra é textualmente
-   mais próximo de invocação real (um "/nome" digitado pelo usuário/assistant fora do
-   reminder, ou um tool_use de Skill com input.skill == nome).
+1. Baseline discount — v1 counted every textual occurrence of "/name" in the whole
+   transcript as an invocation proxy. But an artifact's name also appears, every
+   turn, inside the <system-reminder> blocks the harness reinjects (the "available
+   skills/commands" listing with name + description) — and several descriptions cite
+   the command itself with the slash (`/name ...`). This inflates the count for EVERY
+   artifact equally, masking the ones nobody actually calls. This version strips the
+   <system-reminder>...</system-reminder> spans BEFORE counting — what's left is
+   textually closer to a real invocation (a "/name" typed by the user/assistant
+   outside the reminder, or a Skill tool_use with input.skill == name).
 
-2. Janela real coberta — a v1 rotulava colunas "30d/60d/90d" sem checar se o projeto
-   de fato tem esse histórico de transcripts. Um projeto com 10 dias de uso mostra
-   "90d: 0" para tudo, o que lê como "zero uso" quando na verdade é "zero dados".
-   Esta versão imprime o span real (mtime mais antigo → agora) e avisa quando uma
-   janela pedida excede o histórico disponível.
+2. Real span covered — v1 labeled columns "30d/60d/90d" without checking whether the
+   project actually has that much transcript history. A project with 10 days of usage
+   shows "90d: 0" for everything, which reads as "zero usage" when it's actually
+   "zero data". This version prints the real span (oldest mtime → now) and warns when
+   a requested window exceeds the available history.
 
-Ainda uma limitação conhecida (herdada): é um proxy textual, não semântico — trate
-ZERO na janela inteira como o sinal forte (não invocado), não pequenos deltas entre
-artefatos (ruído de citação em prosa/exemplo ainda é possível mesmo após o discount).
+Still a known (inherited) limitation: it's a textual proxy, not a semantic one — treat
+ZERO across the whole window as the strong signal (not invoked), not small deltas
+between artifacts (citation noise in prose/examples is still possible even after the
+discount).
 
-Uso:
+Usage:
   python3 census_usage.py --workspace /path/to/project [--windows 30,60,90]
 """
 import argparse
@@ -47,22 +48,22 @@ def artifacts(workspace: Path) -> list[str]:
 
 
 def project_transcripts_dir(workspace: Path) -> Path:
-    """Convenção de sanitização do Claude Code p/ diretório de projeto: path absoluto
-    com "/" trocado por "-", sob ~/.claude/projects/."""
+    """Claude Code's sanitization convention for the project directory: absolute path
+    with "/" swapped for "-", under ~/.claude/projects/."""
     key = str(workspace.resolve()).replace(os.sep, "-")
     return Path.home() / ".claude" / "projects" / key
 
 
 def strip_auto_injected(text: str) -> str:
-    """Baseline discount: remove spans <system-reminder>...</system-reminder> — conteúdo
-    reinjetado pelo harness todo turno, não invocação real do usuário/agente."""
+    """Baseline discount: strips <system-reminder>...</system-reminder> spans — content
+    reinjected by the harness every turn, not a real user/agent invocation."""
     return SYSTEM_REMINDER_RE.sub("", text)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--workspace", default=".", help="raiz do projeto contendo .claude/ (default: cwd)")
-    ap.add_argument("--windows", default="30,60,90", help="janelas em dias, separadas por vírgula (default: 30,60,90)")
+    ap.add_argument("--workspace", default=".", help="project root containing .claude/ (default: cwd)")
+    ap.add_argument("--windows", default="30,60,90", help="windows in days, comma-separated (default: 30,60,90)")
     args = ap.parse_args()
 
     workspace = Path(args.workspace).resolve()
@@ -71,7 +72,7 @@ def main() -> None:
 
     names = artifacts(workspace)
     if not names:
-        print(f"nenhum command/skill encontrado em {workspace}/.claude/")
+        print(f"no command/skill found in {workspace}/.claude/")
         return
 
     pats = {
@@ -98,7 +99,7 @@ def main() -> None:
                 if age <= span:
                     counts[n][w] += k
 
-    print("| artefato | " + " | ".join(windows) + " |")
+    print("| artifact | " + " | ".join(windows) + " |")
     print("|---|" + "---|" * len(windows))
     last_window = f"{window_days[-1]}d"
     for n in sorted(names, key=lambda x: counts[x][last_window]):
@@ -109,16 +110,16 @@ def main() -> None:
         coverage_days = (now - oldest_mtime) / 86400
         span_start = time.strftime("%Y-%m-%d", time.localtime(oldest_mtime))
         span_end = time.strftime("%Y-%m-%d", time.localtime(now))
-        print(f"\n_{len(files)} transcripts · janela real coberta: {span_start} → {span_end} "
-              f"(~{coverage_days:.0f}d de histórico) · gerado {time.strftime('%Y-%m-%d')}_")
+        print(f"\n_{len(files)} transcripts · real span covered: {span_start} → {span_end} "
+              f"(~{coverage_days:.0f}d of history) · generated {time.strftime('%Y-%m-%d')}_")
         for w, span in windows.items():
             req_days = span / 86400
             if coverage_days < req_days:
-                print(f"AVISO: janela '{w}' pedida ({req_days:.0f}d) excede o histórico real "
-                      f"disponível (~{coverage_days:.0f}d) — contagem dessa coluna é parcial, "
-                      "não 'zero uso confirmado'.")
+                print(f"WARNING: requested window '{w}' ({req_days:.0f}d) exceeds the real "
+                      f"available history (~{coverage_days:.0f}d) — this column's count is "
+                      "partial, not 'confirmed zero usage'.")
     else:
-        print(f"\n_0 transcripts encontrados em {transcripts_dir}_")
+        print(f"\n_0 transcripts found in {transcripts_dir}_")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: PostToolUse(Bash) — avisa quando o transcript da sessão cresce além de um limiar.
+# desc: PostToolUse(Bash) — warns when the session transcript grows past a threshold.
 # context-monitor.sh — PostToolUse hook
 # Monitors transcript size as proxy for context window usage.
 # Warns once per threshold level per session (debounced via state file).
@@ -37,9 +37,9 @@ if [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
     exit 0
 fi
 
-# Estado persistente do hook — nunca workspace path, nunca ${HOME}/.claude direto.
-# CLAUDE_PLUGIN_DATA sobrevive a updates do plugin; fallback só para invocação standalone
-# (fora do processo de hook do Claude Code, ex.: smoke test manual).
+# Hook's persistent state — never a workspace path, never ${HOME}/.claude directly.
+# CLAUDE_PLUGIN_DATA survives plugin updates; the fallback is only for standalone invocation
+# (outside Claude Code's hook process, e.g. a manual smoke test).
 STATE_DIR="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/agent-kit-core}/state"
 mkdir -p "$STATE_DIR"
 
@@ -62,9 +62,9 @@ size_bytes = os.path.getsize(transcript)
 
 # Thresholds — calibrate based on observed session sizes
 LEVELS = [
-    (1_200_000, "critical", "[context-monitor] CRÍTICO / CRITICAL: transcript em {kb}KB. ESCREVA um handoff AGORA em docs/superpowers/handoffs/<AAAA-MM-DD>-<tarefa>.md (tarefa atual, decisões tomadas, próximos passos, arquivos tocados) e então rode /compact — plan-autoload surfaça esse handoff na próxima sessão. / Write a handoff to docs/superpowers/handoffs/ NOW, then /compact; plan-autoload resurfaces it next session."),
-    (  800_000, "alert",    "[context-monitor] AVISO / WARNING: transcript em {kb}KB. Antes de /compact, escreva um handoff em docs/superpowers/handoffs/<AAAA-MM-DD>-<tarefa>.md (estado atual + próximos passos + arquivos tocados) — plan-autoload lê de lá na próxima sessão. / Before /compact, write a handoff to docs/superpowers/handoffs/ — plan-autoload reads it next session."),
-    (  500_000, "warn",     "[context-monitor] Contexto crescendo ({kb}KB). Planeje um /compact em breve. / Context growing. Plan a /compact soon."),
+    (1_200_000, "critical", "[context-monitor] CRITICAL: transcript at {kb}KB. WRITE a handoff NOW to docs/superpowers/handoffs/<YYYY-MM-DD>-<task>.md (current task, decisions made, next steps, files touched), then run /compact — plan-autoload resurfaces this handoff next session."),
+    (  800_000, "alert",    "[context-monitor] WARNING: transcript at {kb}KB. Before /compact, write a handoff to docs/superpowers/handoffs/<YYYY-MM-DD>-<task>.md (current state + next steps + files touched) — plan-autoload reads it next session."),
+    (  500_000, "warn",     "[context-monitor] Context growing ({kb}KB). Plan a /compact soon."),
 ]
 
 matched_level = None

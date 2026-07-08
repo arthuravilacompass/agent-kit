@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# desc: Faz triage de conflitos de merge entre uma branch base e branches feature/team.
+# desc: Triages merge conflicts between a base branch and feature/team branches.
 """conflict_triage.py — triage merge conflicts between a base branch's landed change and a
 set of feature/team branches.
 
@@ -51,7 +51,7 @@ def find_conflicts(repo, base, branch):
     """Parse merge-tree CONFLICT lines into (conflict_type, path, raw_line) tuples."""
     out, err, _ = git(repo, "merge-tree", "--write-tree", base, branch)
     if err.strip() and not out.strip():
-        print(f"   ! git merge-tree erro: {err.strip().splitlines()[0]}", file=sys.stderr)
+        print(f"   ! git merge-tree error: {err.strip().splitlines()[0]}", file=sys.stderr)
     rows = []
     for line in out.splitlines():
         if not line.startswith("CONFLICT"):
@@ -101,19 +101,19 @@ def triage_branch(repo, base, pre, branch):
         if ctype == "content":
             only = edit_is_import_only(repo, pre, base, path)
             if only:
-                low.append((path, "lado da base é só import — provável troca de path"))
+                low.append((path, "base's side is import-only — likely a path swap"))
             else:
-                decision.append((ctype, path, "conteúdo com lógica dos dois lados — reconciliar"))
+                decision.append((ctype, path, "content with logic on both sides — reconcile"))
         elif ctype == "modify/delete":
             only = edit_is_import_only(repo, pre, base, path)
             if only:
-                decision.append((ctype, path, "DELEÇÃO SEGURA — a base só mexeu import; aceitar o delete da branch"))
+                decision.append((ctype, path, "SAFE DELETE — the base only touched imports; accept the branch's delete"))
             else:
-                decision.append((ctype, path, "NÃO apague cego — a base tem mudança real; carregue ou perde silenciosamente"))
+                decision.append((ctype, path, "do NOT delete blind — the base has a real change; carry it over or lose it silently"))
         elif ctype == "rename/delete":
-            decision.append((ctype, path, "MANTÉM o move da base — arquivo realocado e ainda usado; confirme que a branch não tem substituto"))
+            decision.append((ctype, path, "KEEP the base's move — file relocated and still used; confirm the branch has no replacement"))
         else:  # file location, rename/rename, ...
-            decision.append((ctype, path, "decisão estrutural — os dois relocaram para lugares diferentes"))
+            decision.append((ctype, path, "structural decision — both sides relocated it to different places"))
 
     # A file the base *renamed* into a new path shows up twice: once as rename/delete and once
     # as modify/delete (the new path looks "fully new" to a path-scoped diff, so the import-only
@@ -127,9 +127,9 @@ def triage_branch(repo, base, pre, branch):
         rename = next((e for e in entries if "rename" in e[0]), None)
         if rename and len(entries) > 1:
             collapsed.append(("moved by base", path,
-                              "MANTÉM o move da base — movido de um diretório compartilhado; a 'deleção' da "
-                              "branch é do path antigo, já resolvido pelo move. Cheque se mudou só o lugar ou "
-                              "também lógica: git log --follow -- <path>"))
+                              "KEEP the base's move — moved out of a shared directory; the branch's "
+                              "'delete' targets the old path, already resolved by the move. Check whether "
+                              "only the location changed or logic too: git log --follow -- <path>"))
         elif rename:
             collapsed.append(("rename/delete", path, rename[1]))
         else:
@@ -140,39 +140,39 @@ def triage_branch(repo, base, pre, branch):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Triagem de conflitos de merge entre uma mudança base e branches.")
-    ap.add_argument("branches", nargs="+", help="branches a triar (ex.: origin/feature/my-branch)")
-    ap.add_argument("--repo", required=True, help="path do repo a inspecionar")
-    ap.add_argument("--base", required=True, help="ref pós-mudança-base (conteúdo já mergeado)")
-    ap.add_argument("--pre", required=True, help="ref pré-mudança-base")
+    ap = argparse.ArgumentParser(description="Triages merge conflicts between a base change and branches.")
+    ap.add_argument("branches", nargs="+", help="branches to triage (e.g. origin/feature/my-branch)")
+    ap.add_argument("--repo", required=True, help="path of the repo to inspect")
+    ap.add_argument("--base", required=True, help="post-base-change ref (content already merged)")
+    ap.add_argument("--pre", required=True, help="pre-base-change ref")
     args = ap.parse_args()
 
     for ref in (args.base, args.pre):
         if not ref_exists(args.repo, ref):
-            sys.exit(f"ref não encontrada: {ref} (repo {args.repo}). Rode `git -C {args.repo} fetch origin` primeiro.")
+            sys.exit(f"ref not found: {ref} (repo {args.repo}). Run `git -C {args.repo} fetch origin` first.")
 
-    print(f"pós-mudança-base: {args.base}   |   pré-mudança-base: {args.pre}   |   repo: {args.repo}")
-    print("Lembrete: `git -C <repo> fetch origin` antes — refs stale dão resultado errado.\n")
+    print(f"post-base-change: {args.base}   |   pre-base-change: {args.pre}   |   repo: {args.repo}")
+    print("Reminder: `git -C <repo> fetch origin` first — stale refs give wrong results.\n")
 
     for branch in args.branches:
         header = f"── {branch} "
         print(header + "─" * max(4, 64 - len(header)))
         if not ref_exists(args.repo, branch):
-            print("   ! branch não existe localmente — fetch ou nome errado\n")
+            print("   ! branch doesn't exist locally — fetch or wrong name\n")
             continue
         source, generated, low, decision = triage_branch(args.repo, args.base, args.pre, branch)
-        print(f"   conflitos fonte: {len(source)}   (gerados ignorados: {generated})")
+        print(f"   source conflicts: {len(source)}   (generated ignored: {generated})")
         if low:
-            print(f"   BAIXO ESFORÇO ({len(low)}):")
+            print(f"   LOW EFFORT ({len(low)}):")
             for path, note in low:
                 print(f"     · {path}  ({note})")
         if decision:
-            print(f"   DECISÃO POR ARQUIVO ({len(decision)}):")
+            print(f"   PER-FILE DECISION ({len(decision)}):")
             for ctype, path, note in decision:
                 print(f"     · [{ctype}] {path}")
                 print(f"         → {note}")
         if not source:
-            print("   (sem conflito de fonte — merge limpo; ainda pode quebrar no compile se houver arquivo novo com import velho)")
+            print("   (no source conflict — clean merge; can still break at compile time if a new file has a stale import)")
         print()
 
 

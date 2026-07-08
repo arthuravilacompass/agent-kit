@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
-# desc: Valida citações de findings contra o read-ledger da sessão (Camada 1).
+# desc: Validates finding citations against the session's read-ledger (Layer 1).
 """
-validate_citations.py — Validador determinístico de citação (Camada 1).
+validate_citations.py — Deterministic citation validator (Layer 1).
 
-Cruza os findings de um subagente (cada um com evidence.file:lineStart-lineEnd) contra o
-read-ledger da sessão (o que foi REALMENTE lido via Read/Grep, gravado pelo hook
-read-ledger.sh). Finding tool-output cujo range não sobrepõe nenhuma leitura → UNVERIFIED.
-Mecanismo, não instrução: não se pode citar código que não se leu.
+Cross-checks a subagent's findings (each with evidence.file:lineStart-lineEnd) against the
+session's read-ledger (what was ACTUALLY read via Read/Grep, recorded by the read-ledger.sh
+hook). A tool-output finding whose range doesn't overlap any read → UNVERIFIED. Mechanism,
+not instruction: you can't cite code you didn't read.
 
-Veredictos:
-  verified     — claim tool-output cujo range sobrepõe uma leitura no ledger.
-  unverified   — claim tool-output sem evidence, ou cujo range não foi lido nesta sessão.
-  passthrough  — epistemicSource inference/absence/external: não exige citação (anotado, não barrado).
+Verdicts:
+  verified     — tool-output claim whose range overlaps a read in the ledger.
+  unverified   — tool-output claim with no evidence, or whose range wasn't read this session.
+  passthrough  — epistemicSource inference/absence/external: doesn't require citation (annotated, not blocked).
 
-Uso:
-  # anotar (default, exit 0): findings via stdin ou --findings, ledger auto-descoberto
+Usage:
+  # annotate (default, exit 0): findings via stdin or --findings, ledger auto-discovered
   python3 validate_citations.py --findings findings.json
   cat findings.json | python3 validate_citations.py --session <id> --json
 
-  # hard gate (exit 2 se houver unverified) — pra finalização de bug-report
+  # hard gate (exit 2 if any unverified) — for bug-report finalization
   python3 validate_citations.py --findings bug_report.json --gate
 
-Entrada (stdin ou --findings): array JSON de findings, OU objeto {"findings": [...]}.
-Cada finding: { "claim": "...", "epistemicSource": "tool-output",
+Input (stdin or --findings): JSON array of findings, OR object {"findings": [...]}.
+Each finding: { "claim": "...", "epistemicSource": "tool-output",
                 "evidence": {"file": "...", "lineStart": N, "lineEnd": M} }
 
-Ledger: <state-dir>/read-ledger-<session>.jsonl (default: o mais recente).
-Default de <state-dir>: $CLAUDE_PLUGIN_DATA/state se a env var estiver setada (mesma
-convenção do hook read-ledger.sh); senão $TMPDIR/agent-kit-core/state. Sempre
-sobreponível via --state-dir.
+Ledger: <state-dir>/read-ledger-<session>.jsonl (default: the most recent).
+Default <state-dir>: $CLAUDE_PLUGIN_DATA/state if the env var is set (same convention
+as the read-ledger.sh hook); otherwise $TMPDIR/agent-kit-core/state. Always
+overridable via --state-dir.
 """
 
 import argparse
@@ -56,18 +56,18 @@ def discover_ledger(session, ledger_path, state_dir):
     candidates = glob.glob(os.path.join(state_dir, "read-ledger-*.jsonl"))
     if not candidates:
         return None
-    # Sessões concorrentes geram ledgers paralelos — auto-discovery pode pegar a errada.
+    # Concurrent sessions produce parallel ledgers — auto-discovery may grab the wrong one.
     import time as _t
     recent = [c for c in candidates if _t.time() - os.path.getmtime(c) < 600]
     if len(recent) > 1:
-        print(f"AVISO: {len(recent)} ledgers modificados <10min (sessões concorrentes?). "
-              "Passe --session p/ precisão; usando o mais recente.", file=sys.stderr)
+        print(f"WARNING: {len(recent)} ledgers modified <10min ago (concurrent sessions?). "
+              "Pass --session for precision; using the most recent.", file=sys.stderr)
     return max(candidates, key=os.path.getmtime)
 
 
 def load_ledger(path, project_dir):
-    """Retorna (ranges_por_arquivo, arquivos_tocados). Ignora ranges 0-0 para overlap
-    de linha (arquivo visto mas range desconhecido), mas registra o arquivo como tocado."""
+    """Returns (ranges_by_file, touched_files). Ignores 0-0 ranges for line overlap
+    (file seen but range unknown), but still records the file as touched."""
     ranges = {}
     touched = set()
     if not path or not os.path.isfile(path):
@@ -104,18 +104,18 @@ def overlaps(a_lo, a_hi, b_lo, b_hi):
     return a_lo <= b_hi and b_lo <= a_hi
 
 
-# ── Validação ───────────────────────────────────────────────────────────────
+# ── Validation ──────────────────────────────────────────────────────────────
 def validate_finding(finding, ranges, touched, project_dir):
     src = (finding.get("epistemicSource") or "tool-output").lower()
     if src in NO_CITATION_SOURCES:
-        return "passthrough", f"epistemicSource={src} — não exige citação"
+        return "passthrough", f"epistemicSource={src} — doesn't require citation"
 
     ev = finding.get("evidence") or {}
     file = ev.get("file", "")
     ls = ev.get("lineStart")
     le = ev.get("lineEnd", ls)
     if not file or not isinstance(ls, int):
-        return "unverified", "claim tool-output sem evidence.file:lineStart"
+        return "unverified", "tool-output claim with no evidence.file:lineStart"
 
     if not isinstance(le, int):
         le = ls
@@ -124,10 +124,10 @@ def validate_finding(finding, ranges, touched, project_dir):
 
     for (rlo, rhi) in ranges.get(fp, []):
         if overlaps(lo, hi, rlo, rhi):
-            return "verified", f"range {lo}-{hi} sobrepõe leitura {rlo}-{rhi} no ledger"
+            return "verified", f"range {lo}-{hi} overlaps read {rlo}-{rhi} in the ledger"
     if fp in touched:
-        return "unverified", f"arquivo lido, mas range {lo}-{hi} fora do que foi lido"
-    return "unverified", "arquivo/range nunca lido nesta sessão (possível fabricação)"
+        return "unverified", f"file read, but range {lo}-{hi} is outside what was read"
+    return "unverified", "file/range never read this session (possible fabrication)"
 
 
 def load_findings(path):
@@ -137,23 +137,23 @@ def load_findings(path):
         return data["findings"]
     if isinstance(data, list):
         return data
-    raise ValueError("entrada deve ser array de findings ou {\"findings\": [...]}")
+    raise ValueError("input must be an array of findings or {\"findings\": [...]}")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
-    ap = argparse.ArgumentParser(description="Validador determinístico de citação (Camada 1).")
-    ap.add_argument("--findings", help="arquivo JSON de findings (default: stdin)")
-    ap.add_argument("--session", help="session id (deriva o caminho do ledger)")
-    ap.add_argument("--ledger", help="caminho explícito do ledger .jsonl")
+    ap = argparse.ArgumentParser(description="Deterministic citation validator (Layer 1).")
+    ap.add_argument("--findings", help="JSON findings file (default: stdin)")
+    ap.add_argument("--session", help="session id (derives the ledger path)")
+    ap.add_argument("--ledger", help="explicit path to the ledger .jsonl")
     ap.add_argument("--state-dir", default=default_state_dir(),
-                    help="diretório onde read-ledger.sh grava os ledgers (default: "
-                         "$CLAUDE_PLUGIN_DATA/state ou $TMPDIR/agent-kit-core/state)")
+                    help="directory where read-ledger.sh writes the ledgers (default: "
+                         "$CLAUDE_PLUGIN_DATA/state or $TMPDIR/agent-kit-core/state)")
     ap.add_argument("--project-dir", default=os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd()),
-                    help="raiz do projeto p/ resolver paths relativos")
+                    help="project root for resolving relative paths")
     ap.add_argument("--gate", action="store_true",
-                    help="hard gate: exit 2 se houver finding unverified (p/ bug-report)")
-    ap.add_argument("--json", action="store_true", help="emite findings anotados em JSON no stdout")
+                    help="hard gate: exit 2 if any finding is unverified (for bug-report)")
+    ap.add_argument("--json", action="store_true", help="emit annotated findings as JSON on stdout")
     args = ap.parse_args()
 
     project_dir = os.path.normpath(args.project_dir)
@@ -163,7 +163,7 @@ def main():
     try:
         findings = load_findings(args.findings)
     except Exception as e:
-        print(f"erro ao ler findings: {e}", file=sys.stderr)
+        print(f"error reading findings: {e}", file=sys.stderr)
         sys.exit(1)
 
     annotated = []
@@ -176,7 +176,7 @@ def main():
     if args.json:
         print(json.dumps(annotated, ensure_ascii=False, indent=2))
     else:
-        led = ledger_path or "(nenhum ledger encontrado)"
+        led = ledger_path or "(no ledger found)"
         print(f"ledger: {led}")
         print(f"findings: {len(findings)} · ✅ {counts['verified']} verified · "
               f"❌ {counts['unverified']} unverified · ⏭ {counts['passthrough']} passthrough\n")
@@ -186,7 +186,7 @@ def main():
             print(f"  {mark} {a['_verdict'].upper():11} {claim}\n     ↳ {a['_reason']}")
 
     if args.gate and counts["unverified"] > 0:
-        print(f"\nGATE: {counts['unverified']} finding(s) UNVERIFIED — bloqueado.", file=sys.stderr)
+        print(f"\nGATE: {counts['unverified']} finding(s) UNVERIFIED — blocked.", file=sys.stderr)
         sys.exit(2)
     sys.exit(0)
 
