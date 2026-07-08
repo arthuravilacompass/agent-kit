@@ -1,35 +1,35 @@
 ---
 name: compound
-description: Invoque no fim de um track de trabalho relevante — gera o handoff estruturado da sessão (estado, decisões, próximos passos) que sobrevive ao /clear e alimenta a retomada via plan-autoload.
+description: Invoke at the end of a relevant work track — generates the session's structured handoff (state, decisions, next steps) that survives /clear and feeds resumption via plan-autoload.
 disable-model-invocation: true
 ---
 
-# compound — Write-back Estrutural de Fim de Track
+# compound — Structural Write-back at Track End
 
-Gate final de qualquer track não-trivial. Garante que o que a sessão aprendeu não evapora: memória tipada, handoff se necessário, e candidatura a graduação. Não cria store paralelo — grava nos mecanismos que já existem (memória tipada + `docs/superpowers/handoffs/` + `docs/graduation-log.md`).
+Final gate for any non-trivial track. Ensures what the session learned doesn't evaporate: typed memory, handoff if needed, and graduation candidacy. Doesn't create a parallel store — writes to mechanisms that already exist (typed memory + `docs/superpowers/handoffs/` + `docs/graduation-log.md`).
 
 ## Usage
 
 ```
-compound            # varredura completa
-compound --quick    # sessão curta: só a pergunta 1, sem varredura
+compound            # full sweep
+compound --quick    # short session: only question 1, no sweep
 ```
 
 ## Steps
 
-1. **Captura de aprendizado** — invoque a skill `core:learn` (varredura da conversa por correções, preferências, decisões; aprovação inline antes de gravar). Se nada for encontrado, declare explicitamente: *"Nada a capturar nesta sessão"* — a declaração é o modo rápido, sem cerimônia.
+1. **Learning capture** — invoke the `core:learn` skill (scans the conversation for corrections, preferences, decisions; inline approval before writing). If nothing is found, state explicitly: *"Nothing to capture this session"* — the statement itself is the fast path, no ceremony.
 
-2. **Handoff (condicional)** — se a sessão está pesada (aviso do context-monitor ≥800KB) OU o trabalho continua em outra sessão: escreva `docs/superpowers/handoffs/<AAAA-MM-DD>-<tarefa>.md` com: tarefa, decisões tomadas, próximos passos, arquivos tocados. O `plan-autoload` resurfaça na próxima sessão. Se a track terminou de verdade (PR criada), pule.
+2. **Handoff (conditional)** — if the session is heavy (context-monitor warning ≥800KB) OR work continues in another session: write `docs/superpowers/handoffs/<YYYY-MM-DD>-<task>.md` with: task, decisions made, next steps, files touched. `plan-autoload` resurfaces it next session. If the track truly ended (PR created), skip.
 
-3. **Candidato a graduação (condicional)** — se a sessão refinou uma rule/skill/hook do toolkit: cheque os 3 critérios do `docs/graduation-log.md` (recorre ≥2× · estabilizou em uso real · não é específico de um projeto só). Se os 3 valem, **proponha** a linha para a tabela append-only — o dono do toolkit decide; nunca adicione sem aprovação.
+3. **Graduation candidate (conditional)** — if the session refined a toolkit rule/skill/hook: check the 3 criteria in `docs/graduation-log.md` (recurs ≥2× · stabilized in real use · not specific to a single project). If all 3 hold, **propose** the row for the append-only table — the toolkit owner decides; never add without approval.
 
-4. **Smell-log (informativo)** — se `docs/engineering/smell-log.txt` ganhou entradas nesta sessão, mencione no resumo: código(s) que dispararam e onde. Recorrência de um code é sinal para refinar a rule correspondente.
+4. **Smell log (informational)** — if `docs/engineering/smell-log.txt` gained entries this session, mention it in the summary: which code(s) fired and where. Recurrence of a code is a signal to refine the corresponding rule.
 
-5. **Resumo de 4 linhas** — memórias gravadas/skipped · handoff escrito (ou n/a) · graduação proposta (ou n/a) · smells bloqueados (ou n/a).
+5. **4-line summary** — memories saved/skipped · handoff written (or n/a) · graduation proposed (or n/a) · smells blocked (or n/a).
 
 ## Important
 
-- **Modo `--quick`**: apenas step 1, e a skill `core:learn` limitada às últimas ~20 mensagens.
-- **Aprovação obrigatória** para qualquer write de memória (herda da skill `core:learn`) e para linha no graduation-log.
-- Bugfix que o harness deixou passar: além da memória, adicione um caso em `docs/evals/` (ver README de lá) — bugs fechados são evals nascendo.
-- Não duplique: se o aprendizado já está em memória/rule, atualize em vez de criar.
+- **`--quick` mode**: only step 1, and the `core:learn` skill limited to the last ~20 messages.
+- **Approval required** for any memory write (inherited from `core:learn`) and for a graduation-log row.
+- Bugfix the harness let through: besides the memory, add a case to `docs/evals/` (see the README there) — closed bugs are evals being born.
+- Don't duplicate: if the learning is already in memory/a rule, update instead of creating.

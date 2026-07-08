@@ -1,210 +1,210 @@
 # archaeology — Reference
 
-Conteúdo de apoio extraído do `SKILL.md` (D14, teto de 120 linhas). Consultado durante a execução dos steps — não é lido antes de decidir invocar a skill.
+Supporting content extracted from `SKILL.md` (D14, 120-line ceiling). Consulted during step execution — not read before deciding whether to invoke the skill.
 
-## §1 — Formato de apresentação do vocabulário (Step 1)
+## §1 — Vocabulary presentation format (Step 1)
 
-Apresente ao usuário antes de disparar os agentes:
+Present to the user before dispatching the agents:
 
 ```
-Modo detectado: <ticket | domínio livre | US text>
-Domínio: <Busca Unificada>
+Detected mode: <ticket | free domain | US text>
+Domain: <Unified Search>
 
-Termos primários: search, busca, query, unified
-Termos de código: SearchController, SearchResultListController, SearchRepository
-Módulos candidatos: home, catalog, filter, results
+Primary terms: search, query, unified
+Code terms: SearchController, SearchResultListController, SearchRepository
+Candidate modules: home, catalog, filter, results
 
-Grep patterns (4 agentes vão usar):
+Grep patterns (used by the 4 agents):
 - Entry:        SearchField|onSearchChanged|Route\..*search
 - Controllers:  glob *search*_controller.*, *search*_store.*
-- Repos:        SearchRepository|SearchDataSource, plus /api/.*search no SDK/pacote compartilhado
-- Duplicação:   RecentSearches|debounce.*search, paginação compartilhada
+- Repos:        SearchRepository|SearchDataSource, plus /api/.*search in the shared SDK/package
+- Duplication:  RecentSearches|debounce.*search, shared pagination
 
-Editar termos / módulos / patterns? (enter = confirmar)
+Edit terms / modules / patterns? (enter = confirm)
 ```
 
-Aguarde confirmação antes de avançar. Termos errados contaminam todos os 4 agentes.
+Wait for confirmation before proceeding. Wrong terms contaminate all 4 agents.
 
-## §2 — Instruções detalhadas por dimensão (Step 2)
+## §2 — Detailed per-dimension instructions (Step 2)
 
-Dispare **4 agentes Explore em paralelo** (`subagent_type: "Explore"`), um por dimensão. Passe os termos, módulos e patterns confirmados no passo 1.
+Dispatch **4 Explore agents in parallel** (`subagent_type: "Explore"`), one per dimension. Pass the terms, modules, and patterns confirmed in step 1.
 
-**Cada agente entrega evidência crua + cita `arquivo:linha`.** Não classifica como "shared", "risco" ou "oportunidade" — isso é trabalho do consolidador no passo 3.
-
----
-
-**Dimensão A — Entry Points**
-
-Onde o usuário pode acionar esta funcionalidade?
-
-- Grep pelos patterns confirmados de entry no passo 1
-- Para cada entry point: módulo, widget/arquivo:linha, rota destino, quem instancia
-- Classifique apenas se o entry leva ao fluxo `ativo` ou ao fluxo `legado` (presença em `showcase/`, `old/`, `deprecated/`)
-- **Não** opine sobre "fluxo novo da US" — só estado atual
+**Each agent delivers raw evidence + cites `file:line`.** It doesn't classify as "shared", "risk", or "opportunity" — that's the consolidator's job in step 3.
 
 ---
 
-**Dimensão B — Controllers e Stores**
+**Dimension A — Entry Points**
 
-Qual estado gerencia esta funcionalidade?
+Where can the user trigger this functionality?
 
-- Grep pelos globs confirmados de controllers/stores
-- Para cada um: nome, módulo, repositório/método chamado, page ativa que o instancia (via DI ou instância direta)
-- Status: `ativo` (tem caller confirmado), `legado` (sem caller após grep), `duplicado` (mesmo propósito de outro — citar o duplicado)
-
----
-
-**Dimensão C — Repositórios e Endpoints**
-
-Quais chamadas de API existem?
-
-- Grep no diretório de módulos e no diretório de SDK/pacote compartilhado (config) pelos termos confirmados
-- Para cada repositório: método exposto, endpoint inferido, tipo de resposta, quem consome
-- Localização: pacote compartilhado ou app-local
-- **Cite arquivo:linha** pra cada método
+- Grep for the entry patterns confirmed in step 1
+- For each entry point: module, widget/file:line, destination route, who instantiates it
+- Classify only whether the entry leads to the `active` flow or the `legacy` flow (presence in `showcase/`, `old/`, `deprecated/`)
+- **Do not** opine on "the US's new flow" — only current state
 
 ---
 
-**Dimensão D — Duplicação**
+**Dimension B — Controllers and Stores**
 
-O que está repetido?
+What state manages this functionality?
 
-- Grep pelos padrões de duplicação confirmados (debounce, paginação, cache local, etc.)
-- Para cada achado: arquivos que duplicam, descrição da divergência (se houver), citação `arquivo:linha`
-- **Não** opine sobre "candidato a remoção" — só liste o que está duplicado
+- Grep for the confirmed controller/store globs
+- For each one: name, module, repository/method called, active page that instantiates it (via DI or direct instance)
+- Status: `active` (has a confirmed caller), `legacy` (no caller after grep), `duplicate` (same purpose as another — cite the duplicate)
 
 ---
 
-## §3 — Template de consolidação (Step 3)
+**Dimension C — Repositories and Endpoints**
 
-Com os 4 outputs em mãos, sintetize o mapa **nesta ordem e estrutura** (não improvise seções):
+What API calls exist?
+
+- Grep the modules directory and the shared SDK/package directory (config) for the confirmed terms
+- For each repository: exposed method, inferred endpoint, response type, who consumes it
+- Location: shared package or app-local
+- **Cite file:line** for each method
+
+---
+
+**Dimension D — Duplication**
+
+What's repeated?
+
+- Grep for the confirmed duplication patterns (debounce, pagination, local cache, etc.)
+- For each finding: files that duplicate it, description of the divergence (if any), `file:line` citation
+- **Do not** opine on "removal candidate" — just list what's duplicated
+
+---
+
+## §3 — Consolidation template (Step 3)
+
+With the 4 outputs in hand, synthesize the map **in this order and structure** (do not improvise sections):
 
 ```markdown
-# Mapa Arqueológico — <Domínio> — <YYYY-MM-DD>
+# Archaeological Map — <Domain> — <YYYY-MM-DD>
 
-(Se modo ticket: linha **Ticket:** PROJ-XXX — <título>)
-(Se modo US text ou ticket: linha **Contexto:** <1 linha resumindo a US>)
+(If ticket mode: line **Ticket:** PROJ-XXX — <title>)
+(If US text or ticket mode: line **Context:** <1 line summarizing the US>)
 
 ## TL;DR
-<3-4 linhas. O que existe (quantos controllers, quantos módulos), o que está
-duplicado (com 1 exemplo), qual é a decisão estratégica mais bloqueante.
-Sem tabelas. Sem listas. Punchline.>
+<3-4 lines. What exists (how many controllers, how many modules), what's
+duplicated (with 1 example), what's the most blocking strategic decision.
+No tables. No lists. Punchline.>
 
-## Decisões necessárias pro Tech Breakdown
-<Ranked por severidade. Máximo 5 itens. Cada item: rótulo de severidade,
-1 frase descrevendo a decisão, evidência citando arquivo:linha,
-por quê bloqueia o tech breakdown.>
+## Decisions Needed for the Tech Breakdown
+<Ranked by severity. Maximum 5 items. Each item: severity label,
+1 sentence describing the decision, evidence citing file:line,
+why it blocks the tech breakdown.>
 
-1. **[Alta]** <decisão>. Evidência: `arquivo.ext:L23`. Bloqueia porque: <1 linha>.
-2. **[Alta]** ...
-3. **[Média]** ...
+1. **[High]** <decision>. Evidence: `file.ext:L23`. Blocks because: <1 line>.
+2. **[High]** ...
+3. **[Medium]** ...
 
-(Demais perguntas, mesmo importantes, vão pra "Outras perguntas em aberto"
-no fim — sem ranking.)
+(Other questions, even important ones, go into "Other Open Questions"
+at the end — unranked.)
 
-## Visão Consolidada por Módulo
+## Consolidated View by Module
 
-| Módulo | Entry points | Controllers ativos | Endpoints | Status |
+| Module | Entry points | Active controllers | Endpoints | Status |
 |---|---|---|---|---|
-| catalog/new | SearchPage | SearchController, SearchResultListController | /api/search, /api/suggestions | ativo |
-| catalog/legacy | LegacySearchPage | LegacySearchController | /api/legacy-search | legado |
+| catalog/new | SearchPage | SearchController, SearchResultListController | /api/search, /api/suggestions | active |
+| catalog/legacy | LegacySearchPage | LegacySearchController | /api/legacy-search | legacy |
 | ... | | | | |
 
-Status: `ativo` / `legado` / `parcialmente migrado` / `delega`.
-Cruzamento dos 4 outputs dos agentes A-D.
+Status: `active` / `legacy` / `partially migrated` / `delegates`.
+Cross-referencing the 4 agents' A-D outputs.
 
-## Evidência por Dimensão
+## Evidence by Dimension
 
 ### Entry Points
-<Tabela do agente A, sem modificação. Esta seção é a fonte bruta — citações
-aqui podem repetir o que aparece em Oportunidades.>
+<Agent A's table, unmodified. This section is the raw source — citations
+here may repeat what appears in Opportunities.>
 
-### Controllers e Stores
-<Tabela do agente B, sem modificação.>
+### Controllers and Stores
+<Agent B's table, unmodified.>
 
-### Repositórios e Endpoints
-<Tabela do agente C, sem modificação.>
+### Repositories and Endpoints
+<Agent C's table, unmodified.>
 
-### Duplicações
-<Lista do agente D, sem modificação.>
+### Duplications
+<Agent D's list, unmodified.>
 
-## Oportunidades de Melhoria
+## Improvement Opportunities
 
-<Cada item com severidade ancorada na rubrica abaixo + evidência citando
-arquivo:linha. Cada arquivo aparece UMA VEZ nesta seção (regra de dedup).
-O frame é "o que poderia melhorar", não "o que remover".>
+<Each item with severity anchored to the rubric below + evidence citing
+file:line. Each file appears ONCE in this section (dedup rule).
+The frame is "what could improve", not "what to remove".>
 
-**Rubrica de severidade:**
-- **Alta**: bloqueia o tech breakdown, exige decisão estratégica, ou tem
-  divergência de contrato cross-módulo
-- **Média**: afeta escopo mas tem workaround claro
-- **Baixa**: débito conhecido / limpeza / dead code
+**Severity rubric:**
+- **High**: blocks the tech breakdown, requires a strategic decision, or has
+  a cross-module contract divergence
+- **Medium**: affects scope but has a clear workaround
+- **Low**: known debt / cleanup / dead code
 
-| Oportunidade | Severidade | Evidência | Por quê importa |
+| Opportunity | Severity | Evidence | Why it matters |
 |---|---|---|---|
-| Endpoint divergente entre listagem e busca | Alta | `search_repository.ext:L82` + `catalog_repository.ext:L15` | filtros e paginação podem divergir |
+| Divergent endpoint between listing and search | High | `search_repository.ext:L82` + `catalog_repository.ext:L15` | filters and pagination may diverge |
 | ... | | | |
 
-**Subseções opcionais** (incluir apenas se aplicável e se evita repetir tabela acima):
+**Optional subsections** (include only if applicable and if it avoids repeating the table above):
 
-- **Reutilizável**: o que é shared e pode entrar na nova US/feature sem mudança
-- **Acoplado ao módulo**: o que precisaria refactor pra ser reutilizado
-- **Legado confirmado**: sem caller ativo após grep
-- **Integrações a preservar**: analytics, tracking, instrumentação
+- **Reusable**: what's shared and can go into the new US/feature without change
+- **Coupled to the module**: what would need a refactor to be reusable
+- **Confirmed legacy**: no active caller after grep
+- **Integrations to preserve**: analytics, tracking, instrumentation
 
-(Em modo US/ticket, "Remoção pela US" é um label válido dentro de Oportunidades
-— o frame guarda-chuva continua sendo Oportunidades, mas itens podem ser
-marcados como `[remoção pela US]`.)
+(In US/ticket mode, "Removal by the US" is a valid label inside Opportunities
+— the umbrella frame remains Opportunities, but items may be
+marked `[removal by the US]`.)
 
-## Outras perguntas em aberto
+## Other Open Questions
 
-<Lista, sem ranking. Perguntas que NÃO bloqueiam o tech breakdown mas que
-o PO/design precisa responder em algum momento.>
+<List, unranked. Questions that do NOT block the tech breakdown but that
+the PO/design needs to answer at some point.>
 ```
 
-### Regras obrigatórias do consolidador
+### Consolidator's mandatory rules
 
-1. **Ordem fixa.** TL;DR → Decisões → Cross-dim → Evidência → Oportunidades → Outras perguntas. Não improvise seções (`Features a Remover`, `Analytics Atual` etc.). Se um achado não cabe nas seções prescritas, ele entra em **Oportunidades** com label apropriado.
-2. **TL;DR é escrito por último.** Só depois de ter as outras 5 seções na mão.
-3. **Dedup**: cada `arquivo.ext` ou símbolo aparece **uma vez** em Oportunidades. Tabelas de Evidência por Dimensão são exceção (fonte bruta, repetição esperada).
-4. **Citação obrigatória em Oportunidades**: cada item exige `arquivo:linha` que veio de algum dos 4 agentes. Sem citação, o item não entra. Se o consolidador não consegue citar, o achado é inferência — corte.
-5. **Ranking limitado**: "Decisões necessárias" tem no máximo 5 itens. Tudo o que sobrar vai pra "Outras perguntas em aberto" sem ranking.
+1. **Fixed order.** TL;DR → Decisions → Cross-dim → Evidence → Opportunities → Other questions. Don't improvise sections (`Features to Remove`, `Current Analytics`, etc.). If a finding doesn't fit the prescribed sections, it goes into **Opportunities** with an appropriate label.
+2. **TL;DR is written last.** Only after having the other 5 sections in hand.
+3. **Dedup**: each `file.ext` or symbol appears **once** in Opportunities. Evidence-by-Dimension tables are the exception (raw source, repetition expected).
+4. **Mandatory citation in Opportunities**: every item requires a `file:line` that came from one of the 4 agents. Without a citation, the item doesn't go in. If the consolidator can't cite it, the finding is inference — cut it.
+5. **Limited ranking**: "Decisions Needed" has at most 5 items. Everything else goes into "Other Open Questions" unranked.
 
-## §5 — Mensagens de handoff (Step 5)
+## §5 — Handoff messages (Step 5)
 
-**Modo ticket / US text:**
+**Ticket / US text mode:**
 
-> "Mapa salvo em `docs/superpowers/archaeology/...`
+> "Map saved to `docs/superpowers/archaeology/...`
 >
-> Próximo passo recomendado: `core:tech-breakdown <ticket>` (se disponível) — o mapa serve como contexto adicional.
+> Recommended next step: `core:tech-breakdown <ticket>` (if available) — the map serves as additional context.
 >
-> Posso iniciar agora, ou você prefere revisar o mapa antes?"
+> Should I start now, or would you rather review the map first?"
 
-**Modo domínio livre:**
+**Free domain mode:**
 
-> "Mapa salvo em `docs/superpowers/archaeology/...`
+> "Map saved to `docs/superpowers/archaeology/...`
 >
-> Não há tech breakdown sem US. Use como referência arquitetural. Considere abrir tickets de follow-up pras Oportunidades de severidade Alta — elas representam decisões estratégicas que ainda não foram tomadas."
+> There's no tech breakdown without a US. Use this as architectural reference. Consider opening follow-up tickets for the High-severity Opportunities — they represent strategic decisions that haven't been made yet."
 
-## §6 — Sinais de gordura a cortar
+## §6 — Fat signals to cut
 
-Antes de apresentar o mapa, varra estes sinais:
+Before presenting the map, sweep for these signals:
 
-- **Achados sem evidência** — cada item em Oportunidades cita `arquivo:linha`. Sem citação, é inferência — corte.
-- **Status "talvez legado"** — classifique como ativo ou legado; ambiguidade é ruído.
-- **Endpoints inventados** — se o grep no SDK/pacote compartilhado não confirmou, marque como "a confirmar".
-- **Módulos listados sem achado** — omita módulos onde o grep não encontrou nada relevante na tabela cross-dim.
-- **Risco genérico** — "pode ter breaking changes" sem apontar o que específico não ajuda; corte.
-- **Risco sem grep** — Oportunidades inferidas do texto da US sem confirmar no codebase é exatamente o problema que motivou a estrutura prescritiva. Toda Oportunidade exige `arquivo:linha` real.
-- **Seções improvisadas** — se você está prestes a criar uma seção que não está no template (`Features a Remover`, `Analytics Atual`, etc.), pare e enfie o conteúdo em **Oportunidades** com label apropriado.
-- **Duplicação cross-seção** — um mesmo achado em Oportunidades + Cross-dim + Outras perguntas é overlap. Mantenha em Oportunidades; nas outras seções, omita.
+- **Findings without evidence** — every item in Opportunities cites `file:line`. Without a citation, it's inference — cut it.
+- **"Maybe legacy" status** — classify as active or legacy; ambiguity is noise.
+- **Invented endpoints** — if the grep in the shared SDK/package didn't confirm it, mark it "to confirm".
+- **Modules listed with no finding** — omit modules where the grep found nothing relevant to the cross-dim table.
+- **Generic risk** — "may have breaking changes" without pointing at what specifically doesn't help; cut it.
+- **Risk without grep** — Opportunities inferred from the US text without confirming in the codebase is exactly the problem that motivated the prescriptive structure. Every Opportunity requires a real `file:line`.
+- **Improvised sections** — if you're about to create a section not in the template (`Features to Remove`, `Current Analytics`, etc.), stop and fold the content into **Opportunities** with an appropriate label.
+- **Cross-section duplication** — the same finding in Opportunities + Cross-dim + Other Questions is overlap. Keep it in Opportunities; omit it from the others.
 
 ## §7 — Important
 
-- Nunca classifique código como legado sem verificar caller ativo (grep por instanciação via DI ou instância direta na page).
-- A tabela cross-dim por módulo é o artefato mais crítico depois do TL;DR — priorize completude nela.
-- O mapa **não é um plano técnico** — descreve estado atual e levanta decisões, não propõe soluções.
-- Se o domínio cruzar mais de 6 módulos, pergunte ao usuário se quer escopo reduzido antes do dispatch.
-- Sempre confirme o vocabulário e os grep patterns extraídos (passo 1) antes de executar.
-- Modo **domínio livre** não dispara handoff pra `core:tech-breakdown` — é referência arquitetural, não pré-US.
-- Os 4 agentes entregam evidência crua. **Oportunidades é 100% síntese pelo consolidador** — por isso a regra de citação obrigatória é o que separa síntese honesta de inferência sem grep.
+- Never classify code as legacy without verifying an active caller (grep for instantiation via DI or direct instance in the page).
+- The cross-dim table by module is the most critical artifact after the TL;DR — prioritize completeness there.
+- The map **is not a technical plan** — it describes current state and raises decisions, it doesn't propose solutions.
+- If the domain crosses more than 6 modules, ask the user whether they want reduced scope before dispatch.
+- Always confirm the extracted vocabulary and grep patterns (step 1) before executing.
+- **Free domain** mode does not trigger handoff to `core:tech-breakdown` — it's architectural reference, not pre-US.
+- The 4 agents deliver raw evidence. **Opportunities is 100% consolidator synthesis** — which is why the mandatory-citation rule is what separates honest synthesis from inference without grep.

@@ -1,106 +1,106 @@
 ---
 name: archaeology
-description: Invoque para mapear o estado atual do código antes de qualquer planejamento técnico numa US, ticket ou domínio com histórico no app — dispatch de agentes de exploração em paralelo, mapa arqueológico consolidado com decisões ranqueadas por severidade.
+description: Invoke to map the current state of the code before any technical planning on a US, ticket, or domain with history in the app — dispatches exploration agents in parallel, consolidated archaeological map with decisions ranked by severity.
 disable-model-invocation: true
 ---
 
 # archaeology — Pre-US Codebase Map
 
-Mapa arqueológico do estado atual do app para uma US ou domínio — antes de qualquer planejamento técnico. Entrega: TL;DR, decisões necessárias ranked, tabela cross-dimensão por módulo, evidência por dimensão e oportunidades de melhoria.
+Archaeological map of the app's current state for a US or domain — before any technical planning. Delivers: TL;DR, ranked decisions needed, cross-dimension table by module, evidence per dimension, and improvement opportunities.
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor define:
-- **Padrão de ticket ID** — regex usado na regra de detecção (ex.: `^ACME-\d+$`, `^PROJ-\d+$`). Sem essa config, trate qualquer token que pareça um identificador de ticket do tracker do projeto como modo **ticket**.
-- **Diretório de módulos** — onde vivem as features (ex.: `src/modules/`, `src/features/`). Usado no passo 1 para listar módulos candidatos.
-- **Diretório(s) de SDK/pacote compartilhado** — se o projeto separa chamadas de API em um pacote próprio (ex.: um SDK de repositórios), informe o caminho para a Dimensão C.
+This skill assumes the consumer project defines:
+- **Ticket ID pattern** — regex used by the detection rule (e.g., `^ACME-\d+$`, `^PROJ-\d+$`). Without this config, treat any token that looks like an identifier from the project's tracker as **ticket** mode.
+- **Modules directory** — where features live (e.g., `src/modules/`, `src/features/`). Used in step 1 to list candidate modules.
+- **Shared SDK/package directory(ies)** — if the project separates API calls into its own package (e.g., a repositories SDK), provide the path for Dimension C.
 
-**Posição no workflow:**
+**Position in the workflow:**
 ```
-archaeology <US | ticket | domínio>   ← você está aqui
+archaeology <US | ticket | domain>   ← you are here
         ↓
-core:tech-breakdown                    ← recebe o mapa como contexto (modo US/ticket)
+core:tech-breakdown                    ← receives the map as context (US/ticket mode)
         ↓
 core:spec-refine
 ```
 
-## Quando Usar
+## When to Use
 
-Execute **antes** de `core:tech-breakdown` (se disponível neste kit) sempre que a US tocar funcionalidade que:
-- Tem histórico no app (não é feature totalmente nova)
-- Cruza múltiplos módulos
-- Tem suspeita de legado, duplicação ou N implementações paralelas
+Run **before** `core:tech-breakdown` (if available in this kit) whenever the US touches functionality that:
+- Has history in the app (not a fully new feature)
+- Crosses multiple modules
+- Is suspected of legacy code, duplication, or N parallel implementations
 
-Também execute **sem US** para mapear um domínio inteiro como referência arquitetural (`archaeology busca`, `archaeology checkout`). Nesse modo o output não vira tech breakdown — é referência pra decisões futuras e abertura de tickets de débito.
+Also run **without a US** to map an entire domain as architectural reference (`archaeology search`, `archaeology checkout`). In this mode the output does not become a tech breakdown — it's reference for future decisions and opening debt tickets.
 
-Exemplos típicos: busca, filtros, checkout, perfil, autenticação.
+Typical examples: search, filters, checkout, profile, authentication.
 
-Não usar em features 100% novas sem código existente relacionado.
+Do not use on 100% new features with no related existing code.
 
 ## Input
 
-O usuário fornece uma das opções:
+The user provides one of:
 
-- **Texto da US**: cola a descrição completa no chat
-- **Ticket ID**: `archaeology PROJ-608692` — busca via MCP/tracker do projeto
-- **Domínio livre**: `archaeology busca` — exploração arquitetural sem US
+- **US text**: paste the full description into the chat
+- **Ticket ID**: `archaeology PROJ-608692` — fetched via the project's MCP/tracker
+- **Free domain**: `archaeology search` — architectural exploration without a US
 
-### Regra de detecção (determinística)
+### Detection rule (deterministic)
 
-| Input recebido | Modo |
+| Input received | Mode |
 |---|---|
-| Match no padrão de ticket ID do projeto (config acima) | **ticket** — fetch via tool de tracker disponível na sessão |
-| Token único, sem whitespace/newline (`busca`, `checkout`, `perfil`) | **domínio livre** |
-| Multi-linha OU contém marcadores de US (`Como `, `Critérios de aceite`, `Dado que`, `História do usuário`) | **US text** |
-| Ambíguo (ex: frase curta tipo "fluxo de busca") | **perguntar** ao usuário qual modo |
+| Matches the project's ticket ID pattern (config above) | **ticket** — fetch via the tracker tool available in the session |
+| Single token, no whitespace/newline (`search`, `checkout`, `profile`) | **free domain** |
+| Multi-line OR contains US markers (`As a `, `Acceptance criteria`, `Given that`, `User story`) | **US text** |
+| Ambiguous (e.g., a short phrase like "search flow") | **ask** the user which mode |
 
-Se nenhum input for fornecido: perguntar "Qual US, ticket ou domínio deseja mapear?"
+If no input is provided: ask "Which US, ticket, or domain would you like to map?"
 
 ## Steps
 
-### 1. Extrair vocabulário + grep patterns
+### 1. Extract vocabulary + grep patterns
 
-A partir do input, extraia:
-- **Termos primários**: nomes de features, fluxos, entidades
-- **Termos de código**: controllers, stores, repos que provavelmente existem
-- **Módulos candidatos**: quais módulos no diretório de módulos do projeto (config) provavelmente têm código relacionado
-- **Grep patterns**: regex/glob concretos que cada agente vai usar
+From the input, extract:
+- **Primary terms**: feature names, flows, entities
+- **Code terms**: controllers, stores, repos that likely exist
+- **Candidate modules**: which modules in the project's modules directory (config) likely have related code
+- **Grep patterns**: concrete regex/glob each agent will use
 
-Apresente ao usuário antes de disparar os agentes — formato completo: `REFERENCE.md` §1.
+Present to the user before dispatching the agents — full format: `REFERENCE.md` §1.
 
-Aguarde confirmação antes de avançar. Termos errados contaminam todos os 4 agentes.
+Wait for confirmation before proceeding. Wrong terms contaminate all 4 agents.
 
-### 2. Dispatch 4 agentes Explore em paralelo
+### 2. Dispatch 4 Explore agents in parallel
 
-Dispare **4 agentes Explore em paralelo** (`subagent_type: "Explore"`), um por dimensão — A: Entry Points, B: Controllers e Stores, C: Repositórios e Endpoints, D: Duplicação. Passe os termos, módulos e patterns confirmados no passo 1.
+Dispatch **4 Explore agents in parallel** (`subagent_type: "Explore"`), one per dimension — A: Entry Points, B: Controllers and Stores, C: Repositories and Endpoints, D: Duplication. Pass the terms, modules, and patterns confirmed in step 1.
 
-Cada agente entrega **evidência crua + cita `arquivo:linha`**, sem classificar como "shared", "risco" ou "oportunidade" — isso é trabalho do consolidador no passo 3. Instruções detalhadas de cada dimensão: `REFERENCE.md` §2.
+Each agent delivers **raw evidence + cites `file:line`**, without classifying as "shared", "risk", or "opportunity" — that's the consolidator's job in step 3. Detailed instructions per dimension: `REFERENCE.md` §2.
 
-### 3. Consolidação — estrutura prescritiva
+### 3. Consolidation — prescriptive structure
 
-Com os 4 outputs em mãos, sintetize o mapa nesta ordem fixa (não improvise seções): **TL;DR → Decisões necessárias → Visão Consolidada por Módulo → Evidência por Dimensão → Oportunidades de Melhoria → Outras perguntas em aberto**.
+With the 4 outputs in hand, synthesize the map in this fixed order (do not improvise sections): **TL;DR → Decisions Needed → Consolidated View by Module → Evidence by Dimension → Improvement Opportunities → Other Open Questions**.
 
-Template completo da estrutura + regras obrigatórias do consolidador (ordem fixa, TL;DR escrito por último, dedup em Oportunidades, citação `arquivo:linha` obrigatória, ranking limitado a 5 itens): `REFERENCE.md` §3.
+Full structure template + consolidator's mandatory rules (fixed order, TL;DR written last, dedup in Opportunities, mandatory `file:line` citation, ranking capped at 5 items): `REFERENCE.md` §3.
 
-### 4. Salvar o mapa
+### 4. Save the map
 
-Salve em `docs/superpowers/archaeology/`:
+Save to `docs/superpowers/archaeology/`:
 
-- Modo ticket / US text: `YYYY-MM-DD-<dominio>.md` (ex: `2026-05-26-busca-unificada.md`)
-- Modo domínio livre: `YYYY-MM-DD-dominio-<dominio>.md` (ex: `2026-05-26-dominio-checkout.md`)
+- Ticket / US text mode: `YYYY-MM-DD-<domain>.md` (e.g., `2026-05-26-unified-search.md`)
+- Free domain mode: `YYYY-MM-DD-domain-<domain>.md` (e.g., `2026-05-26-domain-checkout.md`)
 
-O prefixo `dominio-` deixa explícito que é exploração arquitetural, não pré-US.
+The `domain-` prefix makes explicit that this is architectural exploration, not pre-US.
 
-### 5. Handoff condicional
+### 5. Conditional handoff
 
-Modo ticket/US text: recomende `core:tech-breakdown <ticket>` (se disponível) e pergunte se inicia agora ou se o usuário prefere revisar o mapa antes. Modo domínio livre: não há tech breakdown sem US — sugira usar como referência e abrir tickets de follow-up pras Oportunidades de severidade Alta. Mensagens completas: `REFERENCE.md` §5.
+Ticket/US text mode: recommend `core:tech-breakdown <ticket>` (if available) and ask whether to start now or the user prefers to review the map first. Free domain mode: there's no tech breakdown without a US — suggest using it as reference and opening follow-up tickets for High-severity Opportunities. Full messages: `REFERENCE.md` §5.
 
-## Regras invioláveis
+## Inviolable rules
 
-- Nunca classifique código como legado sem verificar caller ativo (grep por instanciação via DI ou instância direta na page).
-- Achados sem evidência — cada item em Oportunidades cita `arquivo:linha`. Sem citação, é inferência — corte.
-- Seções improvisadas — se você está prestes a criar uma seção que não está no template (`Features a Remover`, `Analytics Atual`, etc.), pare e enfie o conteúdo em **Oportunidades** com label apropriado.
-- Modo **domínio livre** não dispara handoff pra `core:tech-breakdown` — é referência arquitetural, não pré-US.
-- Se o domínio cruzar mais de 6 módulos, pergunte ao usuário se quer escopo reduzido antes do dispatch.
+- Never classify code as legacy without verifying an active caller (grep for instantiation via DI or direct instance in the page).
+- Findings without evidence — every item in Opportunities cites `file:line`. Without a citation, it's inference — cut it.
+- Improvised sections — if you're about to create a section not in the template (`Features to Remove`, `Current Analytics`, etc.), stop and fold the content into **Opportunities** with an appropriate label.
+- **Free domain** mode does not trigger handoff to `core:tech-breakdown` — it's architectural reference, not pre-US.
+- If the domain crosses more than 6 modules, ask the user whether they want reduced scope before dispatch.
 
-Lista completa de sinais de gordura a cortar e notas adicionais: `REFERENCE.md` §6 e §7.
+Full list of fat signals to cut and additional notes: `REFERENCE.md` §6 and §7.

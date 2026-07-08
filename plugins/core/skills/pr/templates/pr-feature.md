@@ -1,17 +1,17 @@
 Ticket | [link if available] [commit subject]
 
-**Contexto**
+**Context**
 [What the feature does and why it was needed]
 
-**Solucao**
+**Solution**
 [What was implemented, key decisions made]
 
-**Mudancas**
-| Arquivo | O que mudou |
+**Changes**
+| File | What changed |
 |---|---|
 | `FileName.ext` | [description] |
 
-**Verificacao**
+**Verification**
 - X test files / Y tests passing
 - Coverage: X%
 - Lint (config): Z issues

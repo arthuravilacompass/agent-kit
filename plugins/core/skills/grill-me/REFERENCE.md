@@ -15,15 +15,15 @@ The native advisor escalates to a stronger model with the **full conversation**,
 
 ## Consumer-project config
 
-Este skill assume que o projeto consumidor define:
-- **Doc de arquitetura** carregado em `pre-plan` (ex.: `CLAUDE.md §Architecture` ou equivalente).
-- **Diretório de módulos** usado para listar a estrutura existente da área alvo em `pre-plan`.
-- **Arquivos de regra/lint** citados como lentes em `post-plan` (ex.: princípios de bugfix, regras de qualidade específicas do stack).
-- **Branch base** usada no `pre-done` para o `git diff` (default: `main`).
-- **Categorias de regra por tipo de mudança** em `pre-done` (ex.: regras de state-management se stores mudaram, regras de arquitetura se cross-layer, regras de UI se widgets) — usadas para montar o checklist do reviewer cego.
-- **Padrão de ticket ID**, se o projeto usa um tracker com prefixo próprio.
+This skill assumes the consumer project defines:
+- **Architecture doc** loaded in `pre-plan` (e.g., `CLAUDE.md §Architecture` or equivalent).
+- **Modules directory** used to list the target area's existing structure in `pre-plan`.
+- **Rule/lint files** cited as lenses in `post-plan` (e.g., bugfix principles, stack-specific quality rules).
+- **Base branch** used in `pre-done` for the `git diff` (default: `main`).
+- **Rule categories by change type** in `pre-done` (e.g., state-management rules if stores changed, architecture rules if cross-layer, UI rules if widgets) — used to build the blind reviewer's checklist.
+- **Ticket ID pattern**, if the project uses a tracker with its own prefix.
 
-Sem essas configs, o skill ainda roda — só com menos contexto especializado carregado automaticamente.
+Without these configs, the skill still runs — just with less specialized context loaded automatically.
 
 ## Advisor prerequisite
 
@@ -107,7 +107,7 @@ Sem essas configs, o skill ainda roda — só com menos contexto especializado c
      ```json
      [{ "claim": "...", "epistemicSource": "tool-output",
         "evidence": {"file": "...", "lineStart": N, "lineEnd": M},
-        "severity": "critico|atencao|consideracao", "rule": "CODE|null" }]
+        "severity": "critical|warning|consideration", "rule": "CODE|null" }]
      ```
      Use `epistemicSource: "inference"` for judgment calls that don't cite code (validator passes these through).
 
@@ -115,34 +115,34 @@ Sem essas configs, o skill ainda roda — só com menos contexto especializado c
 
    If the project has a citation-verification mechanism (script that checks findings against a session's read-ledger), run it with an **explicit** session id — subagent reads are logged under the parent session, so auto-discovery is unsafe with concurrent sessions.
    - `verified` / `passthrough` → present normally.
-   - `unverified` (cited code that overlaps no actual read — likely fabrication) → route to the "⚠️ Não-verificadas" bucket, marked as a hypothesis, **never** as a confirmed finding.
+   - `unverified` (cited code that overlaps no actual read — likely fabrication) → route to the "⚠️ Unverified" bucket, marked as a hypothesis, **never** as a confirmed finding.
 
    Complementary, not a substitute: re-read the cited lines and drop findings already addressed in the diff.
 
 ## Presentation format
 
-5. **Present findings to the user in pt-BR**
+5. **Present findings to the user in the language they've been using, default English**
 
    Format:
    ```
    ## Advisor Findings (<mode>)
 
-   ### Críticos (🔴)
-   - <finding> — regra <CODE> — <file>:<line>
+   ### Critical (🔴)
+   - <finding> — rule <CODE> — <file>:<line>
 
-   ### Atenção (🟡)
-   - <finding> — regra <CODE> — <file>:<line>
+   ### Warning (🟡)
+   - <finding> — rule <CODE> — <file>:<line>
 
-   ### Considerações (🟣)
+   ### Considerations (🟣)
    - <finding>
 
-   ### ⚠️ Não-verificadas (<n>)   ← pre-done only
-   - <finding> — <file>:<line> (citação não sobrepõe leitura no ledger — possível fabricação)
+   ### ⚠️ Unverified (<n>)   ← pre-done only
+   - <finding> — <file>:<line> (citation doesn't overlap a ledger read — possible fabrication)
    ```
 
 6. **Ask the user how to proceed**
 
-   Never apply findings automatically. Ask: "Como proceder? Reply: address-all / address-selected <n,m,...> / note-as-followup / ignore"
+   Never apply findings automatically. Ask: "How should I proceed? Reply: address-all / address-selected <n,m,...> / note-as-followup / ignore"
 
    - `address-all` — proceed to fix every finding
    - `address-selected` — fix only listed findings

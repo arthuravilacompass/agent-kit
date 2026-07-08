@@ -1,21 +1,21 @@
 ---
 name: spec-refine
-description: Invoque para estress-testar uma spec ou design doc antes de virar plano de implementação — expõe gaps, estados ambíguos, error paths ausentes e invariantes não escritos, uma pergunta focada por vez. Rode depois de `core:tech-breakdown` (se disponível) e antes de `superpowers:writing-plans`.
+description: Invoke to stress-test a spec or design doc before it becomes an implementation plan — exposes gaps, ambiguous states, missing error paths, and unwritten invariants, one focused question at a time. Run after `core:tech-breakdown` (if available) and before `superpowers:writing-plans`.
 disable-model-invocation: true
 ---
 
 # spec-refine — Adversarial Spec Refinement
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor pode definir, opcionalmente:
-- **Verificações de domínio adicionais** para a Step 2 — ex.: cobertura de i18n/l10n em strings novas, padrões de concorrência assíncrona específicos do stack (mutações fora de uma seção atômica após um `await`), campos de contrato externo (API/BFF) guardados contra null/ausente. Se o projeto não definir nada, a Step 2 roda só com as 7 categorias genéricas da tabela abaixo.
+This skill lets the consumer project optionally define:
+- **Additional domain checks** for Step 2 — e.g. i18n/l10n coverage for new strings, stack-specific async concurrency patterns (mutations outside an atomic section after an `await`), external contract (API/BFF) fields guarded against null/absent. If the project defines nothing, Step 2 runs with only the 7 generic categories in the table below.
 
 Stress-test a feature spec before it enters planning. Acts as a skeptical senior engineer who exposes gaps, ambiguous states, missing error paths, and unwritten invariants — one focused question at a time.
 
 ## When to Use
 
-Run **after** `core:tech-breakdown` (se disponível neste kit) produces a spec and **before** `superpowers:writing-plans` turns it into an implementation plan. This is the adversarial second pass that catches what the first pass misses.
+Run **after** `core:tech-breakdown` (if available in this kit) produces a spec and **before** `superpowers:writing-plans` turns it into an implementation plan. This is the adversarial second pass that catches what the first pass misses.
 
 Also usable standalone: paste any spec or design doc and run this skill.
 
@@ -104,17 +104,17 @@ Also usable standalone: paste any spec or design doc and run this skill.
    > - `proceed to plan` — move directly to `superpowers:writing-plans` with these decisions as addenda
    > - `done` — keep the gap summary in context only"
 
-## Sinais de gordura a cortar
+## Fat signals to cut
 
-Antes de finalizar o artefato, releia procurando por:
+Before finalizing the artifact, re-read it looking for:
 
-- **Background duplicando o card/ticket** — se está no card, não precisa repetir aqui.
-- **"Alternatives Considered" sem decisão** — se você não escolheu, não codifica.
-- **Exemplos de código que vão estar no diff** — refira o diff, não duplique.
-- **Listas de arquivos sem o "porquê"** — entrypoint sem motivo de tocar é ruído.
-- **Seções "Background" + "Motivation" + "Context"** redundantes — escolha uma.
+- **Background duplicating the card/ticket** — if it's on the card, no need to repeat it here.
+- **"Alternatives Considered" with no decision** — if you didn't choose, don't encode it.
+- **Code examples that will be in the diff** — reference the diff, don't duplicate it.
+- **File lists with no "why"** — an entrypoint with no reason to touch it is noise.
+- **Redundant "Background" + "Motivation" + "Context" sections** — pick one.
 
-Se 2+ sinais aparecem, provavelmente há ~30% de gordura cortável. Decisão de cortar ou justificar mantendo é sua.
+If 2+ signals appear, there's probably ~30% cuttable fat. Whether to cut or justify keeping it is your call.
 
 ## Important
 

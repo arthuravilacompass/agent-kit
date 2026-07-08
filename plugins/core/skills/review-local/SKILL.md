@@ -1,22 +1,22 @@
 ---
 name: review-local
-description: Invoque para disparar reviewers especializados em paralelo contra o diff da branch atual — última linha de defesa antes de `core:pr`. Requer o plugin `pr-review-toolkit`; sem ele, use `core:review-remote` (sequencial).
+description: Invoke to dispatch specialized reviewers in parallel against the current branch's diff — last line of defense before `core:pr`. Requires the `pr-review-toolkit` plugin; without it, use `core:review-remote` (sequential).
 disable-model-invocation: true
 ---
 
 # review-local — Local PR Review Chain Before Push
 
-> **Qual usar**: este skill exige o plugin `pr-review-toolkit` (dispatch paralelo). Sem o plugin, use `core:review-remote` (sequencial, sem paralelismo). **Divergência**: `review-local` BLOQUEIA em falha de lint/analyze; `review-remote` reporta a falha como finding e segue.
+> **Which to use**: this skill requires the `pr-review-toolkit` plugin (parallel dispatch). Without the plugin, use `core:review-remote` (sequential, no parallelism). **Divergence**: `review-local` BLOCKS on lint/analyze failure; `review-remote` reports the failure as a finding and continues.
 
 Dispatch specialized reviewers in parallel against the current branch diff. Last line of defense before `core:pr`. Output is presented in conversation only — never auto-posted.
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor define:
-- **Branch base** (default sugerido: `main`).
-- **Comando de lint** e **comando de testes** usados na precondition (Step 2).
-- **Códigos de regra do próprio projeto** que os agentes `code`/`type` devem tratar como 🔴 Important (ver `agents.md` — a tabela de agentes é o ponto de configuração).
-- **Diretórios de pacotes**, se o repo for um monorepo com múltiplos projetos que usam comandos de lint/teste diferentes.
+This skill assumes the consumer project defines:
+- **Base branch** (suggested default: `main`).
+- **Lint command** and **test command** used in the precondition (Step 2).
+- **The project's own rule codes** that the `code`/`type` agents should treat as 🔴 Important (see `agents.md` — the agent table is the configuration point).
+- **Package directories**, if the repo is a monorepo with multiple projects using different lint/test commands.
 
 ## Usage
 
@@ -28,7 +28,7 @@ review-local --agents code,silent
 review-local --ticket <TICKET> --base <branch> --agents code,consumer
 ```
 
-Default base: config acima (fallback: `main`). When `--ticket` is provided, the `consumer` agent is auto-included unless filtered out by `--agents`.
+Default base: config above (fallback: `main`). When `--ticket` is provided, the `consumer` agent is auto-included unless filtered out by `--agents`.
 
 ## Steps
 
@@ -36,21 +36,21 @@ Default base: config acima (fallback: `main`). When `--ticket` is provided, the 
 
    - Parse `--base <branch>` if provided, else the project's default base branch (config; fallback `main`).
    - `git diff <base>...HEAD --stat` to summarize scope.
-   - If empty: stop and report "Nenhuma mudança em relação a `<base>`. Nada para revisar."
-   - Echo scope (base, total files, exclusões) and wait 5 seconds for user abort.
+   - If empty: stop and report "No changes relative to `<base>`. Nothing to review."
+   - Echo scope (base, total files, exclusions) and wait 5 seconds for user abort.
 
-2. **Precondition — base verification (automático)**
+2. **Precondition — base verification (automatic)**
 
    Detect the project/package from the diff path (config — e.g. multiple packages in a monorepo) and run:
 
    - the project's lint/static-analysis command (config)
-   - the project's test command (config, sem coverage, para velocidade)
+   - the project's test command (config, without coverage, for speed)
 
-   Se qualquer um falhar, abortar com:
+   If either fails, abort with:
 
-   > "Verificação base falhou. Corrija antes de gastar tokens em review."
+   > "Base verification failed. Fix it before spending tokens on review."
 
-   Anexar últimas linhas do erro. Não prosseguir.
+   Attach the last lines of the error. Do not proceed.
 
 3. **Dispatch agents in parallel**
 
@@ -59,56 +59,56 @@ Default base: config acima (fallback: `main`). When `--ticket` is provided, the 
    **Resolve dispatch list:**
 
    - Parse `--agents <id1,id2,...>` (comma-separated).
-   - **Sem `--agents`:** dispatch every agent whose precondition is met (4 normalmente; 5 se `--ticket` presente — `consumer` é gated em `--ticket`).
-   - **Com `--agents`:**
-     - Validar cada ID contra a tabela do config. ID desconhecido → abortar: "Agente desconhecido: `<id>`. IDs válidos: `<list>`."
-     - Filtrar dispatch para os IDs pedidos.
-     - Se `consumer` foi pedido sem `--ticket` → abortar: "Agente `consumer` requer `--ticket <TICKET>`."
+   - **Without `--agents`:** dispatch every agent whose precondition is met (4 normally; 5 if `--ticket` is present — `consumer` is gated on `--ticket`).
+   - **With `--agents`:**
+     - Validate each ID against the config table. Unknown ID → abort: "Unknown agent: `<id>`. Valid IDs: `<list>`."
+     - Filter the dispatch to the requested IDs.
+     - If `consumer` was requested without `--ticket` → abort: "Agent `consumer` requires `--ticket <TICKET>`."
 
-   **Dispatch:** todos os `Agent` calls em **uma única mensagem** (paralelo). Cada agente recebe o diff (`git diff <base>...HEAD`) + framing string do config. `consumer` recebe APENAS o texto do ticket (resolvido em runtime a partir do tool de tracker disponível na sessão — não hardcode nome de tool MCP) — nunca o diff. Cada prompt de agente DEVE mandar: use o tool **Read/Grep** (nunca `cat`/`sed`/`grep` via Bash) para qualquer arquivo que vá ser citado como evidência — leitura via Bash não entra no read-ledger e derruba a citação no gate.
+   **Dispatch:** all `Agent` calls in **a single message** (parallel). Each agent receives the diff (`git diff <base>...HEAD`) + the framing string from config. `consumer` receives ONLY the ticket text (resolved at runtime from the tracker tool available in the session — do not hardcode an MCP tool name) — never the diff. Every agent prompt MUST require: use the **Read/Grep** tool (never `cat`/`sed`/`grep` via Bash) for any file that will be cited as evidence — reading via Bash doesn't enter the read-ledger and breaks the citation at the gate.
 
-4. **Wait for all agents to return.** Não summarize parcial.
+4. **Wait for all agents to return.** Do not summarize partially.
 
-5. **Aggregate findings (pt-BR)**
+5. **Aggregate findings**
 
-   Antes de agregar, **verificação por citação (mecanismo, não só releitura manual — releitura sozinha não pega fabricação)**:
+   Before aggregating, **citation verification (a mechanism, not just manual re-reading — re-reading alone doesn't catch fabrication)**:
 
-   - Montar as findings como JSON `[{ "claim": "...", "evidence": { "file": "...", "lineStart": N, "lineEnd": M } }]` (o file:line que cada agente citou; ponto único → `lineStart`=`lineEnd`).
-   - Se o projeto tiver um validador de citações (script que checa findings contra o read-ledger da sessão), rode-o com `--session <session-id-atual>` explícito. O read-ledger registra os reads via tool Read/Grep de TODOS os subagentes sob a session_id-pai (verificado em runtime, 2026-07-07); leitura via Bash NÃO entra — daí o mandato do Dispatch. **Passe `--session` explícito** — NÃO confie em auto-discovery (pode haver sessões concorrentes).
-   - Finding `unverified` (file:line não sobrepõe nada lido nesta sessão) = provável fabricação → seção "⚠️ Não-verificadas", **não** apresentar como achado confirmado. `verified`/`passthrough` seguem.
-   - Complementar (não substitui o mecanismo): re-ler as linhas e dropar findings já corrigidos.
+   - Assemble the findings as JSON `[{ "claim": "...", "evidence": { "file": "...", "lineStart": N, "lineEnd": M } }]` (the file:line each agent cited; single point → `lineStart`=`lineEnd`).
+   - If the project has a citation validator (a script that checks findings against the session's read-ledger), run it with an explicit `--session <current-session-id>`. The read-ledger logs reads via the Read/Grep tool from ALL subagents under the parent session_id (verified at runtime, 2026-07-07); reads via Bash do NOT enter it — hence the Dispatch mandate. **Pass `--session` explicitly** — do NOT rely on auto-discovery (there may be concurrent sessions).
+   - `unverified` finding (file:line overlaps nothing read this session) = likely fabrication → "⚠️ Unverified" section, **not** presented as a confirmed finding. `verified`/`passthrough` proceed normally.
+   - Complementary (doesn't replace the mechanism): re-read the lines and drop findings already fixed.
 
-   Group by severity. Se `consumer` foi dispatched, adicionar seção "Ticket vs Implementação".
+   Group by severity. If `consumer` was dispatched, add a "Ticket vs Implementation" section.
 
    ```
-   ## Review Local — <N> achados
+   ## Local Review — <N> findings
 
    ### 🔴 Important (<count>)
-   - **[<agent-id>]** <finding> — <file>:<line> — regra <CODE>
+   - **[<agent-id>]** <finding> — <file>:<line> — rule <CODE>
 
    ### 🟡 Nit (<count>)
    - **[<agent-id>]** <finding> — <file>:<line>
 
    ### 🟣 Pre-existing (<count>)
-   - **[<agent-id>]** <finding> — <file>:<line> (não mexido neste diff)
+   - **[<agent-id>]** <finding> — <file>:<line> (not touched in this diff)
 
-   ### ⚠️ Não-verificadas (<count>)
-   - **[<agent-id>]** <finding> — <file>:<line> (citação não sobrepõe leitura no ledger — possível fabricação)
+   ### ⚠️ Unverified (<count>)
+   - **[<agent-id>]** <finding> — <file>:<line> (citation doesn't overlap a ledger read — possible fabrication)
 
-   ### Ticket vs Implementação (se consumer dispatched)
-   - ✓ <behavior> (implementado)
-   - ✗ <behavior> (não visível no diff — gap?)
+   ### Ticket vs Implementation (if consumer dispatched)
+   - ✓ <behavior> (implemented)
+   - ✗ <behavior> (not visible in the diff — gap?)
    ```
 
 6. **Ask how to proceed**
 
-   > "Como proceder? Reply: fix-all / fix <severity> / fix <numbers> / ignore-preexisting / done"
+   > "How should I proceed? Reply: fix-all / fix <severity> / fix <numbers> / ignore-preexisting / done"
 
 ## Important
 
 - **Never post findings to any PR or external system.**
-- **Output em pt-BR.** Rule codes em English.
-- **Não corrigir 🟣 pre-existing neste PR.** São follow-up.
-- **Dispatch é paralelo** (uma mensagem). Sequencial dobra o runtime sem benefício.
-- **Roster vive em `agents.md`** — edite lá para adicionar/remover/retunar agentes.
-- **Agente que falha ou time-out:** apresentar os que sucederam, notar quais falharam. Não retry sem pedido.
+- **Output mirrors the user's language, default English. Rule codes stay in English.**
+- **Do not fix 🟣 pre-existing in this PR.** Those are follow-ups.
+- **Dispatch is parallel** (one message). Sequential doubles the runtime with no benefit.
+- **The roster lives in `agents.md`** — edit there to add/remove/retune agents.
+- **Agent that fails or times out:** present the ones that succeeded, note which failed. Don't retry without being asked.

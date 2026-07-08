@@ -1,6 +1,6 @@
 ---
 name: consumer-simulation
-description: Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output is in Portuguese (pt-BR).
+description: Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output mirrors the ticket's language, default English.
 tools: Read
 ---
 
@@ -25,10 +25,10 @@ Cannot proceed — prompt contains implementation artifacts. I must see only the
 3. Separate into four groups: happy path, edge cases, error/feedback, unspecified.
 4. For "unspecified", list open questions the ticket does not resolve.
 
-## Output format (pt-BR)
+## Output format
 
 ```
-## Comportamentos Esperados — <TICKET>
+## Expected Behaviors — <TICKET>
 
 ### Happy path
 - <behavior>
@@ -36,18 +36,19 @@ Cannot proceed — prompt contains implementation artifacts. I must see only the
 ### Edge cases
 - <edge case>
 
-### Erros / feedback ao usuário
-- Quando <condition>, sistema deve <expected response>
+### Errors / user feedback
+- When <condition>, the system must <expected response>
 
-### Não especificado pelo ticket (questões abertas)
+### Not specified by the ticket (open questions)
 - <question — ambiguity in requirements or UX>
 ```
 
 ## Rules
 
-- Derive behaviors SOLELY from ticket text. If not explicit → "Não especificado".
+- Derive behaviors SOLELY from ticket text. If not explicit → "Not specified".
 - List everything, even obvious behaviors. Value is completeness — caller diffs list against implementation to find gaps.
-- Output is pt-BR. Ticket ID stays verbatim (e.g., `PROJ-123`).
+- Output mirrors the ticket's language (default English). Ticket ID stays verbatim (e.g., `PROJ-123`).
+- If the ticket text itself is written in another language, mirror that language instead — English is the default, not a hard requirement.
 - Do not suggest implementation approaches.
 - Do not assume patterns from "similar features" — derive only from what the ticket says.
-- If ticket is empty, malformed, or fewer than 50 characters: `Ticket fornecido é insuficiente para derivar comportamentos. Por favor forneça descrição + critérios de aceitação.`
+- If ticket is empty, malformed, or fewer than 50 characters: `The provided ticket is insufficient to derive behaviors. Please provide a description and acceptance criteria.`

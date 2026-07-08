@@ -1,58 +1,58 @@
 ---
 name: bug-report
-description: Investiga um bug e produz relatório com citações verificadas — gate determinístico (validate_citations --gate) + verifier semântico em contexto fresco. Use ao investigar/reportar bug onde afirmar comportamento de código sem ler a fonte é o risco.
+description: Investigate a bug and produce a report with verified citations — deterministic gate (validate_citations --gate) + semantic verifier in a fresh context. Use when investigating/reporting a bug where asserting code behavior without reading the source is the risk.
 disable-model-invocation: true
 ---
 
-# /bug-report -- Relatório de bug com citação verificada
+# /bug-report -- Bug Report with Verified Citations
 
-Investiga um bug e **só finaliza** o relatório com findings cuja citação `file:line` (1) sobrepõe código realmente lido nesta sessão **e** (2) é semanticamente sustentada pelo código. É o caminho com **gate duro** — porque um bug-report com citação fabricada (ex.: uma rota que não existe no código, inventada pelo modelo) é um failure conhecido em relatórios gerados por LLM sem esse gate.
+Investigates a bug and **only finalizes** the report with findings whose `file:line` citation (1) overlaps code actually read in this session **and** (2) is semantically supported by the code. This is the path with a **hard gate** — because a bug report with a fabricated citation (e.g., a route that doesn't exist in the code, invented by the model) is a known failure mode in LLM-generated reports without this gate.
 
-**Dependência:** este skill assume a existência do mecanismo de citação verificada — um read-ledger que registra cada `Read`/`Grep` da sessão + um script `validate_citations.py --gate` que recusa finding `tool-output` citando código não lido. Neste kit o mecanismo já é wired no mesmo plugin (`plugins/core/scripts/validate_citations.py`, alimentado por `plugins/core/hooks/read-ledger.sh`) — os comandos abaixo usam `${CLAUDE_PLUGIN_ROOT}` e resolvem sem ajuste. Se portar esta skill sozinha pra outro lugar sem esse mecanismo, ela precisa dele antes de funcionar.
+**Dependency:** this skill assumes the existence of the verified-citation mechanism — a read-ledger that logs every `Read`/`Grep` in the session + a `validate_citations.py --gate` script that rejects a `tool-output` finding citing code that wasn't read. In this kit the mechanism is already wired into the same plugin (`plugins/core/scripts/validate_citations.py`, fed by `plugins/core/hooks/read-ledger.sh`) — the commands below use `${CLAUDE_PLUGIN_ROOT}` and resolve without adjustment. If porting this skill alone elsewhere without that mechanism, it needs it before it works.
 
 ## Usage
 
 ```
-/core:bug-report <descrição do bug / ticket>
+/core:bug-report <bug description / ticket>
 ```
 
 ## Steps
 
-1. **Escopo** — sintoma, passos de repro, área suspeita. Aplique as perguntas de bugfix-principles do projeto (contrato violado? ausente≠vazio? ciclo de vida do estado? invariante implícito?), se o projeto tiver essa rule.
+1. **Scope** — symptom, repro steps, suspected area. Apply the project's bugfix-principles questions (contract violated? absent≠empty? state lifecycle? implicit invariant?), if the project has that rule.
 
-2. **Investigar** — Read/Grep o código relevante. **Cada Read popula o read-ledger da sessão**. Não conclua sobre comportamento sem ler a fonte.
+2. **Investigate** — Read/Grep the relevant code. **Every Read populates the session's read-ledger**. Do not conclude about behavior without reading the source.
 
-3. **Findings estruturados** — montar JSON:
+3. **Structured findings** — assemble JSON:
    ```json
    [{ "claim": "...", "epistemicSource": "tool-output",
       "evidence": { "file": "...", "lineStart": N, "lineEnd": M, "quote": "..." } }]
    ```
-   `epistemicSource`: `tool-output` (afirmação sobre código lido) · `inference` · `absence` · `external`. Só `tool-output` é gateado.
+   `epistemicSource`: `tool-output` (claim about code read) · `inference` · `absence` · `external`. Only `tool-output` is gated.
 
-4. **Gate determinístico (duro)** —
+4. **Deterministic (hard) gate** —
    ```
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_citations.py" --session <session-id-atual> --gate --findings <arquivo>
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_citations.py" --session <current-session-id> --gate --findings <file>
    ```
-   Passe `--session` explícito (sessões concorrentes). **Exit 2** = há finding `tool-output` citando código não-lido (fabricação de localização) → **NÃO finalizar**; voltar ao passo 2, ler de fato ou corrigir o finding. Só prossiga com exit 0.
+   Pass explicit `--session` (concurrent sessions). **Exit 2** = there's a `tool-output` finding citing unread code (location fabrication) → **do NOT finalize**; go back to step 2, actually read the code or fix the finding. Only proceed on exit 0.
 
-5. **Verifier semântico (contexto fresco)** — pega o que o gate determinístico não pega: claim que cita código **real** mas o **interpreta errado**. Dispatch um subagente em contexto limpo, com este prompt, passando os findings que sobreviveram ao passo 4:
+5. **Semantic verifier (fresh context)** — catches what the deterministic gate doesn't: a claim that cites **real** code but **misreads** it. Dispatch a subagent in a clean context, with this prompt, passing the findings that survived step 4:
 
-   > Você é um verificador cético de citações. Para CADA claim abaixo, em contexto fresco: (1) Read o range EXATO `file:lineStart-lineEnd`; leia algumas linhas ao redor se precisar. (2) Julgue se o código realmente lido **sustenta** o claim — `supported=true` só se o código implica o que o claim afirma; `false` se contradiz, não menciona, sustenta só parcialmente (overreach), ou o range está vazio. (3) Default cético: na dúvida, `false`. NÃO confie no `quote` fornecido — re-leia o arquivo. Escopo: só veredito de sustentação; não revise estilo nem sugira fix. Saída por claim: `{ "claim", "file", "supported": bool, "confidence": "high|medium|low", "reason": "<citando o que o código realmente faz>" }`.
+   > You are a skeptical citation verifier. For EACH claim below, in a fresh context: (1) Read the EXACT range `file:lineStart-lineEnd`; read a few surrounding lines if needed. (2) Judge whether the code actually read **supports** the claim — `supported=true` only if the code implies what the claim asserts; `false` if it contradicts, doesn't mention, only partially supports (overreach), or the range is empty. (3) Skeptical default: when in doubt, `false`. Do NOT trust the provided `quote` — re-read the file. Scope: only a support verdict; do not review style or suggest a fix. Output per claim: `{ "claim", "file", "supported": bool, "confidence": "high|medium|low", "reason": "<citing what the code actually does>" }`.
 
-   Findings com `supported=false` → seção "⚠️ Citação não sustenta o claim", **não** afirmar como causa-raiz.
+   Findings with `supported=false` → "⚠️ Citation does not support the claim" section, **not** asserted as root cause.
 
-6. **Relatório** — só findings `verified` (passo 4) **e** `supported` (passo 5):
+6. **Report** — only findings `verified` (step 4) **and** `supported` (step 5):
    ```
-   ## Bug: <título>
-   **Sintoma**: <...>  ·  **Repro**: <...>
-   **Causa-raiz**: <claim> — `<file>:<lineStart>-<lineEnd>`
-   **Evidência**: <quote do código real>
-   **Fix proposto**: <na origem, não na consequência>
-   ### ⚠️ Citação não sustenta (<count>)   — findings refutados por um dos gates
+   ## Bug: <title>
+   **Symptom**: <...>  ·  **Repro**: <...>
+   **Root cause**: <claim> — `<file>:<lineStart>-<lineEnd>`
+   **Evidence**: <quote from the actual code>
+   **Proposed fix**: <at the source, not the consequence>
+   ### ⚠️ Citation does not support (<count>)   — findings refuted by one of the gates
    ```
 
 ## Important
 
-- **Gate duro aqui** (≠ um review menos estrito que só anota) — o custo de um bug-report falso justifica bloquear.
-- **Fix na origem, nunca na consequência**; estado que sobrevive tem ciclo de vida nomeado.
-- Não postar em sistema externo (tracker/board) sem pedido explícito.
+- **Hard gate here** (≠ a looser review that just annotates) — the cost of a false bug report justifies blocking.
+- **Fix at the source, never the consequence**; state that survives has a named lifecycle.
+- Do not post to an external system (tracker/board) without explicit request.

@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Invoque para analisar todos os commits da branch, rodar verificação e montar a descrição de um Pull Request pronta para revisão — nunca faz push ou cria o PR sem aprovação explícita.
+description: Invoke to analyze all commits in the branch, run verification, and assemble a Pull Request description ready for review — never pushes or creates the PR without explicit approval.
 disable-model-invocation: true
 ---
 
@@ -8,12 +8,12 @@ disable-model-invocation: true
 
 Analyze all commits in this branch, run verification, and create a pull request following the project's conventions.
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor define:
-- **Branch base** (default sugerido: `main`; fallback chain abaixo assume `develop`/`main`/`master` se nada for configurado).
-- **Comando de testes** e **comando de lint** (ex.: `flutter test --coverage` / `flutter analyze`, ou os equivalentes do stack do projeto).
-- **Destino do PR**: GitHub (`gh pr create`) ou Bitbucket (URL de criação manual — org/repo). Sem essa config, assuma GitHub.
+This skill assumes the consumer project defines:
+- **Base branch** (suggested default: `main`; the fallback chain below assumes `develop`/`main`/`master` if nothing is configured).
+- **Test command** and **lint command** (e.g., `flutter test --coverage` / `flutter analyze`, or the project stack's equivalents).
+- **PR destination**: GitHub (`gh pr create`) or Bitbucket (manual creation URL — org/repo). Without this config, assume GitHub.
 
 ## Steps
 
@@ -26,7 +26,7 @@ Este skill assume que o projeto consumidor define:
    git diff <base>...HEAD               # full diff for analysis
    ```
 
-   `<base>` é a branch base do projeto (config acima). Se não existir, tente `develop`, `main`, ou `master`.
+   `<base>` is the project's base branch (config above). If it doesn't exist, try `develop`, `main`, or `master`.
 
 2. **Select PR template**
 
@@ -59,16 +59,16 @@ Este skill assume que o projeto consumidor define:
    git push -u origin <branch-name>
    ```
 
-   Then, depending on **Destino do PR** (config):
+   Then, depending on **PR destination** (config):
    - **GitHub**: use `gh pr create` with the filled title/body.
    - **Bitbucket**: generate the PR creation URL and print the title + body ready to paste:
 
      ```
      URL: https://bitbucket.org/<org>/<repo>/pull-requests/new?source=<branch-name>&dest=<base-branch>
 
-     Título: <commit subject>
+     Title: <commit subject>
 
-     Corpo:
+     Body:
      <filled template>
      ```
 

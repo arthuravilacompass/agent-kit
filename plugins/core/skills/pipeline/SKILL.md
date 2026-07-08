@@ -1,70 +1,70 @@
 ---
 name: pipeline
-description: Invoque ao receber uma intenção crua de trabalho substancial (feature, bug, investigação, refactor, ticket/US) sem fluxo em andamento definido, ou quando o usuário pedir "por onde começo", "qual o fluxo pra isso", "me conduz nesse trabalho". NÃO invoque para pergunta conceitual ou lookup pontual ("como funciona X?"), nem quando já há um fluxo em andamento (brainstorming, plano em execução, review). Condutor de fluxo — detecta o estágio real da tarefa, classifica a intenção e roteia pelas skills do kit um estágio por vez; recomenda a próxima rota, nunca executa a cadeia inteira sozinho.
+description: Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route, never executes the whole chain by itself.
 ---
 
-# Pipeline — condutor de fluxo
+# Pipeline — flow conductor
 
-Camada de routing do kit: a mensagem do usuário carrega só a **intenção**; este condutor decide **onde ela entra** e **qual o próximo passo**; as skills de estágio executam. Não substitui nenhuma skill — referencia.
+Kit routing layer: the user's message carries only the **intent**; this conductor decides **where it enters** and **what the next step is**; the stage skills execute. Doesn't replace any skill — it references them.
 
-## 1. Detectar o estágio real (sempre primeiro)
+## 1. Detect the real stage (always first)
 
-Antes de classificar, olhe o que já existe:
+Before classifying, look at what already exists:
 
-- `docs/superpowers/{specs,plans,handoffs}` recentes — spec pronta = não reclarificar; plano pronto = ir pra implementação; handoff recente = retomar dali.
-- `git log`/`git status` — código meio feito indica estágio implementar/revisar.
+- Recent `docs/superpowers/{specs,plans,handoffs}` — a ready spec means don't reclarify; a ready plan means go to implementation; a recent handoff means resume from there.
+- `git log`/`git status` — half-done code indicates implement/review stage.
 
-Se a tarefa já está em andamento: diga em que estágio ela está, com a evidência, e proponha a rota a partir dali. Nunca reexecute fase cumprida.
+If the task is already underway: state what stage it's at, with evidence, and propose the route from there. Never re-run a stage already completed.
 
-## 2. Classificar a intenção
+## 2. Classify the intent
 
-| Classe | Rota |
+| Class | Route |
 |---|---|
-| Feature nova | mapear? → clarificar → especificar → checkpoint → quebrar → implementar → revisar → entregar → capturar |
-| Bug | mapear? → diagnosticar → implementar (fix) → revisar → entregar → capturar |
-| Investigação | mapear → diagnosticar → relatório/handoff (termina aqui — não force implementação) |
-| Spec-de-fora (ticket/US) | clarificar (consumer-simulation como apoio) → especificar/refinar → quebrar → segue como feature |
-| Refactor | mapear → clarificar escopo → implementar → revisar → entregar → capturar |
+| New feature | map? → clarify → specify → checkpoint → break down → implement → review → deliver → capture |
+| Bug | map? → diagnose → implement (fix) → review → deliver → capture |
+| Investigation | map → diagnose → report/handoff (ends here — don't force implementation) |
+| External spec (ticket/US) | clarify (consumer-simulation as support) → specify/refine → break down → continues as feature |
+| Refactor | map → clarify scope → implement → review → deliver → capture |
 
-`mapear?` = só se o codebase for desconhecido. **Rota mínima é legítima**: em tarefa pequena, proponha pular estágios explicitamente ("bug trivial: sugiro implementar→revisar→entregar") e deixe o usuário confirmar.
+`map?` = only if the codebase is unfamiliar. **A minimal route is legitimate**: on a small task, explicitly propose skipping stages ("trivial bug: I suggest implement→review→deliver") and let the user confirm.
 
-## 3. Estágios → skills
+## 3. Stages → skills
 
-| Estágio | Skill | Fallback sem superpowers | Saída |
+| Stage | Skill | Fallback without superpowers | Output |
 |---|---|---|---|
-| Mapear | `core:archaeology` | — | mapa com citações |
-| Diagnosticar | `superpowers:systematic-debugging` (+ `council:schrodinger` se >1 hipótese viva) | `council:schrodinger` + protocolo de debugging do always-on | causa raiz com evidência |
-| Clarificar | `superpowers:brainstorming` ou `core:grill-me` | `core:grill-me` | decisões acordadas |
-| Especificar/refinar | brainstorming (spec) ou `core:spec-refine` | `core:spec-refine` | spec em `docs/superpowers/specs/` |
-| Checkpoint | `core:grill-me` modo escalação `post-plan` | — | veredito |
-| Quebrar | `superpowers:writing-plans` ou `core:tech-breakdown` | `core:tech-breakdown` | plano em `docs/superpowers/plans/` |
-| Implementar | `superpowers:executing-plans` ou subagent-driven | execução direta com o gate do projeto | código + commits |
-| Revisar | `core:review-local` + `core:grill-me` modo escalação `pre-done` | — | findings resolvidos |
-| Entregar | `core:commit` → `core:pr` | — | commit/PR |
-| Capturar | `core:learn` + `core:compound` | — | memória + handoff |
+| Map | `core:archaeology` | — | map with citations |
+| Diagnose | `superpowers:systematic-debugging` (+ `council:schrodinger` if >1 live hypothesis) | `council:schrodinger` + the always-on debugging protocol | root cause with evidence |
+| Clarify | `superpowers:brainstorming` or `core:grill-me` | `core:grill-me` | agreed decisions |
+| Specify/refine | brainstorming (spec) or `core:spec-refine` | `core:spec-refine` | spec in `docs/superpowers/specs/` |
+| Checkpoint | `core:grill-me` escalation mode `post-plan` | — | verdict |
+| Break down | `superpowers:writing-plans` or `core:tech-breakdown` | `core:tech-breakdown` | plan in `docs/superpowers/plans/` |
+| Implement | `superpowers:executing-plans` or subagent-driven | direct execution with the project's gate | code + commits |
+| Review | `core:review-local` + `core:grill-me` escalation mode `pre-done` | — | resolved findings |
+| Deliver | `core:commit` → `core:pr` | — | commit/PR |
+| Capture | `core:learn` + `core:compound` | — | memory + handoff |
 
-Skills marcadas `core:*` slash-only (`archaeology`, `spec-refine`, `tech-breakdown`, `review-local`, `commit`, `pr`, `compound`): recomende o comando exato (`/core:<nome>`) pro usuário disparar — a tool Skill não as invoca.
+Skills marked `core:*` slash-only (`archaeology`, `spec-refine`, `tech-breakdown`, `review-local`, `commit`, `pr`, `compound`): recommend the exact command (`/core:<name>`) for the user to trigger — the Skill tool doesn't invoke them.
 
-Notas de estágio:
-- Terminal de Investigação ("relatório/handoff"): produzido via `core:compound` (handoff) ou handoff manual proporcional — não há skill própria.
-- `consumer-simulation` é um AGENT, não skill: dispatch como subagente (tool Agent), passando SÓ o texto do ticket + critérios de aceite, nunca a implementação.
-- Revisar num projeto com o plugin mobile instalado: some `mobile:refactor-review` quando a mudança for refactor.
+Stage notes:
+- Investigation's terminal ("report/handoff"): produced via `core:compound` (handoff) or a manual handoff proportional to the work — there's no dedicated skill.
+- `consumer-simulation` is an AGENT, not a skill: dispatch it as a subagent (Agent tool), passing ONLY the ticket text + acceptance criteria, never the implementation.
+- Reviewing in a project with the mobile plugin installed: add `mobile:refactor-review` when the change is a refactor.
 
-## 4. "Desafie meu plano" — qual mecanismo
+## 4. "Challenge my plan" — which mechanism
 
-| Mecanismo | Estágio | Insumo | Cobre o que os outros não |
+| Mechanism | Stage | Input | Covers what the others don't |
 |---|---|---|---|
-| `core:grill-me` (entrevista) | clarificar; antes de dar plano por pronto | decisões em aberto no thread | extrai o que só o operador sabe; resolve dependências decisão-a-decisão |
-| `core:grill-me` (escalação `pre-plan`/`post-plan`/`pre-done`) | checkpoints determinísticos do track | conversa (advisor) ou diff+ACs (subagent cego) | segunda opinião de reviewer mais forte; quebra a bolha epistêmica; não decide pelo operador |
-| `/core:spec-refine` | especificar | spec/ticket escrito | stress-test do artefato com Gap Summary formal |
-| Conselho (`council:council`) | decisão de alto custo de reversão, em qualquer estágio | a decisão + o lean da conversa | modo de raciocínio (reframe, limites, propagação) — não é review de artefato |
+| `core:grill-me` (interview) | clarify; before calling a plan done | open decisions in the thread | extracts what only the operator knows; resolves decisions one dependency at a time |
+| `core:grill-me` (escalation `pre-plan`/`post-plan`/`pre-done`) | the track's deterministic checkpoints | conversation (advisor) or diff+ACs (blind subagent) | second opinion from a stronger reviewer; breaks the epistemic bubble; doesn't decide for the operator |
+| `/core:spec-refine` | specify | written spec/ticket | stress-tests the artifact with a formal Gap Summary |
+| Council (`council:council`) | high reversal-cost decision, at any stage | the decision + the conversation's lean | a reasoning mode (reframe, limits, propagation) — not an artifact review |
 
-Sobreposição aparente se resolve pelo objeto: entrevista interroga **o operador**; escalação interroga **o trabalho** com outro reviewer; spec-refine interroga **o documento**; o Conselho interroga **o raciocínio**.
+Apparent overlap resolves by object: the interview interrogates **the operator**; escalation interrogates **the work** with another reviewer; spec-refine interrogates **the document**; the Council interrogates **the reasoning**.
 
-## 5. Regras de condução
+## 5. Conduction rules
 
-- **Um estágio por vez.** Ao fechar um estágio, recomende as 2-3 próximas rotas com 1 linha de porquê — e PARE. Nunca invoque o próximo estágio sem confirmação do usuário.
-- **Coordenação com superpowers.** Se um fluxo superpowers já está ativo (brainstorming em curso, plano em execução), NÃO assuma a condução: faça só a detecção de estágio, se útil, e defira à skill de estágio ativa.
-- **Estado = artefatos.** O progresso mora nos artefatos (specs/plans/handoffs) — não crie marcador ou arquivo de estado próprio.
-- **Disciplina de sessão.** Uma fase pesada por sessão: *clarificar/especificar* · *implementar* · *revisar/entregar* · *fechar*. Ao cruzar de fase pesada, recomende sessão nova com handoff; o `plan-autoload` reabre planos/handoffs — specs são detectadas pela seção 1 desta skill.
-- **Fechar sempre captura.** Fim de trabalho relevante → `core:learn` (se houve correções/decisões) + handoff proporcional ao trabalho da sessão.
+- **One stage at a time.** When closing a stage, recommend the next 2-3 routes with a 1-line reason — and STOP. Never invoke the next stage without user confirmation.
+- **Coordination with superpowers.** If a superpowers flow is already active (brainstorming in progress, plan in execution), do NOT take over conduction: only do stage detection if useful, and defer to the active stage skill.
+- **State = artifacts.** Progress lives in artifacts (specs/plans/handoffs) — don't create your own state marker or file.
+- **Session discipline.** One heavy phase per session: *clarify/specify* · *implement* · *review/deliver* · *close*. When crossing a heavy-phase boundary, recommend a new session with a handoff; `plan-autoload` reopens plans/handoffs — specs are detected by this skill's section 1.
+- **Closing always captures.** End of relevant work → `core:learn` (if corrections/decisions occurred) + a handoff proportional to the session's work.

@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Invoque quando o usuário pedir para "me grillar" / "grill me", pressionar uma decisão de design, ou antes de dar um plano por pronto (modo entrevista); ou nos checkpoints determinísticos pre-plan / post-plan / pre-done para escalar a um reviewer mais forte com contexto controlado ou cego (modo escalação, ex.: `/core:grill-me pre-done`).
+description: Invoke when the user asks to "grill me" / press on a design decision, or before calling a plan done (interview mode); or at the deterministic checkpoints pre-plan / post-plan / pre-done to escalate to a stronger reviewer with controlled or blind context (escalation mode, e.g., `/core:grill-me pre-done`).
 ---
 
 # grill-me — relentless interview + checkpoint escalation

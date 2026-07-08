@@ -1,136 +1,136 @@
 ---
 name: methodology
-description: Invoque quando o tier sempre-ativo (using-agent-kit) não bastar — metodologia de aplicação específica (verificação, evidência, escopo, investigação, exploração, tooling compartilhado) e referência técnica portável de Claude Code (hooks, advisor), git (rerere, revert parcial) e Flutter/Dart (build_runner). Gatilhos: "esse gate pode dar falso-negativo", "esse critério é proxy do objetivo real?", "hook não disparou", "revert parcial pós-release", "vou dar por pronto/executar — verifiquei o artefato final?".
+description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?".
 ---
 
 # Methodology — tier 2 (on-demand)
 
-Extensão do `using-agent-kit`: lá ficam os princípios de maior recorrência (sempre-ativos); aqui fica metodologia igualmente válida mas de aplicação mais específica, e referência técnica portável entre projetos.
+Extension of `using-agent-kit`: that tier holds the highest-recurrence principles (always-on); this one holds methodology that's equally valid but more specific in application, plus technical reference portable across projects.
 
-## Metodologia
+## Methodology
 
-### Gate de verificação não deriva do próprio artefato sob teste
+### A verification gate must not derive from the artifact under test itself
 
-Um gate que prova "X está limpo/correto" não pode calcular a verdade a partir do próprio X quando X teve a história ou proveniência reescrita/reconstruída — o teste perde o referencial e vira falso-negativo silencioso, o que é pior que não ter gate (dá confiança falsa).
+A gate that proves "X is clean/correct" can't compute the truth from X itself when X had its history or provenance rewritten/reconstructed — the test loses its reference point and becomes a silent false negative, which is worse than no gate at all (it gives false confidence).
 
-**Sinal**: o gate deriva o critério de "limpo" inspecionando o artefato reconstruído, não uma referência que retém a história original.
+**Signal**: the gate derives the "clean" criterion by inspecting the reconstructed artifact, not a reference that retains the original history.
 
-**Failure mode**: gate reporta verde com o problema ainda presente; só aparece depois, em produção ou auditoria manual.
+**Failure mode**: the gate reports green with the problem still present; it only surfaces later, in production or a manual audit.
 
-**Como aplicar**: compute o critério a partir de uma ref que retém a história relevante (branch antiga, diff de uma fatia com histórico); gere a lista de violações programaticamente em vez de à mão; o gate só checa presença/ausência no artefato final. Some um gate inverso quando aplicável (o que não devia mudar, não mudou) — provar limpeza exige provar os dois lados.
-
----
-
-### Objetivo amplo não colapsa num proxy
-
-Quando o pedido é amplo ou qualitativo e falta critério de aceite explícito, desenhe o critério de sucesso de forma que ele FALHE se o objetivo real não foi atingido — não um proxy satisfeito pelo conteúdo que já existia. Ao simplificar, separe complexidade incidental (tooling, passos de build — corte à vontade) de valor essencial (conteúdo/vistas novas — preserve).
-
-**Sinal**: o critério de sucesso passa mesmo quando nada do objetivo declarado mudou; ou uma rodada de simplificação remove conteúdo novo junto com máquina incidental.
-
-**Failure mode**: entrega passa no critério mas não resolve o que foi pedido; retrabalho quando alguém nota a lacuna.
+**How to apply**: compute the criterion from a ref that retains the relevant history (an old branch, a diff of a slice with history); generate the violation list programmatically instead of by hand; the gate only checks presence/absence in the final artifact. Add an inverse gate when applicable (what shouldn't have changed, didn't) — proving cleanliness requires proving both sides.
 
 ---
 
-### Issue pré-existente vira follow-up, não fix no mesmo PR
+### A broad goal doesn't collapse into a proxy
 
-Não corrija, no PR atual, problemas que a mudança não introduziu — funcional, estético ou dívida técnica comum viram ticket separado. Exceção: segurança (vazamento de dado/credencial) é tratada como incidente, não follow-up adiável.
+When the request is broad or qualitative and lacks an explicit acceptance criterion, design the success criterion so it FAILS if the real goal wasn't met — not a proxy satisfied by content that already existed. When simplifying, separate incidental complexity (tooling, build steps — cut freely) from essential value (new content/views — preserve).
 
-**Sinal**: diff inclui fix de algo que já estava quebrado antes da mudança, sem relação com o objetivo do PR.
+**Signal**: the success criterion passes even though nothing of the stated goal changed; or a simplification pass removes new content along with incidental machinery.
 
-**Failure mode**: PR infla escopo, review fica mais difícil, risco de regressão em área não relacionada.
-
----
-
-### Artefato auto-criado não é evidência independente
-
-Um card/doc/draft que você mesmo criou (ou criou a pedido) não conta como evidência independente pra uma conclusão — ele só ecoa o enquadramento que você já tinha. Antes de citar um artefato como evidência, confira a proveniência: se saiu de você/da sua sessão, exclua-o da balança e reconstrua o argumento só com fontes independentes (spec original, código, commits, decisões de terceiros).
-
-**Sinal**: conclusão cita como corroboração um artefato produzido pela própria sessão ou a pedido dela.
-
-**Failure mode**: julgamento circular; confiança inflada numa conclusão frágil que não resiste a uma fonte independente.
+**Failure mode**: the deliverable passes the criterion but doesn't solve what was asked; rework follows once someone notices the gap.
 
 ---
 
-### Evidência é relida no estado atual e gerada, não transcrita
+### A pre-existing issue becomes a follow-up, not a fix in the same PR
 
-Antes de listar um achado (review, auditoria, enumeração), releia a evidência no estado atual — arquivo atual, cwd confirmado, comando sem truncamento (`head`/`tail` mascara contagem/topologia) — nunca a partir de snapshot antigo. E quando o entregável é uma lista humana derivada de fonte estruturada, gere-a por script sobre a fonte, mesmo com N pequeno (mesmo mandamento do §Gate de verificação, "Como aplicar").
+Don't fix, in the current PR, problems the change didn't introduce — functional, cosmetic, or common tech debt become a separate ticket. Exception: security (data/credential leak) is treated as an incident, not a deferrable follow-up.
 
-**Sinal**: achado citado sem reler no mesmo turno; claim negativa ("X não existe") de busca com cwd não confirmado; lista final sem comando/script que a gerou.
+**Signal**: the diff includes a fix for something that was already broken before the change, unrelated to the PR's goal.
 
-**Failure mode**: lista cita item já corrigido ou perde item real — um único erro detectado destrói a credibilidade de toda a entrega.
-
----
-
-### Medir antes de construir tem precondição — não é lei universal
-
-Quando a existência/taxa-base de um alvo é desconhecida (alvo raro, erro silencioso, hipótese não testada), meça antes de construir a solução. Mas só enquanto a precondição se mantém: se a direção já foi decidida explicitamente, reintroduzir o gate de medição — mesmo reformulado — não é rigor, é resistência à decisão.
-
-**Sinal**: medição pós-build encolhe o alvo a cada rodada (solução construída sobre presunção); ou o gate reaparece reformulado após decisão explícita já tomada.
-
-**Failure mode**: anedota isolada vira subsistema antes de confirmar tamanho real; ou, no sentido inverso, medição repetida vira adiamento que nunca converge em entrega.
+**Failure mode**: PR scope inflates, review gets harder, regression risk in an unrelated area.
 
 ---
 
-### Tooling compartilhado separa infraestrutura, padrão de time e preferência pessoal
+### A self-created artifact is not independent evidence
 
-Ao distribuir configuração que outros vão herdar, separe três camadas: infraestrutura universal (nível compartilhado), padrão de time (convenção acordada, com enforcement explícito) e preferência pessoal (estilo individual — nível de usuário/local, nunca no compartilhado).
+A card/doc/draft you created yourself (or created on request) doesn't count as independent evidence for a conclusion — it only echoes the framing you already had. Before citing an artifact as evidence, check its provenance: if it came from you/your session, exclude it from the scale and rebuild the argument using only independent sources (the original spec, code, commits, third-party decisions).
 
-**Sinal**: config compartilhada carrega preferência de um indivíduo que o time nunca acordou como padrão.
+**Signal**: a conclusion cites, as corroboration, an artifact produced by the session itself or at its request.
 
-**Failure mode**: onboarding gera fricção; config apodrece rápido porque preferência pessoal muda mais que padrão de time.
-
-**Como aplicar**: antes de commitar um item de config compartilhada, pergunte "um colega competente discordaria disso com razão válida?" — se sim, é camada pessoal.
+**Failure mode**: circular judgment; inflated confidence in a fragile conclusion that doesn't survive an independent source.
 
 ---
 
-### Dois caminhos de leitura independentes exigem instrumentar os dois
+### Evidence is re-read in its current state and generated, not transcribed
 
-Quando um valor tem duas rotas de leitura pro mesmo dado lógico (uma camada renderiza de uma fonte, uma validação lê de outra), não trate uma como prova de que a outra tem o mesmo valor — mapeie e instrumente as duas nos boundaries de camada antes de formar hipótese.
+Before listing a finding (review, audit, enumeration), re-read the evidence in its current state — current file, confirmed cwd, an untruncated command (`head`/`tail` masks count/topology) — never from an old snapshot. And when the deliverable is a human-readable list derived from a structured source, generate it via script over the source, even with small N (same commandment as §Verification gate, "How to apply").
 
-**Sinal**: hipótese assume que "a camada A mostra X" implica que a camada B também tem X, sem checar B direto.
+**Signal**: a finding cited without re-reading in the same turn; a negative claim ("X doesn't exist") from a search with unconfirmed cwd; a final list with no command/script that generated it.
 
-**Failure mode**: hipótese aplicada antes da cadeia completa mapeada não corrige nada; o ciclo de investigação é refeito do zero.
-
-**NÃO se aplica quando**: o bug já tem causa localizada numa única camada.
+**Failure mode**: the list cites an already-fixed item or misses a real one — a single detected error destroys the credibility of the entire deliverable.
 
 ---
 
-### Output de exploração usa frame de oportunidade, com severidade ancorada
+### Measure before building has a precondition — it isn't a universal law
 
-Em output de mapeamento/exploração destinado a decisão (não review pontual), prefira "Oportunidades de melhoria" a "Riscos"/"Remoções". Ancore severidade em rubrica explícita (bloqueia decisão vs. tem workaround vs. débito conhecido), não em vibe. Abra com TL;DR curto, rankeie no máximo ~5 itens-chave, cite arquivo:linha por item — sem citação é inferência, corte.
+When a target's existence/base rate is unknown (rare target, silent failure, untested hypothesis), measure before building the solution. But only while the precondition holds: if the direction has already been explicitly decided, reintroducing the measurement gate — even reframed — isn't rigor, it's resistance to the decision.
 
-**Sinal**: severidade sem rubrica; sem TL;DR; mais de ~5 itens todos "prioritários".
+**Signal**: post-build measurement shrinks the target every round (a solution built on presumption); or the gate reappears reframed after an explicit decision was already made.
 
-**Failure mode**: leitor recebe wall of data e refaz a priorização que o relatório deveria ter feito.
+**Failure mode**: an isolated anecdote becomes a subsystem before confirming its real size; or, conversely, repeated measurement becomes a delay that never converges into delivery.
 
 ---
 
-### Checkpoint de consolidação e gate de advisor nas transições que comprometem
+### Shared tooling separates infrastructure, team standard, and personal preference
 
-Em investigação longa, não empilhe hipóteses paralelas sem fechar cada uma — periodicamente (e sempre que a direção for desafiada) produza um quadro único: provado com evidência vs. aberto, e UM próximo passo. Pra tema crítico, investigação linear sozinha não basta: faça fan-out por dimensão e verifique cada achado contra a fonte primária antes de sintetizar. Nas transições que comprometem, verifique o artefato FINAL (não só a abordagem): saindo de planejamento, advisor; declarando concluído, prefira subagent cego adversarial — o advisor vê a conversa inteira e herda o ponto cego do "tá pronto" (ver §Advisor nativo abaixo).
+When distributing configuration others will inherit, separate three layers: universal infrastructure (shared level), team standard (agreed convention, with explicit enforcement), and personal preference (individual style — user/local level, never in the shared layer).
 
-**Sinal**: 3+ hipóteses paralelas nunca fechadas; transição plano→execução ou "pronto" sem verificação independente do artefato final.
+**Signal**: shared config carries one individual's preference that the team never agreed on as a standard.
 
-**Failure mode**: ruído consome a sessão sem fio condutor; buraco que um revisor fresco pegaria só aparece horas dentro da execução.
+**Failure mode**: onboarding friction; config rots fast because personal preference changes more often than team standard.
 
-**Como aplicar**: plano trivial (typo, rename único) pula o gate; ≥3 itens ou ≥1 fase de código passa por ele.
+**How to apply**: before committing a shared-config item, ask "would a competent colleague reasonably disagree with this?" — if yes, it's a personal-layer concern.
 
-## Referência Técnica
+---
+
+### Two independent read paths require instrumenting both
+
+When a value has two read paths to the same logical data (one layer renders from one source, a validation reads from another), don't treat one as proof that the other has the same value — map and instrument both at the layer boundaries before forming a hypothesis.
+
+**Signal**: the hypothesis assumes "layer A shows X" implies layer B also has X, without checking B directly.
+
+**Failure mode**: the hypothesis applied before the full chain is mapped fixes nothing; the investigation cycle gets redone from scratch.
+
+**Does NOT apply when**: the bug already has a root cause localized to a single layer.
+
+---
+
+### Exploration output uses an opportunity frame, with anchored severity
+
+In mapping/exploration output meant for a decision (not a point-in-time review), prefer "Improvement opportunities" over "Risks"/"Removals". Anchor severity to an explicit rubric (blocks the decision vs. has a workaround vs. known debt), not vibe. Open with a short TL;DR, rank at most ~5 key items, cite file:line per item — no citation is inference, cut it.
+
+**Signal**: severity with no rubric; no TL;DR; more than ~5 items all "priority".
+
+**Failure mode**: the reader gets a wall of data and has to redo the prioritization the report should have done.
+
+---
+
+### Consolidation checkpoint and advisor gate at the transitions that commit
+
+In a long investigation, don't stack parallel hypotheses without closing each one — periodically (and whenever the direction is challenged) produce a single frame: proven-with-evidence vs. open, and ONE next step. For a critical topic, linear investigation alone isn't enough: fan out by dimension and verify each finding against the primary source before synthesizing. At the transitions that commit, verify the FINAL artifact (not just the approach): leaving planning, use the advisor; declaring done, prefer a blind adversarial subagent — the advisor sees the whole conversation and inherits the "looks done" blind spot (see §Native advisor below).
+
+**Signal**: 3+ parallel hypotheses never closed; a plan→execution transition or a "done" claim with no independent verification of the final artifact.
+
+**Failure mode**: noise consumes the session with no throughline; a gap a fresh reviewer would catch only surfaces hours into execution.
+
+**How to apply**: a trivial plan (typo, single rename) skips the gate; ≥3 items or ≥1 code phase goes through it.
+
+## Technical Reference
 
 ### Claude Code
 
-- **Payload de hook**: `PostToolUse` recebe `tool_response` (objeto com o resultado), não `tool_output`; `UserPromptSubmit` entrega `prompt` (texto cru). O formato varia por hook event — confira o schema oficial (`docs/en/hooks`) antes de assumir um campo.
-- **Output JSON de `UserPromptSubmit`**: pra injetar contexto, `additionalContext` precisa estar aninhado sob `hookSpecificOutput` (`{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "..."}}`). No nível raiz é JSON válido mas **descartado silenciosamente** (exit 0, sem erro) — o smoke-test tem que checar o efeito, não só o exit code.
-- **Verificar se um hook está registrado**: cheque as DUAS fontes — settings do usuário (`~/.claude/settings.json`) E do projeto (`.claude/settings.json` + `.claude/settings.local.json`) — antes de concluir "não registrado". Checar só uma fonte já produziu claim errado, inclusive por um revisor cego adversarial que checou a fonte errada.
-- **`.claude/rules/` vs `.claude/docs/` vs `.claude/skills/`**: `rules/*.md` é auto-loaded (único mecanismo que dispara em generation-time); `docs/*.md` é inerte — só carrega se algum consumidor cabeado o referenciar explicitamente (review-time); `skills/` (SKILL.md) é on-demand mas auto-descoberto pela description. Regra que precisa moldar código em generation-time vai em `rules/`, não em `docs/`.
-- **Advisor nativo** (`/advisor <model>`): tool server-side que consulta um modelo mais forte em decision points; o próprio Claude decide quando chamar (model-driven, não regra). Recebe SEMPRE a conversa inteira — não existe modo cego. Bom pra planejamento (contexto ajuda); ruim pra quebrar ponto cego de auto-avaliação ("tá pronto") — aí prefira um subagent cego adversarial (input mínimo, mandato de refutar).
-- **Model vs. effort**: dois eixos, não um. Trocar de modelo troca os pesos — o que o Claude *sabe*; effort regula quanto trabalho ele faz antes de dar por pronto — quantos arquivos lê, quanto verifica, quão longe vai numa tarefa multi-step sem checar com você. Resultado errado: primeiro conserte o input (prompt, tools, skills, contexto — a causa mais comum de erro não é setting); se ele pulou arquivo/teste/verificação, suba effort ("não tentou o suficiente"); se leu tudo, claramente tentou e segue confiantemente errado, suba de modelo ("não sabia o suficiente"). Effort é preferência geral por domínio, não ajuste por tarefa; em trecho rotineiro prolongado, descer de modelo corta custo e latência sem perder qualidade.
+- **Hook payload**: `PostToolUse` receives `tool_response` (an object with the result), not `tool_output`; `UserPromptSubmit` delivers `prompt` (raw text). The format varies by hook event — check the official schema (`docs/en/hooks`) before assuming a field.
+- **`UserPromptSubmit` JSON output**: to inject context, `additionalContext` must be nested under `hookSpecificOutput` (`{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "..."}}`). At the root level it's valid JSON but **silently discarded** (exit 0, no error) — the smoke test has to check the effect, not just the exit code.
+- **Checking whether a hook is registered**: check BOTH sources — user settings (`~/.claude/settings.json`) AND project settings (`.claude/settings.json` + `.claude/settings.local.json`) — before concluding "not registered". Checking only one source has already produced a wrong claim, including from a blind adversarial reviewer who checked the wrong source.
+- **`.claude/rules/` vs. `.claude/docs/` vs. `.claude/skills/`**: `rules/*.md` is auto-loaded (the only mechanism that fires at generation time); `docs/*.md` is inert — it only loads if some wired consumer references it explicitly (review-time); `skills/` (SKILL.md) is on-demand but auto-discovered via the description. A rule that needs to shape code at generation time goes in `rules/`, not `docs/`.
+- **Native advisor** (`/advisor <model>`): a server-side tool that consults a stronger model at decision points; Claude itself decides when to call it (model-driven, not a rule). It ALWAYS receives the whole conversation — there is no blind mode. Good for planning (context helps); bad for breaking a self-assessment blind spot ("looks done") — prefer a blind adversarial subagent there (minimal input, mandate to refute).
+- **Model vs. effort**: two axes, not one. Switching models swaps the weights — what Claude *knows*; effort regulates how much work it does before calling it done — how many files it reads, how much it verifies, how far it goes on a multi-step task without checking with you. Wrong result: fix the input first (prompt, tools, skills, context — the most common cause of error is not a setting); if it skipped a file/test/verification, raise effort ("didn't try hard enough"); if it read everything, clearly tried, and confidently kept being wrong, raise model ("didn't know enough"). Effort is a general per-domain preference, not a per-task tweak; for a long routine stretch, dropping model cuts cost and latency without losing quality.
 
 ### Git
 
-- **`rerere` pode reaplicar resolução errada silenciosamente**: com `rerere.enabled=true`, refazer um cherry-pick/merge cuja tentativa anterior resolveu um conflito ERRADO faz o git reaplicar a resolução gravada (`using previous resolution`) — sem markers de conflito, sem aviso visual. Ao re-tentar depois de uma resolução buggy, purgue as entradas do dia em `.git/rr-cache` (ou rode com `-c rerere.enabled=false`) antes de continuar.
-- **Recuperar feature de um revert parcial**: quando um revert manteve a infra e reverteu só a UI, reaplicar a feature original via cherry-pick gera conflitos de "já aplicado" (a infra já está lá). O caminho cirúrgico é `git revert -m 1 <revert-commit>` — reverte o revert, trazendo de volta exatamente o que foi removido, nada mais. Sinal pra usar essa via: o diffstat do revert é bem menor que o da feature original (revert parcial); se for simétrico, é revert total e cherry-pick direto é seguro.
+- **`rerere` can silently reapply a wrong resolution**: with `rerere.enabled=true`, redoing a cherry-pick/merge whose earlier attempt resolved a conflict WRONG makes git reapply the recorded resolution (`using previous resolution`) — no conflict markers, no visual warning. When retrying after a buggy resolution, purge that day's entries in `.git/rr-cache` (or run with `-c rerere.enabled=false`) before continuing.
+- **Recovering a feature from a partial revert**: when a revert kept the infra and reverted only the UI, reapplying the original feature via cherry-pick generates "already applied" conflicts (the infra is already there). The surgical path is `git revert -m 1 <revert-commit>` — reverts the revert, bringing back exactly what was removed, nothing more. Signal to use this path: the revert's diffstat is much smaller than the original feature's (partial revert); if it's symmetric, it's a full revert and a direct cherry-pick is safe.
 
 ### Flutter / Dart
 
-- **`build_runner` regenera arquivos fora do escopo da mudança**: rodar `build_runner build` pra uma mudança pontual de DI pode regenerar dezenas de `.g.dart` de módulos não relacionados por churn puramente cosmético (drift de formatação entre versões do toolchain). Depois de rodar, restrinja o commit aos arquivos de fato relevantes: liste os `.g.dart` tocados, reverta os fora de escopo, mantenha só o que a mudança pediu de fato. Não aceite "é pré-existente" de um subagent sem checar você mesmo com `git diff`.
+- **`build_runner` regenerates files outside the change's scope**: running `build_runner build` for a targeted DI change can regenerate dozens of unrelated modules' `.g.dart` files from purely cosmetic churn (formatting drift between toolchain versions). After running it, restrict the commit to the files actually relevant: list the touched `.g.dart` files, revert the out-of-scope ones, keep only what the change actually asked for. Don't accept "it's pre-existing" from a subagent without checking yourself with `git diff`.

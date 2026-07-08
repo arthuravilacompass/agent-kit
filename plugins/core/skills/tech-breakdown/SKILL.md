@@ -1,6 +1,6 @@
 ---
 name: tech-breakdown
-description: Invoque para transformar um ticket em plano de implementação pronto para desenvolvedor — busca o ticket, roda brainstorming + refinamento adversarial + writing-plans, e faz o critic-phase grillar o plano contra o codebase real. Uso típico do Tech Lead.
+description: Invoke to turn a ticket into a developer-ready implementation plan — fetches the ticket, runs brainstorming + adversarial refinement + writing-plans, and has the critic phase grill the plan against the real codebase. Typical Tech Lead use.
 disable-model-invocation: true
 ---
 
@@ -10,16 +10,16 @@ Fetch a ticket, perform technical analysis, and produce a ready-to-develop imple
 
 **Intended user:** Tech Lead (TL)
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor define:
-- **Tracker de ticket** — de onde vem o texto do ticket (Jira, Linear, um board Kanban interno, ou texto colado manualmente). O mecanismo abaixo usa Jira como exemplo concreto, mas depende só do **conteúdo do ticket**, nunca de uma integração específica.
-- **Padrão/prefixo de ticket ID** — usado só para nomear o arquivo do plano salvo (ex.: `PROJ-123`, `ACME-456`). Sem essa config, use o ID tal como o usuário forneceu.
-- **Convenção de stack usada no critic phase** — nomes de lib de logging, padrão de erro, serialização etc. que o critic deve validar contra o codebase real (ver Step 7).
+This skill assumes the consumer project defines:
+- **Ticket tracker** — where the ticket text comes from (Jira, Linear, an internal Kanban board, or text pasted manually). The mechanism below uses Jira as a concrete example, but depends only on the **ticket's content**, never on a specific integration.
+- **Ticket ID pattern/prefix** — used only to name the saved plan file (e.g., `PROJ-123`, `ACME-456`). Without this config, use the ID as the user provided it.
+- **Stack convention used in the critic phase** — logging library names, error pattern, serialization, etc. that the critic should validate against the real codebase (see Step 7).
 
 ## Prerequisites
 
-- Um tool de tracker de ticket configurado na sessão (ex.: MCP Atlassian) — ou o usuário cola o texto do ticket diretamente.
+- A ticket-tracker tool configured in the session (e.g., MCP Atlassian) — or the user pastes the ticket text directly.
 - superpowers marketplace skills must be installed
 
 ## Steps
@@ -78,7 +78,7 @@ Este skill assume que o projeto consumidor define:
 
 5. **Adversarial spec refinement**
 
-   Before writing the plan, run `core:spec-refine` (se disponível neste kit) against the spec produced in step 4.
+   Before writing the plan, run `core:spec-refine` (if available in this kit) against the spec produced in step 4.
 
    This stress-tests the spec for missing error paths, ambiguous states, and unwritten invariants. The session produces a Gap Summary that is incorporated into the spec before planning begins.
 
@@ -99,7 +99,7 @@ Este skill assume que o projeto consumidor define:
 
    - For each lib/utility named in the plan, does it already exist in the codebase? Grep and cite the file.
    - For each new file/class/store proposed, is there a close analogue already (avoid parallel implementations)?
-   - For each "we'll use library X" assumption, does the project actually use X? (Confirm the project's real convention for logging, error handling, serialization, etc. — see **Config do projeto** — instead of assuming a default.)
+   - For each "we'll use library X" assumption, does the project actually use X? (Confirm the project's real convention for logging, error handling, serialization, etc. — see **Project config** — instead of assuming a default.)
    - For each analytical claim (file count, token count, lines of code), was a project script used (config: e.g. `scripts/analyze_tokens.py`) or only shell approximation?
 
    The critic returns PASS (proceed) or FAIL (concrete gaps → loop back to step 4 brainstorming with gaps as input; cap at 2 critic rounds; if still failing, escalate to the TL).
@@ -108,57 +108,57 @@ Este skill assume que o projeto consumidor define:
 
    After saving the plan, resolve the *add-comment* tool available in the session at runtime (do not hardcode an MCP tool name — see Step 2) and add a comment to the ticket with the plan path: `"Implementation plan created: docs/superpowers/plans/YYYY-MM-DD-<ticket-id>-<title>.md"`.
 
-9. **Hand off ao desenvolvedor com verifier**
+9. **Hand off to the developer with a verifier**
 
-   Apresente ao TL:
-   - Caminho do plano salvo
-   - Resumo da abordagem escolhida
-   - Sub-tasks sugeridas (se o escopo merecer split)
-   - **Verifier** (sinais abaixo) — embed nos critérios de "done" de cada phase
+   Present to the TL:
+   - Path to the saved plan
+   - Summary of the chosen approach
+   - Suggested sub-tasks (if the scope warrants a split)
+   - **Verifier** (signals below) — embed in each phase's "done" criteria
 
-   Plano pronto para developer executar via `superpowers:executing-plans`.
+   Plan ready for the developer to execute via `superpowers:executing-plans`.
 
-   **Verifier — sinais antes de declarar phase completa** (heurística, não checklist rígido):
+   **Verifier — signals before declaring a phase complete** (heuristic, not a rigid checklist):
 
-   Antes de qualquer claim "F1 / F2 / Phase N completa", confirme o que fizer sentido pra phase:
-   - Arquivos esperados realmente tocados (`git status` / `git diff --stat`).
-   - Acceptance criteria observavelmente cumpridos (não inferidos de "código compilou").
-   - Testes / analyzer rodaram com output capturado.
-   - Phases anteriores realmente terminaram antes de avançar.
+   Before any "F1 / F2 / Phase N complete" claim, confirm whatever makes sense for the phase:
+   - Expected files actually touched (`git status` / `git diff --stat`).
+   - Acceptance criteria observably met (not inferred from "the code compiled").
+   - Tests / analyzer ran with captured output.
+   - Prior phases actually finished before moving on.
 
-   Se algum sinal falha, phase fica `in_progress`. Não reporte "phase completa" upstream sem voltar e fechar a lacuna.
+   If any signal fails, the phase stays `in_progress`. Do not report "phase complete" upstream without going back and closing the gap.
 
-   Por que existe: sessões anteriores já claimaram phase completa quando brainstorming/writing-plans/critic não tinham de fato rodado — o verifier existe para não repetir esse gap entre "achei que terminei" e "terminei de verdade".
+   Why it exists: past sessions have claimed a phase complete when brainstorming/writing-plans/critic hadn't actually run — the verifier exists so the gap between "I thought I was done" and "I was actually done" doesn't repeat.
 
-## Quando o ticket está incompleto
+## When the ticket is incomplete
 
-Antes de gerar o tech breakdown, valide que o ticket tem:
+Before generating the tech breakdown, validate that the ticket has:
 
-- **Acceptance Criteria** (comportamento observável que valida pronto)
-- **Entrypoints sugeridos** (arquivos/módulos que devem ser tocados)
-- **Test Plan** (lista de testes a implementar — unidade/widget/integração)
+- **Acceptance Criteria** (observable behavior that validates done)
+- **Suggested entrypoints** (files/modules expected to be touched)
+- **Test Plan** (list of tests to implement — unit/widget/integration)
 
-Se 1+ está ausente, **pergunte ao usuário 3 perguntas curtas** antes de gerar o breakdown:
+If 1+ is missing, **ask the user 3 short questions** before generating the breakdown:
 
-1. "Quais arquivos esperamos tocar?"
-2. "Que comportamento valida que está pronto?"
-3. "Alguma constraint específica do projeto (ver Config do projeto / design system / tier de state management, etc.)?"
+1. "Which files do we expect to touch?"
+2. "What behavior validates that it's done?"
+3. "Any project-specific constraint (see Project config / design system / state-management tier, etc.)?"
 
-Use as respostas para preencher o tech breakdown. Se o ticket já tem essas seções, trate como contrato e use diretamente.
+Use the answers to fill in the tech breakdown. If the ticket already has these sections, treat them as a contract and use them directly.
 
-NÃO crie um template required. Esta é uma heurística — o usuário pode dizer "skip, vamos com o que tem".
+Do NOT create a required template. This is a heuristic — the user can say "skip, let's go with what we have".
 
-## Sinais de gordura a cortar
+## Fat signals to cut
 
-Antes de finalizar o artefato, releia procurando por:
+Before finalizing the artifact, re-read it looking for:
 
-- **Background duplicando o ticket** — se está no card, não precisa repetir aqui.
-- **"Alternatives Considered" sem decisão** — se você não escolheu, não codifica.
-- **Exemplos de código que vão estar no diff** — refira o diff, não duplique.
-- **Listas de arquivos sem o "porquê"** — entrypoint sem motivo de tocar é ruído.
-- **Seções "Background" + "Motivation" + "Context"** redundantes — escolha uma.
+- **Background duplicating the ticket** — if it's on the card, no need to repeat it here.
+- **"Alternatives Considered" with no decision** — if you didn't choose, don't encode it.
+- **Code examples that will be in the diff** — reference the diff, don't duplicate it.
+- **File lists with no "why"** — an entrypoint with no reason to touch it is noise.
+- **Redundant "Background" + "Motivation" + "Context" sections** — pick one.
 
-Se 2+ sinais aparecem, provavelmente há ~30% de gordura cortável. Decisão de cortar ou justificar mantendo é sua.
+If 2+ signals appear, there's probably ~30% cuttable fat. Whether to cut or justify keeping it is your call.
 
 ## Important
 

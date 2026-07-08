@@ -1,74 +1,74 @@
 ---
 name: commit
-description: Invoque para rodar validação pré-commit (lint + testes) e criar um commit convencional a partir do diff staged — nunca commita sem aprovação explícita do usuário.
+description: Invoke to run pre-commit validation (lint + tests) and create a conventional commit from the staged diff — never commits without explicit user approval.
 disable-model-invocation: true
 ---
 
-# commit — Commit Padronizado
+# commit — Standardized Commit
 
-Valida o diff staged (lint, depois testes) e gera uma mensagem de commit convencional a partir dele. Só executa `git commit` depois de aprovação explícita do usuário.
+Validates the staged diff (lint, then tests) and generates a conventional commit message from it. Only runs `git commit` after explicit user approval.
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor define:
-- **Comando de lint/static analysis** (ex.: `flutter analyze`, `eslint .`, `ruff check`).
-- **Comando de testes** (ex.: `flutter test`, `npm test`, `pytest`).
+This skill assumes the consumer project defines:
+- **Lint/static analysis command** (e.g., `flutter analyze`, `eslint .`, `ruff check`).
+- **Test command** (e.g., `flutter test`, `npm test`, `pytest`).
 
-Sem essas configs, pule as steps 2/3 e avise o usuário que a validação automática não pôde rodar.
+Without these configs, skip steps 2/3 and warn the user that automatic validation could not run.
 
-## Passos
+## Steps
 
-1. **Verificar arquivos staged**
+1. **Check staged files**
 
-   Rode `git diff --cached --stat` para ver o que está staged.
+   Run `git diff --cached --stat` to see what's staged.
 
-   Se nada estiver staged, rode `git diff --stat` para mostrar as mudanças não staged e pergunte ao usuário: "Nothing is staged. Which files would you like to stage?"
+   If nothing is staged, run `git diff --stat` to show unstaged changes and ask the user: "Nothing is staged. Which files would you like to stage?"
 
-2. **Rodar lint**
+2. **Run lint**
 
-   Rode o comando de lint/static-analysis do projeto (config acima).
+   Run the project's lint/static-analysis command (config above).
 
-   Se o lint falhar, reporte todos os erros e **PARE**. Não prossiga para o commit.
+   If lint fails, report all errors and **STOP**. Do not proceed to commit.
 
-3. **Rodar testes**
+3. **Run tests**
 
-   Rode o comando de testes do projeto (config acima).
+   Run the project's test command (config above).
 
-   Se os testes falharem, reporte as falhas e **PARE**. Não prossiga para o commit.
+   If tests fail, report the failures and **STOP**. Do not proceed to commit.
 
-4. **Analisar o diff staged**
+4. **Analyze the staged diff**
 
-   Rode `git diff --cached` para entender o que está mudando.
+   Run `git diff --cached` to understand what's changing.
 
-5. **Gerar a mensagem de commit**
+5. **Generate the commit message**
 
-   Crie uma mensagem seguindo este formato:
+   Create a message following this format:
    ```
    <type>: <description>
 
    <optional body>
    ```
 
-   Regras:
-   - Type: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf` ou `ci`
-   - Description: inglês, modo imperativo, sem ponto final, máximo 72 caracteres
-   - Body: opcional, adicione quando o título sozinho não for autoexplicativo
-   - Sem emojis
+   Rules:
+   - Type: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, or `ci`
+   - Description: English, imperative mood, no trailing period, max 72 characters
+   - Body: optional, add when the title alone isn't self-explanatory
+   - No emojis
 
-6. **Apresentar para aprovação**
+6. **Present for approval**
 
-   Mostre ao usuário:
-   - Resumo dos arquivos staged
-   - Mensagem de commit proposta
-   - Pergunte: "Proceed with this commit? Reply with: yes, edit [new message], or abort"
+   Show the user:
+   - Summary of staged files
+   - Proposed commit message
+   - Ask: "Proceed with this commit? Reply with: yes, edit [new message], or abort"
 
-7. **Executar o commit somente após aprovação explícita**
+7. **Execute the commit only after explicit approval**
 
-   Só rode `git commit -m "..."` depois que o usuário confirmar com "yes".
+   Only run `git commit -m "..."` after the user confirms with "yes".
 
-   Se o usuário disser "edit", use a nova mensagem dele.
-   Se o usuário disser "abort", pare.
+   If the user says "edit", use their new message.
+   If the user says "abort", stop.
 
-## Regras invioláveis
+## Inviolable rules
 
-Nunca pule lint ou testes. Nunca commite com `--no-verify`.
+Never skip lint or tests. Never commit with `--no-verify`.

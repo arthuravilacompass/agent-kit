@@ -1,53 +1,53 @@
 ---
 name: review-remote
-description: Invoque para revisar código sem depender de plugins externos — pre-push do próprio trabalho (Flow A) ou review de PR alheio via `--branch` (Flow B), com comparação de escopo contra ticket via `--ticket`. Sequencial, plugin-free.
+description: Invoke to review code without depending on external plugins — pre-push of your own work (Flow A) or review of someone else's PR via `--branch` (Flow B), with scope comparison against a ticket via `--ticket`. Sequential, plugin-free.
 disable-model-invocation: true
 ---
 
-# review-remote — Code Review (plugin-free, sequencial)
+# review-remote — Code Review (plugin-free, sequential)
 
-> **Qual usar**: este skill é plugin-free e sequencial. Com o plugin `pr-review-toolkit` ativo, prefira `core:review-local` (paralelo). **Divergência**: `core:review-local` BLOQUEIA em analyze-fail; este reporta como finding e segue.
+> **Which to use**: this skill is plugin-free and sequential. With the `pr-review-toolkit` plugin active, prefer `core:review-local` (parallel). **Divergence**: `core:review-local` BLOCKS on analyze-fail; this one reports it as a finding and continues.
 
-Review de código para o time, sem dependência de plugins externos.
+Code review for the team, with no dependency on external plugins.
 
-## Config do projeto
+## Project config
 
-Este skill assume que o projeto consumidor define:
-- **Branch base default** (fallback se `--base` não for passado; ex.: `main`).
-- **Comando de lint** e **comando de testes** (Flow A, Step 2).
-- **Checklist de Camada 1** — itens universais de review sempre aplicados (config: quantidade e conteúdo dependem do projeto; ex.: um arquivo `CHECKLIST.md` de uma skill de code-review própria).
-- **Checklist de Camada 2** — gatilhos contextuais (UI, state management, listas, i18n, imagens, animações, navegação) e a skill que os aplica.
-- **Regras de state-management/arquitetura específicas do stack** (Step 5), se o projeto usa um framework com padrões próprios (ex.: uma lib reativa com convenções de mutação).
-- **Prefixos de comentário e destino do output** (Step 8 do Flow B) — ex.: `blocker:`/`non-blocker:` para Bitbucket, ou o formato de review nativo do GitHub.
+This skill assumes the consumer project defines:
+- **Default base branch** (fallback if `--base` isn't passed; e.g., `main`).
+- **Lint command** and **test command** (Flow A, Step 2).
+- **Layer 1 checklist** — universal review items always applied (config: quantity and content depend on the project; e.g. a `CHECKLIST.md` file from the project's own code-review skill).
+- **Layer 2 checklist** — contextual triggers (UI, state management, lists, i18n, images, animations, navigation) and the skill that applies them.
+- **Stack-specific state-management/architecture rules** (Step 5), if the project uses a framework with its own patterns (e.g. a reactive-state lib with mutation conventions).
+- **Comment prefixes and output destination** (Flow B Step 8) — e.g. `blocker:`/`non-blocker:` for Bitbucket, or GitHub's native review format.
 
-Sem essas configs, o skill ainda roda a estrutura de Steps abaixo, só sem os checklists específicos do stack.
+Without these configs, the skill still runs the Steps structure below, just without the stack-specific checklists.
 
 ## Usage
 
 ```
-review-remote                                           # Flow A: pre-push do próprio trabalho
-review-remote --base <branch>                           # Flow A com base explícita
-review-remote --branch feat/<algo>                       # Flow B: review de PR alheio
-review-remote --branch feat/<algo> --base <base>          # Flow B com base diferente
-review-remote --branch feat/<algo> --ticket <TICKET>       # Flow B + comparação de escopo com ticket
+review-remote                                             # Flow A: pre-push of your own work
+review-remote --base <branch>                             # Flow A with an explicit base
+review-remote --branch feat/<something>                    # Flow B: review someone else's PR
+review-remote --branch feat/<something> --base <base>       # Flow B with a different base
+review-remote --branch feat/<something> --ticket <TICKET>    # Flow B + scope comparison with a ticket
 ```
 
-Parâmetros:
-- `--branch` — branch remota do PR; sem este flag = Flow A (pre-push)
-- `--base` — branch base do diff (default: config acima)
-- `--ticket` — identificador de ticket para comparação de escopo (somente com `--branch`)
+Parameters:
+- `--branch` — the PR's remote branch; without this flag = Flow A (pre-push)
+- `--base` — the diff's base branch (default: config above)
+- `--ticket` — ticket identifier for scope comparison (only with `--branch`)
 
 ---
 
-## Step 0 — Detectar modo
+## Step 0 — Detect mode
 
 Parse `$ARGUMENTS`:
-- `--branch` presente → **Flow B** (ir para seção Flow B abaixo)
-- `--branch` ausente → **Flow A** (continuar abaixo)
+- `--branch` present → **Flow B** (go to the Flow B section below)
+- `--branch` absent → **Flow A** (continue below)
 
 ---
 
-## Flow A — Pre-push (sem `--branch`)
+## Flow A — Pre-push (no `--branch`)
 
 ### Step 1 — Resolve scope
 
@@ -55,108 +55,108 @@ Parse `$ARGUMENTS`:
 git diff origin/<base>...HEAD --stat
 ```
 
-Se o output estiver vazio: parar. Reportar "Nenhuma alteração em relação a `origin/<base>`."
+If the output is empty: stop. Report "No changes relative to `origin/<base>`."
 
-Exibir o `--stat` para que o autor confirme o escopo antes de prosseguir.
+Show the `--stat` output so the author confirms scope before proceeding.
 
 ### Step 2 — Precondition
 
-Executar em sequência o comando de lint e o comando de testes do projeto (config).
+Run the project's lint command and test command in sequence (config).
 
-Reportar os resultados (erros, warnings, falhas de teste). **Não bloquear** — falhas viram findings do review, não impedem a continuação.
+Report the results (errors, warnings, test failures). **Do not block** — failures become review findings, they don't stop the flow.
 
-### Step 3 — Camada 1
+### Step 3 — Layer 1
 
-Obter o diff completo: `git diff origin/<base>...HEAD`
+Get the full diff: `git diff origin/<base>...HEAD`
 
-Aplicar o checklist de Camada 1 do projeto (config) contra todos os arquivos alterados. Documentar cada violação encontrada com file path e número de linha.
+Apply the project's Layer 1 checklist (config) against all changed files. Document each violation found with file path and line number.
 
-### Step 4 — Camada 2
+### Step 4 — Layer 2
 
-Verificar gatilhos contextuais presentes no diff (config — exemplos típicos): UI/componentes, reações de state management, listas/coleções, i18n/l10n (strings novas, formatação), imagens de rede, animações, navegação. Para cada gatilho verdadeiro, invocar a skill de code-review do projeto configurada para essa dimensão.
+Check for contextual triggers present in the diff (config — typical examples): UI/components, state-management reactions, lists/collections, i18n/l10n (new strings, formatting), network images, animations, navigation. For each true trigger, invoke the project's code-review skill configured for that dimension.
 
-### Step 5 — Regras de stack (se aplicável)
+### Step 5 — Stack rules (if applicable)
 
-Para cada arquivo de state/controller presente no diff, ler as regras de qualidade específicas do stack do projeto (config) — tanto os códigos sempre-aplicados quanto os aspiracionais.
+For each state/controller file present in the diff, read the project's stack-specific quality rules (config) — both the always-applied codes and the aspirational ones.
 
 ### Step 6 — Aggregate
 
-**Verification Discipline obrigatória:** antes de incluir qualquer finding no relatório, reler as linhas exatas do arquivo. Descartar findings de problemas já corrigidos.
+**Mandatory Verification Discipline:** before including any finding in the report, re-read the file's exact lines. Discard findings for problems already fixed.
 
-Consolidar todos os findings em pt-BR, agrupados por severidade (config: nomes/prefixos de severidade do projeto — ex.: `blocker:` / `non-blocker:`).
+Consolidate all findings, grouped by severity (config: the project's severity names/prefixes — e.g. `blocker:` / `non-blocker:`). Output mirrors the user's language, default English.
 
-Formato de cada finding: `<prefixo>: CODE — descrição (Arquivo.ext:linha)`
+Finding format: `<prefix>: CODE — description (File.ext:line)`
 
-### Step 7 — Fechar
+### Step 7 — Close
 
-Apresentar relatório e perguntar: **"Como proceder?"**
+Present the report and ask: **"How should I proceed?"**
 
-O autor decide os próximos passos: corrigir antes do push, suprimir com justificativa, ou criar ticket de follow-up.
+The author decides the next steps: fix before pushing, suppress with justification, or create a follow-up ticket.
 
 ---
 
-## Flow B — PR Remoto (com `--branch`)
+## Flow B — Remote PR (with `--branch`)
 
 ### Step 1 — Resolve scope
 
-Verificar se `origin/<branch>` já está disponível localmente:
+Check whether `origin/<branch>` is already available locally:
 ```bash
 git branch -r | grep "origin/<branch>"
 ```
 
-Se não encontrar:
+If not found:
 ```bash
 git fetch origin <branch>
 ```
 
-Calcular e exibir o diff:
+Compute and show the diff:
 ```bash
 git diff origin/<base>...origin/<branch> --stat
 ```
 
-Se vazio: parar. Reportar "Branch `<branch>` não tem alterações em relação a `<base>`."
+If empty: stop. Report "Branch `<branch>` has no changes relative to `<base>`."
 
-### Step 2 — (sem precondition)
+### Step 2 — (no precondition)
 
-O reviewer não faz checkout. Lint e testes são responsabilidade do CI da branch.
+The reviewer doesn't check out the branch. Lint and tests are the branch's CI's responsibility.
 
-### Step 3 — Camada 1
+### Step 3 — Layer 1
 
-Obter diff: `git diff origin/<base>...origin/<branch>`
+Get the diff: `git diff origin/<base>...origin/<branch>`
 
-Aplicar o checklist de Camada 1 do projeto (config). Documentar violações com file path e linha.
+Apply the project's Layer 1 checklist (config). Document violations with file path and line.
 
-### Step 4 — Camada 2
+### Step 4 — Layer 2
 
-Mesmos gatilhos do Flow A. Invocar a skill de code-review do projeto para cada gatilho verdadeiro no diff.
+Same triggers as Flow A. Invoke the project's code-review skill for each true trigger in the diff.
 
-### Step 5 — Regras de stack (se aplicável)
+### Step 5 — Stack rules (if applicable)
 
-Para cada arquivo de state/controller no diff, ler as regras de qualidade específicas do stack do projeto (config).
+For each state/controller file in the diff, read the project's stack-specific quality rules (config).
 
-### Step 6 — Ticket (se `--ticket` fornecido)
+### Step 6 — Ticket (if `--ticket` provided)
 
-Comparar os critérios de aceitação do ticket vs escopo real do diff. Apontar divergências:
-- Funcionalidades pedidas no ticket que não aparecem no diff
-- Mudanças no diff que não foram pedidas no ticket
+Compare the ticket's acceptance criteria against the diff's actual scope. Point out divergences:
+- Functionality requested in the ticket that doesn't appear in the diff
+- Changes in the diff that weren't requested in the ticket
 
 ### Step 7 — Aggregate
 
-**Verification Discipline obrigatória:** reler file:line de cada finding antes de incluir.
+**Mandatory Verification Discipline:** re-read each finding's file:line before including it.
 
-Excluir findings marcados como 🟣 pre-existing — não são responsabilidade deste PR.
+Exclude findings marked 🟣 pre-existing — not this PR's responsibility.
 
 ### Step 8 — Output
 
-Produzir bloco copiável no formato do destino configurado (config — ex.: Bitbucket, comentário de review do GitHub). **Não perguntar "como proceder"** — o reviewer não edita o código.
+Produce a copy-pasteable block in the configured destination's format (config — e.g. Bitbucket, GitHub review comment). **Do not ask "how should I proceed"** — the reviewer doesn't edit code.
 
 ```
-=== Comentários para o PR <branch> ===
+=== Comments for PR <branch> ===
 
-blocker: CODE — descrição do problema (Arquivo.ext:linha)
-blocker: CODE — descrição (Arquivo.ext:linha, :linha2)
+blocker: CODE — problem description (File.ext:line)
+blocker: CODE — description (File.ext:line, :line2)
 
-non-blocker: CODE — sugestão (Arquivo.ext:linha)
+non-blocker: CODE — suggestion (File.ext:line)
 ```
 
-Idioma do texto: pt-BR. Códigos de regra: no formato que o projeto já usa.
+Text language: mirrors the user's language, default English. Rule codes: in whatever format the project already uses.
