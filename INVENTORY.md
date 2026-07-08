@@ -18,7 +18,7 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | `archaeology` (slash-only: `/core:archaeology`) | procedimento | Invoque para mapear o estado atual do código antes de qualquer planejamento técnico numa US, ticket ou domínio com histórico no app — dispatch de agentes de exploração em paralelo, mapa arqueológico consolidado com decisões ranqueadas por severidade. |
 | `bug-report` (slash-only: `/core:bug-report`) ⏳ provisório até 2026-08-06 | pendente | Investiga um bug e produz relatório com citações verificadas — gate determinístico (validate_citations --gate) + verifier semântico em contexto fresco. Use ao investigar/reportar bug onde afirmar comportamento de código sem ler a fonte é o risco. |
 | `commit` (slash-only: `/core:commit`) | procedimento | Invoque para rodar validação pré-commit (lint + testes) e criar um commit convencional a partir do diff staged — nunca commita sem aprovação explícita do usuário. |
-| `compound` (slash-only: `/core:compound`) | pendente | Write-back Estrutural de Fim de Track |
+| `compound` (slash-only: `/core:compound`) | pendente | Invoque no fim de um track de trabalho relevante — gera o handoff estruturado da sessão (estado, decisões, próximos passos) que sobrevive ao /clear e alimenta a retomada via plan-autoload. |
 | `grill-me` | procedimento | Invoque quando o usuário pedir para "me grillar" / "grill me", pressionar uma decisão de design, ou antes de dar um plano por pronto (modo entrevista); ou nos checkpoints determinísticos pre-plan / post-plan / pre-done para escalar a um reviewer mais forte com contexto controlado ou cego (modo escalação, ex.: `/core:grill-me pre-done`). |
 | `learn` | pendente | Invoque quando o usuário disser "salva isso", "captura esse aprendizado", "usa a skill learn", ou antes de um /clear ou compact quando a sessão acumulou correções e decisões não capturadas — escaneia a conversa e propõe entries de memória para aprovação. |
 | `methodology` | pendente | Invoque quando o tier sempre-ativo (using-agent-kit) não bastar — metodologia de aplicação específica (verificação, evidência, escopo, investigação, exploração, tooling compartilhado) e referência técnica portável de Claude Code (hooks, advisor), git (rerere, revert parcial) e Flutter/Dart (build_runner). Gatilhos: "esse gate pode dar falso-negativo", "esse critério é proxy do objetivo real?", "hook não disparou", "revert parcial pós-release", "vou dar por pronto/executar — verifiquei o artefato final?". |
@@ -29,6 +29,8 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | `spec-refine` (slash-only: `/core:spec-refine`) | pendente | Invoque para estress-testar uma spec ou design doc antes de virar plano de implementação — expõe gaps, estados ambíguos, error paths ausentes e invariantes não escritos, uma pergunta focada por vez. Rode depois de `core:tech-breakdown` (se disponível) e antes de `superpowers:writing-plans`. |
 | `tech-breakdown` (slash-only: `/core:tech-breakdown`) | pendente | Invoque para transformar um ticket em plano de implementação pronto para desenvolvedor — busca o ticket, roda brainstorming + refinamento adversarial + writing-plans, e faz o critic-phase grillar o plano contra o codebase real. Uso típico do Tech Lead. |
 | `using-agent-kit` | pendente | Sempre carregado via SessionStart — regras epistêmicas e de disciplina do agent-kit |
+
+Agregado de descriptions (D16): 3918 bytes.
 
 ### Agents (1)
 
@@ -74,6 +76,8 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | `sagan` ⏳ provisório até 2026-08-06 | pendente | Invoque antes de investir esforço numa decisão ou tarefa desta conversa — calibra se importa, em que escala, e se sobrevive ao tempo. Postura do Conselho (council:council). Distinta de council:epicurus, que corta elementos de um design já julgado digno; Sagan calibra a altitude da decisão inteira. |
 | `schrodinger` | pendente | Invoque quando um diagnóstico tiver mais de uma explicação plausível e a tentação for fechar em uma sem a observação que a discrimine — mantém as hipóteses vivas até existir essa observação. |
 
+Agregado de descriptions (D16): 1858 bytes.
+
 ### Agents (3)
 
 | Agent | Descrição |
@@ -105,6 +109,8 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | `refine-async` (slash-only: `/team:refine-async`) ⏳ provisório até 2026-08-06 | pendente | Triage pós-refinamento — consolida o contexto salvo pelo /team:refine-live, roda exploração leve do codebase (grep orçado, sem arquitetura profunda) e gera subtarefas [INTERIM] para aprovação e criação no board. Use logo após a agenda de refinamento, antes do pipeline técnico (archaeology → tech-breakdown). |
 | `refine-live` (slash-only: `/team:refine-live`) ⏳ provisório até 2026-08-06 | pendente | Copiloto ao vivo para a agenda de refinamento com o PO — recebe o card do board + bullets do PO em tempo real e gera perguntas de esclarecimento por prioridade (escopo, critérios implícitos, dependências). Use durante a call de refinamento; consolida estado pro /team:refine-async na sequência. |
 
+Agregado de descriptions (D16): 811 bytes.
+
 ### Agents (0)
 
 | Agent | Descrição |
@@ -130,15 +136,17 @@ Itens com “provisório até <data>” estão wired sob a exceção de deadline
 | Skill | Contrato (D14) | Descrição |
 |---|---|---|
 | `code-review-mobile` | pendente | Invoque para revisar um PR/diff Flutter — checklist universal Camada 1 (17 itens, sempre) + Camada 2 contextual (UI, Observer, listas, l10n, navegação, testes) + referência de estrutura de módulo/componente. Gatilhos em pt-BR — "revisa esse PR Flutter", "checklist de review mobile", "onde devia ficar esse widget/store". |
-| `deeplink-debug` | pendente | Invoque quando um deeplink/App Link abre no navegador em vez do app, falha ao rotear, abre a tela errada, ou você precisa validar comportamento de deeplink num device. Sintomas — "abre no navegador", "não abre o app", link está verified mas ainda abre no navegador, quebrou depois de reativar, funciona numa versão de Android/iOS mas não em outra. |
+| `deeplink-debug` | pendente | Invoque quando um deeplink/App Link abre no navegador em vez do app, falha ao rotear, abre a tela errada, ou você precisa validar comportamento de deeplink num device. Sintomas — "abre no navegador", "não abre o app", link está verified mas ainda abre no navegador, funciona numa versão de Android/iOS mas não em outra. |
 | `export-logs` | pendente | Invoque para exportar logs de rede HTTP de uma sessão Flutter debug rodando, filtrados por intervalo de tempo, como JSON estruturado. Gatilhos em pt-BR — "exporta os logs de rede desse intervalo", "pega as requisições HTTP entre HH:MM:SS e HH:MM:SS", "captura o tráfego de rede desse teste". |
 | `feature-scaffold` | pendente | Invoque para gerar o scaffold de uma feature Flutter nova — page, MobX store/controller, repository, entity — seguindo o padrão em camadas (UI → State → Domain → Data) do projeto. Gatilhos em pt-BR — "cria uma feature nova", "faz o scaffold de <nome>", "gera store+repository+page pra isso". |
 | `figma-to-component` (slash-only: `/mobile:figma-to-component`) ⏳ provisório até 2026-08-06 | pendente | Extrai um design do Figma via MCP (get_design_context/get_screenshot) e produz uma especificação de widget tree mapeada aos componentes do design system do projeto consumidor — tabela de mapeamento, tokens e lista de gaps sem equivalente. Use com /mobile:figma-to-component ao converter uma tela/componente do Figma pra Flutter. |
-| `ga4-validate` | pendente | Invoque para validar tracking GA4 (tela × evento, antes × depois de uma mudança) num app Flutter rodando no simulador/emulador — dirige o app, captura o evento real com params, screenshota, casa tela × evento, monta a tabela de CTs e o report visual. Gatilhos em pt-BR — "valida os eventos GA4 dessa tela", "confirma o tracking antes e depois dessa mudança", "captura o evento real desse componente". |
+| `ga4-validate` | pendente | Invoque para validar tracking GA4 (tela × evento, antes × depois de uma mudança) num app Flutter no simulador — dirige o app, captura o evento real com params e monta a tabela de CTs com report visual. Gatilhos em pt-BR — "valida os eventos GA4 dessa tela", "confirma o tracking antes e depois dessa mudança". |
 | `marionette` | pendente | Invoque para validar visualmente mudanças de UI Flutter no app rodando no simulador — lançar o app em debug pra checks dirigidos por agente, tirar screenshots, tocar/rolar/dirigir telas, hot-reload após edits. Gatilhos em pt-BR — "confirma essa tela no simulador", "valida essa mudança visualmente", "screenshot do app rodando". |
 | `mobx` | roteador | Invoque para revisar ou escrever qualquer store/controller MobX (Flutter) — smells que o linter não pega, do correctness blocker à direção arquitetural aspiracional. Gatilhos em pt-BR — "esse observable está certo?", "esse estado deveria ser enum?", "por que esse getter não atualiza a UI?", "revisão de MobX/DI". |
 | `performance-patterns` | pendente | Invoque para revisar ou aplicar padrões de performance num app Flutter/MobX — rebuilds de Observer, chamadas de rede (Dio), imagens, memória. Gatilhos em pt-BR — "esse Observer está rebuildando demais", "essa lista tá lenta", "revisão de performance dessa tela". |
 | `refactor-review` | pendente | Invoque antes de commitar um refactor que toca stores/repositories/coordinators compartilhados ou navegação — protocolo de 2 fases (regressão + qualidade). Gatilhos em pt-BR — "revisa esse refactor antes de eu commitar", "confirma que esse refactor não quebrou nada", "checklist pós-refactor". |
+
+Agregado de descriptions (D16): 3138 bytes.
 
 ### Agents (1)
 

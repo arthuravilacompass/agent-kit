@@ -1,6 +1,6 @@
 ---
 name: deeplink-debug
-description: Invoque quando um deeplink/App Link abre no navegador em vez do app, falha ao rotear, abre a tela errada, ou você precisa validar comportamento de deeplink num device. Sintomas — "abre no navegador", "não abre o app", link está verified mas ainda abre no navegador, quebrou depois de reativar, funciona numa versão de Android/iOS mas não em outra.
+description: Invoque quando um deeplink/App Link abre no navegador em vez do app, falha ao rotear, abre a tela errada, ou você precisa validar comportamento de deeplink num device. Sintomas — "abre no navegador", "não abre o app", link está verified mas ainda abre no navegador, funciona numa versão de Android/iOS mas não em outra.
 ---
 
 # Deeplink / App Link Debugging (Android)

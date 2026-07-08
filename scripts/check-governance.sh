@@ -145,4 +145,51 @@ elif [ -n "$prov" ]; then
   fi
 fi
 
+# 6) Descriptions (D16): teto por skill (350; roteador 700) + agregado por plugin.
+# council isento até o censo (docs/GOVERNANCE.md §Descriptions). Tetos hardcoded
+# aqui, doc como fonte — mesmo padrão do CEILING do sempre-ativo.
+if python3 - <<'PYEOF'
+import os, re, sys
+
+CEIL_DEFAULT, CEIL_ROUTER = 350, 700
+ROUTERS = {"pipeline", "methodology", "mobx"}
+AGG = {"core": 4096, "team": 1024, "mobile": 3584}
+fail = 0
+for plugin, agg_ceil in AGG.items():
+    base = os.path.join("plugins", plugin, "skills")
+    if not os.path.isdir(base):
+        print(f"ERRO: {base} inexistente — D16 não medido")
+        fail = 1
+        continue
+    total = 0
+    for name in sorted(os.listdir(base)):
+        p = os.path.join(base, name, "SKILL.md")
+        if not os.path.isfile(p):
+            continue
+        with open(p, encoding="utf-8") as f:
+            text = f.read()
+        # description vive no frontmatter (delimitado pelos dois primeiros '---');
+        # restringir a busca evita casar 'description:' em corpo de skill.
+        parts = text.split("\n---", 2)
+        fm = parts[0] + ("\n---" if len(parts) > 1 else "")
+        m = re.search(r"^description: (.*)$", fm, re.M)
+        if not m:
+            print(f"ERRO: {p} sem 'description:' no frontmatter (D16)")
+            fail = 1
+            continue
+        n = len(m.group(1).encode("utf-8"))
+        total += n
+        ceil = CEIL_ROUTER if name in ROUTERS else CEIL_DEFAULT
+        if n > ceil:
+            print(f"ERRO: description de {plugin}:{name} mede {n} bytes — teto {ceil} (D16)")
+            fail = 1
+    if total > agg_ceil:
+        print(f"ERRO: agregado de descriptions de {plugin} mede {total} bytes — teto {agg_ceil} (D16)")
+        fail = 1
+    else:
+        print(f"OK: descriptions de {plugin} — agregado {total} <= {agg_ceil} bytes (D16)")
+sys.exit(fail)
+PYEOF
+then :; else fail=1; fi
+
 exit $fail

@@ -331,6 +331,9 @@ def render_plugin_section(plugin, provisional, conformity):
         contract = conformity.get(f"plugins/{plugin}/skills/{s['name']}/SKILL.md", "pendente")
         rows.append([name_cell, contract, s["description"]])
     lines.extend(render_table(["Skill", "Contrato (D14)", "Descrição"], rows))
+    desc_total = sum(len(s["description"].encode("utf-8")) for s in skills)
+    lines.append("")
+    lines.append(f"Agregado de descriptions (D16): {desc_total} bytes.")
     lines.append("")
 
     agents = collect_agents(plugin, provisional)

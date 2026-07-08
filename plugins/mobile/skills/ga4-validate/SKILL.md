@@ -1,6 +1,6 @@
 ---
 name: ga4-validate
-description: Invoque para validar tracking GA4 (tela × evento, antes × depois de uma mudança) num app Flutter rodando no simulador/emulador — dirige o app, captura o evento real com params, screenshota, casa tela × evento, monta a tabela de CTs e o report visual. Gatilhos em pt-BR — "valida os eventos GA4 dessa tela", "confirma o tracking antes e depois dessa mudança", "captura o evento real desse componente".
+description: Invoque para validar tracking GA4 (tela × evento, antes × depois de uma mudança) num app Flutter no simulador — dirige o app, captura o evento real com params e monta a tabela de CTs com report visual. Gatilhos em pt-BR — "valida os eventos GA4 dessa tela", "confirma o tracking antes e depois dessa mudança".
 ---
 
 # GA4 Validate — Validação de tracking GA4 (tela × evento, antes × depois)

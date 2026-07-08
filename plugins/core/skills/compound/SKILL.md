@@ -1,6 +1,6 @@
 ---
 name: compound
-description: Write-back Estrutural de Fim de Track
+description: Invoque no fim de um track de trabalho relevante — gera o handoff estruturado da sessão (estado, decisões, próximos passos) que sobrevive ao /clear e alimenta a retomada via plan-autoload.
 disable-model-invocation: true
 ---
 

@@ -121,6 +121,17 @@ Conteúdo técnico inline num roteador é sinal de extração pendente para `REF
 - **Narração de proveniência no corpo de skill** — "promovido de", "de onde veio", "diferente do setup original", datas de promoção. Proveniência mora no `CHANGELOG.md` e no ledger do GOVERNANCE. O marcador mecanizável (`Promovido de` em `plugins/`) é verificado pelo gate; o resto é critério de review.
 - **História de correção como seção** — a formulação corrigida vive onde a regra vive; a história vive no git e no `CHANGELOG.md`.
 
+### Descriptions (D16)
+
+A `description` do frontmatter responde só **"quando invocar"** — gatilho situacional citável, não resumo do que a skill faz nem história. Tetos em bytes UTF-8 sobre o valor da linha `description:`, verificados por `scripts/check-governance.sh` (check 6):
+
+- **≤ 350 bytes** por skill (esqueletos postura e procedimento).
+- **≤ 700 bytes** para a classe roteador de invocação — descriptions que carregam a tabela de gatilhos de roteamento: `pipeline`, `methodology` e `mobx`. Cortar gatilho de roteador degrada a conversão que o censo mede.
+- **Agregado por plugin**: core ≤ 4096 · team ≤ 1024 · mobile ≤ 3584 bytes. Mesma pressão de seleção do teto do sempre-ativo: description nova compete por espaço; subir teto é decisão de ledger.
+- **`plugins/council/` está isento até o censo** — descriptions congeladas como condição da medição de conversão das posturas (§Provisórios ativos); o teto passa a valer pro council na decisão do censo.
+
+A regra de forma (só "quando invocar") é critério de review; os tetos são o enforcement mecânico.
+
 ### Conformidade
 
 Lista lida pelo gate: cada arquivo abaixo existe e respeita o teto de linhas. Formato de entrada: `` - `<path>` — <esqueleto> ``.
@@ -141,4 +152,5 @@ Registro das decisões identificadas por ID (série `D*` = decisão de design, `
 - **R2** — Requisito de aceite da extração: medir o custo real de payload do kit (tokens/turno + injeção de sessão) e rodar A/B comportamental com e sem o kit. Resultados e lacunas conhecidas da medição: `CHANGELOG.md` §Aceite final (c).
 - **D14** — Contrato de SKILL.md: três esqueletos nomeados (postura / procedimento / roteador), política de idioma (corpo pt-BR; exceção grandfathered: grill-me) e teto de 120 linhas com extração para arquivos de apoio. Texto normativo e lista de conformidade: §Contrato de SKILL.md deste doc; enforcement: `scripts/check-governance.sh` (conformidade + proibição de narração de proveniência em `plugins/`).
 - **D15** — Identidade e estrutura em 4 plugins: `core` (metodologia de entrega com enforcement determinístico, do ticket ao PR, qualquer stack), `council` (lentes epistêmicas para decisões de alto custo de reversão), `team` (copiloto de cerimônias ágeis — refinamento com PO, comunicação de squad), `mobile` (toolkit Flutter/Dart). Teste de coerência para skill nova: não cabe em nenhuma frase de identidade ⇒ não entra em nenhum plugin. Inclui a emenda ao texto de D10 (wired vive em `plugins/<plugin>/`). Condição do censo preservada na extração do council: zero reforma interna, descriptions idênticas módulo namespace, `council` instalado onde `core` estiver (`docs/OPERATIONS.md` §1). Validadores: `claude plugin validate .` (manual, fora do CI) + `python3 scripts/generate_inventory.py --check` (CI).
+- **D16** — Governança de descriptions: regra de forma (description responde só "quando invocar") + tetos por classe (350 bytes; roteador 700) + teto agregado por plugin, com `council` isento até o censo. Texto normativo: §Contrato de SKILL.md → Descriptions deste doc. Enforcement: `scripts/check-governance.sh` (check 6); agregado publicado por `scripts/generate_inventory.py` no `INVENTORY.md`.
 - **D17** — Marcador wired-provisório machine-readable com prazo (§Provisórios ativos deste doc): INVENTORY marca o item, prazo vencido deixa o gate vermelho até validar ou demover. Enforcement: `scripts/check-governance.sh` (check 5) + `scripts/generate_inventory.py` (marcador ⏳).
