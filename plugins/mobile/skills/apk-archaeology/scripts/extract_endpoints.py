@@ -132,7 +132,21 @@ def extract(sources_dir, classify_result):
                                 if re.match(f"[{DELIM_CHARS}]", part):
                                     redacted_parts.append(part)
                                 elif "[REDACTED]" in part:
-                                    redacted_parts.append(part)
+                                    # Pass 1 already redacted a known-key match somewhere
+                                    # inside this token — still entropy-check the residual
+                                    # (non-redacted) text fused to it, so a distinct
+                                    # high-entropy secret glued directly onto the redacted
+                                    # span isn't skipped entirely (round-4 review regression:
+                                    # skipping the whole token let a fused generic secret leak).
+                                    fragments = part.split("[REDACTED]")
+                                    checked = []
+                                    for frag in fragments:
+                                        if frag and looks_like_secret(frag):
+                                            redacted_count += 1
+                                            checked.append("[REDACTED]")
+                                        else:
+                                            checked.append(frag)
+                                    redacted_parts.append("[REDACTED]".join(checked))
                                 elif looks_like_secret(part):
                                     redacted_count += 1
                                     redacted_parts.append("[REDACTED]")

@@ -85,6 +85,17 @@ def main():
             '    String u = "https://api.example.com/v/AKIAIOSFODNN7EXAMPLE-v1";\n'
             '}\n',
         )
+        # business-candidate: chave de formato conhecido fundida DIRETAMENTE (zero
+        # delimitador) a um segredo genérico de alta entropia distinto — regressão
+        # achada na revisão round 4: o guard "[REDACTED]" in part pulava o token
+        # inteiro, deixando o resíduo de alta entropia vazar sem checagem.
+        write(
+            os.path.join(sources, "br/com/zup/app/FusedDualSecret.java"),
+            'package br.com.zup.app;\n'
+            'public class FusedDualSecret {\n'
+            '    String u = "https://x.io/p/AKIAIOSFODNN7EXAMPLEaB3xZ9qWmK7pL2vN8sT4uY6r";\n'
+            '}\n',
+        )
 
         result = extract(sources, CLASSIFY_RESULT)
         urls = {e["url"] for e in result["endpoints"]}
@@ -136,13 +147,27 @@ def main():
             "Sufixo -v1 não preservado na URL fundida"
         )
 
-        # 5 secrets redacted: 1 standalone key + 1 in query parameter + 1 in userinfo
-        # + 2 known-format keys fused to adjacent in-charset, non-delimiter text (round 3)
-        assert result["secrets_redacted"] == 5, result["secrets_redacted"]
+        # round 4: chave conhecida + segredo genérico fundidos sem NENHUM delimitador
+        # entre eles — os dois devem ser redigidos, não só o de formato conhecido
+        url_fused_dual = "https://x.io/p/[REDACTED][REDACTED]"
+        assert url_fused_dual in urls, (
+            f"URL com par de segredos fundidos não encontrada. URLs: {urls}"
+        )
+        assert by_url[url_fused_dual]["tag"] == "business"
+        assert "https://x.io/p/" in url_fused_dual, (
+            "Host/path não preservados na URL com par de segredos fundidos"
+        )
+
+        # 7 secrets redacted: 1 standalone + 1 query param + 1 userinfo + 2 fundidos
+        # a sufixo de baixa entropia (round 3) + 2 do par fundido sem delimitador (round 4)
+        assert result["secrets_redacted"] == 7, result["secrets_redacted"]
         raw_json = json.dumps(result)
         assert "AKIAABCDEFGHIJKLMNOP" not in raw_json, "SEGREDO VAZOU NO OUTPUT"
         assert "AKIAIOSFODNN7EXAMPLE" not in raw_json, (
             "SEGREDO VAZOU NO OUTPUT (chave fundida round 3)"
+        )
+        assert "aB3xZ9qWmK7pL2vN8sT4uY6r" not in raw_json, (
+            "SEGREDO VAZOU NO OUTPUT (segredo genérico fundido, regressão round 4)"
         )
 
         # Verify URL structure is preserved (non-secret parts still present)
