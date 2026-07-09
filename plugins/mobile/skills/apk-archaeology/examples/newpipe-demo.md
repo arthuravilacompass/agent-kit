@@ -94,7 +94,10 @@ error rate for the whole set.
   code (see the Telecorp appendix below, aggregate statistics only).
 - Dimension A demonstrated against a reference poor in **business** rules (NewPipe is a media
   player — the rules found are routing/localization/UI, not pricing/entitlement/checkout/anti-fraud).
-  Recovery of real business rules remains projected, not measured.
+  Recovery of real business rules remains projected, not measured. → The **acceleration step**
+  (candidate US + Gherkin AC + DTO skeleton feeding Spec/Impl/Tests) is demonstrated on a richer,
+  WebView-hybrid app in the companion `wordpress-handoff.md` — real self-service purchase rules,
+  though still un-obfuscated and unmeasured, and bounded at the WebView seam.
 - Inference in A can be wrong even at a high tier — the tier is calibrated (4/4 sample here), not
   guaranteed for the whole set.
 - A low-frequency business rule may have been missed — the candidate spec is input for human
