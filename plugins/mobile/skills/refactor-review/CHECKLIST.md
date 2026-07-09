@@ -20,7 +20,7 @@ For each dimension, analyze `git diff --cached` (or `git diff`). State "No issue
 
 ### 1.3 Hidden Side-Effects
 
-- Removed/moved code: did it trigger analytics events, RUM calls (ferramenta do projeto), cache invalidation, state updates, notification dispatches?
+- Removed/moved code: did it trigger analytics events, RUM calls (the project's tool), cache invalidation, state updates, notification dispatches?
 - Was it inside `try/catch/finally` where `finally` had cleanup logic?
 - Was it setting a flag downstream code depends on (`_isLoaded = true`, `_hasBeenValidated = true`)?
 - Was it part of an optimistic update rollback path?
