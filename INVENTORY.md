@@ -28,9 +28,9 @@ Items with “provisional until <date>” are wired under the deadline exception
 | `review-remote` (slash-only: `/core:review-remote`) | pending | Invoke to review code without depending on external plugins — pre-push of your own work (Flow A) or review of someone else's PR via `--branch` (Flow B), with scope comparison against a ticket via `--ticket`. Sequential, plugin-free. |
 | `spec-refine` (slash-only: `/core:spec-refine`) | pending | Invoke to stress-test a spec or design doc before it becomes an implementation plan — exposes gaps, ambiguous states, missing error paths, and unwritten invariants, one focused question at a time. Run after `core:tech-breakdown` (if available) and before `superpowers:writing-plans`. |
 | `tech-breakdown` (slash-only: `/core:tech-breakdown`) | pending | Invoke to turn a ticket into a developer-ready implementation plan — fetches the ticket, runs brainstorming + adversarial refinement + writing-plans, and has the critic phase grill the plan against the real codebase. Typical Tech Lead use. |
-| `using-agent-kit` | pending | Sempre carregado via SessionStart — regras epistêmicas e de disciplina do agent-kit |
+| `using-agent-kit` | pending | Always loaded via SessionStart — the agent-kit's epistemic and discipline rules |
 
-Description aggregate (D16): 3762 bytes.
+Description aggregate (D16): 3757 bytes.
 
 ### Agents (1)
 

@@ -8,27 +8,27 @@
     {
       "name": "core",
       "source": "./plugins/core",
-      "description": "Metodologia pessoal de engenharia com agentes: epistemologia, workflow, hooks determinísticos",
+      "description": "Personal agentic engineering methodology: epistemology, workflow, deterministic hooks",
       "category": "development"
     },
     {
       "name": "council",
       "source": "./plugins/council",
-      "description": "Lentes epistêmicas para decisões de alto custo de reversão — instalar sempre junto do core",
+      "description": "Epistemic lenses for high-cost-to-reverse decisions — always install alongside core",
       "category": "development"
     },
     {
       "name": "team",
       "source": "./plugins/team",
-      "description": "Copiloto de cerimônias ágeis: refinamento com PO, triage pós-agenda, comunicação de squad",
+      "description": "Copilot for agile ceremonies: refinement with the PO, post-meeting triage, squad communication",
       "category": "development"
     },
     {
       "name": "mobile",
       "source": "./plugins/mobile",
-      "description": "Toolkit mobile pessoal: review Flutter/MobX, driving de app, scaffold, tracking",
+      "description": "Personal mobile toolkit: Flutter/MobX review, app driving, scaffolding, tracking",
       "category": "development"
     }
   ],
-  "description": "Metodologia pessoal de engenharia com agentes em 4 plugins: disciplina epistêmica e workflow (core), lentes de decisão (council), cerimônias ágeis (team) e toolkit Flutter/MobX (mobile). Extraído de uso real, genericizado, com governança de promoção por uso."
+  "description": "Personal agentic engineering methodology across 4 plugins: epistemic discipline and workflow (core), decision lenses (council), agile ceremonies (team), and a Flutter/MobX toolkit (mobile). Extracted from real use, genericized, with usage-based promotion governance."
 }
