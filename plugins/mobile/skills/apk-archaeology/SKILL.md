@@ -10,6 +10,12 @@ disable-model-invocation: true
 > get refined after the first real use on a client — see design doc:
 > `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md`.
 
+> **From extraction to backlog.** The report method — the CT→RF→US→RN→CA chain,
+> the reach map, the confidence tiers, and the log-based v2 (dynamic) spec — lives
+> in `references/method.md`. The client-facing report template (pt-BR) is
+> `references/modelo-relatorio.pt-BR.md`; a worked example (WordPress) is
+> `examples/relatorio-wordpress.pt-BR.md`.
+
 Extracts 3 dimensions from a legacy Android APK — business flows/rules (A), API
 contracts (B), module graph (C) — as input for a native→Flutter migration. Adapts the
 `core:archaeology` pattern (parallel dispatch per dimension → structured consolidation)
