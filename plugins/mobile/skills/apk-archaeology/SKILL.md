@@ -67,26 +67,30 @@ synthetic classes are expected, not a bug.
 
 ### 5. Dimension A synthesis (agent — fan-out)
 
-> **Known caveat (found running demo v0, not yet fixed — whole-branch review):**
-> `graph.json` stores the simple class name, without package/file (`extract_graph.py` discards
-> that in `simple_name()`) — there's no way to mechanically join a graph node with the
-> corresponding file/endpoint without human resolution. And the connected component, in the
-> only real app tested, degenerated into a single component of 678 nodes (out of 2067 total) —
-> not a usable unit of work as-is. In the demo, the 2 clusters used were hand-picked (recognizable
-> name + small size), not by this mechanical rule. Until this is fixed (`node → file` in
-> `extract_graph.py` is the candidate), treat the text below as the INTENT of step 5, not as
-> something executable without human judgment in the middle.
+Partition the business classes into units of work **mechanically, by package prefix** — do
+not hand-pick clusters, and do not use the raw connected component (in a real app it degenerates
+into one giant blob: NewPipe's largest component was 678 nodes; WordPress collapsed the whole
+`org/wordpress` tree into ~9600 classes under a single `classify.json` key). The join that makes
+this mechanical is `graph.json["node_files"]` (simple class name → declaring file), so every node
+maps to a package path.
 
-Partition `graph.json` into units of work (a connected component of the graph is the
-simplest method for v0 — two classes linked by an edge fall into the same partition;
-classes with no edge form partitions of 1; **in practice, hand-pick small clusters with a
-recognizable name, don't rely on the raw connected component** — see caveat above). For
-EACH partition, dispatch an agent with this context:
+Rule: take each `business-candidate` root from `classify.json`, then **descend the package path a
+fixed depth below that root** (root + ~3 segments works in practice) so partitions land at *feature*
+scale, not *app* scale. A partition is the set of classes whose file (via `node_files`) lives under
+that package prefix. Example (WordPress, business root `org/wordpress`): descending to depth 5 yields
+~1121 named partitions — `org/wordpress/android/ui/reader`, `.../ui/stats`, `.../ui/domains`,
+`.../fluxc/store` — instead of one 9600-node blob.
 
-- The partition's classes (source code from `jadx/sources/<package>/` — you need to
-  locate the actual file for each class in the cluster manually, `graph.json` doesn't
-  store that mapping).
-- Endpoints from `endpoints.json` that cite files from this partition.
+> Known limitation (documented, not perfected — v0.x): a few packages stay large after this split
+> (e.g. WordPress `fluxc/store` ~834); descending one more level tames them. A dedicated
+> `partition_work.py` with size-banded recursion is deferred (design §6). The raw connected component
+> is kept only as a **discarded alternative** — it degenerated into a single blob on every real app tested.
+
+For EACH partition, dispatch an agent with this context:
+
+- The partition's classes and their **files** — resolved mechanically from `graph.json["node_files"]`
+  (no manual per-class lookup; the `node → file` join exists since repoint move 1a).
+- Endpoints from `endpoints.json` whose `file` falls under the partition's package prefix.
 - Named entry points (Activities/Fragments/ViewModels from the manifest or recognizable
   by naming convention) and string resources from `apktool/res/values/strings.xml`, as
   an anchor.
