@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-// TODO: import o pacote/módulo onde {{FeatureName}}DTO é definido (config do projeto)
+// TODO: import the package/module where {{FeatureName}}DTO is defined (project config)
 
 class {{FeatureName}}Entity extends Equatable {
   const {{FeatureName}}Entity({

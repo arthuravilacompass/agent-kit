@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
-// TODO: import o SDK/pacote de repositórios do projeto (config do projeto)
+// TODO: import the project's repository SDK/package (project config)
 import '../entities/{{feature_name}}_entity.dart';
-// TODO: import o tipo Failure do projeto (config do projeto)
+// TODO: import the project's Failure type (project config)
 
 @lazySingleton
 final class {{FeatureName}}Repository {

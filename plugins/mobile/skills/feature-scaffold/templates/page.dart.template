@@ -1,10 +1,10 @@
-// Layout placeholder. Rode a ferramenta de design-to-code do seu setup antes de customizar.
+// Layout placeholder. Run your setup's design-to-code tool before customizing.
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-// TODO: import o pacote de design system do projeto (config do projeto)
+// TODO: import the project's design system package (project config)
 import '../controller/{{feature_name}}_controller.dart';
 
-// TODO: importar l10n da feature, se o projeto for multi-idioma
+// TODO: import the feature's l10n, if the project is multi-language
 
 class {{FeatureName}}Page extends StatefulWidget {
   const {{FeatureName}}Page({super.key});
@@ -38,7 +38,7 @@ class _{{FeatureName}}PageState extends State<{{FeatureName}}Page> {
             itemCount: _controller.items.length,
             itemBuilder: (context, index) {
               final item = _controller.items[index];
-              // TODO: substituir por componente do design system do projeto
+              // TODO: replace with a component from the project's design system
               return Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(item.id),
