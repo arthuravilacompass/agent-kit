@@ -126,6 +126,17 @@ def main():
             n.startswith("LoginActivity$") for n in result["nodes"]
         ), "synthetic class not filtered"
 
+        # node_files: join node -> real declaring file(s) (repoint move #1a)
+        assert "LoginActivity" in result["node_files"], result["node_files"]
+        assert any(
+            f.endswith("LoginActivity.java") for f in result["node_files"]["LoginActivity"]
+        ), result["node_files"]["LoginActivity"]
+        # same filtering as nodes applies to node_files:
+        assert not any(
+            k.startswith("LoginActivity$") for k in result["node_files"]
+        ), "synthetic class leaked into node_files"
+        assert "b" not in result["node_files"], "unclassifiable class leaked into node_files"
+
     print("OK: all assertions passed (correct edges, unclassifiable excluded, synthetic filtered)")
 
 

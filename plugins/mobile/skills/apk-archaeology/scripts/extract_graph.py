@@ -96,6 +96,7 @@ def parse_file(path):
 def extract_graph(sources_dir, classify_result):
     business = business_dirs(classify_result)
     all_classes = set()
+    node_files = {}  # simple name -> set of (relative) files where it was declared
     raw_edges = []
     artifact_warnings = []
 
@@ -111,8 +112,10 @@ def extract_graph(sources_dir, classify_result):
                     artifact_warnings.append(f"synthetic class skipped: {fname}")
                     continue
                 full = os.path.join(root, fname)
+                rel = os.path.relpath(full, sources_dir)
                 for class_name, parents, interfaces in parse_file(full):
                     all_classes.add(class_name)
+                    node_files.setdefault(class_name, set()).add(rel)
                     for parent in parents:
                         raw_edges.append((class_name, parent, "extends"))
                     for iface in interfaces:
@@ -126,6 +129,7 @@ def extract_graph(sources_dir, classify_result):
 
     return {
         "nodes": sorted(all_classes),
+        "node_files": {k: sorted(v) for k, v in sorted(node_files.items())},
         "edges": edges,
         "artifact_warnings": sorted(set(artifact_warnings)),
     }
