@@ -38,7 +38,7 @@ Classes the human corrector caught most often across a real session history, wit
 
 - **decision:** 1 line + locus.
 - **posture run:** `<posture>` (isolated / blind mode).
-- **move:** the posture's finding, each mechanism claim marked **BET** or **FACT** (+ `file:line` for the repo-aware ones).
+- **move:** the posture's finding, each mechanism claim marked **APOSTA** or **FATO** (+ `file:line` for the repo-aware ones) — matching `council-log`'s `claim_status` enum verbatim, since this marker is assembled directly into that JSON field on persist.
 - **boundary:** "what I could NOT see: the conversation, the lean."
 - **recall:** run `/council:council-recall --posture <p> --surface <class> --topic "..."`; cite the case by `id` or "none."
 - **confidence:** declared (no accuracy claim).
