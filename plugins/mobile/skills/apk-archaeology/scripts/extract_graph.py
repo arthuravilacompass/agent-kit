@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-# desc: grafo de dependência (estilo Lakos) entre classes de negócio (spec §5 [4])
-"""extract_graph.py — Dimensão C do apk-archaeology (design §5 [4]).
+# desc: dependency graph (Lakos-style) between business classes (spec §5 [4])
+"""extract_graph.py — Dimension C of apk-archaeology (design §5 [4]).
 
-Grafo de referência (extends/implements) SÓ entre classes em pacotes
-business-candidate. É uma RECONSTRUÇÃO via regex sobre Java decompilado pelo jadx,
-não um parser real — carrega os artefatos de decompilador documentados na spec
-(generics apagados, classes sintéticas tipo $ExternalSyntheticLambda0, símbolos que
-o R8 mesclou/inlineou). Edges pra tipos fora do conjunto de classes descobertas
-(framework, lib externa) são descartados — não é grafo de todas as dependências,
-só das internas ao código de negócio.
+Reference graph (extends/implements) ONLY between classes in business-candidate
+packages. It's a RECONSTRUCTION via regex over jadx-decompiled Java, not a real
+parser — it carries the decompiler artifacts documented in the spec (erased
+generics, synthetic classes like $ExternalSyntheticLambda0, symbols merged/inlined
+by R8). Edges to types outside the discovered class set (framework, external lib)
+are dropped — this isn't a graph of every dependency, only the ones internal to
+business code.
 
-Assimetria deliberada com extract_endpoints.py: aqui só business-candidate entra
-(unclassifiable nunca vira node de grafo de módulo — ver spec §5 [4]).
+Deliberate asymmetry with extract_endpoints.py: only business-candidate enters
+here (unclassifiable never becomes a module-graph node — see spec §5 [4]).
 
-Stdlib puro. Determinístico.
+Pure stdlib. Deterministic.
 
-Uso:
+Usage:
   python3 extract_graph.py <sources_dir> <classify_json> [--out <path>]
 """
 import argparse
@@ -49,11 +49,12 @@ def simple_name(qualified):
 
 
 def split_type_list(blob):
-    """Divide uma lista de tipos separada por vírgula respeitando profundidade
-    de <>, pra não quebrar um generic multi-argumento no meio (ex.:
-    `BaseRepo<Response, Handler<Foo>>` é UM tipo, não dois — split ingênuo por
-    vírgula fabricava uma aresta falsa pro nome que sobrava depois do split,
-    caso ele coincidisse com uma classe real descoberta; achado de revisão)."""
+    """Splits a comma-separated type list respecting <> depth, so a
+    multi-argument generic isn't broken in the middle (e.g.
+    `BaseRepo<Response, Handler<Foo>>` is ONE type, not two — a naive
+    comma split fabricated a false edge to whatever name was left over
+    after the split, if it happened to match a real discovered class;
+    review finding)."""
     parts = []
     depth = 0
     current = []
@@ -83,10 +84,10 @@ def parse_file(path):
         interfaces = []
         if implements:
             interfaces = [simple_name(i) for i in split_type_list(implements) if i.strip()]
-        # extends admite múltiplos pais: classe só tem 1 na prática, mas interface
-        # Java permite `interface Foo extends A, B` — tratamos os dois com a mesma
-        # lista (achado de revisão: capturar só 1 fazia o match INTEIRO falhar
-        # quando havia vírgula, derrubando o node e todas as edges dele, sem aviso)
+        # extends allows multiple parents: a class only has 1 in practice, but a
+        # Java interface allows `interface Foo extends A, B` — we handle both with
+        # the same list (review finding: capturing only 1 made the WHOLE match fail
+        # when there was a comma, silently dropping the node and all of its edges)
         parents = [simple_name(e) for e in split_type_list(extends) if e.strip()] if extends else []
         declarations.append((class_name, parents, interfaces))
     return declarations
@@ -107,7 +108,7 @@ def extract_graph(sources_dir, classify_result):
                 if not fname.endswith(".java"):
                     continue
                 if SYNTHETIC_RE.search(fname):
-                    artifact_warnings.append(f"classe sintética ignorada: {fname}")
+                    artifact_warnings.append(f"synthetic class skipped: {fname}")
                     continue
                 full = os.path.join(root, fname)
                 for class_name, parents, interfaces in parse_file(full):

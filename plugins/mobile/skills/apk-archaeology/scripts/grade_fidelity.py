@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
-# desc: gradeia fidelidade de endpoints.json contra o repo-fonte REAL (spec §9, não-circular)
-"""grade_fidelity.py — scorecard da Dimensão B (design §9/§10).
+# desc: grades endpoints.json fidelity against the REAL source repo (spec §9, non-circular)
+"""grade_fidelity.py — Dimension B scorecard (design §9/§10).
 
-Compara os endpoints extraídos do APK decompilado contra as URLs literais que
-existem de fato no repositório-fonte real (clone git, não o output do próprio
-compound) — grading não-circular. O gabarito TEM que vir de um clone real do
-repo-fonte, nunca da árvore decompilada pelo próprio pipeline.
+Compares endpoints extracted from the decompiled APK against the literal URLs
+that actually exist in the real source repository (a git clone, not the
+compound's own output) — non-circular grading. The ground truth MUST come from
+a real clone of the source repo, never from the tree the pipeline itself
+decompiled.
 
-Limitações conhecidas (achadas na demo v0, não corrigidas nesta rodada — ver design
-doc, seção Lições da demo):
-- `URL_RE` não distingue string literal de comentário Javadoc (`<a href="...">`
-  tem aspas igual a um literal de código) — o gabarito pode incluir URL nunca
-  compilada. Correção manual foi necessária na demo v0; não codificada aqui.
-- `real_urls()` NUNCA redige o que lê do source real antes de persistir em
-  `--out` — diferente de `extract_endpoints.py` (5 rounds de hardening de
-  redação, spec §7). Se `real_source_dir` for código de cliente real (não
-  público como neste demo), um segredo no source vira segredo no scorecard
-  persistido. Sem trigger real na demo (NewPipe é público), mas real em uso
-  contra fonte de cliente — candidato a fix antes de reuso fora de demo.
+Known limitations (found in the v0 demo, not fixed in this round — see design
+doc, "Demo lessons" section):
+- `URL_RE` doesn't distinguish a string literal from a Javadoc comment
+  (`<a href="...">` has quotes just like a code literal) — the ground truth
+  can include a URL that was never compiled. Manual correction was needed in
+  the v0 demo; not encoded here.
+- `real_urls()` NEVER redacts what it reads from the real source before
+  persisting to `--out` — unlike `extract_endpoints.py` (5 rounds of redaction
+  hardening, spec §7). If `real_source_dir` is real client code (not public
+  like this demo), a secret in the source becomes a secret in the persisted
+  scorecard. No real trigger in the demo (NewPipe is public), but real in use
+  against client source — a candidate fix before reuse outside the demo.
 
-Stdlib puro.
+Pure stdlib.
 
-Uso:
+Usage:
   python3 grade_fidelity.py <endpoints_json> <real_source_dir> [--out <path>]
 """
 import argparse

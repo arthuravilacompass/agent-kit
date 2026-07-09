@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""selftest_classify_packages.py — fixture sintética, sem dependência de APK real."""
+"""selftest_classify_packages.py — synthetic fixture, no dependency on a real APK."""
 import json
 import os
 import sys
@@ -10,19 +10,19 @@ from classify_packages import classify, load_known_libs  # noqa: E402
 
 
 def make_fixture(base):
-    # obfuscado (1-2 letras): unclassifiable
+    # obfuscated (1-2 letters): unclassifiable
     os.makedirs(os.path.join(base, "a"))
     os.makedirs(os.path.join(base, "ci"))
-    # lib conhecida direta: known-third-party
+    # direct known lib: known-third-party
     os.makedirs(os.path.join(base, "androidx"))
     os.makedirs(os.path.join(base, "kotlin"))
-    # lib conhecida sob namespace compartilhado: known-third-party
+    # known lib under a shared namespace: known-third-party
     os.makedirs(os.path.join(base, "com", "google"))
-    # lib conhecida com cabeça não-compartilhada multi-segmento: known-third-party
+    # known lib with a non-shared, multi-segment head: known-third-party
     os.makedirs(os.path.join(base, "javax", "inject"))
-    # negócio real sob namespace compartilhado triplo: business-candidate
+    # real business code under a triple shared namespace: business-candidate
     os.makedirs(os.path.join(base, "br", "com", "zup"))
-    # negócio real direto: business-candidate
+    # real business code, direct: business-candidate
     os.makedirs(os.path.join(base, "org", "schabi"))
 
 
@@ -89,7 +89,7 @@ def main():
             "Regression: unreachable prefix 'foo.bar' should not match at 'foo' head"
         )
 
-    print("OK: 10/10 asserções passaram")
+    print("OK: 10/10 assertions passed")
 
 
 if __name__ == "__main__":

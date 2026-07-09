@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""selftest_extract_endpoints.py — fixture com URL real, secret sintético, e lib excluída."""
+"""selftest_extract_endpoints.py — fixture with a real URL, synthetic secret, and excluded lib."""
 import json
 import os
 import sys
@@ -27,7 +27,7 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         sources = os.path.join(tmp, "sources")
 
-        # business-candidate: tem URL real (deve aparecer, tag=business)
+        # business-candidate: has a real URL (should appear, tag=business)
         write(
             os.path.join(sources, "br/com/zup/app/Api.java"),
             'package br.com.zup.app;\n'
@@ -36,7 +36,7 @@ def main():
             '    String key = "AKIAABCDEFGHIJKLMNOP";\n'
             '}\n',
         )
-        # unclassifiable: também tem URL (deve aparecer, tag=unclassifiable)
+        # unclassifiable: also has a URL (should appear, tag=unclassifiable)
         write(
             os.path.join(sources, "a/b.java"),
             'package a;\n'
@@ -44,7 +44,7 @@ def main():
             '    String u = "https://sdk.thirdparty.io/track";\n'
             '}\n',
         )
-        # known-third-party: NUNCA deve aparecer, mesmo tendo URL
+        # known-third-party: must NEVER appear, even though it has a URL
         write(
             os.path.join(sources, "androidx/x/Y.java"),
             'package androidx.x;\n'
@@ -52,7 +52,7 @@ def main():
             '    String u = "https://androidx.internal.example/should-not-appear";\n'
             '}\n',
         )
-        # business-candidate: URL com segredo embutido no query parameter
+        # business-candidate: URL with a secret embedded in the query parameter
         write(
             os.path.join(sources, "br/com/zup/app/ApiWithSecret.java"),
             'package br.com.zup.app;\n'
@@ -60,7 +60,7 @@ def main():
             '    String url = "https://api.example.com.br/track?api_key=AKIAABCDEFGHIJKLMNOP";\n'
             '}\n',
         )
-        # business-candidate: URL com segredo embutido na posição userinfo (Sentry DSN style)
+        # business-candidate: URL with a secret embedded in the userinfo position (Sentry DSN style)
         write(
             os.path.join(sources, "br/com/zup/app/SentryConfig.java"),
             'package br.com.zup.app;\n'
@@ -68,8 +68,8 @@ def main():
             '    String dsn = "https://AKIAABCDEFGHIJKLMNOP@api.example.com/telemetry";\n'
             '}\n',
         )
-        # business-candidate: chave de formato conhecido fundida a sufixo de baixa entropia
-        # (round 3 — derrota o delimiter-split E o fallback de entropia simultaneamente)
+        # business-candidate: known-format key fused to a low-entropy suffix
+        # (round 3 — defeats both the delimiter-split AND the entropy fallback at once)
         write(
             os.path.join(sources, "br/com/zup/app/CdnAsset.java"),
             'package br.com.zup.app;\n'
@@ -77,7 +77,7 @@ def main():
             '    String u = "https://cdn.example.com/AKIAIOSFODNN7EXAMPLE.txt";\n'
             '}\n',
         )
-        # business-candidate: mesma classe de fusão, sufixo "-v1" em vez de extensão de arquivo
+        # business-candidate: same fusion class, "-v1" suffix instead of a file extension
         write(
             os.path.join(sources, "br/com/zup/app/VersionedAsset.java"),
             'package br.com.zup.app;\n'
@@ -85,10 +85,10 @@ def main():
             '    String u = "https://api.example.com/v/AKIAIOSFODNN7EXAMPLE-v1";\n'
             '}\n',
         )
-        # business-candidate: chave de formato conhecido fundida DIRETAMENTE (zero
-        # delimitador) a um segredo genérico de alta entropia distinto — regressão
-        # achada na revisão round 4: o guard "[REDACTED]" in part pulava o token
-        # inteiro, deixando o resíduo de alta entropia vazar sem checagem.
+        # business-candidate: known-format key fused DIRECTLY (zero delimiter)
+        # to a distinct, generic high-entropy secret — regression found in
+        # round 4 review: the "[REDACTED]" in part guard skipped the whole
+        # token, letting the high-entropy residue leak unchecked.
         write(
             os.path.join(sources, "br/com/zup/app/FusedDualSecret.java"),
             'package br.com.zup.app;\n'
@@ -104,10 +104,10 @@ def main():
         assert "https://sdk.thirdparty.io/track" in urls, urls
         assert "https://androidx.internal.example/should-not-appear" not in urls, urls
 
-        # URL com segredo embutido deve aparecer COM o segredo redigido
+        # URL with embedded secret should appear WITH the secret redacted
         url_with_secret_redacted = "https://api.example.com.br/track?api_key=[REDACTED]"
         assert url_with_secret_redacted in urls, (
-            f"URL com segredo redigido não encontrada. URLs: {urls}"
+            f"URL with redacted secret not found. URLs: {urls}"
         )
 
         by_url = {e["url"]: e for e in result["endpoints"]}
@@ -115,73 +115,73 @@ def main():
         assert by_url["https://sdk.thirdparty.io/track"]["tag"] == "unclassifiable"
         assert by_url[url_with_secret_redacted]["tag"] == "business"
 
-        # URL com segredo embutido na posição userinfo deve aparecer COM o segredo redigido
+        # URL with a secret embedded in the userinfo position should appear WITH the secret redacted
         url_with_userinfo_secret_redacted = "https://[REDACTED]@api.example.com/telemetry"
         assert url_with_userinfo_secret_redacted in urls, (
-            f"URL com segredo na userinfo não encontrada. URLs: {urls}"
+            f"URL with userinfo secret not found. URLs: {urls}"
         )
 
-        # round 3, caso 1: chave de formato conhecido fundida a extensão de arquivo (.txt)
+        # round 3, case 1: known-format key fused to a file extension (.txt)
         url_fused_extension_redacted = "https://cdn.example.com/[REDACTED].txt"
         assert url_fused_extension_redacted in urls, (
-            f"URL com chave fundida a .txt não encontrada. URLs: {urls}"
+            f"URL with key fused to .txt not found. URLs: {urls}"
         )
         assert by_url[url_fused_extension_redacted]["tag"] == "business"
         assert "https://cdn.example.com/" in url_fused_extension_redacted, (
-            "Host/path não preservados na URL fundida a .txt"
+            "Host/path not preserved in the URL fused to .txt"
         )
         assert ".txt" in url_fused_extension_redacted, (
-            "Sufixo .txt não preservado na URL fundida"
+            ".txt suffix not preserved in the fused URL"
         )
 
-        # round 3, caso 2: chave de formato conhecido fundida a sufixo de versão (-v1)
+        # round 3, case 2: known-format key fused to a version suffix (-v1)
         url_fused_version_redacted = "https://api.example.com/v/[REDACTED]-v1"
         assert url_fused_version_redacted in urls, (
-            f"URL com chave fundida a -v1 não encontrada. URLs: {urls}"
+            f"URL with key fused to -v1 not found. URLs: {urls}"
         )
         assert by_url[url_fused_version_redacted]["tag"] == "business"
         assert "https://api.example.com/v/" in url_fused_version_redacted, (
-            "Host/path não preservados na URL fundida a -v1"
+            "Host/path not preserved in the URL fused to -v1"
         )
         assert "-v1" in url_fused_version_redacted, (
-            "Sufixo -v1 não preservado na URL fundida"
+            "-v1 suffix not preserved in the fused URL"
         )
 
-        # round 4: chave conhecida + segredo genérico fundidos sem NENHUM delimitador
-        # entre eles — os dois devem ser redigidos, não só o de formato conhecido
+        # round 4: known key + generic secret fused with NO delimiter at all
+        # between them — both must be redacted, not just the known-format one
         url_fused_dual = "https://x.io/p/[REDACTED][REDACTED]"
         assert url_fused_dual in urls, (
-            f"URL com par de segredos fundidos não encontrada. URLs: {urls}"
+            f"URL with fused secret pair not found. URLs: {urls}"
         )
         assert by_url[url_fused_dual]["tag"] == "business"
         assert "https://x.io/p/" in url_fused_dual, (
-            "Host/path não preservados na URL com par de segredos fundidos"
+            "Host/path not preserved in the URL with a fused secret pair"
         )
 
-        # 7 secrets redacted: 1 standalone + 1 query param + 1 userinfo + 2 fundidos
-        # a sufixo de baixa entropia (round 3) + 2 do par fundido sem delimitador (round 4)
+        # 7 secrets redacted: 1 standalone + 1 query param + 1 userinfo + 2 fused
+        # to a low-entropy suffix (round 3) + 2 from the delimiter-less fused pair (round 4)
         assert result["secrets_redacted"] == 7, result["secrets_redacted"]
         raw_json = json.dumps(result)
-        assert "AKIAABCDEFGHIJKLMNOP" not in raw_json, "SEGREDO VAZOU NO OUTPUT"
+        assert "AKIAABCDEFGHIJKLMNOP" not in raw_json, "SECRET LEAKED IN OUTPUT"
         assert "AKIAIOSFODNN7EXAMPLE" not in raw_json, (
-            "SEGREDO VAZOU NO OUTPUT (chave fundida round 3)"
+            "SECRET LEAKED IN OUTPUT (round 3 fused key)"
         )
         assert "aB3xZ9qWmK7pL2vN8sT4uY6r" not in raw_json, (
-            "SEGREDO VAZOU NO OUTPUT (segredo genérico fundido, regressão round 4)"
+            "SECRET LEAKED IN OUTPUT (fused generic secret, round 4 regression)"
         )
 
         # Verify URL structure is preserved (non-secret parts still present)
         assert "https://api.example.com.br/track" in url_with_secret_redacted, (
-            "URL structure não preservada"
+            "URL structure not preserved"
         )
         assert "api_key" in url_with_secret_redacted, (
-            "Query parameter key não preservado"
+            "Query parameter key not preserved"
         )
         assert "api.example.com/telemetry" in url_with_userinfo_secret_redacted, (
-            "URL structure with userinfo não preservada"
+            "URL structure with userinfo not preserved"
         )
 
-    print("OK: todas as asserções passaram (URLs corretas, lib excluída, segredo redigido, URL com segredo embutido redaçado, chave fundida a sufixo redigida)")
+    print("OK: all assertions passed (correct URLs, lib excluded, secret redacted, URL with embedded secret redacted, key fused to suffix redacted)")
 
 
 if __name__ == "__main__":

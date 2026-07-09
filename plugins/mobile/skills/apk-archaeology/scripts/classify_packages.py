@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
-# desc: classifica pacotes de uma árvore jadx decompilada em 3 baldes (spec §5 [2])
-"""classify_packages.py — Dimensão de suporte do apk-archaeology (design §5 [2]).
+# desc: classifies packages in a decompiled jadx tree into 3 buckets (spec §5 [2])
+"""classify_packages.py — Support dimension of apk-archaeology (design §5 [2]).
 
-Classifica cada pacote de topo (ou, para namespaces compartilhados como com/org/br,
-o primeiro segmento NÃO-compartilhado) em 3 baldes:
-  known-third-party   — casou known-libs.json
-  business-candidate  — nome de pacote real e distintivo, não casou lib conhecida
-  unclassifiable      — pacote de 1-2 letras (padrão de flatten do R8/ProGuard);
-                        pode ser negócio real OU lib renomeada, não dá pra saber
-                        (ver §6 da spec — fragilidade documentada, não bug)
+Classifies each top-level package (or, for shared namespaces like com/org/br,
+the first NON-shared segment) into 3 buckets:
+  known-third-party   — matched known-libs.json
+  business-candidate  — real, distinctive package name, no known-lib match
+  unclassifiable      — 1-2 letter package (R8/ProGuard flatten pattern);
+                        could be real business code OR a renamed lib, no way
+                        to tell (see spec §6 — a documented fragility, not a bug)
 
-LIMITAÇÃO CONHECIDA (verificada contra NewPipe real, §6 da spec): o regex de
-ofuscação também gera falso-positivo em app LIMPO quando um pacote real usa
-prefixo curto estilo ccTLD (ex.: `us.shandian.giga`, uma lib real, virou
-`unclassifiable`). Efeito assimétrico: inofensivo na Dimensão B (endpoint
-ainda extraído, só tag menos precisa); perda real na Dimensão C (classe fica
-fora do grafo). Não é bug de lógica — é a mesma fragilidade de fingerprint
-por nome já documentada, só que na direção oposta (falso-positivo, não só
-falso-negativo).
+KNOWN LIMITATION (verified against real NewPipe, spec §6): the obfuscation
+regex also produces a false positive on a CLEAN app when a real package uses
+a short ccTLD-style prefix (e.g. `us.shandian.giga`, a real lib, became
+`unclassifiable`). Asymmetric effect: harmless in Dimension B (endpoint
+still extracted, just a less precise tag); real loss in Dimension C (class
+ends up outside the graph). Not a logic bug — it's the same name-fingerprint
+fragility already documented, just in the opposite direction (false positive,
+not only false negative).
 
-Stdlib puro. Determinístico: mesma árvore + mesmo known-libs.json = mesmo output.
+Pure stdlib. Deterministic: same tree + same known-libs.json = same output.
 
-Uso:
+Usage:
   python3 classify_packages.py <sources_dir> <known_libs_json> [--out <path>]
-  Sem --out, imprime JSON no stdout.
+  Without --out, prints JSON to stdout.
 """
 import argparse
 import json
@@ -33,7 +33,7 @@ import sys
 
 OBFUSCATED_RE = re.compile(r"^[a-z]{1,2}[0-9]?$")
 SHARED_ROOTS = {"com", "org", "br", "io", "net", "de", "jp", "co"}
-MAX_SHARED_ROOT_DEPTH = 4  # guarda contra estrutura anômala/loop
+MAX_SHARED_ROOT_DEPTH = 4  # guard against anomalous structure/loop
 
 
 def load_known_libs(path):

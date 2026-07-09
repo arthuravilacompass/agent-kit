@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-# desc: extrai endpoints de código decompilado com redação de segredo obrigatória (spec §5 [3])
-"""extract_endpoints.py — Dimensão B do apk-archaeology (design §5 [3]).
+# desc: extracts endpoints from decompiled code with mandatory secret redaction (spec §5 [3])
+"""extract_endpoints.py — Dimension B of apk-archaeology (design §5 [3]).
 
-Extrai strings literais de URL de (business-candidate ∪ unclassifiable), excluindo
-known-third-party. Cada endpoint é tagueado pela proveniência do pacote onde foi
-achado. Qualquer string de alta entropia ou formato de chave conhecido é redigida
-ANTES de qualquer coisa ir pro output — nunca aparece o valor literal (spec §7).
+Extracts literal URL strings from (business-candidate ∪ unclassifiable), excluding
+known-third-party. Each endpoint is tagged with the provenance of the package it
+was found in. Any high-entropy string or known key format is redacted BEFORE
+anything reaches the output — the literal value never appears (spec §7).
 
-Limitação documentada: os 5 formatos de chave conhecida (KEY_PATTERNS) são buscados
-de forma NÃO-ANCORADA na URL inteira — sobrevivem à fusão com qualquer caractere
-adjacente (ponto, hífen, underscore, etc). A heurística de entropia, por outro lado,
-só roda sobre tokens ISOLADOS (delimitados por / ? & = : @) e é fundamentalmente
-contornável por fusão — um segredo genérico (sem formato conhecido) fundido a texto
-de baixa entropia pode escapar dela. Isso é aceito como limitação best-effort desta
-heurística, não perseguido com mais delimitadores.
+Documented limitation: the 5 known key formats (KEY_PATTERNS) are searched
+UNANCHORED across the whole URL — they survive fusion with any adjacent
+character (dot, hyphen, underscore, etc). The entropy heuristic, on the other
+hand, only runs over ISOLATED tokens (delimited by / ? & = : @) and is
+fundamentally defeatable by fusion — a generic secret (no known format) fused
+to low-entropy text can slip past it. This is accepted as a best-effort
+limitation of this heuristic, not chased with more delimiters.
 
-Stdlib puro. Determinístico.
+Pure stdlib. Deterministic.
 
-Uso:
+Usage:
   python3 extract_endpoints.py <sources_dir> <classify_json> [--out <path>]
 """
 import argparse
