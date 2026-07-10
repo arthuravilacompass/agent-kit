@@ -141,6 +141,63 @@ apenas que esta rodada não chegou lá (ver §10.3, "cobertura ≠ ausência").
 
 ## 3. Metodologia de Engenharia Reversa
 
+**Visão geral do processo.** Leia de cima para baixo: o instalável (`.apk`) entra; a **Etapa 1** extrai três
+leituras que **nunca se misturam** (fato, reconstrução, interpretação); a **Etapa 2** as traduz em documentação
+de negócio; e o processo **para** na decisão do time (`legacy-observed ≠ target-approved`).
+
+```mermaid
+flowchart TD
+  APK([" App legado — o instalável (.apk),<br/>mesmo sem o código-fonte original "]):::input
+
+  subgraph EST["ETAPA 1 · A FERRAMENTA LÊ O APP (automático)"]
+    direction TB
+    PREP["Abrir o instalável, recuperar o código legível<br/>e separar o que é do próprio app<br/>do que é biblioteca de terceiros"]:::step
+    B["Com quais servidores o app conversa<br/>e que dados troca<br/>🟢 fato"]:::fact
+    C["Como as partes do app<br/>dependem umas das outras<br/>reconstrução"]:::recon
+    A["Regras e fluxos de negócio<br/>— o que o app faz hoje<br/>🟡 interpretação"]:::infer
+    CONS["Relatório consolidado<br/>fato · reconstrução · interpretação<br/>sempre separados"]:::consol
+    PREP --> B
+    PREP --> C
+    B -. ancora .-> A
+    C -. organiza .-> A
+    B --> CONS
+    C --> CONS
+    A --> CONS
+  end
+  APK --> PREP
+
+  V2["OPCIONAL · Rodar o app num aparelho<br/>e observar o comportamento real<br/>— 2ª fonte, confere o que foi lido do código"]:::opt
+  CONS <-. confere .-> V2
+
+  subgraph REL["ETAPA 2 · VIRA DOCUMENTAÇÃO DE NEGÓCIO — cada campo com origem marcada 🟢🟡⬜"]
+    direction LR
+    CT["Inventário do que existe:<br/>telas, fluxos, integrações"] --> RF["O que o app<br/>permite fazer hoje"]
+    RF --> US["Histórias<br/>de usuário"]
+    US --> RN["Regras de negócio<br/>de cada história"]
+    RN --> CA["Cenários de teste<br/>de cada regra"]
+    CA --> EP["Épico — pacote<br/>de trabalho"]
+    EP -. visão consolidada .-> MX["Mapa que liga cada item<br/>à sua evidência no código"]
+  end
+  CONS --> CT
+
+  H{{"⬜ DECISÃO DO TIME<br/>manter, mudar ou descartar cada comportamento<br/>o que o app faz hoje ≠ o que fica aprovado para o novo app"}}:::human
+  EP --> H
+  H --> BL["Rascunho de backlog<br/>pronto para o time refinar"]:::backlog
+
+  classDef input fill:#232c33,color:#eaf0f2,stroke:#3a444c;
+  classDef step fill:#eceff2,color:#2b333b,stroke:#7d8790;
+  classDef fact fill:#e8f4ed,color:#1d5d3a,stroke:#2f7d51,stroke-width:1.5px;
+  classDef recon fill:#e7eef8,color:#1e3a5f,stroke:#3b6ea5,stroke-width:1.5px;
+  classDef infer fill:#f6edd7,color:#77510f,stroke:#a9741f,stroke-width:1.5px;
+  classDef consol fill:#eef1f4,color:#232c33,stroke:#5a6470,stroke-width:2px;
+  classDef opt fill:#eceeef,color:#39424b,stroke:#8b929a,stroke-dasharray:6 4;
+  classDef human fill:#f2ece9,color:#5a2f10,stroke:#c07a3a,stroke-width:2px;
+  classDef backlog fill:#e9edf2,color:#232c33,stroke:#4a5560,stroke-width:2px;
+```
+
+> O diagrama usa linguagem de negócio. Os termos técnicos equivalentes — CT, RF, US, RN, CA (glossário §10.1),
+> e as três leituras = Dimensões **B** (fato) · **C** (reconstrução) · **A** (interpretação) — aparecem nas §§4–8.
+
 ### 3.1 Análise Estática
 
 O que foi de fato executado nesta rodada, via o pipeline do skill (`SKILL.md` passos 1–4):
@@ -351,28 +408,6 @@ O eixo é **um só** e aplica-se em **três granularidades**: por **campo/linha*
 história/contexto/RN das US, §5.4–5.6 — inclusive as linhas inline "Cobertura: …"), por **cenário**
 (tabelas "Cobertura de cenários") e por **linha da matriz** (§8, coluna "Status de cobertura"). Os
 rótulos variam com o contexto; a semântica não: a cor marca a **proveniência da evidência**.
-
-**Visão do processo (da extração ao backlog):**
-
-```text
-  APK (org.wordpress.android 26.9)
-   │  pipeline estático §3.1 (SKILL.md)  ·  + v2 log §3.2
-   ▼
-  CT  componentes técnicos (§4)
-   │  agrupa em requisito funcional observado
-   ▼
-  RF  "o app faz X hoje" (§5.3)
-   │  + persona/benefício (inferido — PO confirma)
-   ▼
-  US  user story (§5.4–5.6)
-   ├─▶ RN  regras de negócio aninhadas (§6 indexa)
-   └─▶ CA  critérios de aceite Gherkin @legacy-observed (§7 indexa)
-        │
-        ▼
-  Épico → Matriz de rastreabilidade (§8) → Backlog (rascunho legacy-observed)
-```
-
-> Cada elo mantém a **legenda de origem 🟢🟡⬜**; a cadeia **para** na fronteira da decisão (⬜ = humano).
 
 ### 5.2 Mapa de alcance — campo a campo de um ticket completo
 
