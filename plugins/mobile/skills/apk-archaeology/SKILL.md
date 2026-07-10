@@ -13,7 +13,11 @@ disable-model-invocation: true
 > **From extraction to backlog.** The report method — the CT→RF→US→RN→CA chain,
 > the reach map, the confidence tiers, and the log-based v2 (dynamic) spec — lives
 > in `references/method.md`. The client-facing report template (pt-BR) is
-> `references/modelo-relatorio.pt-BR.md`; a worked example (WordPress) is
+> `references/modelo-relatorio.pt-BR.md` (the filled file **is** the deliverable,
+> shipped as Markdown — inline Mermaid diagram, no `.docx` conversion); how to fill
+> it (filling order, worked example, conventions — filler/maintainer-facing, never
+> shipped with the report) is `references/guia-preenchimento.pt-BR.md`; a worked
+> example (WordPress) is
 > `examples/relatorio-wordpress.pt-BR.md`.
 
 Extracts 3 dimensions from a legacy Android APK — business flows/rules (A), API
@@ -26,6 +30,11 @@ for a compiled/possibly obfuscated source instead of live source code.
 You have a `.apk` of a legacy app that will (or might) be migrated to Flutter, and you
 want a candidate spec + API contracts + module boundaries before planning the
 migration. This is not security/malware analysis — it's migration preparation.
+
+The same recovery serves adjacent cases when up-to-date documentation is gone:
+resuming maintenance with a team that didn't build the app; auditing behavior before
+an authorized integration; or reconstructing a lost backlog. All of them produce the
+same deliverable — a traceable, evidence-anchored draft backlog, never approved specs.
 
 ## Input
 

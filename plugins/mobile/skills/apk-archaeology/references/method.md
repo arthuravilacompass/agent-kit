@@ -31,7 +31,7 @@ APK (pipeline output — SKILL.md steps 1–6)
 ```
 
 Each link keeps traceability: a CA references its RN; an RN anchors at `file:line`;
-a US references its CTs and RF. The traceability matrix (template §7) is the
+a US references its CTs and RF. The traceability matrix (template §8) is the
 consolidated flat view — RN and CA live nested inside their US, not in separate
 catalogs, so there is exactly one place where each rule is stated.
 
@@ -186,8 +186,14 @@ cover client identity.
 
 ## Outputs
 
-- **Report template** (pt-BR, client-facing): `modelo-relatorio.pt-BR.md` — also
-  the source for the `.docx` deliverable.
+- **Report template** (pt-BR, client-facing): `modelo-relatorio.pt-BR.md` — the
+  filled file **is** the deliverable, shipped as Markdown (no `.docx` conversion;
+  the process diagram is inline Mermaid, rendered by the viewer). Delivers two
+  client-side audiences: the PO (decision — §6) and the dev team (implementation
+  inputs — §7).
+- **Filling guide** (pt-BR, filler/maintainer-facing): `guia-preenchimento.pt-BR.md`
+  — filling order, worked example, legend pedagogy, conventions. **Never shipped
+  with the report** (deliver only the report `.md`).
 - **Worked example** (pt-BR): `../examples/relatorio-wordpress.pt-BR.md` —
   WordPress 26.9, consolidates the first run.
 - Runtime output language follows the client (pt-BR here); method internals stay
