@@ -46,7 +46,7 @@ results ordered highest-relevance-first (`:436`); free suggestions omitted from 
 (`:389`); the select action is enabled only once a suggestion is chosen (`:229`).
 
 ```gherkin
-@legacy-observed @tier-high
+@legacy-observed
 Scenario: Debounced, relevance-ranked domain suggestions
   Given the domain search screen
   When the user types a query and 250ms elapse with no further input
@@ -65,7 +65,7 @@ address line 1, city, postal code) are required non-empty and the first empty fi
 before submit (`ui/domains/DomainRegistrationDetailsFragment.java:613`).
 
 ```gherkin
-@legacy-observed @tier-high
+@legacy-observed
 Scenario: Contact form completeness gate
   Given the domain registrant contact form
   When any of the 9 required fields is empty and the user submits
@@ -86,7 +86,7 @@ as complete **only** when the visited path starts with `/checkout/thank-you/`
 allow-list of `wordpress.com` paths (`ui/domains/DomainRegistrationCheckoutWebViewNavigationDelegate.java:20`).
 
 ```gherkin
-@legacy-observed @tier-high
+@legacy-observed
 Scenario: Checkout completion detected by the thank-you URL
   Given the checkout WebView has loaded https://wordpress.com/checkout/…
   When the visited-history path starts with "/checkout/thank-you/"
@@ -111,7 +111,7 @@ and `on free plan` predicates are delegated **outside this partition** (`PlanUti
 bodies are not.
 
 ```gherkin
-@legacy-observed @tier-medium
+@legacy-observed
 Scenario Outline: Dashboard CTA priority ladder
   Given a site where domain-credit=<credit>, has-custom-domain=<custom>, plan=<plan>
   When the domains dashboard is built

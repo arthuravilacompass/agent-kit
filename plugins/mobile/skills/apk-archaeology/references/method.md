@@ -41,6 +41,9 @@ Inherited from the pipeline's inviolable rules and exercised in the WordPress ru
 
 - **Origin legend on every field**: 🟢 recovered from code (anchored `file:line`) ·
   🟡 observed/inferred (PO ratifies) · ⬜ out of RE reach (design/PO/team fills).
+  A ⬜ states which kind: **didn't look** (the classes were not read) vs. **looked,
+  confirmed absent** (read, and the behavior is not there) — "no evidence found" is
+  never conflated with "evidence of no behavior".
 - **`legacy-observed ≠ target-approved`** — everything extracted is what the app
   does *today*: input for the PO to keep/change/drop, never an approved requirement.
 - **Anchor rule** — a rule that can't be tied to a concrete string, endpoint, or
@@ -52,6 +55,11 @@ Inherited from the pipeline's inviolable rules and exercised in the WordPress ru
   decision). Absence of evidence is stated, never silently omitted.
 - **Recovered behavior may be a legacy bug** — ratification is the safeguard
   (the COBOL→Java lesson).
+- **Observation step per 🟢 RN** — each anchored rule names one concrete way to
+  *see it fire* on the running legacy app (a UI action, or a v2 logcat line).
+  Verifying the observation is true comes *before*, and is separate from, the PO's
+  keep/change/drop decision: ratifying a decision on top of an unverified
+  observation is the failure the "login in a webview" over-claim exposed.
 
 ## Reach map — what RE fills vs. what stays human
 
@@ -87,13 +95,24 @@ Two vectors, surfaced by blind review of the first run:
   webview" was over-claimed from a string occurrence and corrected to native
   OAuth2 only by manual re-read of the code.
 
+Which fields each vector actually threatens (a sharpening, deliberately not a
+per-field table): the **anchor-dependent** ones — RN, CA, contract/DTO names, the
+module graph's labels — lose their `file:line` footing first; the already-⬜ fields
+(business context, design, DoR/DoD) were never RE-reached, so neither vector moves
+them. A full field-by-field degradation matrix stays deferred on purpose — it would
+predict a regime not yet observed (zero obfuscated runs), and presenting it as
+systematized knowledge is exactly the over-claim the anti-laundering clause forbids.
+
 ## Not yet validated — do not sell as done
 
-- **Degradation map** field-by-field under obfuscation and dynamic behavior.
-- **Coverage/confidence metric per epic** (files read vs. total; "doesn't exist"
-  vs. "didn't look").
-- **Ratification protocol** that instruments the *observation* (an executable
-  step in the legacy app per 🟢 RN), not just the keep/change/drop decision.
+- **Degradation map** field-by-field — deferred on purpose (see "Known
+  degradation"): a per-field table would predict an unobserved regime. The two
+  vectors stay in prose until a real obfuscated/server-driven run grounds them.
+- **Coverage *metric* per epic** (a number: classes read vs. total) — deferred as
+  false rigor: the denominator is the noisy business-node count this method itself
+  flags (leaked libs, name collisions), and classes-read is not a proxy for
+  rules-covered. The honest kernel — the ⬜ split "didn't look" vs. "confirmed
+  absent" — is now in the origin legend, without a number.
 - **A second run on an obfuscated/server-driven app** — the word "method" is
   earned there, not here.
 - **Dynamic analysis (v2)** — the log-based *instrument* is specified in its own

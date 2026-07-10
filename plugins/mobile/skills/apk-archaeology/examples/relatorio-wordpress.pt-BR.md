@@ -200,7 +200,7 @@ flowchart TD
 
 ### 3.1 Análise Estática
 
-O que foi de fato executado nesta rodada, via o pipeline do skill (`SKILL.md` passos 1–4):
+O que foi de fato executado nesta rodada, via o pipeline do skill (`SKILL.md` passos 1–5):
 
 1. **Decompilação** (`scripts/decompile.sh`) — jadx 1.5.5 + apktool sobre `wpandroid-26.9.apk`,
    produzindo `jadx/sources/` (Java legível) e `apktool/` (manifest/recursos).
@@ -403,6 +403,7 @@ faz** X; recuperamos com evidência; o **PO decide** o destino no app novo. O m�
 **Legenda de origem de cada campo/linha** (vale para todo o documento):
 🟢 **recuperado do código** (âncora `arquivo:linha`) · 🟡 **observado/inferido** (o PO ratifica) ·
 ⬜ **fora do alcance da RE** (design/PO/time preenche)
+Um ⬜ diz **qual tipo**: **não olhei** (as classes não foram lidas) vs. **olhei, ausência confirmada** (li e o comportamento não está lá) — "não achei evidência" nunca é confundido com "evidência de que não existe".
 
 O eixo é **um só** e aplica-se em **três granularidades**: por **campo/linha** (inventário §4;
 história/contexto/RN das US, §5.4–5.6 — inclusive as linhas inline "Cobertura: …"), por **cenário**
@@ -767,6 +768,11 @@ para escolher e seguir ao registro. 🟡
 | RN-05 | Payload de sugestão difere p/ site plano **Blogger**: `SuggestDomainsPayload(query, 20, "blog")` | `:369-373` | 🟢 |
 | RN-06 | Ao confirmar, **alguns propósitos criam o carrinho** antes de navegar | `:459-472` | 🟡 *(propósito→ramo parcialmente reconstruído)* |
 | RN-07 | Criação de carrinho é **single-flight** (2ª chamada em andamento é no-op) | `usecases/CreateCartUseCase.java:42-46` | 🟢 |
+
+**Passo de observação (ratificação)** 🟢 — como o PO *vê cada RN acontecer* no app legado rodando, antes de decidir manter/mudar/tirar; verificar que a observação é verdadeira é passo separado e anterior à decisão:
+- **RN-01 (debounce ~250 ms):** digitar a consulta caractere a caractere e parar — a chamada de sugestões só dispara ~250 ms após a última tecla (visível em `adb logcat` pela requisição a `public-api.wordpress.com/.../domains/suggestions`).
+- **RN-04 (continuar só com seleção):** abrir a lista de sugestões e ver o botão "continuar" desabilitado; selecionar uma opção e vê-lo habilitar.
+- **RN-03 (grátis omitidas no fluxo pago):** entrar no fluxo de compra pago e conferir que nenhuma sugestão gratuita aparece na lista.
 
 **Critérios de Aceite (BDD, legacy-observed)** 🟢 *(o PO ratifica antes de virar critério aprovado)*
 ```gherkin

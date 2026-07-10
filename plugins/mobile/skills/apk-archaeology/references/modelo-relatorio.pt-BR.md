@@ -16,6 +16,7 @@
 > **Legenda de origem** (aplique em cada campo/linha preenchida a partir deste modelo):
 > 🟢 **recuperado do código** (âncora `arquivo:linha`) · 🟡 **observado/inferido** (o PO ratifica) ·
 > ⬜ **fora do alcance da engenharia reversa** (design/PO/time preenche)
+> Um ⬜ diz **qual tipo**: **não olhei** (as classes não foram lidas) vs. **olhei, ausência confirmada** (li e o comportamento não está lá) — "não achei evidência" nunca é confundido com "evidência de que não existe".
 > O eixo é **um só** e aplica-se em **três granularidades**: por **campo/linha** (inventário §4; história, contexto e RN das US, §5–§6 — inclusive linhas inline "Cobertura: …" quando usadas), por **cenário** (tabela "Cobertura de cenários" de cada US) e por **linha da matriz** (§7, coluna "Status de cobertura"). Os rótulos variam com o contexto; a semântica não: a cor marca a **proveniência da evidência**.
 
 ---
