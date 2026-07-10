@@ -38,6 +38,7 @@ Items currently wired under the exception above. Line format (contract read by `
 - `plugins/council/skills/council` — valid until 2026-08-06
 - `plugins/council/skills/bohr` — valid until 2026-08-06
 - `plugins/council/skills/sagan` — valid until 2026-08-06
+- `plugins/core/agents/cold-reader.md` — valid until 2026-08-06
 - `plugins/council/skills/council-log` — valid until 2026-08-06
 - `plugins/council/skills/council-recall` — valid until 2026-08-06
 - `plugins/council/agents/maxwell.md` — valid until 2026-08-06

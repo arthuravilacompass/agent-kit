@@ -39,7 +39,7 @@ If the task is already underway: state what stage it's at, with evidence, and pr
 | Checkpoint | `core:grill-me` escalation mode `post-plan` | — | verdict |
 | Break down | `superpowers:writing-plans` or `core:tech-breakdown` | `core:tech-breakdown` | plan in `docs/superpowers/plans/` |
 | Implement | `superpowers:executing-plans` or subagent-driven | direct execution with the project's gate | code + commits |
-| Review | `core:review-local` + `core:grill-me` escalation mode `pre-done` | — | resolved findings |
+| Review | `core:review-local` + `core:grill-me` escalation mode `pre-done` + `cold-reader` agent (deliverables for a cold audience) | — | resolved findings |
 | Deliver | `core:commit` → `core:pr` | — | commit/PR |
 | Capture | `core:learn` + `core:compound` | — | memory + handoff |
 
@@ -48,6 +48,8 @@ Skills marked `core:*` slash-only (`archaeology`, `spec-refine`, `tech-breakdown
 Stage notes:
 - Investigation's terminal ("report/handoff"): produced via `core:compound` (handoff) or a manual handoff proportional to the work — there's no dedicated skill.
 - `consumer-simulation` is an AGENT, not a skill: dispatch it as a subagent (Agent tool), passing ONLY the ticket text + acceptance criteria, never the implementation.
+- **Audience of each deliverable (Specify/Break down).** Work that produces a deliverable names, in the spec/plan, *who receives each artifact and what they must do with it* — one line per artifact. That line is the input the `cold-reader` pass consumes at define-done; missing at planning time, the audience gap is surfacing early instead of in the recipient's hands.
+- **`cold-reader` at define-done (Review).** When a deliverable's audience didn't live the session (client, PO/QA, handoff colleague), dispatch the `cold-reader` AGENT (Agent tool) before marking it done — passing ONLY the rendered artifact + the audience role, never the plan/diff/rationale. It reports whether the recipient can use it and flags content aimed at another reader. **Blinding is the caller's job — `tools: Read` can't enforce it:** dispatch in a worktree off HEAD, which hides only *uncommitted* material, so if a prior critique of this artifact is already committed, isolate another way (a checkout without it, or hand the agent only the artifact's text). Verify the isolation each dispatch; it is not automatic. Complements `pre-done` (diff vs ACs); this checks the artifact vs its recipient.
 - Reviewing in a project with the mobile plugin installed: add `mobile:refactor-review` when the change is a refactor.
 
 ## 4. "Challenge my plan" — which mechanism

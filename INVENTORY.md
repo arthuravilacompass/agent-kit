@@ -32,10 +32,11 @@ Items with “provisional until <date>” are wired under the deadline exception
 
 Description aggregate (D16): 3757 bytes.
 
-### Agents (1)
+### Agents (2)
 
 | Agent | Description |
 |---|---|
+| `cold-reader` ⏳ provisional until 2026-08-06 | Context-restricted subagent that receives ONLY a rendered deliverable + the audience role (never the plan/diff/rationale) and reads it as that recipient — flagging what the audience can't use and content meant for another reader. Use at define-done when the audience didn't live the session. Output mirrors the artifact's language, default English. |
 | `consumer-simulation` | Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output mirrors the ticket's language, default English. |
 
 ### Hooks (7)
