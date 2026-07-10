@@ -16,6 +16,7 @@
 > **Legenda de origem** (aplique em cada campo/linha preenchida a partir deste modelo):
 > 🟢 **recuperado do código** (âncora `arquivo:linha`) · 🟡 **observado/inferido** (o PO ratifica) ·
 > ⬜ **fora do alcance da engenharia reversa** (design/PO/time preenche)
+> O eixo é **um só** e aplica-se em **três granularidades**: por **campo/linha** (inventário §4; história, contexto e RN das US, §5–§6 — inclusive linhas inline "Cobertura: …" quando usadas), por **cenário** (tabela "Cobertura de cenários" de cada US) e por **linha da matriz** (§7, coluna "Status de cobertura"). Os rótulos variam com o contexto; a semântica não: a cor marca a **proveniência da evidência**.
 
 ---
 
@@ -92,6 +93,12 @@ extração do grafo de módulos → síntese da camada de regras/fluxos → cons
 e o pipeline real divirjam com o tempo (já aconteceu uma vez com um diagrama desatualizado). Este relatório
 consome a saída consolidada desse pipeline e a traduz na cadeia CT → RF → US → RN → CA (§4 a §7).
 
+> **Nota para o leitor externo (`.docx` fora do repo):** os seis passos do pipeline estão nomeados acima
+> e a cadeia CT → RF → US → RN → CA está desenhada em §5.1 — isso basta para orientação. O **mecanismo
+> detalhado** de cada passo e a **cláusula anti-laundering** da v2 vivem em `SKILL.md` (raiz do skill) e
+> em `method.md` (pasta `references/`) — fonte única, para não divergirem; se você recebeu só o `.docx` e
+> precisa auditar o "como", solicite esses dois arquivos.
+
 ### 3.2 Análise Dinâmica (v2 log-based — opcional nesta rodada)
 
 A análise dinâmica **log-based** (rodar o app, dirigir os fluxos por `adb`/`uiautomator`, ler `adb logcat` e
@@ -126,6 +133,32 @@ Tipos sugeridos: **Tela**, **Fragment**, **ViewModel**, **Worker/Service**, **Cl
 Uma linha por componente relevante do escopo (§2) — não é preciso listar todo o app, só o que alimenta as US do
 épico em análise.
 
+**Inventário por tela** *(vista complementar, opcional — mesma legenda de origem 🟢🟡⬜)*
+
+Pivô centrado na tela (útil para PO/QA), complementar à tabela de CT acima — nenhuma tela nova, só reorganizada
+por jornada. Preencha só as telas do escopo (§2).
+
+| Tela | Activity / Fragment | APIs principais | Persistência local | Permissões-chave |
+|---|---|---|---|---|
+| [ex.: Login] 🟢 | `LoginActivity` 🟢 | `/oauth2/token` 🟢 | token de sessão 🟡 | `INTERNET` 🟢 |
+| [preencher] | `[Activity/Fragment]` | `[endpoint]` 🟢/🟡 | `[tabela/store]` 🟡 | `[permissão]` 🟢 |
+
+> Tela/Activity/Permissões costumam ser 🟢 (manifesto); APIs, 🟢 onde ancoradas; a **persistência local** é
+> tipicamente 🟡 (a camada de dados raramente é lida por tela). Marque a origem por célula — não invente.
+
+**Requisitos não-funcionais (RNF) — alcance** *(honesto: a maioria é ⬜)*
+
+A engenharia reversa estática recupera **pouco** RNF: metas de performance/SLA, acessibilidade, i18n em
+profundidade e segurança de transporte ficam **⬜ fora do alcance**. O que às vezes **é** observável são regras
+de caráter não-funcional já capturadas como RN — liste-as aqui *por referência* (não é um segundo catálogo):
+
+| RNF observável | Categoria | Onde vive (RN/CT) | Origem |
+|---|---|---|---|
+| [ex.: debounce de 250 ms na busca] | Performance/UX | US-XXX · RN-YY | 🟢 |
+| [ex.: chamada single-flight] | Concorrência | US-XXX · RN-YY | 🟢 |
+| Certificate pinning | Segurança (transporte) | não avaliável na estática | ⬜ |
+| Metas de performance / SLA / acessibilidade | — | não recuperável da estática | ⬜ |
+
 ---
 
 ## 5. Framework CT → RF → US
@@ -143,11 +176,34 @@ Entre o CT (componente técnico) e a US (história) existe um passo explícito, 
 observado**: a frase factual "o app permite X hoje", que ainda não é uma US (sem persona/benefício) mas já não
 é mais um componente bruto. Ver glossário (§9.1).
 
+**Visão do processo (da extração ao backlog):**
+
+```text
+  APK (binário legado)
+   │  pipeline estático §3.1 (SKILL.md 1–6)  ·  [+ v2 log opcional §3.2]
+   ▼
+  CT  componentes técnicos (§4)
+   │  agrupa em requisito funcional observado
+   ▼
+  RF  "o app faz X hoje" (§5.2)
+   │  + persona/benefício (inferido — PO confirma)
+   ▼
+  US  user story (§5–§6)
+   ├─▶ RN  regras de negócio aninhadas (§6)
+   └─▶ CA  critérios de aceite Gherkin @legacy-observed (§6)
+        │
+        ▼
+  Épico → Matriz de rastreabilidade (§7) → Backlog (rascunho legacy-observed)
+```
+
+> Cada elo mantém a **legenda de origem 🟢🟡⬜**; a cadeia **para** na fronteira da decisão
+> (⬜ = humano). `legacy-observed ≠ target-approved`.
+
 ### 5.2 Tabela de Mapeamento
 
 | ID US | RF observado | User Story | CTs | RN | Confiança |
 |---|---|---|---|---|---|
-| US-CART-01 *(exemplo — substituir)* | RF-01: o app permite aplicar um cupom de desconto no carrinho | Como cliente, quero aplicar um cupom de desconto no carrinho, para pagar um valor menor pelo pedido | CT-02, CT-03 | RN-01, RN-02 *(ver §6, nested)* | Alta |
+| US-CART-01 *(exemplo — substituir)* | RF-01: o app permite aplicar um cupom de desconto no carrinho | Como cliente, quero aplicar um cupom de desconto no carrinho, para pagar um valor menor pelo pedido | CT-02, CT-03 | RN-01, RN-02 *(ver §6, nested)* | Alta (RN-02 🟡) |
 | US-[EPIC]-02 | RF-[preencher] | [preencher] | [preencher] | [preencher] | [preencher] |
 | … | | | | | |
 
@@ -163,14 +219,25 @@ regras, critérios de aceite e cobertura — **dentro da própria US**. Não exi
 a Matriz de Rastreabilidade (§7) é a única vista consolidada/flat, e é gerada a partir do que está aqui, não o
 contrário.
 
+**Convenção de citação:** RN e CA são numerados **dentro** de cada US (a chave é composta). Fora da seção da própria US, cite sempre qualificado: `US-CART-01 · RN-02`, `US-CART-01 · Cenário 3`.
+
+> *Nota de desenho:* "RN aninhada, sem catálogo global" é uma **aposta estrutural ainda não validada em relatório multi-épico** (validada até aqui em ~1 épico por rodada). Se a citação cruzada entre épicos escalar mal, reavalie o desenho — explicitamente, não por deriva.
+
 ### Épico — [nome do épico, preencher] *(exemplo abaixo: "Carrinho e Checkout")*
 
 **Mapa do épico** *(visão geral — uma linha por US; preencher conforme o épico crescer)*
 
 | ID | Capability | Evidência-chave | Confiança |
 |---|---|---|---|
-| US-CART-01 *(exemplo)* | Aplicar cupom de desconto no carrinho | `DiscountCalculator.java:[preencher]` | Alta |
+| US-CART-01 *(exemplo)* | Aplicar cupom de desconto no carrinho | `DiscountCalculator.java:[preencher]` | Alta (RN-02 🟡) |
 | US-CART-02 | [preencher] | `[arquivo:linha]` | [preencher] |
+
+> **Qualificador de banda (coluna Confiança):** quase toda US tem algo 🟡 — persona/benefício são 🟡 por design e **não** qualificam a banda. Qualifique apenas quando uma **RN observável** é 🟡 (ex.: `Alta (RN-02 🟡)`) ou quando o miolo do fluxo roda num ponto cego (WebView/backend): `Alta (shell) · cega (miolo)` — a banda vale para o shell observável; o miolo não recebe banda, é ponto cego delimitado (ver glossário §9.1).
+
+#### Campos de decisão compartilhados (⬜ — o time preenche; valem para todas as US do épico)
+- **Figma / layout-alvo:** *(slot por US)* — não existe no APK legado; design do app novo é do time de UX.
+- **Definition of Ready (DoR):** [ ] contexto de negócio preenchido pelo PO · [ ] Figma do fluxo-alvo aprovado · [ ] critérios `@legacy-observed` **ratificados** (manter/mudar/tirar) pelo PO · [ ] contrato-alvo definido (reusar backend legado ou novo?) · [ ] cenários de erro/edge (⬜) decididos · [ ] estimativa realizada.
+- **Definition of Done (DoD):** [ ] implementado conforme Figma-alvo · [ ] cenários ratificados cobertos por teste · [ ] integração com o backend-alvo · [ ] code review aprovado · [ ] PO validou comportamento.
 
 ---
 
@@ -187,7 +254,7 @@ para pagar um valor menor pelo pedido. 🟡
   o subtotal atinge um valor mínimo. `DiscountCalculator.java:[preencher]`
 - 🟡 **Escopo candidato:** replicar esse comportamento no aplicativo/stack de destino — PO decide manter/mudar/tirar.
 - ⬜ **A preencher pelo PO/negócio:** motivação do cupom no produto novo · meta (ex.: ticket médio, conversão) ·
-  muda algo do legado (regras de acumulação, teto de desconto)? · prioridade. `legacy-observed ≠ target-approved`
+  muda algo do legado (regras de acumulação, teto de desconto)? · prioridade.
 
 **Regras de negócio observadas (RN — numeradas dentro desta US)** 🟢
 | RN | Regra | Evidência | Origem |
@@ -198,7 +265,7 @@ para pagar um valor menor pelo pedido. 🟡
 
 **Critérios de Aceite (BDD, `@legacy-observed`)** 🟢 *(o PO ratifica antes de virar critério aprovado)*
 ```gherkin
-@legacy-observed @tier-alta
+@legacy-observed
 Cenário 1 — Cupom válido com subtotal suficiente
   Dado que o subtotal do carrinho é igual ou superior ao valor mínimo exigido
   Quando o cliente insere um cupom válido
@@ -219,11 +286,13 @@ Cenário 3 — Segundo cupom (comportamento a confirmar)
 **Cobertura de cenários** *(honestidade no nível do cenário — não achatar)*
 | Cenário esperado num ticket | Status | Nota |
 |---|---|---|
-| Caminho feliz (cupom válido + subtotal suficiente) | 🟢 preenchido | Cenário 1 |
-| Subtotal insuficiente | 🟢 preenchido | Cenário 2 |
-| Segundo cupom / acumulação | 🟡 análogo/inferido | Cenário 3 — comportamento não confirmado em tela, só no código |
-| Cupom expirado / inválido | ⬜ não observado | não recuperável nesta leitura → decisão do time |
-| Erro de rede ao validar cupom | ⬜ não observado | idem — a definir com PO/UX |
+| Caminho feliz (cupom válido + subtotal suficiente) | 🟢 recuperado do código | Cenário 1 |
+| Subtotal insuficiente | 🟢 recuperado do código | Cenário 2 |
+| Segundo cupom / acumulação | 🟡 inferido/análogo | Cenário 3 — comportamento não confirmado em tela, só no código |
+| Cupom expirado / inválido | ⬜ fora do alcance (não observado) | não recuperável nesta leitura → decisão do time |
+| Erro de rede ao validar cupom | ⬜ fora do alcance (não observado) | idem — a definir com PO/UX |
+
+*Status = a mesma legenda de origem do banner, aqui **por cenário**: a cor marca a proveniência da evidência do cenário, não sua presença neste documento — um cenário pode estar escrito no Gherkin acima e ainda assim ser 🟡.*
 
 **Contrato recuperado (ponto de partida da integração)** 🟢
 - `DiscountCalculator.applyCoupon(cartSubtotal, couponCode)` → `{ discountedTotal, discountAmount }`
@@ -239,21 +308,7 @@ Cenário 3 — Segundo cupom (comportamento a confirmar)
 - 🟡 Validar com o negócio se cupons são cumulativos ou se o 2º substitui o 1º (RN-02).
 - ⬜ [preencher outras perguntas específicas do épico real]
 
-**Figma / layout-alvo** ⬜ — não existe no APK legado; design do app novo é do time de UX. *(slot: [link do Figma])*
-
-**Definition of Ready (DoR)** ⬜ *(processo do time — a RE não preenche)*
-- [ ] Contexto de negócio preenchido pelo PO
-- [ ] Figma do fluxo-alvo aprovado
-- [ ] Critérios `@legacy-observed` **ratificados** (manter/mudar/tirar) pelo PO
-- [ ] Contrato-alvo definido (reusar backend legado ou novo?)
-- [ ] Cenários de erro/edge (⬜ acima) decididos
-- [ ] Estimativa realizada
-
-**Definition of Done (DoD)** ⬜ *(processo do time)*
-- [ ] Implementado conforme Figma-alvo
-- [ ] Cenários ratificados cobertos por teste
-- [ ] Integração com o backend-alvo
-- [ ] Code review aprovado · [ ] PO validou comportamento
+**Figma / DoR / DoD** ⬜ — compartilhados no nível do épico (ver "Campos de decisão compartilhados", acima); Figma-alvo desta US: *[link]*.
 
 ---
 
@@ -262,17 +317,15 @@ Cenário 3 — Segundo cupom (comportamento a confirmar)
 Consolida a cadeia completa — **CT ↔ RF ↔ US ↔ RN ↔ CA** — numa única vista flat, com o nível de
 confiança de cada achado. É gerada a partir do conteúdo nested de §6, nunca o inverso.
 
-| CT | RF | US | RN | CA (cenário) | Status/Confiança |
-|---|---|---|---|---|---|
-| CT-02, CT-03 *(exemplo)* | RF-01 | US-CART-01 | RN-01 | Cenário 1, 2 | Confirmado em código e em tela |
-| CT-03 *(exemplo)* | RF-01 | US-CART-01 | RN-02 | Cenário 3 | Inferido — requer validação com negócio |
-| [preencher] | [preencher] | [preencher] | [preencher] | [preencher] | [preencher] |
+| CT | RF | US | RN | CA (cenário) | Confiança | Status de cobertura |
+|---|---|---|---|---|---|---|
+| CT-02, CT-03 *(exemplo)* | RF-01 | US-CART-01 | RN-01 | Cenário 1, 2 | Alta | 🟢 confirmado em código **e** em tela |
+| CT-03 *(exemplo)* | RF-01 | US-CART-01 | RN-02 | Cenário 3 | Média | 🟡 confirmado só em código (não visto em tela) — PO valida |
+| [preencher] | [preencher] | [preencher] | [preencher] | [preencher] | [Alta/Média-alta/Média/Baixa] | [🟢/🟡/⬜ + nota] |
 
-**Escala de Status/Confiança** (use consistentemente em todo o relatório):
-- **Confirmado em código e em tela** — comportamento visível tanto no código quanto na UI observável.
-- **Confirmado em código, sem evidência em tela** — âncora sólida, mas não visto rodando.
-- **Inferido** — reconstruído a partir de comportamento indireto ou de um fluxo análogo/irmão.
-- **Requer validação com o negócio** — hipótese explícita, sem âncora suficiente para tier mais alto.
+**Como preencher as duas últimas colunas:**
+- **Confiança** — banda **Alta / Média-alta / Média / Baixa**, a mesma da coluna Confiança de §5.2 e do mapa do épico (§6); qualifique quando os tiers internos da US divergirem (ver nota de qualificador em §6).
+- **Status de cobertura** — a **mesma legenda de origem** do banner (🟢🟡⬜), aqui por linha, sempre com nota livre. Registre a **triangulação** na nota: "confirmado em código **e** em tela" (ex.: 2ª fonte da análise dinâmica, §3.2) diz mais que "confirmado só em código" — essa distinção vive aqui, não numa escala separada.
 
 ---
 
@@ -303,9 +356,9 @@ confiança de cada achado. É gerada a partir do conteúdo nested de §6, nunca 
 | **RN** | Regra de Negócio — condição, gatilho, cálculo ou validação observada no código; numerada **dentro de cada US**, não em catálogo global. |
 | **CA** | Critério de Aceite — cenário testável em Gherkin (`@legacy-observed`), **aninhado** na US que descreve; referenciado na Matriz (§7) por número de cenário. |
 | **legacy-observed** | Tag que marca todo comportamento como "o que o app legado faz hoje" — nunca um requisito aprovado; ver banner do documento. |
-| **Tier** (`@tier-alta` etc.) | Banda de confiança de um critério de aceite/regra — não deve ser achatada; convive lado a lado com o que é fato (endpoint), reconstrução (grafo) ou inferência (regra de negócio). |
+| **Banda de confiança** ("tier") | Alta / Média-alta / Média / Baixa — banda por US/achado, carregada pela coluna **Confiança** (§5.2, mapa do épico §6, matriz §7), qualificável (ver nota em §6); calibrada, não garantida. Não substitui nem achata a legenda de origem 🟢🟡⬜ — os dois sinais convivem. **Distinto** do uso de "tier" em `references/method.md` (EN), que separa fato/reconstrução/inferência. |
 | **Unanchored** (não ancorado) | Regra ou afirmação que não pôde ser amarrada a uma string, endpoint ou ponto de entrada concreto — marcada como tal, nunca disfarçada de inferência de baixa confiança comum. |
-| **Ponte cega** (blind spot) | Trecho de comportamento que roda fora do alcance da análise (ex.: dentro de WebView, em backend, em remote-config) — delimitado (🟢 "aqui para de ser recuperável"), nunca preenchido por suposição. |
+| **Ponto cego** (blind spot) | Trecho de comportamento que roda fora do alcance da análise (ex.: dentro de WebView, em backend, em remote-config) — delimitado (🟢 "aqui para de ser recuperável"), nunca preenchido por suposição. Nas colunas de Confiança, o qualificador `cega (miolo)` marca US cujo miolo roda num ponto cego — ex.: `Alta (shell) · cega (miolo)`. |
 
 ### 9.2 Como usar este modelo — ordem de preenchimento
 
@@ -316,9 +369,18 @@ confiança de cada achado. É gerada a partir do conteúdo nested de §6, nunca 
 3. Agrupe CTs relacionados em RFs e depois em US no **§5.2**, referenciando os CTs e apontando as RN que vêm em
    seguida.
 4. Para cada US, desenvolva a seção completa em **§6**: história, contexto invertido, RN nested, CA em Gherkin,
-   cobertura de cenários, contrato, dependências, notas abertas, Figma/DoR/DoD (estes últimos deliberadamente
-   vazios — não é papel da RE preenchê-los).
+   cobertura de cenários, contrato, dependências, notas abertas. Figma/DoR/DoD vivem no bloco "Campos de decisão
+   compartilhados" do épico (deliberadamente vazios — não é papel da RE preenchê-los); cada US apenas aponta para ele.
 5. Consolide tudo na **Matriz de Rastreabilidade (§7)** — ela nasce do conteúdo de §6, não é preenchida
    independentemente.
 6. Antes de publicar a versão final, **valide com o PO/negócio** cada item marcado 🟡, e leve os itens ⬜ para o
    time decidir. Nenhuma US deste relatório é um requisito aprovado até essa etapa acontecer.
+
+### 9.3 Changelog do modelo
+
+| Data | Mudança | Por quê |
+|---|---|---|
+| 2026-07-09 | Refino estrutural: legenda de origem 🟢🟡⬜ declarada uma vez (banner) com as 3 granularidades; matriz §7 alinhada ao exemplo trabalhado (colunas **Confiança** + **Status de cobertura**; escala solta de 4 palavras removida — "código e tela" vs. "só código" vive na nota de cobertura); tags `@tier-*` removidas do Gherkin (a banda vive na coluna Confiança; `@legacy-observed` permanece); qualificador de banda padronizado (`Alta (RN-xx 🟡)`, `Alta (shell) · cega (miolo)`); convenção de citação qualificada (`US-xx · RN-yy`) fora da US; DoR/DoD/Figma consolidados em bloco compartilhado por épico; glossário distingue "banda de confiança" (pt) do "tier" de `references/method.md` (EN). | Um eixo epistêmico só, legível em todas as granularidades, sem vocabulário paralelo. |
+| 2026-07-09 (b) | Adições §10.5/§10.4 da agenda de refino: **inventário por-tela** e **nota de RNF** em §4 (vistas complementares, mesma legenda 🟢🟡⬜, RNF honesto — a maioria fica ⬜); diagrama **"Visão do processo"** em §5.1; **nota de autocontenção** para o leitor externo do `.docx` em §3.1. **Item recusado com registro:** a coluna RNF numa 2ª matriz `Tela\|RF\|US\|CA\|RNF` (§10.5) foi **avaliada e rejeitada** — criaria uma vista flat concorrente à Matriz §7 (a única consolidada); RNF entrou como nota *por referência*, não como catálogo. Nenhuma âncora, US, RN ou CA alterada. | Visibilidade do processo + `.docx` orientável sem os arquivos do repo, sem duplicar o mecanismo (fonte única preservada) nem abrir uma 2ª fonte de verdade. |
+
+> ⚠️ **Regeneração do `.docx` pendente após esta revisão** — o `.docx` que circula fora do repo é gerado a partir deste arquivo (ver `references/method.md`, "Outputs") e fica desatualizado até ser regerado. **Nome canônico do arquivo exportado** deve refletir o título ("→ Backlog"), ex.: `Modelo_Relatorio_Engenharia_Reversa_APK_para_Backlog.docx` — o sufixo `_reconciliado` do arquivo anterior era um rótulo de processo, não o nome do documento.
