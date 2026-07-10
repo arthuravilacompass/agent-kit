@@ -30,8 +30,12 @@ fi
 # superpowers/.superpowers is build residue, out of the census's scope.
 # .worktrees is another branch's isolated workspace (gitignored), with its own ledger —
 # its IDs don't resolve in the current branch's ledger and aren't a deliverable of it.
+# 'R8' matches Android's R8/ProGuard shrinker (cited in apk-archaeology/references/method.md),
+# not a governance ID — filter it out to avoid a false ledger miss. A principled census
+# disambiguation (match IDs only in citation context) is deferred to the process audit;
+# this narrow exclusion is the minimal source fix.
 ids=$(grep -rhoE --include='*.md' --exclude-dir=superpowers --exclude-dir=.superpowers --exclude-dir=.worktrees \
-  '\b[DR][0-9]+\b' . | sort -u)
+  '\b[DR][0-9]+\b' . | sort -u | grep -vxF 'R8')
 rc=$?
 if [ "$rc" -ge 2 ]; then
   echo "ERROR: ID census failed (rc=$rc) — ledger resolution not verified"
