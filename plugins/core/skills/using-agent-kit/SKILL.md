@@ -191,4 +191,4 @@ Six reasoning modes to deliberately wear when facing a decision — four as in-t
 
 ## Kit Governance
 
-The kit's lifecycle rules — state model, unwired → wired promotion, meta-principles, always-on ceiling, and decision ledger — live in `docs/GOVERNANCE.md` **in the agent-kit repo**, not in this injected context. When editing the kit itself (promoting, demoting, creating a rule with an ID), consult that doc first.
+The kit's lifecycle rules — state model, unwired → wired promotion, the meta-principle, always-on ceiling, and the "Decisions worth remembering" note — live in `docs/GOVERNANCE.md` **in the agent-kit repo**, not in this injected context. When editing the kit itself (promoting, demoting, turning a repeatedly-failing rule into a mechanism), consult that doc first.

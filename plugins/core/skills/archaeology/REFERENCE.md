@@ -1,6 +1,6 @@
 # archaeology — Reference
 
-Supporting content extracted from `SKILL.md` (D14, 120-line ceiling). Consulted during step execution — not read before deciding whether to invoke the skill.
+Supporting content extracted from `SKILL.md`. Consulted during step execution — not read before deciding whether to invoke the skill.
 
 ## §1 — Vocabulary presentation format (Step 1)
 

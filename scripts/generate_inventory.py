@@ -22,7 +22,6 @@ Usage:
                                                      # if divergent or missing.
 """
 
-import datetime
 import difflib
 import json
 import os
@@ -41,70 +40,6 @@ GENERATED_BANNER = (
 FRONTMATTER_KEY_RE = re.compile(r"^([A-Za-z0-9_-]+):\s?(.*)$")
 COMMAND_PATH_RE = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/(.+)$")
 DESC_LINE_RE = re.compile(r"^#\s*desc:\s*(.+)$")
-
-GOVERNANCE_PATH = os.path.join(REPO_ROOT, "docs", "GOVERNANCE.md")
-PROVISIONAL_LINE_RE = re.compile(r"^- `([^`]+)` — valid until (\d{4}-\d{2}-\d{2})$")
-
-
-def collect_provisional():
-    """relative path -> deadline, from the '### Active provisionals' section of docs/GOVERNANCE.md."""
-    if not os.path.isfile(GOVERNANCE_PATH):
-        return {}
-    result = {}
-    in_section = False
-    with open(GOVERNANCE_PATH, encoding="utf-8") as f:
-        for raw in f:
-            line = raw.rstrip("\n")
-            if line.startswith("### Active provisionals"):
-                in_section = True
-                continue
-            if in_section and (line.startswith("## ") or line.startswith("### ")):
-                break
-            if in_section:
-                m = PROVISIONAL_LINE_RE.match(line)
-                if m:
-                    if m.group(1) in result:
-                        raise InventoryError(
-                            f"docs/GOVERNANCE.md: duplicate provisional '{m.group(1)}'"
-                        )
-                    try:
-                        datetime.date.fromisoformat(m.group(2))
-                    except ValueError:
-                        raise InventoryError(
-                            f"docs/GOVERNANCE.md: invalid provisional date: {m.group(2)}"
-                        ) from None
-                    result[m.group(1)] = m.group(2)
-                elif line.startswith("- `"):
-                    raise InventoryError(
-                        f"docs/GOVERNANCE.md: malformed provisional line: {line}"
-                    )
-    return result
-
-
-CONTRACT_PATH = os.path.join(REPO_ROOT, "docs", "GOVERNANCE.md")
-CONFORMITY_LINE_RE = re.compile(r"^- `(plugins/[^`]+)` — ([a-zA-Zà-ú-]+)$")
-
-
-def collect_conformity():
-    """SKILL.md path -> skeleton, from the '### Conformity' section of docs/GOVERNANCE.md."""
-    if not os.path.isfile(CONTRACT_PATH):
-        return {}
-    result = {}
-    in_section = False
-    with open(CONTRACT_PATH, encoding="utf-8") as f:
-        for raw in f:
-            line = raw.rstrip("\n")
-            if line.startswith("### Conformity"):
-                in_section = True
-                continue
-            if in_section and (line.startswith("## ") or line.startswith("### ")):
-                break
-            if in_section:
-                m = CONFORMITY_LINE_RE.match(line)
-                if m:
-                    result[m.group(1)] = m.group(2)
-    return result
-
 
 class InventoryError(Exception):
     """Raised on any structural problem in a source file — always fatal, never silent."""
@@ -177,7 +112,7 @@ def get_desc_line(script_path):
     return m.group(1).strip()
 
 
-def collect_skills(plugin, provisional):
+def collect_skills(plugin):
     skills_dir = os.path.join(REPO_ROOT, "plugins", plugin, "skills")
     result = []
     if not os.path.isdir(skills_dir):
@@ -196,20 +131,17 @@ def collect_skills(plugin, provisional):
                 f"{rel(skill_md)}: frontmatter name '{fm['name']}' differs from directory '{name}'"
             )
         slash_only = fm.get("disable-model-invocation", "").strip().lower() == "true"
-        key = f"plugins/{plugin}/skills/{name}"
-        deadline = provisional.pop(key, None)
         result.append(
             {
                 "name": fm["name"],
                 "description": fm["description"],
                 "slash_only": slash_only,
-                "provisional_until": deadline,
             }
         )
     return result
 
 
-def collect_agents(plugin, provisional):
+def collect_agents(plugin):
     agents_dir = os.path.join(REPO_ROOT, "plugins", plugin, "agents")
     result = []
     if not os.path.isdir(agents_dir):
@@ -223,13 +155,10 @@ def collect_agents(plugin, provisional):
             raise InventoryError(f"{rel(agent_md)}: frontmatter missing 'name'")
         if "description" not in fm:
             raise InventoryError(f"{rel(agent_md)}: frontmatter missing 'description'")
-        key = f"plugins/{plugin}/agents/{fname}"
-        deadline = provisional.pop(key, None)
         result.append(
             {
                 "name": fm["name"],
                 "description": fm["description"],
-                "provisional_until": deadline,
             }
         )
     return result
@@ -314,10 +243,10 @@ def render_table(headers, rows):
     return lines
 
 
-def render_plugin_section(plugin, provisional, conformity):
+def render_plugin_section(plugin):
     lines = [f"## Plugin `{plugin}`", ""]
 
-    skills = collect_skills(plugin, provisional)
+    skills = collect_skills(plugin)
     lines.append(f"### Skills ({len(skills)})")
     lines.append("")
     rows = []
@@ -326,25 +255,14 @@ def render_plugin_section(plugin, provisional, conformity):
             name_cell = f"`{s['name']}` (slash-only: `/{plugin}:{s['name']}`)"
         else:
             name_cell = f"`{s['name']}`"
-        if s.get("provisional_until"):
-            name_cell += f" ⏳ provisional until {s['provisional_until']}"
-        contract = conformity.get(f"plugins/{plugin}/skills/{s['name']}/SKILL.md", "pending")
-        rows.append([name_cell, contract, s["description"]])
-    lines.extend(render_table(["Skill", "Contract (D14)", "Description"], rows))
-    desc_total = sum(len(s["description"].encode("utf-8")) for s in skills)
-    lines.append("")
-    lines.append(f"Description aggregate (D16): {desc_total} bytes.")
+        rows.append([name_cell, s["description"]])
+    lines.extend(render_table(["Skill", "Description"], rows))
     lines.append("")
 
-    agents = collect_agents(plugin, provisional)
+    agents = collect_agents(plugin)
     lines.append(f"### Agents ({len(agents)})")
     lines.append("")
-    rows = []
-    for a in agents:
-        name_cell = f"`{a['name']}`"
-        if a.get("provisional_until"):
-            name_cell += f" ⏳ provisional until {a['provisional_until']}"
-        rows.append([name_cell, a["description"]])
+    rows = [[f"`{a['name']}`", a["description"]] for a in agents]
     lines.extend(render_table(["Agent", "Description"], rows))
     lines.append("")
 
@@ -384,26 +302,16 @@ def generate():
         "",
         "Skills marked **slash-only** have `disable-model-invocation: true` in their "
         "frontmatter: they run only via an explicit command (`/<plugin>:<name>`), never on "
-        "the model's own initiative (criterion: `docs/GOVERNANCE.md` §SKILL.md contract).",
-        "",
-        "Items with “provisional until <date>” are wired under the deadline exception "
-        "(`docs/GOVERNANCE.md` §Active provisionals) — a missed deadline turns the gate red.",
+        "the model's own initiative.",
         "",
         "---",
         "",
     ]
-    provisional = collect_provisional()
-    conformity = collect_conformity()
     for i, plugin in enumerate(PLUGINS):
-        lines.extend(render_plugin_section(plugin, provisional, conformity))
+        lines.extend(render_plugin_section(plugin))
         if i < len(PLUGINS) - 1:
             lines.append("---")
             lines.append("")
-    if provisional:
-        raise InventoryError(
-            "provisionals in docs/GOVERNANCE.md without a matching artifact: "
-            + ", ".join(sorted(provisional))
-        )
     # single trailing newline
     while lines and lines[-1] == "":
         lines.pop()

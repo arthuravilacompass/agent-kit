@@ -14,7 +14,7 @@
     {
       "name": "council",
       "source": "./plugins/council",
-      "description": "Epistemic lenses for high-cost-to-reverse decisions — always install alongside core",
+      "description": "Epistemic lenses for high-cost-to-reverse decisions — recommended with core",
       "category": "development"
     },
     {

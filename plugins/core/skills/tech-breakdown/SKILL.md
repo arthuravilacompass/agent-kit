@@ -100,7 +100,7 @@ This skill assumes the consumer project defines:
    - For each lib/utility named in the plan, does it already exist in the codebase? Grep and cite the file.
    - For each new file/class/store proposed, is there a close analogue already (avoid parallel implementations)?
    - For each "we'll use library X" assumption, does the project actually use X? (Confirm the project's real convention for logging, error handling, serialization, etc. — see **Project config** — instead of assuming a default.)
-   - For each analytical claim (file count, token count, lines of code), was a project script used (config: e.g. `scripts/analyze_tokens.py`) or only shell approximation?
+   - For each analytical claim (file count, token count, lines of code), was a real measurement tool used, or only shell approximation?
 
    The critic returns PASS (proceed) or FAIL (concrete gaps → loop back to step 4 brainstorming with gaps as input; cap at 2 critic rounds; if still failing, escalate to the TL).
 

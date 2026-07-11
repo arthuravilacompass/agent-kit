@@ -30,12 +30,12 @@ Consumer side: swap the local marketplace for an `extraKnownMarketplaces` entry 
 ```bash
 claude plugin marketplace add <username>/agent-kit
 claude plugin install core@agent-kit
-claude plugin install council@agent-kit   # accompanies core ALWAYS — condition for the posture-validation census
+claude plugin install council@agent-kit   # recommended with core
 claude plugin install team@agent-kit      # optional: refinement/squad ceremonies
 claude plugin install mobile@agent-kit    # only in a Flutter/Dart project
 ```
 
-The inter-plugin dependency has a mechanical warning in one direction only: `team`/`council`/`mobile` warn at SessionStart if `core` isn't registered as installed (hook `require-core.sh`). The reverse direction (`core` referencing the Council) is covered by this coupled-installation instruction, not by a hook — `core` works without `council`, but the posture-conversion census requires both installed together so it doesn't confuse conversion with availability.
+There's no mechanical warning hook for this dependency — the SessionStart `require-core.sh` check that used to run in `team`/`council`/`mobile` has been retired. `core` works standalone; installing `council`/`team`/`mobile` alongside it is a prose recommendation only, nothing enforces or measures the pairing at runtime.
 
 The local marketplace (`claude plugin marketplace add "$HOME/dev/agent-kit"`) keeps working as the development path even after the remote is published — the source is edited at `$HOME/dev/agent-kit`; GitHub is the distribution channel, not the place to edit.
 
@@ -69,14 +69,14 @@ Five commands, all must come back green before any commit:
 claude plugin validate .
 ./evals/run-evals.sh
 python3 scripts/generate_inventory.py --check
-./scripts/check-governance.sh
+./scripts/check-ceiling.sh
 ```
 
 - `check-provenance.sh` — denylist of company/product/board names and internal paths, run over the whole repo (including `unwired/`, no exception).
 - `claude plugin validate .` — validates the marketplace manifest and each plugin's manifest.
 - `run-evals.sh` — deterministic Tier 1: runs the real hooks against synthetic payloads. Runs via heredoc; in environments that sandbox temp-file creation (some agent harnesses), run with the sandbox disabled for this specific command.
 - `generate_inventory.py --check` — `INVENTORY.md` is generated, never hand-edited; this command fails (red gate) if the repo tree diverges from the recorded inventory. Regenerate with `python3 scripts/generate_inventory.py` and commit the result.
-- `check-governance.sh` — measures `session-start.sh`'s real output against the always-on tier's ceiling and verifies that every `D*`/`R*` ID cited in the repo resolves in the ledger. Ceiling, ledger, and rationale: `docs/GOVERNANCE.md`.
+- `check-ceiling.sh` — measures `session-start.sh`'s real output against the always-on tier's byte ceiling, and bans "Promoted from" provenance narration inside `plugins/`. Ceiling and rationale: `docs/GOVERNANCE.md`.
 
 Normative convention behind the inventory: the `# desc:` line (line 2 of every hook/script under `plugins/*/hooks` and `plugins/*/scripts`) is the source of the description shown in `INVENTORY.md`. Any prose header already in the file is free commentary, with no effect on the inventory. When the two diverge, fix the `# desc:` line — not the prose header.
 
@@ -86,13 +86,20 @@ Surface docs (README, this file, and `docs/GOVERNANCE.md`) don't carry dates —
 
 ## 5. unwired/ — raw material without proven use
 
-`unwired/` isn't a plugin: nothing there is loaded by Claude Code — zero context cost. It's genericized material from originating projects, scrutinized enough to serve as reference, but without proven real use in this kit. Lifecycle (states, promotion, deadline exception): `docs/GOVERNANCE.md`.
+`unwired/` isn't a plugin: nothing there is loaded by Claude Code — zero context cost. It's genericized material from originating projects, scrutinized enough to serve as reference, but without proven real use in this kit. Lifecycle (3-state model, promotion rule, always-on ceiling, conventions): `docs/GOVERNANCE.md`.
 
-| Folder | Origin | Why it isn't wired |
+| Item | Origin | Why it isn't wired |
 |---|---|---|
 | `ui-comparison/` | Visual-fidelity skill from an originating project | The method (phases, scoring rubric) is generic; without a real design system to test against, there was no way to prove use here. `figma-to-component`, which lived in this same pair, was promoted — see `plugins/mobile/skills/figma-to-component/` and the record in `CHANGELOG.md`. |
-| `learning-pulse/` | The "nudge" half of a dual-purpose hook | The advisory half measured ~0 conversion in real use on the originating project and was removed there for that reason; the other half (scope-injection debounce) was solved differently in `core`'s `scope-inject.sh`. It only becomes wired with new measurement that justifies the reminder's cost. |
 | `handoff-gate/` | Stop hook that closes the context-monitor's alert→action loop | Deleted during extraction as an orphan ("dead weight that looks alive"); rescued in post-build review — the blind census evaluated the mechanism's merit independently, and with the originating project's clone gone, deleting it meant permanent loss (recorded in the header of `unwired/handoff-gate/handoff-gate.sh`). The criterion doesn't change: it only gets promoted with real use; the script's header lists the rewiring checklist. |
 | `WORKFLOW.md` | An operator's manual from an originating project | Genericized (skill names mapped to this kit's vocabulary where an equivalent exists; gaps flagged). Reference/inspiration for the README, not a document Claude Code loads. |
+| `conflict_triage.py` | Former `core` script, triaged merge conflicts between a base branch and feature/team branches | Demoted in the Phase 2 refactor: zero consumers found (grep across skills/hooks/docs). |
+| `prune_branches.sh` | Former `core` script, listed remote-branch deletion candidates for manual review (never deletes) | Demoted in the Phase 2 refactor: zero consumers found (grep across skills/hooks/docs). |
+| `arch_graph.sh` | Former `mobile` script, measured the Lakos import graph and regenerated `ARCHITECTURE.md`'s data block | Demoted in the Phase 2 refactor: zero consumers besides its own pair, `arch_violations.py` (which it shells out to — both moved together to preserve that relative path). |
+| `arch_violations.py` | Former `mobile` script, read an import graph `.dot` and reported layering violations | Demoted in the Phase 2 refactor alongside its pair `arch_graph.sh`, for the same reason. |
+| `check_merged_imports.py` | Former `mobile` script, checked internal Dart import resolution in a merged git tree without checkout | Demoted in the Phase 2 refactor: zero consumers found (grep). |
+| `swap_pubspec.py` | Former `mobile` script, swapped `pubspec.yaml` git-ref dependencies for local path dependencies and back | Demoted in the Phase 2 refactor: zero consumers found (grep). Of the 5 `mobile` scripts, only `export_network_logs.py` stayed wired — it's consumed by the `export-logs` skill. |
+| `scope-inject.sh` | Former `core` PreToolUse(`Edit\|Write\|MultiEdit`) hook — injected a scope pointer when the edited file matched a project's `.claude/knowledge-map.tsv` | Cut from `plugins/core/hooks/hooks.json` in the Phase 2 refactor, along with its eval cases and fixtures. |
+| `context-monitor.sh` | Former `core` PostToolUse(`Bash`) hook — warned when the session transcript grew past a size threshold | Cut from `plugins/core/hooks/hooks.json` in the Phase 2 refactor, along with its eval cases and fixtures. Its loop-partner `handoff-gate/` (above) was already here. |
 
 Out of scope here: content specific to the originating domain/company (the `scripts/check-provenance.sh` denylist covers `unwired/` with no exception, in addition to the manual check of paths/classes/tickets done on each item's entry) and duplication of something already wired.

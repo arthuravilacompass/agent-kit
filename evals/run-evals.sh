@@ -56,8 +56,7 @@ mkdir -p "$EVAL_ROOT"
 
 # ---------------------------------------------------------------------------
 # Fixtures: filesystem de apoio para os casos que precisam (plan-autoload lê
-# docs/, scope-inject lê .claude/knowledge-map.tsv, context-monitor lê o
-# tamanho de um transcript real em disco).
+# docs/).
 # ---------------------------------------------------------------------------
 TODAY="$(date +%Y-%m-%d)"
 OLD_STAMP="$(date -v-100H +%Y%m%d%H%M 2>/dev/null || date -d '100 hours ago' +%Y%m%d%H%M)"
@@ -71,41 +70,10 @@ STALE_PLAN="$EVAL_ROOT/plan-autoload-stale/docs/superpowers/plans/${TODAY}-eval-
 echo "# plano velho" > "$STALE_PLAN"
 touch -t "$OLD_STAMP" "$STALE_PLAN"
 
-# scope-inject: projeto com knowledge-map.tsv (happy) e projeto sem config (edge)
-mkdir -p "$EVAL_ROOT/scope-inject-happy/.claude"
-printf 'pubspec.yaml\t[knowledge-map] eval pointer: pubspec change\n' > "$EVAL_ROOT/scope-inject-happy/.claude/knowledge-map.tsv"
-mkdir -p "$EVAL_ROOT/scope-inject-edge"
-
-# context-monitor: transcript grande (>=500KB dispara nível "warn", happy) e
-# transcript pequeno (abaixo de todo threshold, edge — sem aviso)
-mkdir -p "$EVAL_ROOT/context-monitor"
-dd if=/dev/zero of="$EVAL_ROOT/context-monitor/transcript-warn.jsonl" bs=1000 count=550 2>/dev/null
-dd if=/dev/zero of="$EVAL_ROOT/context-monitor/transcript-small.jsonl" bs=100 count=10 2>/dev/null
-
 # bash-autoapprove-readonly / claude-dir-guard: asserções são só sobre a string
 # do comando — não precisam de fixture em disco.
 # session-start: aponta CLAUDE_PLUGIN_ROOT pro plugin real (plugins/core) no caso
 # happy; no edge aponta pra um path que não existe — sem fixture a criar.
-
-# require-core: registro sintético com core presente (silêncio) e ausente/array
-# vazio (aviso). NUNCA copiar o installed_plugins.json real (proveniência).
-mkdir -p "$EVAL_ROOT/require-core-present/plugins" "$EVAL_ROOT/require-core-absent/plugins"
-printf '{"version":2,"plugins":{"core@agent-kit":[{"scope":"user","installPath":"/dev/null"}]}}\n' \
-  > "$EVAL_ROOT/require-core-present/plugins/installed_plugins.json"
-printf '{"version":2,"plugins":{"team@agent-kit":[{"scope":"user","installPath":"/dev/null"}],"core@agent-kit":[]}}\n' \
-  > "$EVAL_ROOT/require-core-absent/plugins/installed_plugins.json"
-
-# require-core existe em 3 plugins por cópia byte-idêntica — drift entre as
-# cópias falha a suíte antes de qualquer caso rodar. Tolerante a arquivo
-# ausente (cópia faltando é pega pelos próprios casos de eval, "hook não
-# encontrado" — o cmp valida só o drift entre cópias existentes).
-for rc_copy in plugins/team/hooks/require-core.sh plugins/council/hooks/require-core.sh; do
-  if [ -f "$REPO_ROOT/$rc_copy" ] && [ -f "$REPO_ROOT/plugins/mobile/hooks/require-core.sh" ] \
-     && ! cmp -s "$REPO_ROOT/$rc_copy" "$REPO_ROOT/plugins/mobile/hooks/require-core.sh"; then
-    echo "ERRO: $rc_copy diverge de plugins/mobile/hooks/require-core.sh (cópias devem ser byte-idênticas)" >&2
-    exit 1
-  fi
-done
 
 PASS=0
 FAIL=0

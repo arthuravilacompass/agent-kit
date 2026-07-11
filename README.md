@@ -1,28 +1,47 @@
 # agent-kit
 
-Claude Code plugins that standardize engineering discipline — from ticket to PR, with deterministic enforcement, portable across projects and clients.
+> **Superpowers decides what to do next; agent-kit decides whether to believe it.**
 
-## Why this kit?
+agent-kit is the epistemic layer for Claude Code — Claude Code plugins that check whether an agent's claims, plans, and reports are actually grounded, before you act on them. It doesn't replace a workflow toolkit (`superpowers`, or your own process); it sits on top of one, conducts the stages between them, and layers verification on the result. It works standalone too.
 
-Code agents without guardrails produce inconsistent results — and anyone who switches clients frequently restarts the discipline from scratch on every project. agent-kit is the executable memory of that discipline: every rule was born from a real mistake, became a mechanism when text alone failed, and stays loaded only as long as it proves use. It attacks both problems:
+The focus is quality and discipline, not raw speed — see Governance below for how the kit curates its own rules.
 
-- **Always-on epistemic rules** — evidence before claim, grep before answering about convention, scope and bugfix discipline; injected every session via SessionStart.
-- **Delivery workflows** — a conductor (`core:pipeline`) that detects the task's real stage and routes it: clarify → specify → break down → implement → review → ship → capture.
-- **Deterministic enforcement** — hooks and gates that don't depend on the model obeying. The strongest is the citation gate: it refuses a bug report whose `file:line` claim has no matching read logged in the session's ledger. It also auto-approves safe reads, blocks correctness smells in Dart, and protects critical directories.
-- **Portability by construction** — zero content from the originating project, guaranteed by a mechanical gate (`scripts/check-provenance.sh`) over the whole repo. A correction learned on one client becomes portable enforcement on the next.
+## Architecture — 3 layers
 
-The focus is quality and discipline, not raw speed.
+| Layer | What it does | Lives in |
+|---|---|---|
+| **1. Epistemic** | Always-on rules (evidence before claim, grep before answering about convention) + deterministic gates that don't depend on the model obeying: the citation gate (a bug report's `file:line` must have a matching read in the session's ledger), the provenance gate (refuses origin-project/company content in shipped files), the Dart correctness smell-checker, and a 16KB always-on byte ceiling (a maintainer-side cap on what stays loaded every session — selection pressure on the kit's authors, not a claim about your context-window cost). Plus the Council of reasoning postures for high-cost-to-reverse decisions. | `core` (rules + gates), `council` (postures) |
+| **2. Workflow conduction** | `core:pipeline` detects the task's real stage and conducts it stage-to-stage (clarify → specify → break down → implement → review → ship → capture); `superpowers` (or your own methodology) executes the actual work at each stage where installed. The kit delegates workflow — it doesn't reinvent it — and layers verification on top. | `core:pipeline`, optional `superpowers` |
+| **3. Verticals** | Domain-specific toolkits built on layers 1–2: Flutter/Dart review and workflow, agile-ceremony copilot. | `mobile` (Flutter/Dart), `team` (agile ceremonies) |
+
+## Posture
+
+"Decides whether to believe it" names the mechanism's mandate, not a finished verdict — what follows is how far that mandate verifiably reaches today. That's scope, not a walk-back.
+
+**Deterministic where determinism is possible; honestly agnostic where it isn't.** The gates are mechanically verifiable — run them, get a pass/fail, no interpretation required. What the kit does *not* claim: that it's "proven" or "validated" to improve model behavior in general. That broader claim is untested and this README won't pretend otherwise. What's tested is narrower and real: the mechanism either fires or it doesn't.
+
+## See it work
+
+*(a short recorded demo is planned — here's the text walkthrough for now)*
+
+The sharpest differentiator is the citation gate. It refuses a bug report whose `file:line` claim has no matching read logged in the session's ledger:
+
+1. The agent reads `lib/foo.dart:42-58` — the read is recorded automatically (`read-ledger.sh`).
+2. The agent drafts a bug report citing `lib/bar.dart:12` — a file it never opened this session.
+3. `validate_citations.py --gate` blocks the report: that citation has no ledger entry. Nothing ships until the claim is grounded in an actual read, not a plausible-sounding guess.
+
+<!-- demo: 30s asciinema/GIF of the citation gate refusing an ungrounded file:line citation — manual recording by the operator; embed here -->
 
 ## What's included
 
 Four plugins installable via a local marketplace:
 
-| Plugin | What it is | Contents | Install when |
-|---|---|---|---|
-| `core` | Delivery methodology with deterministic enforcement, from ticket to PR, any stack | 14 skills, 1 agent, 7 hooks, 5 scripts | Always — it's the foundation for the rest |
-| `council` | Epistemic lenses for high-cost-to-reverse decisions | 7 skills, 3 agents, 1 hook | Alongside `core`, always |
-| `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | 3 skills, 1 hook | If you run refinement or communicate with a squad |
-| `mobile` | Flutter/Dart toolkit | 11 skills, 1 agent, 5 hooks, 5 scripts, 2 MCP servers | Only in a Flutter/Dart project |
+| Plugin | What it is | Install when |
+|---|---|---|
+| `core` | Delivery methodology with deterministic enforcement, from ticket to PR, any stack | Always — it's the foundation for the rest |
+| `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
+| `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | If you run refinement or communicate with a squad |
+| `mobile` | Flutter/Dart toolkit | Only in a Flutter/Dart project |
 
 Full inventory of skills, agents, hooks, and scripts, generated by script and verified in the gate: **[INVENTORY.md](INVENTORY.md)**.
 
@@ -41,12 +60,14 @@ git clone <this-repo-url> ~/dev/agent-kit
 ```bash
 claude plugin marketplace add "$HOME/dev/agent-kit"
 claude plugin install core@agent-kit
-claude plugin install council@agent-kit  # accompanies core
+claude plugin install council@agent-kit  # recommended with core
 claude plugin install team@agent-kit     # optional: agile ceremonies with PO/squad
 claude plugin install mobile@agent-kit   # only in a Flutter/Dart project
 ```
 
-Run this from inside the project where the kit should be active.
+Run this from inside the project where the kit should be active. `claude plugin install` installs at **user scope by default** — available in every project on this machine, not just this one; pass `--scope project` (see Update, below) to confine it to just this project instead.
+
+One dependency worth knowing up front: `/core:review-local` additionally requires the `pr-review-toolkit` plugin (see Requirements) — without it, use `/core:review-remote`.
 
 ### 3. Verify
 
@@ -82,7 +103,7 @@ claude plugin marketplace remove agent-kit
 
 ## Workflow
 
-The kit follows a structured flow around `core:pipeline`: you hand over the raw intent, it detects the stage and proposes the route — one stage at a time, never the whole chain on its own.
+Layer 2 in action: you hand over the raw intent, `core:pipeline` detects the stage and proposes the route — one stage at a time, never the whole chain on its own.
 
 ```
 raw intent ("add authentication", "this deeplink broke", ticket from the board)
@@ -98,12 +119,36 @@ capture      → core:learn + handoff
 
 Each stage produces an artifact that informs the next, reducing ambiguity and rework. A minimal route is legitimate for a small task — the pipeline proposes skipping stages and waits for your confirmation.
 
-<!-- demo: 30s asciinema/GIF of the pipeline — manual recording by the operator; embed here -->
+## Where this sits
+
+agent-kit composes with workflow toolkits rather than competing with them — use them to drive the work, use agent-kit to check it:
+
+| | Use it for | Use agent-kit for |
+|---|---|---|
+| `superpowers` | The workflow itself — TDD, systematic debugging, brainstorming, writing plans | Verifying the workflow's claims are grounded (citation gate) and stress-testing its decisions (Council postures); `core:pipeline` falls back gracefully when it isn't installed |
+| GitHub Spec-Kit | Turning a spec into a plan/tasks scaffold (spec-to-ship, multi-agent) | Checking whether the shipped code's claims — bug reports, review findings — match what was actually read or run; Spec-Kit doesn't gate on evidence |
+| BMAD-METHOD | Persona-driven agile orchestration (PM/architect/dev/QA roles, story files) across a project | The deterministic gates none of those personas carry on their own — a "dev" persona's bug report still needs a citation gate |
+| ACT Lite | Portability of a lightweight skill format across multiple coding tools | The enforcement layer ACT deliberately keeps out of its agnostic tier (hooks/gates are "Pro," per-tool, in ACT's own framing) — agent-kit is single-tool-native and leans on exactly that tier |
+
+## Which skill or agent, when
+
+Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVENTORY.md)**.
+
+| Job | Skill / Agent |
+|---|---|
+| **Start here** | `core:pipeline` — hand it the raw intent, it detects the stage and proposes the route |
+| **Prove it** | `/core:bug-report` (grounded bug reports) · `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
+| **Think it through** | `council:council` (index) → `council:bohr` (false dichotomy) · `council:epicurus` (scope) · `council:sagan` (effort calibration) · `council:schrodinger` (ambiguous diagnosis) · `council:maxwell` / `council:zeno` — agents, not skills (change propagation, invariant stress) |
+| **Shape the work** | `/core:spec-refine` · `/core:tech-breakdown` · `/core:archaeology` |
+| **Ship & remember** | `/core:commit` · `/core:pr` · `core:learn` · `/core:compound` |
+| **Flutter** | `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest of the toolkit |
+| **Ceremonies** | `/team:refine-live` · `/team:refine-async` · `team:chat-draft` |
 
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) with plugin support
 - **Optional:** the [superpowers](https://github.com/obra/superpowers) marketplace — some `core` flows reference it (brainstorming, writing-plans, systematic-debugging); without it nothing breaks, the pipeline indicates each stage's internal fallback
+- **`core:review-local` requires the `pr-review-toolkit` plugin** (parallel reviewer dispatch); without it, use `core:review-remote` (sequential, no external dependency)
 - For `mobile`: a Flutter/Dart project. The registered MCP servers are only the generic toolchain ones — no backend/project server
 
 ## Advanced
@@ -114,7 +159,7 @@ Six reasoning modes to deliberately wear when facing a high-cost-to-reverse deci
 
 ### Governance
 
-Artifact lifecycle (what comes in, gets promoted, and goes out), promotion rule, skill-authoring contract, and decision ledger: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**. Operations for whoever maintains the kit — publishing, the five-part quality gate, genericized material still without proven use (`unwired/`): **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
+This kit governs itself with the same rigor it enforces. Many of its rules were born from a real mistake, became a mechanism when text alone failed, and stay loaded only as long as they prove use — likewise, `mobile`/`team` (layer 3, above) exist as applied proof that layers 1–2 hold under a real domain, not just in the abstract. See **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**: artifact lifecycle (the 3-state model — wired/unwired/deleted), the promotion rule, and kit conventions, plus a short "Decisions worth remembering" note. Operations for whoever maintains the kit — publishing, the five-part quality gate, genericized material still without proven use (`unwired/`): **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
 ### Repository structure
 
@@ -123,7 +168,7 @@ Artifact lifecycle (what comes in, gets promoted, and goes out), promotion rule,
 | `plugins/` | The four installable plugins (`core`, `council`, `team`, `mobile`) |
 | `unwired/` | Genericized raw material awaiting proof of use — nothing is loaded, zero context cost ([details](docs/OPERATIONS.md)) |
 | `assets/` | Manual copy-paste templates: status line, `CLAUDE.md` skeleton, `settings.json` snippets |
-| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (lifecycle, skill contract, ledger) and [OPERATIONS.md](docs/OPERATIONS.md) (owner operations) |
+| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (lifecycle, promotion rule, conventions) and [OPERATIONS.md](docs/OPERATIONS.md) (owner operations) |
 | `scripts/` | Provenance gate, inventory generator, and maintenance tooling |
 
 ---

@@ -17,17 +17,9 @@
           { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/bash-autoapprove-readonly.sh\"" },
           { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/claude-dir-guard.sh\"" }
         ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scope-inject.sh\"" } ]
       }
     ],
     "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/context-monitor.sh\"" } ]
-      },
       {
         "matcher": "Read|Grep",
         "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/read-ledger.sh\"" } ]

@@ -19,7 +19,7 @@ compound --quick    # short session: only question 1, no sweep
 
 1. **Learning capture** — invoke the `core:learn` skill (scans the conversation for corrections, preferences, decisions; inline approval before writing). If nothing is found, state explicitly: *"Nothing to capture this session"* — the statement itself is the fast path, no ceremony.
 
-2. **Handoff (conditional)** — if the session is heavy (context-monitor warning ≥800KB) OR work continues in another session: write `docs/superpowers/handoffs/<YYYY-MM-DD>-<task>.md` with: task, decisions made, next steps, files touched. `plan-autoload` resurfaces it next session. If the track truly ended (PR created), skip.
+2. **Handoff (conditional)** — if the session is heavy (long-running, context-dense) OR work continues in another session: write `docs/superpowers/handoffs/<YYYY-MM-DD>-<task>.md` with: task, decisions made, next steps, files touched. `plan-autoload` resurfaces it next session. If the track truly ended (PR created), skip.
 
 3. **Graduation candidate (conditional)** — if the session refined a toolkit rule/skill/hook: check the 3 criteria in `docs/graduation-log.md` (recurs ≥2× · stabilized in real use · not specific to a single project). If all 3 hold, **propose** the row for the append-only table — the toolkit owner decides; never add without approval.
 

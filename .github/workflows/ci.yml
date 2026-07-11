@@ -12,8 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Provenance gate
         run: bash scripts/check-provenance.sh
-      - name: Governance gate
-        run: bash scripts/check-governance.sh
+      - name: Ceiling gate
+        run: bash scripts/check-ceiling.sh
       - name: Inventory up-to-date
         run: python3 scripts/generate_inventory.py --check
       - name: Hook evals (tier 1)
