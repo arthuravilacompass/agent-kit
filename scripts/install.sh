@@ -26,6 +26,7 @@ EOF
 }
 
 profile="minimal"
+profile_seen=0
 dry_run=0
 tool=""
 tool_seen=0
@@ -35,6 +36,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     minimal|mobile|team|full)
       profile="$1"
+      profile_seen=1
       ;;
     --dry-run)
       dry_run=1
@@ -65,7 +67,14 @@ done
 # --tool emits the portable epistemic tier for another AI tool and exits; it
 # does not install plugins, so it runs before the `claude` CLI check below.
 if [ "$tool_seen" -eq 1 ]; then
-  exec bash "$REPO_ROOT/scripts/emit-port.sh" "$tool" --out "$out_dir"
+  if [ "$profile_seen" -eq 1 ]; then
+    echo "ERROR: a profile ('$profile') can't be combined with --tool — they are different modes (install plugins vs. emit a portable tier)." >&2
+    usage >&2
+    exit 1
+  fi
+  emit_args=("$tool" --out "$out_dir")
+  [ "$dry_run" -eq 1 ] && emit_args+=(--dry-run)
+  exec bash "$REPO_ROOT/scripts/emit-port.sh" "${emit_args[@]}"
 fi
 
 if ! command -v claude >/dev/null 2>&1; then

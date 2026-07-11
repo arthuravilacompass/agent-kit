@@ -96,6 +96,17 @@ claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agen
 
 Session restart required. A plugin installed at project scope requires `--scope project`.
 
+### Use the epistemic tier on another AI tool
+
+The plugins are Claude Code-native, but the always-on epistemic tier is tool-agnostic. Emit it as an `AGENTS.md` — read by GitHub Copilot, Cursor, and other AGENTS.md-honoring tools — into the repo you want it active in:
+
+```bash
+~/dev/agent-kit/scripts/install.sh --tool copilot --out .   # writes ./AGENTS.md
+# --dry-run to preview · --force to overwrite an existing AGENTS.md
+```
+
+Enforcement doesn't travel: the hooks (provenance / citation / smell gates) and the advisor/subagent skills run only under Claude Code, so on an AGENTS.md-only tool these rules are **advisory** — the emitted header says exactly that. Source of truth stays the wired `using-agent-kit` skill; re-run to refresh, never hand-edit the output.
+
 ### Uninstall
 
 ```bash

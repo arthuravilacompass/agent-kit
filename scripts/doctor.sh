@@ -226,6 +226,17 @@ else
   info "scripts/generate_inventory.py not found — skipped"
 fi
 
+if [ -f evals/run-evals.sh ]; then
+  if out="$(bash evals/run-evals.sh 2>&1)"; then
+    pass "evals/run-evals.sh (tier-1 hook evals)"
+  else
+    fail "evals/run-evals.sh" "run 'bash evals/run-evals.sh' directly and read the failing case"
+    printf '%s\n' "$out" | sed 's/^/    /'
+  fi
+else
+  info "evals/run-evals.sh not found — skipped"
+fi
+
 echo
 if [ "$overall_fail" -eq 0 ]; then
   echo "Summary: all checks passed (colleague + maintainer)."
