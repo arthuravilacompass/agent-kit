@@ -72,7 +72,7 @@ Decompila o pacote **sem executá-lo** e extrai, em passos encadeados:
 
 ### 3.2 Análise Dinâmica (opcional — baseada em log)
 
-Quando executada: roda o app num ambiente controlado, dirige os fluxos em escopo, lê os **logs de runtime** (`adb logcat`) e observa o comportamento real — sequência de navegação, busca de config remota no boot, e o tipo de cada tela (nativa / WebView / Custom-Tab). Cruza com o extrato estático como **2ª fonte** de confirmação. É **comportamento, não tráfego de rede**.
+Quando executada: roda o app num ambiente controlado, dirige os fluxos em escopo, lê os **logs de runtime** (`adb logcat`) e observa o comportamento real — sequência de navegação e busca de config remota no boot. Para a superfície de cada tela, o logcat entrega **sinais** (WebView / Custom-Tab); rotular uma tela como **nativa** vem do dump de hierarquia de views (`uiautomator`, 0 nós WebView), lido por **humano** — logcat não prova ausência. O cruzamento com o extrato estático é a **2ª fonte** de confirmação, feito **à mão** (não há script de reconciliação — ver `references/method.md`). É **comportamento, não tráfego de rede**.
 
 ### 3.3 Ferramentas de Referência
 
@@ -81,7 +81,8 @@ Quando executada: roda o app num ambiente controlado, dirige os fluxos em escopo
 | Decompilador DEX → Java | Estática | Reconstruir código-fonte legível a partir do bytecode |
 | Inspetor de manifesto / recursos | Estática | Ler permissões, activities, layouts e strings |
 | Extração de endpoints e grafo (scripts) | Estática | Levantar contratos de API e dependências entre módulos |
-| Leitor de logs de runtime (`adb logcat`) | Dinâmica | Observar o comportamento real durante a navegação |
+| Captura de runtime (`capture_dynamic.sh`: `adb logcat` + `uiautomator`) | Dinâmica | Capturar navegação, sinais de superfície e hierarquia de views durante a navegação |
+| `parse_logcat.py` | Dinâmica | Estruturar sequência de navegação e sinais WebView/Custom-Tab; cruzamento com o estático é manual |
 
 > Os scripts específicos do pipeline estão em `SKILL.md`; a spec da análise dinâmica, em `references/method.md`.
 

@@ -32,6 +32,11 @@
 
 ## Porta de entrada — como ler este documento
 
+**Legenda de origem** (usada em todo o documento, inclusive na tabela abaixo): 🟢 recuperado do
+código (âncora `arquivo:linha`) · 🟡 observado/inferido (o PO ratifica) · ⬜ fora do alcance da
+engenharia reversa (design/PO/time preenche). Um ⬜ distingue "não olhou" de "olhou e confirmou
+ausente" — detalhe em §5.1 e no apêndice honesto §10.3.
+
 **Ordem de leitura por audiência** (não precisa ler tudo — escolha sua trilha):
 
 | Você é... | Leia | Pule |
@@ -222,6 +227,14 @@ via Dart VM, não APK nativo), captura de `adb logcat` no boot e no caminho de l
 contrato**: logcat sem interceptação mostra o que o app *faz/renderiza*, nunca o payload de rede — o
 estático já recupera os endpoints do código. Moldura anti-laundering em `references/method.md`.
 
+> **Instrumento (nota de proveniência).** As observações abaixo foram colhidas **à mão** em
+> 2026-07-09. O instrumento hoje é script-ado — `scripts/capture_dynamic.sh` (captura
+> `adb logcat -v threadtime` + dump `uiautomator`) e `scripts/parse_logcat.py` (estrutura a
+> sequência de navegação e os **sinais** WebView/Custom-Tab; nunca rotula uma tela como
+> "nativa" a partir do logcat — esse veredito vem do dump de hierarquia de views, lido por
+> **humano**). Este run **não** foi re-executado pelo parser; o cruzamento com o extrato
+> estático foi **manual** (por design não há script de reconciliação — ver `method.md`).
+
 **O que o instrumento observou (runtime, fluxo não-autenticado):**
 
 1. **Sequência real de navegação** — `WPLaunchActivity → WPMainActivity → LoginActivity`
@@ -259,7 +272,8 @@ web numa Custom Tab** — uma terceira categoria que o binário estático "nativ
 | apktool (homebrew) | Análise estática | Leitura de manifest, layouts e recursos (`res/values/strings.xml` etc.) |
 | `classify_packages.py` / `extract_endpoints.py` / `extract_graph.py` | Análise estática | Pipeline do skill — classificação, endpoints, grafo (ver `SKILL.md`) |
 | macOS (arm64) | Ambiente | Máquina de execução da rodada, 2026-07-08 |
-| adb + uiautomator + logcat (emulador Pixel_7, API 36) | Análise dinâmica (v2 — passagem fina) | Observação por log: sequência de navegação, nativo/WebView/Custom-Tab por tela, fetch de config no boot (§3.2) |
+| `capture_dynamic.sh` (adb logcat threadtime + uiautomator; emulador Pixel_7, API 36) | Análise dinâmica (v2 — passagem fina) | Captura path-scoped, fail-closed; alimenta `parse_logcat.py` (§3.2) |
+| `parse_logcat.py` | Análise dinâmica (v2) | Estrutura sequência de navegação + sinais WebView/Custom-Tab; surface de config/analytics; cruzamento com o estático é manual (§3.2) |
 | *(marionette)* | — | **Não aplicável**: dirige alvo Flutter via Dart VM, não APK nativo legado |
 
 ---
@@ -872,6 +886,9 @@ foram destrinchadas nesta rodada.
 
 ## 6. Regras de Negócio (RN) — nota de formato
 
+> **→ As regras de negócio estão em §5.4–5.6, aninhadas em cada User Story. Esta seção não
+> contém regras — só explica por que elas vivem lá e indexa onde encontrá-las.**
+
 O modelo de relatório (`modelo-relatorio.pt-BR.md`) e este exemplo **concordam** na regra de formato:
 RN não vivem num catálogo global — vivem **aninhadas dentro de cada US**, aqui na seção 5, lado a lado
 com sua origem (🟢/🟡) e evidência `arquivo:linha`. A numeração `RN-01`, `RN-02`… que aparece no modelo
@@ -901,6 +918,9 @@ mal, o desenho se reavalia explicitamente.
 ---
 
 ## 7. Critérios de Aceite (CA) — nota de formato
+
+> **→ Os critérios de aceite estão em §5.4–5.6, em Gherkin abaixo de cada RN. Esta seção não
+> contém critérios — só explica o formato e indexa onde encontrá-los.**
 
 Mesmo raciocínio do §6, e mesmo acordo com o modelo: os CA vivem em **Gherkin**, marcados
 `@legacy-observed`, imediatamente abaixo das RN que testam — não num catálogo `CA-01/CA-02` à parte
