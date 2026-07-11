@@ -115,16 +115,18 @@ systematized knowledge is exactly the over-claim the anti-laundering clause forb
   absent" — is now in the origin legend, without a number.
 - **A second run on an obfuscated/server-driven app** — the word "method" is
   earned there, not here.
-- **Dynamic analysis (v2)** — the log-based *instrument* is specified in its own
-  section below and exercised once on WordPress; the *method* is not yet
-  validated on the hard axes (obfuscated / authenticated / real business
-  webview). See "Dynamic analysis (v2) — log-based observation".
+- **Dynamic analysis (v2)** — the log-based *instrument* is now built (scripts,
+  unit-tested) and exercised once on WordPress; the *method* is not yet validated
+  on the hard axes (obfuscated / authenticated / real business webview). See
+  "Dynamic analysis (v2) — log-based observation".
 
 ## Dynamic analysis (v2) — log-based observation
 
-> **Status: spec + one instrument-validation exemplar** (see the WordPress
-> example). This is NOT a validated method on the hard axes — read the
-> anti-laundering clause before citing it.
+> **Status: instrument BUILT + one instrument-validation exemplar.** The scripts
+> exist (`scripts/capture_dynamic.sh` + `scripts/parse_logcat.py`, unit-tested on a
+> synthetic framework-log fixture) and were exercised once on WordPress. This is
+> still NOT a validated *method* on the hard axes — read the anti-laundering clause
+> before citing it.
 
 **Anti-laundering clause (load-bearing — stated first, on purpose).** Log-based
 v2 on an unauthenticated, non-obfuscated app (WordPress) demonstrates the
@@ -147,6 +149,27 @@ shows what the app does and renders, never its wire payloads — the static pass
 already recovers endpoints from code, so v2 must not reach for traffic (that way
 lies a network-interception project this method deliberately excludes).
 
+**The instrument (built, not yet run on the hard axes).** Two scripts, mirroring
+the static pipeline's script+selftest convention:
+
+- `scripts/capture_dynamic.sh` — path-scoped, fail-closed capture wrapper: clears
+  the buffer, records `adb logcat -v threadtime` while you drive the app, and dumps
+  the current-screen `uiautomator` view hierarchy. Committed as a runbook; real runs
+  stay local (design doc §8). The `uiautomator` dump is the *only* source that can
+  support a "native" call (0 `WebView` nodes) — logcat can't.
+- `scripts/parse_logcat.py` — deterministic, pure-stdlib parser (unit-tested by
+  `selftest_parse_logcat.py`). Structures the robust framework-level items
+  (navigation sequence; WebView / Custom-Tab *signals*) and only *surfaces* the
+  app-specific ones (remote-config / analytics candidate lines) for a human — it
+  does not structure what would generalize from one app. A secret-looking token in a
+  Custom Tab's `dat=` URL is redacted on output, reusing `extract_endpoints`' rule.
+
+There is **no auto cross-check script** against the static extract, on purpose: the
+static `graph.json` is an extends/implements reconstruction with no navigation edges,
+so scoring "agreement" between a runtime `START` *sequence* (fact) and an inheritance
+graph (reconstruction) would flatten the confidence tiers this method keeps separate.
+The cross-check is a human step — "runtime disambiguates what the graph only signals".
+
 **Dynamic reach map** (mirror of the static reach map — what logcat can
 cross-check, robust items first because they are framework-level and survive
 release log-stripping):
@@ -154,10 +177,14 @@ release log-stripping):
 - **Real boot→first-screen navigation sequence** (`ActivityManager` START lines)
   vs. the module graph's *directional guess* — runtime disambiguates what the
   graph only signals.
-- **Native vs. embedded-WebView vs. Custom-Tab per reachable screen**
-  (`chromium` / `cr_*` tags for in-process WebView; `ActivityManager` launching
-  a Chrome/CustomTabs activity). Directly re-checks the documented "login is a
-  webview" failure mode.
+- **WebView / Custom-Tab SIGNALS per reachable screen** (`chromium` / `cr_*`
+  tags for in-process WebView; a `START` into a browser `customtabs` activity).
+  `parse_logcat.py` emits these as *signals* and NEVER labels a screen "native":
+  logcat cannot prove absence (stripped logs / surface outside the capture window),
+  and calling that "native" would conflate "no evidence found" with "evidence of no
+  behavior". A native call comes only from the `uiautomator` dump (0 `WebView`
+  nodes), read by a human. Directly re-checks the documented "login is a webview"
+  failure mode — which the exemplar refined to a third category (Custom Tab).
 - **Boot-time remote-config / feature-flag fetch** present or absent
   (corroborates a "config-driven branch" inference).
 - **App analytics event taxonomy per screen**, if logged (fragile — release

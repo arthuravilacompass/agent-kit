@@ -11,7 +11,8 @@ disable-model-invocation: true
 > `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md`.
 
 > **From extraction to backlog.** The report method — the CT→RF→US→RN→CA chain,
-> the reach map, the confidence tiers, and the log-based v2 (dynamic) spec — lives
+> the reach map, the confidence tiers, and the log-based v2 (dynamic) instrument
+> (`scripts/capture_dynamic.sh` + `scripts/parse_logcat.py`, step 7) — lives
 > in `references/method.md`. The client-facing report template (pt-BR) is
 > `references/modelo-relatorio.pt-BR.md` (the filled file **is** the deliverable,
 > shipped as Markdown — inline Mermaid diagram, no `.docx` conversion); how to fill
@@ -139,6 +140,23 @@ One synthesis, 3 bands ALWAYS visually separated, never flattened:
  run, not just the demo: inference in A can be wrong even at a high tier —
  the tier is calibrated, not guaranteed.]
 ```
+
+### 7. Dynamic pass (v2 — optional, provisional)
+
+A runtime second source that cross-checks the static bands. Only with a
+device/emulator **and** authorization (scope so far: non-obfuscated by decision):
+
+```
+APK_ARCH_AUTHORIZED=1 scripts/capture_dynamic.sh <work_dir> <package>
+python3 scripts/parse_logcat.py <work_dir>/logcat.txt --out <work_dir>/dynamic.json
+```
+
+`capture_dynamic.sh` records `adb logcat -v threadtime` + a `uiautomator` dump;
+`parse_logcat.py` yields the dynamic reach map (nav sequence, WebView/Custom-Tab
+signals, config/analytics candidate lines). It emits SIGNALS, never a "native"
+verdict — that call needs the `uiautomator` dump, read by a human. The cross-check
+against the static bands is a human step (no auto-reconciliation, by design). Full
+discipline + anti-laundering clause: `references/method.md`, "Dynamic analysis (v2)".
 
 ## Inviolable Rules
 
