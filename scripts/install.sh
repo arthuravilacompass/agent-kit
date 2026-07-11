@@ -8,6 +8,7 @@ MARKETPLACE="agent-kit"
 usage() {
   cat <<'EOF'
 Usage: install.sh [minimal|mobile|team|full] [--dry-run]
+       install.sh --tool <name> [--out DIR]
 
 Profiles (default: minimal):
   minimal   core + council
@@ -16,33 +17,56 @@ Profiles (default: minimal):
   full      core + council + team + mobile
 
 Options:
-  --dry-run   print the commands that would run, without executing them
-  -h, --help  show this help
+  --dry-run    print the commands that would run, without executing them
+  --tool NAME  instead of installing plugins, emit agent-kit's portable epistemic
+               tier for another AI tool (currently: copilot -> AGENTS.md)
+  --out DIR    with --tool, write output into DIR (default: current directory)
+  -h, --help   show this help
 EOF
 }
 
 profile="minimal"
 dry_run=0
+tool=""
+tool_seen=0
+out_dir="."
 
-for arg in "$@"; do
-  case "$arg" in
+while [ $# -gt 0 ]; do
+  case "$1" in
     minimal|mobile|team|full)
-      profile="$arg"
+      profile="$1"
       ;;
     --dry-run)
       dry_run=1
+      ;;
+    --tool)
+      shift
+      tool="${1:-}"
+      tool_seen=1
+      ;;
+    --out)
+      shift
+      out_dir="${1:-}"
       ;;
     -h|--help)
       usage
       exit 0
       ;;
     *)
-      echo "ERROR: unrecognized argument '$arg'" >&2
+      echo "ERROR: unrecognized argument '$1'" >&2
       usage >&2
       exit 1
       ;;
   esac
+  shift
 done
+
+# --- port emitter dispatch (the seam a --tool flag redirects to) ------------
+# --tool emits the portable epistemic tier for another AI tool and exits; it
+# does not install plugins, so it runs before the `claude` CLI check below.
+if [ "$tool_seen" -eq 1 ]; then
+  exec bash "$REPO_ROOT/scripts/emit-port.sh" "$tool" --out "$out_dir"
+fi
 
 if ! command -v claude >/dev/null 2>&1; then
   echo "ERROR: 'claude' CLI not found on PATH — install Claude Code first: https://docs.claude.com/claude-code" >&2
@@ -50,10 +74,9 @@ if ! command -v claude >/dev/null 2>&1; then
 fi
 
 # --- profile -> plugin list resolution --------------------------------------
-# (Seam for a future `--tool <name>` flag: it would branch here, before the
-# apply step below, and dispatch to a different emitter than run_cmd/claude —
-# e.g. a Cursor or Windsurf equivalent. Not implemented — this comment only
-# marks where it would go. Do not add --tool without an explicit ask.)
+# (The `--tool <name>` flag dispatches above, before the `claude` CLI check, to
+# scripts/emit-port.sh. Plugin install is the default path below when no --tool
+# is given.)
 case "$profile" in
   minimal) plugins=(core council) ;;
   mobile)  plugins=(core council mobile) ;;
