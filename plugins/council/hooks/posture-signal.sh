@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: UserPromptSubmit — advisory: deterministic pattern-match detects posture/checkpoint opportunities in the prompt (done-claim → grill-me pre-done, A-or-B → bohr, live hypotheses → schrodinger, validate-solution → zeno, coupled change → maxwell, worth-it → sagan) and injects a one-line suggestion; max one per prompt, once per signal per session.
+# desc: UserPromptSubmit — advisory: deterministic pattern-match detects posture/checkpoint opportunities in the prompt (done-claim → grill-me pre-done, direction lock-in → grill-me pre-plan, A-or-B → bohr, live hypotheses → schrodinger, validate-solution → zeno, coupled change → maxwell, worth-it → sagan, past-discussion memory → council-recall) and injects a one-line suggestion; max one per prompt, once per signal per session.
 #
 # Closes the Council's on-demand gap: postures only helped when the operator
 # remembered to invoke them. Design follows the proactive-support literature
@@ -37,8 +37,11 @@ export INPUT_JSON
 # positive here just falls through to python, which decides exactly; NEVER
 # add a SIGNALS branch without an ASCII-safe anchor here. Measured saving:
 # ~50-70ms interpreter spawn per non-matching prompt (UserPromptSubmit fires
-# on every turn).
-if ! LC_ALL=C grep -qiE 'pronto|commitar|comitar|finalizar|fechar|entregar|done|ready|commit|ship|merge|finalize|qual|which|escolher|choose|devo|should|usar|pode|might|could|sei|sure|duas|hip|two|mais|valida|validate|resolve|cobre|funciona|does|solve|cover|handle|refatorar|mexer|mudar|alterar|refactor|change|touch|impacto|propagate|vale|compensa|worth|devemos|invest' <<< "$INPUT_JSON"; then
+# on every turn). 2026-07-13 (proplasma/anamnesis anchors): "go" and "isso"
+# are common substrings (algo/logo/category; any pt prompt saying "isso") —
+# the union is measurably leakier now; python still decides exactly, the
+# saving only applies to prompts missing every literal.
+if ! LC_ALL=C grep -qiE 'pronto|commitar|comitar|finalizar|fechar|entregar|done|ready|commit|ship|merge|finalize|qual|which|escolher|choose|devo|should|usar|pode|might|could|sei|sure|duas|hip|two|mais|valida|validate|resolve|cobre|funciona|does|solve|cover|handle|refatorar|mexer|mudar|alterar|refactor|change|touch|impacto|propagate|vale|compensa|worth|devemos|invest|vamos|seguir|go|isso|didn|haven|talked' <<< "$INPUT_JSON"; then
     exit 0
 fi
 
@@ -73,7 +76,7 @@ def main(data):
     # posture/checkpoint, means the operator is ahead of the signal — stay silent.
     if low.startswith("/"):
         sys.exit(0)
-    if re.search(r"(council:|grill-me|\b(bohr|schr[oö]dinger|epicurus|sagan|maxwell|zeno)\b)", low):
+    if re.search(r"(council:|council-recall|grill-me|\b(bohr|schr[oö]dinger|epicurus|sagan|maxwell|zeno)\b)", low):
         sys.exit(0)
 
     # (signal, pattern, suggestion) — priority order, first match wins. Proximity
@@ -83,6 +86,28 @@ def main(data):
         ("predone",
          r"(t[aá] pronto|est[aá] pronto|podemos +(commitar|comitar|finalizar|fechar|entregar)|pronto +pra? +(commit|entrega|merge)|(posso|devo) +(commitar|comitar)|is +(it|this) +(done|ready)|ready +to +(commit|ship|merge)|can +we +(commit|ship|merge|finalize)|call +it +done)",
          "this reads like a definition-of-done moment — consider `/core:grill-me pre-done` before calling it done."),
+        # proplasma/anamnesis (2026-07-13): mined from a neighbor trigger
+        # taxonomy; both point at EXISTING kit mechanisms (grill-me pre-plan
+        # checkpoint, council-recall) — no new posture. proplasma sits above
+        # bohr: when lock-in language and an A-or-B co-occur, the pre-plan
+        # consult subsumes the dichotomy probe (the reverse doesn't hold);
+        # accepted loss: it also outranks schrodinger/zeno on co-occurrence.
+        # \b on every opening token is load-bearing: pt imperfect tense
+        # ("está[vamos com a] abordagem", "em[bora seguir com]") and EN
+        # compounds ("tab[lets go with]") otherwise match inside words. EN
+        # "commit to" is allowlisted to direction nouns so git phrasing
+        # ("commit to main/this branch") stays silent.
+        # 2026-07-13 (blind review, post-ship): the open `vamos +de +<any
+        # noun>` branch was removed — blind review demonstrated it's an
+        # open word class (blocklisting idioms is whack-a-mole: "carro",
+        # "pizza", "metrô", "férias"...) and that a multi-token X escapes
+        # the ou-guard ("vamos de arquitetura limpa ou clean MVC?" fired on
+        # an open question). Accepted, documented conservative false
+        # negative: "vamos de MobX então" no longer fires — see the pinned
+        # case in hook-cases.jsonl.
+        ("proplasma",
+         r"(\b(vamos|bora) +seguir +com|\bvamos +com +(ess[ae]\b|a +op[cç][aã]o|a +abordagem|o +plano|a +ideia)|\bvamos +ness[ae] +(abordagem|op[cç][aã]o|dire[cç][aã]o|linha|caminho|rota)|\b(let['’]?s|we['’]?ll) +(go +with|commit +to +((the|this|that|an?) +)?(approach|plan|direction|option|idea|design|architecture|strategy|stack)\b))",
+         "a direction is being locked in — consider `/core:grill-me pre-plan` before committing to it."),
         ("bohr",
          r"(qual +d(os|as) +d(oi|ua)s|which +of +the +two|escolher +entre|choose +between|(devo|should +(i|we)) +(usar|use|go +with|ir +de) +\S.{0,40}\b(ou|or)\b)",
          "this reads like an A-or-B choice — `/council:bohr` tests whether the dichotomy is real before you pick a side."),
@@ -98,6 +123,17 @@ def main(data):
         ("sagan",
          r"(vale +a +pena|compensa +(fazer|construir|investir)|worth +(the +effort|building|investing|doing)|devemos +investir|should +we +invest)",
          "an effort-worthiness question — `/council:sagan` calibrates whether it matters, at what scale, and whether it survives time."),
+        # anamnesis last: recall is orthogonal support — when it co-fires with
+        # a substantive signal the posture is more useful now, and
+        # council-recall is documented as invoked *together with* the posture.
+        # Every pt branch requires isso/disso (also its ASCII anchor);
+        # 3rd-person singular verbs require an explicit "a gente" subject so
+        # reported third-party decisions ("o backend já decidiu isso") stay
+        # silent; bare EN simple past requires before/earlier so "we talked
+        # about this morning" stays silent.
+        ("anamnesis",
+         r"(\bj[aá] +(n[aã]o +)?(discutimos|decidimos|falamos|conversamos|vimos) +(sobre +)?(isso|disso)|\ba +gente +j[aá] +(n[aã]o +)?(discutiu|decidiu|falou|conversou) +(sobre +)?(isso|disso)|\bisso +j[aá] +(n[aã]o +)?foi +(discutido|decidido|falado|conversado)|\bdidn['’]?t +we +(already +)?(discuss|decide|talk +about|go +over|cover)|\bhaven['’]?t +we +(already +)?(discussed|decided|talked +about|covered|settled|been +over)|\bwe['’]ve +(already +)?talked +about +this|\bwe +(already +)?talked +about +this +(before|earlier)\b)",
+         "you're reaching for a past discussion — `/council:council-recall` queries the episodic memory for cases that rhyme."),
     ]
 
     session_id = str(data.get("session_id", ""))

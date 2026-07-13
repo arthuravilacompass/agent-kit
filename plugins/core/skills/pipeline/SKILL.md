@@ -41,7 +41,7 @@ If the task is already underway: state what stage it's at, with evidence, and pr
 | Implement | `superpowers:executing-plans` or subagent-driven | direct execution with the project's gate | code + commits |
 | Review | `core:review-local` + `core:grill-me` escalation mode `pre-done` + `cold-reader` agent (deliverables for a cold audience) | — | resolved findings |
 | Deliver | `core:commit` → `core:pr` | — | commit/PR |
-| Capture | `core:learn` (memory) + manual handoff (compound demoted) | — | memory + handoff |
+| Capture | `core:learn` (memory) + manual handoff (compound demoted, later deleted) | — | memory + handoff |
 
 Skills marked `core:*` slash-only (`archaeology`, `spec-refine`, `tech-breakdown`, `review-local`, `commit`, `pr`): recommend the exact command (`/core:<name>`) for the user to trigger — the Skill tool doesn't invoke them.
 

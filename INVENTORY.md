@@ -9,7 +9,7 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 
 ## Plugin `core`
 
-### Skills (12)
+### Skills (13)
 
 | Skill | Description |
 |---|---|
@@ -20,6 +20,7 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 | `methodology` | Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?". |
 | `pipeline` | Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route, never executes the whole chain by itself. |
 | `pr` (slash-only: `/core:pr`) | Invoke to analyze all commits in the branch, run verification, and assemble a Pull Request description ready for review — never pushes or creates the PR without explicit approval. |
+| `prompt-optimizer` | Invoke when the user asks to optimize, improve, or rewrite a draft prompt before running it, or asks how best to phrase a request for this kit ("optimize this prompt", "help me prompt for X", "how should I ask for this", "rewrite this prompt"). Analyzes intent, project context, and scope gaps, matches this kit's real skills/agents/postures, and outputs a ready-to-paste optimized prompt (full + quick) plus rationale. Advisory only — never executes the task itself. Do NOT invoke when the user wants the task run directly ("just do it", "só faz"), or for code/performance optimization requests ("otimizar código", "optimize this code", "optimize performance") — those are refactor/perf tasks, not prompt optimization. |
 | `review-local` (slash-only: `/core:review-local`) | Invoke to dispatch specialized reviewers in parallel against the current branch's diff — last line of defense before `core:pr`. Requires the `pr-review-toolkit` plugin; without it, use `core:review-remote` (sequential). |
 | `review-remote` (slash-only: `/core:review-remote`) | Invoke to review code without depending on external plugins — pre-push of your own work (Flow A) or review of someone else's PR via `--branch` (Flow B), with scope comparison against a ticket via `--ticket`. Sequential, plugin-free. |
 | `spec-refine` (slash-only: `/core:spec-refine`) | Invoke to stress-test a spec or design doc before it becomes an implementation plan — exposes gaps, ambiguous states, missing error paths, and unwritten invariants, one focused question at a time. Run after `core:tech-breakdown` (if available) and before `superpowers:writing-plans`. |
@@ -75,7 +76,7 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
-| `posture-signal.sh` | UserPromptSubmit |  | UserPromptSubmit — advisory: deterministic pattern-match detects posture/checkpoint opportunities in the prompt (done-claim → grill-me pre-done, A-or-B → bohr, live hypotheses → schrodinger, validate-solution → zeno, coupled change → maxwell, worth-it → sagan) and injects a one-line suggestion; max one per prompt, once per signal per session. |
+| `posture-signal.sh` | UserPromptSubmit |  | UserPromptSubmit — advisory: deterministic pattern-match detects posture/checkpoint opportunities in the prompt (done-claim → grill-me pre-done, direction lock-in → grill-me pre-plan, A-or-B → bohr, live hypotheses → schrodinger, validate-solution → zeno, coupled change → maxwell, worth-it → sagan, past-discussion memory → council-recall) and injects a one-line suggestion; max one per prompt, once per signal per session. |
 
 ### Scripts (0)
 
