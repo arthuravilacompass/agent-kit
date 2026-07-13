@@ -42,12 +42,18 @@ try:
 except Exception:
     sys.exit(0)
 
-parts = re.findall(r"part\s+'([^']+\.(?:g|freezed|config|mocks)\.dart)'", source)
+parts = re.findall(r"""part\s+['"]([^'"]+\.(?:g|freezed|config|mocks)\.dart)['"]""", source)
 if not parts:
     sys.exit(0)
 
+# Marker is keyed by (session_id, file_path). CLAUDE_PLUGIN_DATA persists across
+# sessions in this kit's convention, so WITHOUT the session_id the "once per file
+# per session" contract would silently become "once per file per machine, ever"
+# (read-ledger.sh suffixes session_id for the same reason). Absent session_id ("")
+# collapses to per-file within a run — the eval harness's case.
+session_id = str(data.get("session_id", ""))
 marker_dir = os.environ.get("MARKER_DIR", "")
-marker = os.path.join(marker_dir, hashlib.sha1(file_path.encode()).hexdigest())
+marker = os.path.join(marker_dir, hashlib.sha1((session_id + "|" + file_path).encode()).hexdigest())
 if marker_dir and os.path.exists(marker):
     sys.exit(0)
 

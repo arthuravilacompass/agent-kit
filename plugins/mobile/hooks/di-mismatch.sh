@@ -3,8 +3,13 @@
 #
 # Add-only and advisory. Failure modes, documented: (1) no injection.config.dart
 # found -> silent (project may not use injectable's generated config);
-# (2) same-named class in another module -> possible false negative. The check
-# is a drift detector, not a completeness proof.
+# (2) same-named class in another module -> possible false negative;
+# (3) monorepo: when CLAUDE_PROJECT_DIR is set the walk-up is skipped and only
+# <root>/lib/** is searched, so a package at packages/*/lib is not found -> silent;
+# (4) when the annotated span carries no `class` keyword, the class name is read
+# from the whole on-disk file, which can flag unrelated classes -> possible
+# false positive (hedged by the advisory posture). The check is a drift
+# detector, not a completeness proof.
 
 set -uo pipefail
 
@@ -41,7 +46,9 @@ elif "new_string" in tool_input:
 elif "content" in tool_input:
     pairs.append(("", tool_input.get("content", "")))
 
-added = [n for o, n in pairs if ANNOT.search(n) and not ANNOT.search(o)]
+# Count-based add-only (see lifecycle-check): compare annotation counts so a new
+# injectable class added next to an already-annotated one isn't silently dropped.
+added = [n for o, n in pairs if len(ANNOT.findall(n)) > len(ANNOT.findall(o))]
 if not added:
     sys.exit(0)
 
@@ -78,7 +85,10 @@ for c in configs:
     except Exception:
         continue
 
-missing = sorted(c for c in classes if c not in registered)
+# Word-boundary match, not raw substring: a bare `c not in registered` yields a
+# false negative when the class name is a prefix of a registered one
+# (e.g. `Auth` "in" `AuthService`). \b anchors both ends of the identifier.
+missing = sorted(c for c in classes if not re.search(r"\b" + re.escape(c) + r"\b", registered))
 if not missing:
     sys.exit(0)
 

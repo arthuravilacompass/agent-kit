@@ -21,8 +21,8 @@ Usage:
   python3 validate_citations.py --findings findings.json
   cat findings.json | python3 validate_citations.py --session <id> --json
 
-  # hard gate (exit 2 if any unverified) — for bug-report finalization
-  python3 validate_citations.py --findings bug_report.json --gate
+  # hard gate (exit 2 if any unverified) — for core:grill-me pre-done finalization
+  python3 validate_citations.py --findings findings.json --gate
 
 Input (stdin or --findings): JSON array of findings, OR object {"findings": [...]}.
 Each finding: { "claim": "...", "epistemicSource": "tool-output",
@@ -155,7 +155,7 @@ def main():
     ap.add_argument("--project-dir", default=os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd()),
                     help="project root for resolving relative paths")
     ap.add_argument("--gate", action="store_true",
-                    help="hard gate: exit 2 if any finding is unverified (for bug-report)")
+                    help="hard gate: exit 2 if any finding is unverified (for grill-me pre-done)")
     ap.add_argument("--json", action="store_true", help="emit annotated findings as JSON on stdout")
     args = ap.parse_args()
 

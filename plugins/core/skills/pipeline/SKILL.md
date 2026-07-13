@@ -56,6 +56,7 @@ Stage notes:
 
 - Council (`council:council`) — entry point for a high reversal-cost decision, at ANY stage (stage-independent, so it's not a row in the per-stage table above).
 - `core:grill-me` escalation has three checkpoints: `pre-plan`, `post-plan`, `pre-done`.
+- Which of the four to reach for, by object: interview interrogates the operator, escalation checks the work, `core:spec-refine` the document, Council the reasoning.
 
 Reviewer-escalation mechanics (which mode, which mechanism, when): see grill-me's REFERENCE.md — single source.
 

@@ -43,7 +43,10 @@ elif "new_string" in tool_input:  # Edit
 elif "content" in tool_input:  # Write
     pairs.append(("", tool_input.get("content", "")))
 
-added = [n for o, n in pairs if RESOURCE.search(n) and not RESOURCE.search(o)]
+# Count-based add-only: a plain search(new) and not search(old) drops the whole
+# edit when the old span already held ANY resource, missing a NEW resource added
+# next to an existing one. Compare occurrence counts instead.
+added = [n for o, n in pairs if len(RESOURCE.findall(n)) > len(RESOURCE.findall(o))]
 if not added:
     sys.exit(0)
 
