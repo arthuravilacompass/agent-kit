@@ -33,11 +33,12 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 | `cold-reader` | Context-restricted subagent that receives ONLY a rendered deliverable + the audience role (never the plan/diff/rationale) and reads it as that recipient — flagging what the audience can't use and content meant for another reader. Use at define-done when the audience didn't live the session. Output mirrors the artifact's language, default English. |
 | `consumer-simulation` | Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output mirrors the ticket's language, default English. |
 
-### Hooks (2)
+### Hooks (3)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
-| `session-start.sh` | SessionStart | startup\|clear\|compact | SessionStart — injects the body of using-agent-kit as always-on context. |
+| `session-start.sh` | SessionStart | startup\|clear\|compact | SessionStart — injects the body of using-agent-kit as always-on context and persists the session model for model-routing.sh. |
+| `model-routing.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — advisory: the session model (persisted by session-start.sh) is a synthesis-tier model (e.g. Fable) writing a code artifact directly; house model strategy routes code/fix/eval work to a Sonnet subagent; non-blocking (exit 0 + additionalContext), once per session. |
 | `read-ledger.sh` | PostToolUse | Read\|Grep | PostToolUse(Read\|Grep) — records the range read into the session ledger (basis of the citation mechanism). Internal infrastructure of core:grill-me pre-done (operator decision 2026-07-12) — not a standalone gate. |
 
 ### Scripts (1)

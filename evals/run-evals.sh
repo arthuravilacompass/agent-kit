@@ -76,6 +76,15 @@ mkdir -p "$EVAL_ROOT"
 # happy; no edge aponta pra um path que não existe — sem fixture a criar.
 # ---------------------------------------------------------------------------
 
+# model-routing fixtures (2026-07-13): session-model state files pré-criados
+# (mirroram o contrato de escrita de session-start.sh) — um por sessão de teste, pra
+# isolar "silencia por extensão .md" de "silencia por marker" sem ambiguidade.
+MR_STATE="$EVAL_ROOT/model-routing-data/state"
+mkdir -p "$MR_STATE"
+printf "claude-fable-5" > "$MR_STATE/session-model-eval-mr-fable"
+printf "claude-sonnet-5" > "$MR_STATE/session-model-eval-mr-sonnet"
+printf "claude-fable-5" > "$MR_STATE/session-model-eval-mr-fable-md"
+
 # codegen-staleness fixtures: a fake module with one stale and one fresh generated file
 CG="$EVAL_ROOT/codegen-fixture/lib"
 mkdir -p "$CG"

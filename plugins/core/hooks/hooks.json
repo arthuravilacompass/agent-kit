@@ -6,6 +6,12 @@
         "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"" } ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/model-routing.sh\"" } ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Read|Grep",

@@ -7,7 +7,10 @@ CEILING=16384
 fail=0
 
 # 1) Always-on ceiling: session-start.sh's actual output (full JSON)
-out=$(CLAUDE_PLUGIN_ROOT="plugins/core" bash plugins/core/hooks/session-start.sh 2>&1)
+# stdin explicitly /dev/null: session-start.sh now reads its own stdin (session-model
+# persistence) — without this redirect, an interactive invocation (e.g. doctor.sh run
+# from a terminal) would hang waiting for input instead of measuring the ceiling.
+out=$(CLAUDE_PLUGIN_ROOT="plugins/core" bash plugins/core/hooks/session-start.sh </dev/null 2>&1)
 rc=$?
 if [ "$rc" -ne 0 ]; then
   echo "ERROR: session-start.sh failed (rc=$rc) — ceiling not measured"
