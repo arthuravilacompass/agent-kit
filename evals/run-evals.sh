@@ -14,8 +14,16 @@
 # em stderr por contrato — é o que o Claude Code realimenta pro modelo. A captura
 # original usava `2>/dev/null`, descartando esse canal; expect_contains contra
 # uma mensagem de stderr nunca batia (exit code ok, substring nunca encontrada).
-# Trocado pra `2>&1`: nenhum caso existente usa expect_not_contains, então o
-# merge é aditivo e não cria falso-match.
+# Trocado pra `2>&1`: os casos de posture-signal usam expect_not_contains, e o
+# merge continua seguro pra eles — misturar stderr só pode tornar uma asserção
+# negativa mais estrita (falso-fail na presença de ruído extra), nunca produz
+# falso-pass.
+#
+# Nota (não-concorrência, 2026-07-13): este harness NÃO é concurrency-safe —
+# EVAL_ROOT é um path fixo compartilhado, apagado com `rm -rf` no início de cada
+# run; runs concorrentes se pisam e matam silenciosamente fixtures/markers uns
+# dos outros (reproduzido: pares concorrentes falham 0-7 casos com assinatura de
+# saída vazia; runs seriais dão 100% verde). Rode sempre serialmente.
 #
 # Placeholders no JSONL, substituídos por texto ANTES do parse JSON de cada linha
 # (permite paths portáveis entre máquinas/CI sem hardcode):

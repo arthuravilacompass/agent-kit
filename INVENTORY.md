@@ -70,10 +70,11 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 | `maxwell` | Council posture (skill council:council) in an isolated subagent — invoke before touching something coupled or making a non-trivial change in this repo. Maps how the change propagates (dependencies, effects, coupling) and which invariants travel; reports real touchpoints with file:line. Output mirrors the thread's language, default English. |
 | `zeno` | Council posture (skill council:council) in an isolated subagent — invoke when validating an already-proposed solution, pasting the conversation's live premises into the dispatch. Pushes invariants to the limit (zero, one, infinity, null, empty, concurrent, fail-midway) until it finds the concrete edge where it breaks. Output mirrors the thread's language, default English. |
 
-### Hooks (0)
+### Hooks (1)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
+| `posture-signal.sh` | UserPromptSubmit |  | UserPromptSubmit — advisory: deterministic pattern-match detects posture/checkpoint opportunities in the prompt (done-claim → grill-me pre-done, A-or-B → bohr, live hypotheses → schrodinger, validate-solution → zeno, coupled change → maxwell, worth-it → sagan) and injects a one-line suggestion; max one per prompt, once per signal per session. |
 
 ### Scripts (0)
 

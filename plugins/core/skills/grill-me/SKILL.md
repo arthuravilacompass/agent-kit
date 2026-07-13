@@ -9,6 +9,7 @@ One skill, two modes. Mode selection happens in the first lines of the request:
 
 - **No argument** (or a "grill me" / challenge-my-decision request) → **interview mode**.
 - **Argument `pre-plan <TICKET> [--greenfield]` | `post-plan` | `pre-done`** → **escalation mode** (absorbs the former escalation-checkpoint skill; same checkpoint semantics).
+- **Route by object, not by phrasing**: escalation reviews *work artifacts* (a plan, a diff, a deliverable). When the material to press on is **operator knowledge** — their intent, domain facts, a decision they own — route to **interview mode** even if the request arrived sounding like a checkpoint: interrogate the operator; don't dispatch a reviewer at what only they know.
 - Invalid argument → show the usage above and stop.
 
 ## Interview mode

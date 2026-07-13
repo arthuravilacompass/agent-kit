@@ -63,6 +63,7 @@ Reviewer-escalation mechanics (which mode, which mechanism, when): see grill-me'
 ## 5. Conduction rules
 
 - **One stage at a time.** When closing a stage, recommend the next 2-3 routes with a 1-line reason — and STOP. Never invoke the next stage without user confirmation.
+- **Analysis is a means, not a deliverable.** When an analysis/map/investigation stage closes (outside the Investigation class, whose terminal IS the report), the default recommended route is the concrete construction it enables — never another round of analysis. Recommending more analysis requires naming the decision it unblocks.
 - **Coordination with superpowers.** If a superpowers flow is already active (brainstorming in progress, plan in execution), do NOT take over conduction: only do stage detection if useful, and defer to the active stage skill.
 - **State = artifacts.** Progress lives in artifacts (specs/plans/handoffs) — don't create your own state marker or file.
 - **Session discipline.** One heavy phase per session: *clarify/specify* · *implement* · *review/deliver* · *close*. When crossing a heavy-phase boundary, recommend a new session with a handoff; check `docs/superpowers/` artifacts manually at session start — specs/plans/handoffs are detected by this skill's section 1, not auto-reopened.
