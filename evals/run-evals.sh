@@ -55,25 +55,10 @@ rm -rf "$EVAL_ROOT"               # cada run parte do zero — elimina markers/e
 mkdir -p "$EVAL_ROOT"
 
 # ---------------------------------------------------------------------------
-# Fixtures: filesystem de apoio para os casos que precisam (plan-autoload lê
-# docs/).
-# ---------------------------------------------------------------------------
-TODAY="$(date +%Y-%m-%d)"
-OLD_STAMP="$(date -v-100H +%Y%m%d%H%M 2>/dev/null || date -d '100 hours ago' +%Y%m%d%H%M)"
-
-# plan-autoload: plano recente (<72h, happy) e plano com mtime velho (>72h, edge)
-mkdir -p "$EVAL_ROOT/plan-autoload-happy/docs/superpowers/plans"
-echo "# plano de teste" > "$EVAL_ROOT/plan-autoload-happy/docs/superpowers/plans/${TODAY}-eval-test-plan.md"
-
-mkdir -p "$EVAL_ROOT/plan-autoload-stale/docs/superpowers/plans"
-STALE_PLAN="$EVAL_ROOT/plan-autoload-stale/docs/superpowers/plans/${TODAY}-eval-old-plan.md"
-echo "# plano velho" > "$STALE_PLAN"
-touch -t "$OLD_STAMP" "$STALE_PLAN"
-
-# bash-autoapprove-readonly / claude-dir-guard: asserções são só sobre a string
-# do comando — não precisam de fixture em disco.
+# Fixtures: nenhum hook restante precisa de filesystem de apoio pré-criado.
 # session-start: aponta CLAUDE_PLUGIN_ROOT pro plugin real (plugins/core) no caso
 # happy; no edge aponta pra um path que não existe — sem fixture a criar.
+# ---------------------------------------------------------------------------
 
 PASS=0
 FAIL=0

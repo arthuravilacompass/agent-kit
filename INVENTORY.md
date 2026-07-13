@@ -9,14 +9,12 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 
 ## Plugin `core`
 
-### Skills (14)
+### Skills (12)
 
 | Skill | Description |
 |---|---|
 | `archaeology` (slash-only: `/core:archaeology`) | Invoke to map the current state of the code before any technical planning on a US, ticket, or domain with history in the app — dispatches exploration agents in parallel, consolidated archaeological map with decisions ranked by severity. |
-| `bug-report` (slash-only: `/core:bug-report`) | Investigate a bug and produce a report with verified citations — deterministic gate (validate_citations --gate) + semantic verifier in a fresh context. Use when investigating/reporting a bug where asserting code behavior without reading the source is the risk. |
 | `commit` (slash-only: `/core:commit`) | Invoke to run pre-commit validation (lint + tests) and create a conventional commit from the staged diff — never commits without explicit user approval. |
-| `compound` (slash-only: `/core:compound`) | Invoke at the end of a relevant work track — generates the session's structured handoff (state, decisions, next steps) that survives /clear and feeds resumption via plan-autoload. |
 | `grill-me` | Invoke when the user asks to "grill me" / press on a design decision, or before calling a plan done (interview mode); or at the deterministic checkpoints pre-plan / post-plan / pre-done to escalate to a stronger reviewer with controlled or blind context (escalation mode, e.g., `/core:grill-me pre-done`). |
 | `learn` | Invoke when the user says "save this", "capture this learning", "use skill learn", or before a /clear or compact when the session has accumulated uncaptured corrections and decisions — scans the conversation and proposes memory entries for approval. |
 | `methodology` | Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?". |
@@ -35,14 +33,11 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 | `cold-reader` | Context-restricted subagent that receives ONLY a rendered deliverable + the audience role (never the plan/diff/rationale) and reads it as that recipient — flagging what the audience can't use and content meant for another reader. Use at define-done when the audience didn't live the session. Output mirrors the artifact's language, default English. |
 | `consumer-simulation` | Context-restricted subagent that receives ONLY a ticket text + acceptance criteria (never the implementation) and produces a list of expected behaviors. Use to detect gaps between what a ticket asked for and what was implemented. Output mirrors the ticket's language, default English. |
 
-### Hooks (5)
+### Hooks (2)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
 | `session-start.sh` | SessionStart | startup\|clear\|compact | SessionStart — injects the body of using-agent-kit as always-on context. |
-| `plan-autoload.sh` | SessionStart |  | SessionStart — injects a resume pointer when a recent plan (<72h) exists. |
-| `bash-autoapprove-readonly.sh` | PreToolUse | Bash | PreToolUse(Bash) — auto-approves commands recognized as safe reads; writes, network, and dep mutation defer. |
-| `claude-dir-guard.sh` | PreToolUse | Bash | PreToolUse(Bash) — blocks rm commands that touch .claude/. |
 | `read-ledger.sh` | PostToolUse | Read\|Grep | PostToolUse(Read\|Grep) — records the range read into the session ledger (basis of the citation mechanism). |
 
 ### Scripts (1)
@@ -138,14 +133,11 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 |---|---|
 | `mobx-smell-hunter` | Specialist subagent that hunts four specific MobX smells not caught by a linter — FSM001 (multi-flag flow composition), SSOT001 (multi-writer typed state), CMD001 (primitive discriminator), MOBX006 (synthetic concurrency state). Use when a store or controller has been modified in the current diff. Output mirrors the user's language, default English. |
 
-### Hooks (4)
+### Hooks (1)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
 | `smell-checker.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — blocks (exit 2, add-only) Dart correctness smells: direct DI, leaking BuildContext, print in production. |
-| `dart-auto-format.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — runs dart format on the edited file. |
-| `dart-analyze-file.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — runs dart analyze scoped to the file, feedback always advisory. |
-| `package-feedback.sh` | PostToolUse | Edit\|Write | PostToolUse(Edit\|Write) — background pub get for an edited pubspec.yaml; test reminder for an edited _test.dart, once per session. |
 
 ### Scripts (1)
 

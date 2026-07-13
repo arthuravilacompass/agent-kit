@@ -153,10 +153,10 @@ Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVEN
 | Job | Skill / Agent |
 |---|---|
 | **Start here** | `core:pipeline` — hand it the raw intent, it detects the stage and proposes the route |
-| **Prove it** | `/core:bug-report` (grounded bug reports) · `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
+| **Prove it** | `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
 | **Think it through** | `council:council` (index) → `council:bohr` (false dichotomy) · `council:epicurus` (scope) · `council:sagan` (effort calibration) · `council:schrodinger` (ambiguous diagnosis) · `council:maxwell` / `council:zeno` — agents, not skills (change propagation, invariant stress) |
 | **Shape the work** | `/core:spec-refine` · `/core:tech-breakdown` · `/core:archaeology` |
-| **Ship & remember** | `/core:commit` · `/core:pr` · `core:learn` · `/core:compound` |
+| **Ship & remember** | `/core:commit` · `/core:pr` · `core:learn` |
 | **Flutter** | `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest of the toolkit |
 | **Ceremonies** | `/team:refine-live` · `/team:refine-async` · `team:chat-draft` |
 

@@ -45,12 +45,7 @@ Consumer update flow after a new commit to the kit: `claude plugin update core@a
 
 ## 2. Composition with the harness's permission mode
 
-Two layers remove permission prompts, with distinct roles:
-
-- The user's `settings.json` permission mode (`defaultMode`, sandbox) owns the broad approval decision.
-- `plugins/core/hooks/bash-autoapprove-readonly.sh` is a narrow refiner, Bash-only: it emits `allow` for read commands recognized as safe, or defers — it never blocks.
-
-Signal to disable the hook: if the user's `defaultMode` already approves most Bash commands, the hook becomes dead latency (a `python3` spawn per call, estimated tens of ms). It earns its keep when the permission mode is more restrictive or the sandbox is inactive — in those cases, keep it on.
+The user's `settings.json` permission mode (`defaultMode`, sandbox) owns the approval decision for tool calls, including Bash commands. `core` used to add a narrow Bash-only auto-approve refiner in front of it (`bash-autoapprove-readonly.sh`); it was demoted to `unwired/` in the operator prune (vertical-evolution refactor — §5): a permission convenience, not an epistemic verifier, and its known comment-newline fail-open closes by removal. There's currently no such refining layer in `core` — the harness's permission mode is the only one.
 
 ---
 
@@ -101,5 +96,14 @@ Surface docs (README, this file, and `docs/GOVERNANCE.md`) don't carry dates —
 | `swap_pubspec.py` | Former `mobile` script, swapped `pubspec.yaml` git-ref dependencies for local path dependencies and back | Demoted in the Phase 2 refactor: zero consumers found (grep). Of the 5 `mobile` scripts, only `export_network_logs.py` stayed wired — it's consumed by the `export-logs` skill. |
 | `scope-inject.sh` | Former `core` PreToolUse(`Edit\|Write\|MultiEdit`) hook — injected a scope pointer when the edited file matched a project's `.claude/knowledge-map.tsv` | Cut from `plugins/core/hooks/hooks.json` in the Phase 2 refactor, along with its eval cases and fixtures. |
 | `context-monitor.sh` | Former `core` PostToolUse(`Bash`) hook — warned when the session transcript grew past a size threshold | Cut from `plugins/core/hooks/hooks.json` in the Phase 2 refactor, along with its eval cases and fixtures. Its loop-partner `handoff-gate/` (above) was already here. |
+| `skills/bug-report/` | Former `core` slash-only skill — investigated a bug and gated the final report on a verified-citation mechanism (read-ledger + `validate_citations.py --gate`) | Operator prune (vertical-evolution refactor): its mechanism, the standalone citation gate, was re-scoped to grill-me-internal infrastructure; the skill itself is superseded. |
+| `skills/compound/` | Former `core` slash-only skill — end-of-track session handoff: learning capture, resumable handoff doc, graduation candidacy | Operator prune (vertical-evolution refactor): vertical identity — session-handoff prose, not a verifier. |
+| `hooks/plan-autoload.sh` | Former `core` SessionStart hook — injected a resume pointer when a recent plan (<72h) existed, feeding `compound`'s handoff | Operator prune (vertical-evolution refactor): pair of `compound` — resume-pointer injector. |
+| `hooks/bash-autoapprove-readonly.sh` | Former `core` PreToolUse(`Bash`) hook — auto-approved commands recognized as safe reads, deferring on any ambiguity | Operator prune (vertical-evolution refactor): permission convenience, not a verifier; known comment-newline fail-open closed by removal. |
+| `hooks/claude-dir-guard.sh` | Former `core` PreToolUse(`Bash`) hook — blocked `rm` commands touching a `.claude` path segment | Operator prune (vertical-evolution refactor): rm-guard, not a verifier; known substring false-positive/bypass closed by removal. |
+| `hooks/dart-auto-format.sh` | Former `mobile` PostToolUse(`Edit\|Write\|MultiEdit`) hook — ran `dart format` on the edited file | Operator prune (vertical-evolution refactor): formatting convenience, not a verifier. |
+| `hooks/dart-analyze-file.sh` | Former `mobile` PostToolUse(`Edit\|Write\|MultiEdit`) hook — ran `dart analyze` scoped to the file, feedback always advisory | Operator prune (vertical-evolution refactor): advisory analyze, not a verifier. |
+| `hooks/package-feedback.sh` | Former `mobile` PostToolUse(`Edit\|Write`) hook — background `pub get` for an edited `pubspec.yaml`; test reminder for an edited `_test.dart` | Operator prune (vertical-evolution refactor): pub-get/test reminder, not a verifier. |
+| `hooks/demoted-hook-cases.jsonl` | Eval cases moved out of `evals/cases/hook-cases.jsonl` for the 6 hooks demoted above | Inert eval cases for the demoted hooks — not run by `run-evals.sh`; move lines back to `evals/cases/hook-cases.jsonl` (fixing hook paths) on re-promotion. |
 
 Out of scope here: content specific to the originating domain/company (the `scripts/check-provenance.sh` denylist covers `unwired/` with no exception, in addition to the manual check of paths/classes/tickets done on each item's entry) and duplication of something already wired.
