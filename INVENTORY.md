@@ -133,16 +133,21 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 |---|---|
 | `mobx-smell-hunter` | Specialist subagent that hunts four specific MobX smells not caught by a linter — FSM001 (multi-flag flow composition), SSOT001 (multi-writer typed state), CMD001 (primitive discriminator), MOBX006 (synthetic concurrency state). Use when a store or controller has been modified in the current diff. Output mirrors the user's language, default English. |
 
-### Hooks (1)
+### Hooks (4)
 
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
 | `smell-checker.sh` | PreToolUse | Edit\|Write\|MultiEdit | PreToolUse(Edit\|Write\|MultiEdit) — blocks (exit 2, add-only) Dart correctness smells: direct DI, leaking BuildContext, print in production. |
+| `codegen-staleness.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — advisory: edited Dart source declares a codegen part ('.g.dart'/'.freezed.dart'/'.config.dart') whose generated file is missing or older than the source; suggests build_runner, once per file per session. |
+| `lifecycle-check.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — advisory: an edit ADDS a disposable resource (ReactionDisposer/TextEditingController/AnimationController/StreamSubscription/Timer) to a store/controller that has no dispose() anywhere; suggests naming the discard point. |
+| `di-mismatch.sh` | PostToolUse | Edit\|Write\|MultiEdit | PostToolUse(Edit\|Write\|MultiEdit) — advisory: an edit ADDS an injectable annotation to a class that is absent from the project's injection.config.dart; suggests regenerating DI wiring (build_runner). |
 
-### Scripts (1)
+### Scripts (3)
 
 | Script | Description |
 |---|---|
+| `arch_graph.sh` | Measures the import graph (lakos) and regenerates the data block of ARCHITECTURE.md. |
+| `arch_violations.py` | Reads an import graph (dot) and reports layering violations against the project's config. |
 | `export_network_logs.py` | Exports HTTP network logs from the Dart VM Service to JSON. |
 
 ### MCP (2)

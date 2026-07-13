@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 # run-evals.sh — Tier 1 (determinístico) da suíte de evals do agent-kit.
 # Lê evals/cases/hook-cases.jsonl, roda cada hook real do kit (plugins/core/hooks/)
-# com o payload sintético e confere: exit code, presença/ausência de substring no
-# stdout e, quando aplicável, side-effects em disco (hooks silenciosos como
-# read-ledger só são observáveis pelo que gravam em STATE_DIR, não pelo stdout).
+# com o payload sintético e confere: exit code, presença/ausência de substring na
+# saída combinada (stdout+stderr) e, quando aplicável, side-effects em disco
+# (hooks silenciosos como read-ledger só são observáveis pelo que gravam em
+# STATE_DIR, não pela saída).
 #
 # Correção 1 (fixtures nunca /tmp hardcoded): todo path de fixture deriva de
 # $TMPDIR, com fallback pra <repo>/.eval-tmp se TMPDIR não estiver setado — hoje o
 # harness quebraria sob sandbox que restringe write a um diretório específico.
+#
+# Correção 2 (stderr entra na captura): advisories PostToolUse (exit 2) escrevem
+# em stderr por contrato — é o que o Claude Code realimenta pro modelo. A captura
+# original usava `2>/dev/null`, descartando esse canal; expect_contains contra
+# uma mensagem de stderr nunca batia (exit code ok, substring nunca encontrada).
+# Trocado pra `2>&1`: nenhum caso existente usa expect_not_contains, então o
+# merge é aditivo e não cria falso-match.
 #
 # Placeholders no JSONL, substituídos por texto ANTES do parse JSON de cada linha
 # (permite paths portáveis entre máquinas/CI sem hardcode):
@@ -20,8 +28,8 @@
 #   input                      (obrigatório) payload JSON injetado no stdin do hook
 #   expect_exit                (obrigatório) exit code esperado
 #   env                        (opcional) dict de env vars pra essa invocação
-#   expect_contains            (opcional) substring que DEVE aparecer no stdout
-#   expect_not_contains        (opcional) substring que NÃO PODE aparecer no stdout
+#   expect_contains            (opcional) substring que DEVE aparecer na saída (stdout+stderr)
+#   expect_not_contains        (opcional) substring que NÃO PODE aparecer na saída (stdout+stderr)
 #   expect_side_file           (opcional) path que DEVE existir após rodar o hook
 #   expect_side_file_contains  (opcional, usa junto com expect_side_file) substring
 #                              que o side file deve conter
@@ -59,6 +67,30 @@ mkdir -p "$EVAL_ROOT"
 # session-start: aponta CLAUDE_PLUGIN_ROOT pro plugin real (plugins/core) no caso
 # happy; no edge aponta pra um path que não existe — sem fixture a criar.
 # ---------------------------------------------------------------------------
+
+# codegen-staleness fixtures: a fake module with one stale and one fresh generated file
+CG="$EVAL_ROOT/codegen-fixture/lib"
+mkdir -p "$CG"
+printf "part 'stale_store.g.dart';\nclass StaleStore {}\n" > "$CG/stale_store.dart"
+printf "// generated\n" > "$CG/stale_store.g.dart"
+touch -t 202001010000 "$CG/stale_store.g.dart"          # generated far older than source
+printf "part 'fresh_store.g.dart';\nclass FreshStore {}\n" > "$CG/fresh_store.dart"
+touch -t 202001010000 "$CG/fresh_store.dart"            # source older than generated
+printf "// generated\n" > "$CG/fresh_store.g.dart"
+printf "final int x = 1;\n" > "$CG/plain.dart"
+
+# lifecycle-check fixtures
+LC="$EVAL_ROOT/lifecycle-fixture/lib"
+mkdir -p "$LC"
+printf "class S {\n  int x = 1;\n}\n" > "$LC/no_dispose_store.dart"
+printf "class S {\n  int x = 1;\n  void dispose() {}\n}\n" > "$LC/has_dispose_store.dart"
+
+# di-mismatch fixtures: fake project with an injection.config.dart mentioning OldService only
+DI="$EVAL_ROOT/di-fixture/lib"
+mkdir -p "$DI"
+printf "class NewService {\n  int x = 1;\n}\n" > "$DI/new_service.dart"
+printf "class OldService {\n  int x = 1;\n}\n" > "$DI/old_service.dart"
+printf "// GENERATED\ngh.factory<OldService>(() => OldService());\n" > "$DI/injection.config.dart"
 
 PASS=0
 FAIL=0
@@ -100,9 +132,9 @@ while IFS= read -r raw_line; do
   fi
 
   if [[ ${#env_args[@]} -gt 0 ]]; then
-    out=$(echo "$payload" | env "${env_args[@]}" bash "$hook_path" 2>/dev/null)
+    out=$(echo "$payload" | env "${env_args[@]}" bash "$hook_path" 2>&1)
   else
-    out=$(echo "$payload" | bash "$hook_path" 2>/dev/null)
+    out=$(echo "$payload" | bash "$hook_path" 2>&1)
   fi
   actual=$?
 

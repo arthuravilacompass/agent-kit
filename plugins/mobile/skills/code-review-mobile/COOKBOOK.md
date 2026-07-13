@@ -18,6 +18,7 @@ The examples assume `get_it` + `injectable` (DI), `go_router` (navigation), `moc
 - [Security Checklist](#security-checklist)
 - [Page Template](#page-template)
 - [Widget Patterns](#widget-patterns)
+- [Layering check (arch_violations)](#layering-check-arch_violations)
 
 ---
 
@@ -282,6 +283,51 @@ genhtml coverage/lcov.info -o coverage/html && open coverage/html/index.html
 - ❌ **Don't forget `tester.pump()`** after triggering a state change in a widget test
 - ✅ For tests involving a `Future`, use `await tester.pump()` or `await tester.pumpAndSettle()`
 - ✅ To test reactions/observers, trigger the change via the store and check the updated subtree
+
+---
+
+## Layering check (arch_violations)
+
+Report-only — never fails a build. `arch_violations.py` reads a Lakos import graph (`.dot`) and reports layering-direction violations against a config **your project supplies**; it has no folder structure of its own baked in, so every consuming project defines its own layers.
+
+### 1. Generate the import graph
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/arch_graph.sh" [project-root]
+```
+
+This runs `dart run lakos -m lib`, writes `build/arch.dot`, and (if `ARCHITECTURE.md` already has an `<!-- arch-graph:start -->…<!-- arch-graph:end -->` block) regenerates that data block in place — it never touches the surrounding prose. If your project doesn't have that doc yet, run `dart run lakos -m lib > build/arch.dot` directly and skip the doc part.
+
+### 2. Write `arch-graph.config.json` (project root)
+
+No rule is hardcoded — copy this 4-rule example from the script's own module docstring and adapt the `match`/`module_pattern` values to your project's real folder names:
+
+```json
+{
+  "layers": [
+    {"name": "core",   "match": "/lib/core/"},
+    {"name": "shared", "match": "/lib/shared/"},
+    {"name": "l10n",   "match": "/lib/l10n/", "exclude": true}
+  ],
+  "module_pattern": "/lib/modules/([^/]+)/",
+  "module_exceptions": ["<module name exempt from the module-to-module rule>"],
+  "composition_root_patterns": ["di_module", "app_router"],
+  "direction_rules": [
+    {"label": "core -> shared",   "from": "core",   "to": "shared"},
+    {"label": "core -> modules",  "from": "core",   "to": "module:*"},
+    {"label": "shared -> modules","from": "shared", "to": "module:*"},
+    {"label": "module -> module", "from": "module:*", "to": "module:*", "cross_only": true}
+  ]
+}
+```
+
+### 3. Run the check
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/arch_violations.py" build/arch.dot --config arch-graph.config.json
+```
+
+Prints violation counts (and whether the import graph is acyclic) to stdout for a human/reviewer to act on — it does not fail the build. Without `--config` it looks for `arch-graph.config.json` next to `build/`'s parent (project root) and, if missing, prints setup instructions to stderr and exits 1 — that's a setup gap, not a graph problem.
 
 ---
 
