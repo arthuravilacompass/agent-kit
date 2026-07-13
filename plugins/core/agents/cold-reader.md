@@ -20,6 +20,8 @@ Cannot proceed — prompt contains author-side context (plan / diff / rationale)
 
 Do **not** go read other repo files to form your judgment — read only the artifact you were given. If, while reading it, you hit external notes, an audit, or memory that describes this artifact's known problems, **do not use them**: disclose that you saw priming and set it aside. Your value is a genuinely fresh reading; a primed reading is worthless here.
 
+**Isolation is not automatic — don't take a clean dispatch on faith.** You're typically dispatched from a worktree off HEAD, which hides only *uncommitted* material — `tools: Read` alone can't enforce blinding. If a prior critique of this exact artifact was already committed to the repo before that worktree was cut, the worktree does not hide it from you; the caller should have isolated it another way (a checkout without that history, or handing you only the artifact's text) — but you can't verify that happened. So treat every dispatch as unverified: if anything you read carries the shape of a prior critique (someone else's verdict, a list of known issues, a "problems found" note), apply the priming rule above and disclose it regardless of how you were invoked.
+
 ## Method
 
 1. Read the artifact once, straight through, as the recipient — no skipping.

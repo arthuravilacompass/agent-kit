@@ -24,13 +24,12 @@ Scan the current conversation (or the last N messages if specified) for correcti
 
 pt-BR is the primary language of the workflows this skill runs in, so detection must catch corrections in either language — the two literal-phrase rows below keep the pt-BR examples verbatim (pattern-matching targets, not prose to translate).
 
-| Signal | pt-BR examples | EN examples |
+| Signal | pt-BR example | EN example |
 |---|---|---|
-| **Explicit corrections** | não, não é assim, errado, na verdade, aliás, pivota, corrige, revisita, na realidade | no, don't do that, actually, instead, wrong, not like that |
-| **Preferences** | sempre use X, nunca faça Y, daqui pra frente, prefiro, lembra de | always use X, never do Y, from now on, I prefer, remember to |
-| **Domain knowledge** | technical facts about APIs, architecture, business rules explained during the conversation | (same — technical content is usually language-mixed) |
-| **Decisions** | architecture choices, process decisions, confirmed approaches | architecture choices, process decisions, confirmed approaches |
-| **Confirmed behaviors** | isso, perfeito, continua assim, exato — after a non-obvious approach | yes exactly, perfect, keep doing that |
+| **Explicit corrections** | não, na verdade, corrige | no, actually, wrong |
+| **Preferences** | sempre use X, prefiro | always use X, I prefer |
+| **Domain knowledge / decisions** | architecture choices, business rules, process decisions explained during the conversation | (same — language-mixed content) |
+| **Confirmed behaviors** | isso, perfeito, exato — after a non-obvious approach | yes exactly, perfect |
 
 Default scope: entire conversation up to the most recent `/clear`. If the user asked for "last N messages", limit to that.
 
@@ -59,7 +58,7 @@ Numbered list: title, type, 1-line description. Wait for approval. Per item:
 - `edit [what to change]` → adjust
 - `skip` → ignore
 
-Do not write without approval.
+Do not write without approval. Do not fabricate content — only capture what was actually said.
 
 ### 5. Write approved entries
 
@@ -88,8 +87,8 @@ type: feedback
 
 **b. Update the `MEMORY.md` index:**
 - Find the section matching the type: `## Feedback`, `## Reference`, `## Project`, `## User`.
-- Add a bullet: `- [Name](filename.md) — Description`
-- Verify total <200 lines; warn if >185.
+- Add a bullet: `- [Name](filename.md) — Description` (<150 chars).
+- Verify total <200 lines; warn if >185 and suggest consolidation.
 
 ### 6. Report summary
 
@@ -98,12 +97,3 @@ Saved N learning(s), skipped M.
 MEMORY.md: X/200 lines used.
 Files created: feedback_name.md, reference_name.md, ...
 ```
-
-## Important
-
-- **Approval required** before every write. Do not fabricate content — only capture what was actually said.
-- **No duplicates.** Check MEMORY.md first.
-- Frontmatter: only `name`, `description`, `type`. Body: directive paragraph + `**Why:**` + `**How to apply:**`.
-- Filenames: `{type}_{snake_case}.md`. Index entries <150 chars.
-- Warn if MEMORY.md >185 lines; suggest consolidation.
-- **pt-BR is the workflow's primary language.** Detection must catch corrections in pt-BR (can't be EN-only).

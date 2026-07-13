@@ -21,17 +21,13 @@ If a question can be answered by exploring the codebase, explore the codebase in
 
 For structured interrogation with a formal artifact (Gap Summary) in the tech-breakdown pipeline, see `core:spec-refine` (if available in this kit) instead of this mode.
 
+Interview mode interrogates a specific decision without producing an artifact — inside a design flow, use `superpowers:brainstorming` instead.
+
 ## Escalation mode
 
 Deterministic escalation to a stronger reviewer at a checkpoint YOU pick — breaks the session's epistemic bubble. Complements Claude Code's native advisor (`/advisor`); does not replace it.
 
-Consumer-project config and prerequisites (advisor model, architecture doc, rule files, ticket source): `REFERENCE.md` in this directory — the skill still runs without them, with less specialized context.
-
-| Mode | Mechanism | When |
-|---|---|---|
-| `pre-plan <TICKET>` | native advisor (full context) | before choosing an approach; `--greenfield` firewalls the project's rules |
-| `post-plan` | native advisor (full context) | plan approved, before coding |
-| `pre-done` | blind adversarial subagent (diff + ACs only) | "I think I'm done", before final review |
+Consumer-project config and prerequisites (advisor model, architecture doc, rule files, ticket source) and the mode comparison table (mechanism, checkpoint, when to use each): `REFERENCE.md` in this directory — the skill still runs without the config, with less specialized context.
 
 Inviolable rules of escalation mode:
 

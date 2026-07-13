@@ -38,7 +38,7 @@ Skills marked **slash-only** have `disable-model-invocation: true` in their fron
 | Hook | Event | Matcher | Description |
 |---|---|---|---|
 | `session-start.sh` | SessionStart | startup\|clear\|compact | SessionStart — injects the body of using-agent-kit as always-on context. |
-| `read-ledger.sh` | PostToolUse | Read\|Grep | PostToolUse(Read\|Grep) — records the range read into the session ledger (basis of the citation mechanism). |
+| `read-ledger.sh` | PostToolUse | Read\|Grep | PostToolUse(Read\|Grep) — records the range read into the session ledger (basis of the citation mechanism). Internal infrastructure of core:grill-me pre-done (operator decision 2026-07-12) — not a standalone gate. |
 
 ### Scripts (1)
 

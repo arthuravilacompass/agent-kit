@@ -41,7 +41,7 @@ For each finding:
 
 **Smell**: <concise description>
 
-**Evidence** (source: tool-output): lines <lineStart>-<lineEnd> read via Read/Grep in this session. If the project has a verified-citation mechanism (e.g. a read-ledger that logs what was read and a validator that cross-checks it against findings), run it — an unread range must not become a finding.
+**Evidence** (source: tool-output): lines <lineStart>-<lineEnd> read via Read/Grep in this session. If the grill-me-internal citation-verification mechanism is available (the same one `core:grill-me` runs at `pre-done` — a read-ledger that logs what was read and a validator that cross-checks it against findings), run it — an unread range must not become a finding.
 
 **Code** (literal quote of the cited range):
 ```dart

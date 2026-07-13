@@ -8,6 +8,9 @@ session's read-ledger (what was ACTUALLY read via Read/Grep, recorded by the rea
 hook). A tool-output finding whose range doesn't overlap any read → UNVERIFIED. Mechanism,
 not instruction: you can't cite code you didn't read.
 
+Internal infrastructure of core:grill-me pre-done (operator decision 2026-07-12) — not a
+standalone gate.
+
 Verdicts:
   verified     — tool-output claim whose range overlaps a read in the ledger.
   unverified   — tool-output claim with no evidence, or whose range wasn't read this session.

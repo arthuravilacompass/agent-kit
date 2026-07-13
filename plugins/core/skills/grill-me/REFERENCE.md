@@ -53,6 +53,8 @@ Without these configs, the skill still runs — just with less specialized conte
 | `post-plan` | native advisor (full ctx) | Plan approved, before coding | Right after a plan is approved and before the first implementation file is touched |
 | `pre-done` | blind subagent (diff + ACs only) | "I think I'm done" / "acho que terminei" / "tá pronto" | Right before wrapping up / opening a PR / final review |
 
+`pre-done` carries the mechanical delta — blind dispatch, citation verification, no other checkpoint has either. `pre-plan` and `post-plan` add no new mechanism of their own: they're timing-discipline wrappers over the native `/advisor`, guaranteeing it fires at a specific checkpoint instead of only when Claude decides to consult it.
+
 ### Steps
 
 1. **Parse the arguments**
@@ -76,7 +78,7 @@ Without these configs, the skill still runs — just with less specialized conte
    - Do **NOT** load rules, skills, or module structure. The advisor judges by first principles; existing patterns are optional convenience, never the measuring stick. (Loading the harness as a lens re-anchors a novel concept into what already exists and erases the new design — a documented, repeated failure.)
 
    **`post-plan`:**
-   - Identify the active plan file (most recent `docs/superpowers/plans/*.md`, or the one last loaded via `plan-autoload`). The native advisor already has the conversation — **point at the plan, do not re-paste it.**
+   - Identify the active plan file (most recent `docs/superpowers/plans/*.md`). The native advisor already has the conversation — **point at the plan, do not re-paste it.**
    - Name the project's rule files to weigh as **lenses** (not a compliance gate) — config (e.g. bugfix principles, stack-specific quality rules). Quote them only if they are not already in the conversation.
 
    **`pre-done`:**
@@ -112,6 +114,8 @@ Without these configs, the skill still runs — just with less specialized conte
      Use `epistemicSource: "inference"` for judgment calls that don't cite code (validator passes these through).
 
 4. **(`pre-done` only) Verify citations before presenting**
+
+   The read-ledger hook + `validate_citations.py` are grill-me-internal infrastructure (operator decision 2026-07-12): they exist to arm this checkpoint, not as a standalone product; other skills must not depend on them.
 
    If the project has a citation-verification mechanism (script that checks findings against a session's read-ledger), run it with an **explicit** session id — subagent reads are logged under the parent session, so auto-discovery is unsafe with concurrent sessions.
    - `verified` / `passthrough` → present normally.

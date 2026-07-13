@@ -1,8 +1,8 @@
 # agent-kit
 
-> **Superpowers decides what to do next; agent-kit decides whether to believe it.**
+> **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the conduction and reasoning postures to use them well.**
 
-agent-kit is the epistemic layer for Claude Code — Claude Code plugins that check whether an agent's claims, plans, and reports are actually grounded, before you act on them. It doesn't replace a workflow toolkit (`superpowers`, or your own process); it sits on top of one, conducts the stages between them, and layers verification on the result. It works standalone too.
+`mobile` — the Flutter/Dart toolkit — is the flagship vertical: the domain the rest of the kit exists to serve, not an add-on bolted onto a generic base. `core` (flow conduction) and `council` (reasoning postures) are the foundation underneath it, usable on any stack, but the kit's bar for what earns a place in it is set by the vertical: a mechanical check that fires on its own, or it doesn't ship. It doesn't replace a workflow toolkit (`superpowers`, or your own process); it sits on top of one, conducts the stages between them, and layers verification on the result where the domain provides one. It works standalone too.
 
 The focus is quality and discipline, not raw speed — see Governance below for how the kit curates its own rules.
 
@@ -10,13 +10,13 @@ The focus is quality and discipline, not raw speed — see Governance below for 
 
 | Layer | What it does | Lives in |
 |---|---|---|
-| **1. Epistemic** | Always-on rules + deterministic gates that don't depend on the model obeying (citation, provenance, smell-checker, byte ceiling), plus the Council of reasoning postures. | `core` (rules + gates), `council` (postures) |
+| **1. Epistemic** | Always-on rules + deterministic gates that don't depend on the model obeying: provenance, `mobile`'s blocking smell-checker, the always-on byte ceiling. Three more `mobile` verifiers — codegen-staleness, lifecycle/dispose, DI-mismatch — are **in progress (Phase C)**, not shipped yet. The citation/read-ledger mechanism lives here too, but scoped as `core:grill-me`-internal infrastructure (its `pre-done` checkpoint), not a standalone gate. Council's reasoning postures sit alongside the gates for the judgment calls a gate can't make. | `core` (rules + gates), `mobile` (smell-checker + gates in progress), `council` (postures) |
 | **2. Workflow conduction** | `core:pipeline` detects the real stage and conducts stage-to-stage; `superpowers` (or your own method) executes — see [Workflow](#workflow). | `core:pipeline`, optional `superpowers` |
-| **3. Verticals** | Domain toolkits on layers 1–2: Flutter/Dart review and workflow; agile-ceremony copilot. | `mobile` (Flutter/Dart), `team` (agile ceremonies) |
+| **3. Verticals** | `mobile` is the flagship: Flutter/Dart review, scaffolding, and the deterministic checks above, calibrated against a real stack. `team` is the secondary vertical (agile ceremonies). | `mobile` (flagship, Flutter/Dart), `team` (agile ceremonies) |
 
 ## Posture
 
-"Decides whether to believe it" names the mechanism's mandate, not a finished verdict — what follows is how far that mandate verifiably reaches today. That's scope, not a walk-back.
+The identity above — deterministic verifiers plus the conduction and postures to use them well — names the mechanism's mandate, not a finished verdict; what follows is how far that mandate verifiably reaches today. That's scope, not a walk-back.
 
 **Deterministic where determinism is possible; honestly agnostic where it isn't.** The gates are mechanically verifiable — run them, get a pass/fail, no interpretation required. What the kit does *not* claim: that it's "proven" or "validated" to improve model behavior in general. That broader claim is untested and this README won't pretend otherwise. What's tested is narrower and real: the mechanism either fires or it doesn't.
 
@@ -26,10 +26,10 @@ Four plugins installable via a local marketplace:
 
 | Plugin | What it is | Install when |
 |---|---|---|
-| `core` | Delivery methodology with deterministic enforcement, from ticket to PR, any stack | Always — it's the foundation for the rest |
+| `mobile` — **flagship** | Flutter/Dart toolkit — **opinionated**: review rules, scaffolding, and the deterministic smell-checker are calibrated to a MobX + `get_it`/`injectable` stack (scaffold also assumes `dartz`; adaptable, but that's the default). Three more deterministic verifiers (codegen-staleness, lifecycle/dispose, DI-mismatch) are **in progress (Phase C)** — not shipped yet. | In a Flutter/Dart project on (or near) that stack — the flagship use case |
+| `core` | Flow conduction (`core:pipeline`, ticket to PR, any stack) plus `core:grill-me`'s escalation checkpoints (`pre-plan`/`post-plan`/`pre-done`) — `pre-done` runs the citation validator against the session's read-ledger internally; it isn't exposed as a standalone gate | Always — it's the foundation for the rest |
 | `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
 | `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | If you run refinement or communicate with a squad |
-| `mobile` | Flutter/Dart toolkit — **opinionated**: review rules, scaffolding, and the deterministic smell-checker are calibrated to a MobX + `get_it`/`injectable` stack (scaffold also assumes `dartz`; adaptable, but that's the default) | Only in a Flutter/Dart project on (or near) that stack |
 
 Full inventory of skills, agents, hooks, and scripts, generated by script and verified in the gate: **[INVENTORY.md](INVENTORY.md)**.
 
@@ -142,7 +142,7 @@ Each stage is a named skill that produces the artifact the next stage consumes:
 | ship | `/core:commit` → `/core:pr` | commit / PR |
 | capture | `core:learn` + handoff | memory for the next session |
 
-**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where the citation gate refuses any finding citing a `file:line` the session never read → `/core:commit` → `/core:pr`.
+**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me`'s internal citation-verification mechanism refuses any finding citing a `file:line` the session never read → `/core:commit` → `/core:pr`.
 
 A minimal route is legitimate for a small task — the pipeline proposes skipping stages and waits for your confirmation.
 

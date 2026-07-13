@@ -74,7 +74,7 @@ Default base: config above (fallback: `main`). When `--ticket` is provided, the 
    Before aggregating, **citation verification (a mechanism, not just manual re-reading — re-reading alone doesn't catch fabrication)**:
 
    - Assemble the findings as JSON `[{ "claim": "...", "evidence": { "file": "...", "lineStart": N, "lineEnd": M } }]` (the file:line each agent cited; single point → `lineStart`=`lineEnd`).
-   - If the project has a citation validator (a script that checks findings against the session's read-ledger), run it with an explicit `--session <current-session-id>`. The read-ledger logs reads via the Read/Grep tool from ALL subagents under the parent session_id (verified at runtime, 2026-07-07); reads via Bash do NOT enter it — hence the Dispatch mandate. **Pass `--session` explicitly** — do NOT rely on auto-discovery (there may be concurrent sessions).
+   - If the grill-me-internal citation validator is available (the same mechanism `core:grill-me` runs at `pre-done` — this skill reuses it, doesn't own it; a script that checks findings against the session's read-ledger), run it with an explicit `--session <current-session-id>`. The read-ledger logs reads via the Read/Grep tool from ALL subagents under the parent session_id (verified at runtime, 2026-07-07); reads via Bash do NOT enter it — hence the Dispatch mandate. **Pass `--session` explicitly** — do NOT rely on auto-discovery (there may be concurrent sessions).
    - `unverified` finding (file:line overlaps nothing read this session) = likely fabrication → "⚠️ Unverified" section, **not** presented as a confirmed finding. `verified`/`passthrough` proceed normally.
    - Complementary (doesn't replace the mechanism): re-read the lines and drop findings already fixed.
 
