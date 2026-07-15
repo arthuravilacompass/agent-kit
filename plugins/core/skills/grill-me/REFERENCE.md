@@ -85,6 +85,7 @@ Without these configs, the skill still runs — just with less specialized conte
    - Run `git diff <base>...HEAD` where base is the project's default integration branch (config; fallback: `main`)
    - Fetch the ticket ACs (see **Ticket source**) for the work under review
    - Derive affected modules from changed paths and collect the rule files relevant to them (project-specific categories — config; e.g. state-management rules if stores changed, architecture rules if cross-layer, UI rules if widgets). These become the reviewer's **checklist**.
+   - If a decision ledger exists beside the work's spec/plan (`docs/superpowers/specs/<date>-<slug>-ledger.md` or equivalent — see `spec-refine/references/ledger-format.md`), load it. Epistemic class: the ledger is the decision **contract**, same class as the ACs — not the author's narrative. Loading it does not violate the blind design.
    - Do **NOT** gather your commit messages, the plan, or your own rationale. That narrative is exactly the framing the blind review exists to escape.
 
 3. **Escalate — mechanism per mode**
@@ -102,9 +103,9 @@ Without these configs, the skill still runs — just with less specialized conte
 
    **`pre-done` — blind adversarial subagent:**
    - Dispatch **one** subagent via the Agent tool (`model: opus`). It is blind to your **narrative**, not to the **code** — it reads the repo fresh.
-   - Pass it ONLY: the diff, the ticket ACs, and the paths of the rule files for the affected modules (it reads them).
+   - Pass it ONLY: the diff, the ticket ACs, the paths of the rule files for the affected modules, and the decision ledger's path if one was loaded in step 2 (it reads them).
    - Mandate (adversarial):
-     > "This change is presented as complete. Assume it is **not**. Find the regression, the dropped behavior, the scope drift, the missing verification. Run the bidirectional trace: **every diff hunk must trace to an AC** (unmatched hunk = scope creep) and **every AC must have a corresponding hunk** (unmatched AC = omission) — list the orphans of both sides explicitly. Work against the diff and read the surrounding code to confirm. For every claim about current code, cite `file:lineStart-lineEnd` and set `epistemicSource`. Return findings as a JSON array."
+     > "This change is presented as complete. Assume it is **not**. Find the regression, the dropped behavior, the scope drift, the missing verification. Run the bidirectional trace: **every diff hunk must trace to an AC** (unmatched hunk = scope creep) and **every AC must have a corresponding hunk** (unmatched AC = omission) — list the orphans of both sides explicitly. If a decision ledger was provided, every `current` L# record must be covered by the artifact or explicitly deferred — list uncovered records as findings. Work against the diff and read the surrounding code to confirm. For every claim about current code, cite `file:lineStart-lineEnd` and set `epistemicSource`. Return findings as a JSON array."
    - Findings schema (consumed by a citation validator — see project's hook/script setup):
      ```json
      [{ "claim": "...", "epistemicSource": "tool-output",

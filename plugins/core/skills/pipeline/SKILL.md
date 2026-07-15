@@ -49,6 +49,7 @@ Stage notes:
 - Investigation's terminal ("report/handoff"): a manual handoff proportional to the work — there's no dedicated skill.
 - `consumer-simulation` is an AGENT, not a skill: dispatch it as a subagent (Agent tool), passing ONLY the ticket text + acceptance criteria, never the implementation.
 - **Audience of each deliverable (Specify/Break down).** Work that produces a deliverable names, in the spec/plan, *who receives each artifact and what they must do with it* — one line per artifact. That line is the input the `cold-reader` pass consumes at define-done; missing at planning time, the audience gap is surfacing early instead of in the recipient's hands.
+- **Decision ledger append (any stage).** A materially resolved decision at any stage (a brainstorming approach choice, an `AskUserQuestion` answer, a `grill-me` interview outcome) appends an `L#` record when a ledger exists for the work — the ledger is emitted by `core:spec-refine` (format: its `references/ledger-format.md`).
 - Review stage: deliverables whose audience didn't live the session get a blind cold-reader pass.
 - Reviewing in a project with the mobile plugin installed: add `mobile:refactor-review` when the change is a refactor.
 

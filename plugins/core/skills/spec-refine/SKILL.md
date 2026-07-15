@@ -1,6 +1,6 @@
 ---
 name: spec-refine
-description: Invoke to stress-test a spec or design doc before it becomes an implementation plan — exposes gaps, ambiguous states, missing error paths, and unwritten invariants, one focused question at a time. Run after `core:tech-breakdown` (if available) and before `superpowers:writing-plans`.
+description: Invoke to stress-test a spec or design doc before it becomes an implementation plan — exposes gaps, ambiguous states, missing error paths, and unwritten invariants, one focused question at a time; the closing Gap Summary also emits a decision ledger. Run after `core:tech-breakdown` (if available) and before `superpowers:writing-plans`.
 disable-model-invocation: true
 ---
 
@@ -96,6 +96,23 @@ Also usable standalone: paste any spec or design doc and run this skill.
    - Section X: add failure handling for [scenario]
    - Section Y: define empty-state behavior
    ```
+
+   **Emit the decision ledger.** Each row of "Decisions Made" becomes an `L#`
+   record (`Source: recommendation-accepted` when the decision followed your
+   stated recommendation, `operator-verbatim` when the user overrode it with
+   their own words). Each item under "Assumptions Still in Spec (Accepted
+   Risk)" becomes a `deferred` record — `Source: recommendation-accepted`
+   unless the operator's own words set the deferral, then `operator-verbatim`.
+   Record format: `references/ledger-format.md`.
+
+   Before writing, check whether a ledger already exists beside the spec; if
+   it does, append new records and mark changed ones `superseded(→L#)` rather
+   than rewriting the file — mechanics in `references/ledger-format.md`.
+
+   When this work has a spec file on disk, write the ledger beside it
+   (`docs/superpowers/specs/<date>-<slug>-ledger.md`, per the reference file's
+   storage convention). Standalone or trivial runs with no spec file on disk
+   skip the ledger — step 6's `done` option still applies, no ledger required.
 
 6. **Ask how to proceed**
 
