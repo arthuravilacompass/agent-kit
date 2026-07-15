@@ -19,7 +19,7 @@ Applies to:
 2. Apply **Layer 1** below — every PR, no exception (17 items)
 3. Apply **Layer 2** (this skill) — only when the trigger is true
 4. If it's a refactor: `mobile:refactor-review` (2-phase protocol)
-5. Before commit/PR: run your setup's commit/PR flow (e.g. `core:commit`, `core:pr`)
+5. Before commit/PR: run your setup's commit/PR flow (e.g. `core:commit` + `gh`/native for the PR)
 
 ## Layer 1 — Always Review
 

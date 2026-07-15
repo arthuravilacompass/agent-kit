@@ -1,6 +1,6 @@
 ---
 name: review-local
-description: Invoke to dispatch specialized reviewers in parallel against the current branch's diff — last line of defense before `core:pr`. Requires the `pr-review-toolkit` plugin; without it, use `core:review-remote` (sequential).
+description: Invoke to dispatch specialized reviewers in parallel against the current branch's diff — last line of defense before pushing / opening the PR. Requires the `pr-review-toolkit` plugin; without it, use `core:review-remote` (sequential).
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 > **Which to use**: this skill requires the `pr-review-toolkit` plugin (parallel dispatch). Without the plugin, use `core:review-remote` (sequential, no parallelism). **Divergence**: `review-local` BLOCKS on lint/analyze failure; `review-remote` reports the failure as a finding and continues.
 
-Dispatch specialized reviewers in parallel against the current branch diff. Last line of defense before `core:pr`. Output is presented in conversation only — never auto-posted.
+Dispatch specialized reviewers in parallel against the current branch diff. Last line of defense before pushing / opening the PR. Output is presented in conversation only — never auto-posted.
 
 ## Project config
 

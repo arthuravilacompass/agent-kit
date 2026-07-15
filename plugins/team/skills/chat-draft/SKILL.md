@@ -36,5 +36,5 @@ Drafts informal pt-BR chat messages. The recurring problem this skill solves: fi
 ## When NOT to use
 
 - Formal message (external client, HR, legal) — ask for register confirmation first.
-- PR description / commit message — use `core:commit` / `core:pr` (if available in this kit).
+- PR description / commit message — use `core:commit` (if available) / `gh`/native for the PR.
 - Technical document / ADR — use the appropriate doc skill (`grill-me` for a prior stress-test).

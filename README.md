@@ -139,10 +139,10 @@ Each stage is a named skill that produces the artifact the next stage consumes:
 | break down | `/core:tech-breakdown` | plan |
 | implement | execution, enforcement hooks active | code |
 | review | `/core:review-local` (+ `mobile:refactor-review` on a refactor) | resolved findings |
-| ship | `/core:commit` → `/core:pr` | commit / PR |
+| ship | `/core:commit` → open the PR (`gh`/native) | commit / PR |
 | capture | `core:learn` + handoff | memory for the next session |
 
-**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me`'s internal citation-verification mechanism refuses any finding citing a `file:line` the session never read → `/core:commit` → `/core:pr`.
+**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me`'s internal citation-verification mechanism refuses any finding citing a `file:line` the session never read → `/core:commit` → open the PR (`gh`/native).
 
 A minimal route is legitimate for a small task — the pipeline proposes skipping stages and waits for your confirmation.
 
@@ -156,7 +156,7 @@ Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVEN
 | **Prove it** | `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
 | **Think it through** | `council:council` (index) → `council:bohr` (false dichotomy) · `council:epicurus` (scope) · `council:sagan` (effort calibration) · `council:schrodinger` (ambiguous diagnosis) · `council:maxwell` / `council:zeno` — agents, not skills (change propagation, invariant stress) |
 | **Shape the work** | `/core:spec-refine` · `/core:tech-breakdown` · `/core:archaeology` |
-| **Ship & remember** | `/core:commit` · `/core:pr` · `core:learn` |
+| **Ship & remember** | `/core:commit` · open the PR (`gh`/native) · `core:learn` |
 | **Flutter** | `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest of the toolkit |
 | **Ceremonies** | `/team:refine-live` · `/team:refine-async` · `team:chat-draft` |
 

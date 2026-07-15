@@ -24,4 +24,4 @@ Use the template at the end of `CHECKLIST.md`.
 1. `/superpowers:verification-before-completion` (or your setup's equivalent)
 2. `mobile:code-review-mobile` (skip if already done in Phase 2 with no new changes)
 3. If your project has a design tokens system with its own usage rules, check conformance now
-4. Your setup's commit/PR flow (e.g. `core:commit` → `core:pr`)
+4. Your setup's commit/PR flow (e.g. `core:commit` → `gh`/native for the PR)

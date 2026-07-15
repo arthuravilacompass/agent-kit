@@ -108,7 +108,7 @@ the only stack-opinionated vertical it ships is `mobile` (Flutter/Dart).
 
 | Intent | Skills | Agents / Council postures |
 |--------|--------|--------|
-| New Feature | `core:pipeline` (feature route) → `superpowers:brainstorming` or `core:grill-me` (clarify) → `core:spec-refine` (specify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` → `core:pr` (deliver) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
+| New Feature | `core:pipeline` (feature route) → `superpowers:brainstorming` or `core:grill-me` (clarify) → `core:spec-refine` (specify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
 | Bug Fix | `core:pipeline` (bug route): `superpowers:systematic-debugging` (diagnose) → implement fix → `core:review-local`/`core:review-remote` → `core:commit` | `council:schrodinger` (if more than one live hypothesis for the cause) |
 | Refactor | `core:pipeline` (refactor route): `core:archaeology` (map) → clarify scope → implement → `core:review-local`/`core:review-remote` (+ `mobile:refactor-review` if the `mobile` plugin is active) → `core:commit` | `council:maxwell` (coupling map before touching), `council:epicurus` |
 | Investigation | `core:pipeline` (investigation route): `core:archaeology` (map) → `superpowers:systematic-debugging` (diagnose) → report/handoff (terminal — don't force implementation) | `council:schrodinger` |
@@ -370,7 +370,7 @@ Suggested phases:
 3. superpowers:writing-plans or core:tech-breakdown for the phased plan
 4. Execute one service extraction per session, core:review-local/
    core:review-remote + core:commit at the end of each
-5. core:pr once a phase is independently shippable
+5. Open the PR (native/gh flow) once a phase is independently shippable
 
 Model: Fable or Opus for the cross-session architectural plan (synthesis),
 Sonnet subagent for each phase's implementation — see core:methodology
