@@ -41,6 +41,24 @@ Don't fix, in the current PR, problems the change didn't introduce — functiona
 
 ---
 
+### Edit only in scope — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+
+**Why**: editing "while I'm in here" hijacks the PR and makes review impossible.
+
+**Failure mode**: review becomes impossible; rollback requires manual cherry-pick.
+
+---
+
+### No silent removal of annotations/imports — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the exception.
+
+**Exception**: an import genuinely unused, flagged by the linter.
+
+---
+
 ### A self-created artifact is not independent evidence
 
 A card/doc/draft you created yourself (or created on request) doesn't count as independent evidence for a conclusion — it only echoes the framing you already had. Before citing an artifact as evidence, check its provenance: if it came from you/your session, exclude it from the scale and rebuild the argument using only independent sources (the original spec, code, commits, third-party decisions).
@@ -51,6 +69,16 @@ A card/doc/draft you created yourself (or created on request) doesn't count as i
 
 ---
 
+### Verify your own claim as adversarially as an agent's — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+
+**Why**: a review that inherits the framing of whoever produced the work — including yourself — carries the same blind spot.
+
+**Failure mode**: a wrong claim escalates into the narrative; a framed review lets through what a blind check would catch.
+
+---
+
 ### Evidence is re-read in its current state and generated, not transcribed
 
 Before listing a finding (review, audit, enumeration), re-read the evidence in its current state — current file, confirmed cwd, an untruncated command (`head`/`tail` masks count/topology) — never from an old snapshot. And when the deliverable is a human-readable list derived from a structured source, generate it via script over the source, even with small N (same commandment as §Verification gate, "How to apply").
@@ -58,6 +86,28 @@ Before listing a finding (review, audit, enumeration), re-read the evidence in i
 **Signal**: a finding cited without re-reading in the same turn; a negative claim ("X doesn't exist") from a search with unconfirmed cwd; a final list with no command/script that generated it.
 
 **Failure mode**: the list cites an already-fixed item or misses a real one — a single detected error destroys the credibility of the entire deliverable.
+
+---
+
+### Grep before answering about convention — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale and the exception.
+
+**Why**: an answer based only on memory or generic heuristics fails when the project already uses a specific lib (e.g.: the project's logging lib, the chosen observability tool, the adopted serialization lib, etc.) — the generic answer is plausible but wrong for this codebase.
+
+**Does NOT apply when**: purely conceptual questions ("what is X?"), not about how the *project* does it.
+
+---
+
+### Evidence before claim — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale and the application steps.
+
+**Why**: premature assumption is the most common cause of rework in review — the model generates plausible-but-wrong text when it lacks evidence, and the reviewer spends an extra turn refuting it with real data. Examples: assuming a remote-config flag's behavior without reading the config, inferring an environment is "beta" without checking, inventing a route/endpoint that doesn't exist, proposing `-m 1` on a commit that isn't a merge.
+
+**How to apply**: before asserting X about code, list the file(s)/command(s) you need to inspect. Don't conclude until you've read them. If tempted to use "should/likely/assuming/probably", stop and `grep` instead.
+
+**Failure mode**: the reviewer refutes it with evidence (log, code); wasted turn; eroded trust; in repeated cases, the user stops trusting future claims.
 
 ---
 
@@ -95,6 +145,24 @@ When a value has two read paths to the same logical data (one layer renders from
 
 ---
 
+### Fix at the source, never at the consequence — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+
+**Why**: masking the bug downstream guarantees it resurfaces when the context changes.
+
+**Failure mode**: the bug reappears in another caller; the root cause remains in the codebase.
+
+---
+
+### Fix scope = reported-bug scope — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the failure mode.
+
+**Failure mode**: the action stays broken; the delivery looks like progress but the reported bug remains open.
+
+---
+
 ### Exploration output uses an opportunity frame, with anchored severity
 
 In mapping/exploration output meant for a decision (not a point-in-time review), prefer "Improvement opportunities" over "Risks"/"Removals". Anchor severity to an explicit rubric (blocks the decision vs. has a workaround vs. known debt), not vibe. Open with a short TL;DR, rank at most ~5 key items, cite file:line per item — no citation is inference, cut it.
@@ -114,6 +182,26 @@ In a long investigation, don't stack parallel hypotheses without closing each on
 **Failure mode**: noise consumes the session with no throughline; a gap a fresh reviewer would catch only surfaces hours into execution.
 
 **How to apply**: a trivial plan (typo, single rename) skips the gate; ≥3 items or ≥1 code phase goes through it.
+
+---
+
+### Confirm understanding before producing — detail
+
+Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+
+**Why**: going straight to output buries silent choices that only surface after the work is done.
+
+**Failure mode**: wasted effort when the understanding was wrong; eroded trust.
+
+---
+
+### NO-COMMIT — detail
+
+Descended from the always-on tier (`using-agent-kit`, §Permissions) — the rule and its **Signal** stay there; this holds the rationale.
+
+**Why**: committing or pushing on the user's behalf bypasses their review of what goes on the branch and in history.
+
+**Failure mode**: unwanted commits on the wrong branch; history rewrite required.
 
 ## Dispatch — who executes
 

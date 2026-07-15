@@ -17,11 +17,11 @@ When answering any question about this project's convention, library, utility, a
 
 ### Grep before answering about convention 🔴
 
-Read/Grep/Glob the real usages before answering. An answer based only on memory or generic heuristics fails when the project already uses a specific lib (e.g.: the project's logging lib, the chosen observability tool, the adopted serialization lib, etc.).
+Read/Grep/Glob the real usages before answering — never answer from memory or generic heuristics alone.
 
 **Signal**: the turn delivers an answer about convention/lib/tooling/pattern without any Read, Grep, Glob, or listing of real usage in the same turn.
 
-**When it does NOT apply**: purely conceptual questions ("what is X?"), not about how the *project* does it.
+— detail: core:methodology
 
 ---
 
@@ -29,13 +29,9 @@ Read/Grep/Glob the real usages before answering. An answer based only on memory 
 
 **You MUST NOT** assert a conclusion about code behavior, branch state, feature-flag semantics, route existence, or API contract without having read/grepped/run the corresponding command **in the same turn**.
 
-**Why**: premature assumption is the most common cause of rework in review — the model generates plausible-but-wrong text when it lacks evidence, and the reviewer spends an extra turn refuting it with real data. Examples: assuming a remote-config flag's behavior without reading the config, inferring an environment is "beta" without checking, inventing a route/endpoint that doesn't exist, proposing `-m 1` on a commit that isn't a merge.
-
 **Signal**: the turn contains a factual claim about the project's state **without** any Read/Grep/Bash/git in the same turn; OR it uses "should", "likely", "assuming", "probably", "I imagine", "must be" before a conclusion about state.
 
-**How to apply**: before asserting X about code, list the file(s)/command(s) you need to inspect. Don't conclude until you've read them. If tempted to use "should/likely/assuming/probably", stop and `grep` instead.
-
-**Failure mode**: the reviewer refutes it with evidence (log, code); wasted turn; eroded trust; in repeated cases, the user stops trusting future claims.
+— detail: core:methodology
 
 ---
 
@@ -49,21 +45,21 @@ Before approximating an analytical metric with generic shell, check whether a de
 
 ### Verify your own claim as adversarially as an agent's 🔴
 
-A review that inherits the framing of whoever produced the work — including yourself — carries the same blind spot. For a claim about state (git/branch/config/topology), prefer a blind/adversarial check (with no preview of what you expect to find) and runtime evidence over self-review; understand a check's mechanism before trusting its verdict.
+For a claim about state (git/branch/config/topology), prefer a blind/adversarial check (with no preview of what you expect to find) and runtime evidence over self-review; understand a check's mechanism before trusting its verdict.
 
 **Signal**: a claim about state backed by 1 isolated command with no adversarial check; validation done by whoever already held the hypothesis.
 
-**Failure mode**: a wrong claim escalates into the narrative; a framed review lets through what a blind check would catch.
+— detail: core:methodology
 
 ---
 
 ### Confirm understanding before producing
 
-On a multi-part request (or a "grill me"-style interview), reflect your understanding back — the parts + the interpretive choices you're making — and confirm with the user BEFORE producing the artifact. Going straight to output buries silent choices that only surface after the work is done.
+On a multi-part request (or a "grill me"-style interview), reflect your understanding back — the parts + the interpretive choices you're making — and confirm with the user BEFORE producing the artifact.
 
 **Signal**: a request with multiple fronts or ambiguity gets a direct artifact, with no prior reflection + confirmation.
 
-**Failure mode**: wasted effort when the understanding was wrong; eroded trust.
+— detail: core:methodology
 
 ## Scope Discipline
 
@@ -79,11 +75,9 @@ On a multi-part request (or a "grill me"-style interview), reflect your understa
 
 **You MUST NOT** edit files not cited by the user that aren't a direct dependency of the requested change.
 
-**Why**: editing "while I'm in here" hijacks the PR and makes review impossible.
-
 **Signal**: the diff touches a file not cited by the user.
 
-**Failure mode**: review becomes impossible; rollback requires manual cherry-pick.
+— detail: core:methodology
 
 ---
 
@@ -93,7 +87,7 @@ Don't remove dependency-injection, singleton, observability, lifecycle/dispose, 
 
 **Signal**: the diff removes any of these annotations with no explanation in the PR or commit.
 
-**Exception**: an import genuinely unused, flagged by the linter.
+— detail: core:methodology
 
 ---
 
@@ -138,11 +132,9 @@ A dispatch opportunity is a proposal to the user, never an action — name the s
 
 **You MUST NOT** fix the consumer to compensate for what the producer should have done.
 
-**Why**: masking the bug downstream guarantees it resurfaces when the context changes.
-
 **Signal**: the fix adds a conditional in S to compensate for what R should have done.
 
-**Failure mode**: the bug reappears in another caller; the root cause remains in the codebase.
+— detail: core:methodology
 
 ---
 
@@ -176,7 +168,7 @@ When the reported bug is "action X does nothing", the fix needs to make X work �
 
 **Signal**: the fix responds to "X doesn't work" with new messaging/UX instead of making X execute/record.
 
-**Failure mode**: the action stays broken; the delivery looks like progress but the reported bug remains open.
+— detail: core:methodology
 
 ## Permissions
 
@@ -184,11 +176,9 @@ When the reported bug is "action X does nothing", the fix needs to make X work �
 
 **You MUST NOT** run `git commit`, `git push`, or `git merge` unless the user explicitly asks.
 
-**Why**: committing or pushing on the user's behalf bypasses their review of what goes on the branch and in history.
+**Signal**: session contains a git commit or push that the user did not explicitly request.
 
-**Sinal**: session contains a git commit or push that the user did not explicitly request.
-
-**Failure mode**: unwanted commits on the wrong branch; history rewrite required.
+— detail: core:methodology
 
 ## Posture Vocabulary
 
