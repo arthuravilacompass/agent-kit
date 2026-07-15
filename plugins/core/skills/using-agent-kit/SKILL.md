@@ -111,6 +111,18 @@ For multi-file requests without itemization, list the files before the first edi
 
 **Signal**: multi-file Edit without listing first.
 
+## Dispatch — Multiagent Opportunities
+
+Who executes is a decision, not a default. At decomposition time, check the shape of the work:
+
+- **Fan-out**: 3+ independent tasks, no shared state or files → propose parallel subagents.
+- **Isolate**: read-heavy research that would flood the main context → read-only subagent.
+- **Panel**: a finished artifact (diff, doc, spec) needing quality review → blind multi-lens reviewers.
+- **Session**: a diagnosis that may fork into a decision mid-flight → suggest Agent View / `claude --bg` to the operator (only they can open sessions).
+- **Don't delegate**: trivial task, B depends on A, shared file/state, uncertain scope. More agents requires a concrete requirement, not "coverage".
+
+A dispatch opportunity is a proposal to the user, never an action — name the shape, ask, then dispatch. Contract and routing: `core:methodology` §Dispatch.
+
 ## Bugfix Principles
 
 ### 4 Questions Before Any Fix

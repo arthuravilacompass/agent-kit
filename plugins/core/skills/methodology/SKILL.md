@@ -1,6 +1,6 @@
 ---
 name: methodology
-description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?".
+description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, dispatch/orchestration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "should this fan out / dispatch a subagent / open a background session?".
 ---
 
 # Methodology — tier 2 (on-demand)
@@ -114,6 +114,66 @@ In a long investigation, don't stack parallel hypotheses without closing each on
 **Failure mode**: noise consumes the session with no throughline; a gap a fresh reviewer would catch only surfaces hours into execution.
 
 **How to apply**: a trivial plan (typo, single rename) skips the gate; ≥3 items or ≥1 code phase goes through it.
+
+## Dispatch — who executes
+
+Who runs a piece of work — the main thread, a subagent, or an external session — is a decision, not a default. `using-agent-kit` carries the signal (when to consider dispatch); this section carries the doctrine (how to do it safely). The fan-out/pipeline mechanics themselves live in superpowers — this is the decision layer, not a duplicate of them.
+
+### Choosing the executor
+
+The discriminating question is the lifecycle contract, not the task's size: **can this need an operator decision mid-flight?**
+
+- **May fork into a decision** → external session (`claude --bg` / Agent View). Only the operator opens sessions; you suggest, you don't open. A diagnosis with a branching root cause ("Path A vs Path B") belongs here — the fork is exactly where a subagent, which has no channel back to the operator, would strand the decision.
+- **Read-heavy, no mid-flight decision** → subagent. Pure research/exploration; the operator doesn't need to steer.
+- **Synthesis that consumes other results** → the main thread. It already holds the returned summaries; reconciling them is its job, not a delegate's.
+
+Worked shape: a diagnosis-that-forks = session; the research it depends on = subagent (dispatched in parallel); the consolidation of both = main thread. Tasks that *look* equally parallelizable separate by which one carries a dependency and which one can fork — not by how many agents you could open.
+
+### Dispatch contract
+
+A subagent starts near-zero: it gets its system prompt, environment, the CLAUDE.md/memory hierarchy, a git snapshot, named skills — and nothing else. Any path, error message, branch name, or decision already made in the conversation must be written into the dispatch. "Fix the button" produces wrong work.
+
+Output contract, required at the end of every dispatch:
+
+- Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
+- **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block (question + options) — do not finalize or decide alone. (Label in English here; a real dispatch mirrors the operator's language, per kit convention.)
+- On a code change: run build/tests and report the result.
+
+Long outputs go to a file — the chat gets the path plus a 3-line summary. This applies to the **main thread too**, not only subagents: any long deliverable (doc, analysis, plan) is written to a file, never streamed into the chat, so a turn can't be lost to an output-length error.
+
+### Fan-in contract
+
+The synthesis after a fan-out accounts for **every dispatched front**. A front that couldn't be resolved is flagged explicitly — never silently dropped. When several fronts run in parallel, the reconciliation names each one and its status before summarizing.
+
+### Tool scoping
+
+Research/audit agents are read-only (`Read`, `Grep`, `Glob`). **Omitting the `tools` field grants everything, including MCP** — scope deliberately. An edit that would need approval stays in the main thread or runs in the foreground: a background agent auto-denies the approval prompt and fails silently while reporting success.
+
+### Model routing
+
+Execution dispatch goes to the cheaper model — per-agent (`model` field) or globally (`CLAUDE_CODE_SUBAGENT_MODEL`); keep the main thread on the stronger model for reconciliation. The model-vs-effort trade-off that decides *which* tier fits a given leg lives in the Technical Reference below (§Claude Code, "Model vs. effort") — this subsection is only its application to dispatch, not a restatement.
+
+### Extra-session cheat sheet
+
+Commands verified against CLI 2.1.207 (2026-07-11); items marked `[nota]` are not reconfirmed against this CLI version.
+
+- `claude agents` — open the background-session dashboard. `[verificado]`
+- `claude --bg "<task>"` — dispatch a background session from the shell. `[verificado]`
+- `claude --bg --model sonnet --effort high "<task>"` — background session with explicit model/effort. `[verificado]`
+- `claude --tools "Read,Grep,Glob" "<task>"` — force read-only for a whole session. `[verificado]`
+- `claude agents --json [--all]` — list sessions, scriptable. `[verificado]`
+- `claude -r` — picker to resume a session by id. `[verificado]`
+- In-session: `/agents` (running + library), `/tasks` (background in this session), `Ctrl+B` (send a running subagent to background). `[nota]`
+
+A background session is **local**: it dies with the process or if the machine sleeps. `[nota]` Before deleting a session that edited files, merge/push its worktree (`.claude/worktrees/`) — it is removed with the session. `[nota]` Subagents do not open subagents; orchestration always lives in the main thread. `[nota]`
+
+### Routing to superpowers
+
+This section decides *who executes*; the mechanics of each pattern live in superpowers — don't duplicate them:
+
+- Parallel fan-out over independent tasks → `superpowers:dispatching-parallel-agents`.
+- Executing a written plan task-by-task → `superpowers:subagent-driven-development`.
+- Reviewing a diff/PR with a reviewer panel → the kit's review skills (`core:review-local`).
 
 ## Technical Reference
 
