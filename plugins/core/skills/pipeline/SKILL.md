@@ -1,6 +1,6 @@
 ---
 name: pipeline
-description: Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route, never executes the whole chain by itself.
+description: Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route — and proposes running core:orchestrate when the work is fan-out-shaped — never executes the whole chain by itself.
 ---
 
 # Pipeline — flow conductor
@@ -54,6 +54,7 @@ Stage notes:
 - Review stage: deliverables whose audience didn't live the session get a blind cold-reader pass.
 - Reviewing in a project with the mobile plugin installed: add `mobile:refactor-review` when the change is a refactor.
 - **Type each stage's work.** Map/archaeology and read-heavy research legs are **LABOR** → propose a read-only Worker (the `using-agent-kit` dispatch signal; doctrine in `core:methodology` §Topology / §Choosing the executor). Planning, verifying, synthesizing, and deciding stay **ORCHESTRATION** on the main thread. The work-type, not the stage's name, decides the executor.
+- **Propose the loop when the route fans out.** When classification (§2) yields a route with **3+ independent LABOR legs** (the same fan-out threshold `using-agent-kit` §Dispatch names — "Fan-out: 3+ independent tasks"), the conductor **proposes** invoking `core:orchestrate` for that segment — piggybacking on the route confirmation §2 already does, no separate ceremony. A minimal route (§2) with fewer than 3 independent LABOR legs proposes no loop.
 
 ## 4. "Challenge my plan" / high-stakes decisions — where to look
 

@@ -146,6 +146,8 @@ Each stage is a named skill that produces the artifact the next stage consumes:
 
 A minimal route is legitimate for a small task — the pipeline proposes skipping stages and waits for your confirmation.
 
+When a route fans out into 3+ independent legs — parallel research, generation, or audit — the pipeline proposes `core:orchestrate` for that segment instead: a plan→delegate→verify→synthesize loop with cheap parallel workers and a stronger advisor consulted at the commitment boundaries.
+
 ## Which skill or agent, when
 
 Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVENTORY.md)**.
@@ -153,6 +155,7 @@ Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVEN
 | Job | Skill / Agent |
 |---|---|
 | **Start here** | `core:pipeline` — hand it the raw intent, it detects the stage and proposes the route |
+| **Fan out large work** | `core:orchestrate` — plan→delegate→verify→synthesize loop for work too big for one pass, or with 3+ independent parallel legs; invoke by name or accept the pipeline's proposal |
 | **Prove it** | `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
 | **Think it through** | `council:council` (index) → `council:bohr` (false dichotomy) · `council:epicurus` (scope) · `council:sagan` (effort calibration) · `council:schrodinger` (ambiguous diagnosis) · `council:maxwell` / `council:zeno` — agents, not skills (change propagation, invariant stress) |
 | **Shape the work** | `/core:spec-refine` · `/core:tech-breakdown` · `/core:archaeology` |
