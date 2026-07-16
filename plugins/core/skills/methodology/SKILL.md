@@ -1,6 +1,6 @@
 ---
 name: methodology
-description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, dispatch/orchestration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "should this fan out / dispatch a subagent / open a background session?".
+description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, dispatch/orchestration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "should this fan out / dispatch a subagent / open a background session?"; the operational topology (roles/edges/tiers) and how to type a unit of work (LABOR vs orchestration)
 ---
 
 # Methodology — tier 2 (on-demand)
@@ -207,6 +207,29 @@ Descended from the always-on tier (`using-agent-kit`, §Permissions) — the rul
 
 Who runs a piece of work — the main thread, a subagent, or an external session — is a decision, not a default. `using-agent-kit` carries the signal (when to consider dispatch); this section carries the doctrine (how to do it safely). The fan-out/pipeline mechanics themselves live in superpowers — this is the decision layer, not a duplicate of them.
 
+### Topology — roles, edges, tiers
+
+Substantial work runs as four roles, not one seat doing everything:
+
+- **Orchestrator** (the main thread) — confined to five verbs: **plan, delegate, verify, synthesize, escalate**. It does not do labor.
+- **Worker** — cheap, parallel, read-heavy labor. Receives a typed LABOR task, returns a finding under the lean output contract (§Dispatch contract), not a dump.
+- **Advisor** — premium, on-demand. Consulted at stage transitions (the `grill-me` checkpoints); never in the labor path. Its two forms (full-context for `pre-plan`/`post-plan`, blind-adversarial for `pre-done`) live in `grill-me`'s `REFERENCE.md` — single source; do not restate here.
+- **Operator** — receives **escalation** and decides. Not a labor pool.
+
+Four edges: `delegate` (Orchestrator → Worker), `results-for-verification` (Worker → Orchestrator), `advisor-consult` (Orchestrator → Advisor, on-demand, pull), `escalate` (Orchestrator → Operator).
+
+**Escalation ≠ conducting.** Escalation (correct) hands the Operator a *decision*: "here is a fork, you choose." Conducting (the defect) is the Operator issuing a *process correction*: "go back, you left the rails." A structure that runs correctly produces escalations, not corrections.
+
+**Abstract tiers** (concrete model is the personal binding, never baked here):
+
+| Tier | Role | Note |
+|---|---|---|
+| premium | Advisor | on-demand only; pulled at checkpoints |
+| standard | Orchestrator, Worker | main thread + default labor |
+| cheap | Worker (bulk/parallel) | large read-only fan-out |
+
+The concrete tier → model mapping lives in the operator's `~/.claude/CLAUDE.md`; the kit versions only the abstract roles/edges/tiers so it stays portable.
+
 ### Choosing the executor
 
 The discriminating question is the lifecycle contract, not the task's size: **can this need an operator decision mid-flight?**
@@ -216,6 +239,8 @@ The discriminating question is the lifecycle contract, not the task's size: **ca
 - **Synthesis that consumes other results** → the main thread. It already holds the returned summaries; reconciling them is its job, not a delegate's.
 
 Worked shape: a diagnosis-that-forks = session; the research it depends on = subagent (dispatched in parallel); the consolidation of both = main thread. Tasks that *look* equally parallelizable separate by which one carries a dependency and which one can fork — not by how many agents you could open.
+
+**Type the work first.** Every unit is either **LABOR** (read-heavy / execution with no mid-flight decision — map/archaeology, research, sweeps) → a Worker, or **ORCHESTRATION** (plan / verify / synthesize / escalate / decisions) → the Orchestrator (main). The type, not the seat's convenience, decides who executes.
 
 ### Dispatch contract
 
@@ -239,7 +264,7 @@ Research/audit agents are read-only (`Read`, `Grep`, `Glob`). **Omitting the `to
 
 ### Model routing
 
-Execution dispatch goes to the cheaper model — per-agent (`model` field) or globally (`CLAUDE_CODE_SUBAGENT_MODEL`); keep the main thread on the stronger model for reconciliation. The model-vs-effort trade-off that decides *which* tier fits a given leg lives in the Technical Reference below (§Claude Code, "Model vs. effort") — this subsection is only its application to dispatch, not a restatement.
+Execution dispatch (LABOR) goes to the cheaper model — per-agent (`model` field) or globally (`CLAUDE_CODE_SUBAGENT_MODEL`); reconciliation and synthesis are the Orchestrator's verbs, and which concrete model sits in each role (Orchestrator / Advisor / Worker) is the operator's personal binding (§Topology), not a tier baked here. The model-vs-effort trade-off that decides *which* tier fits a given leg lives in the Technical Reference below (§Claude Code, "Model vs. effort") — this subsection is only its application to dispatch, not a restatement.
 
 ### Extra-session cheat sheet
 
