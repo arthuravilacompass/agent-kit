@@ -26,6 +26,14 @@
     {"name": "Jetbrains annotations", "prefixes": ["org.jetbrains"]},
     {"name": "Facebook SDK", "prefixes": ["com.facebook"]},
     {"name": "Adjust attribution", "prefixes": ["com.adjust"]},
-    {"name": "ClearSale antifraude", "prefixes": ["br.com.clearsale"]}
+    {"name": "ClearSale antifraude", "prefixes": ["br.com.clearsale"]},
+    {"name": "Datadog", "prefixes": ["com.datadog"]},
+    {"name": "Salesforce Marketing Cloud", "prefixes": ["com.salesforce"]},
+    {"name": "BouncyCastle", "prefixes": ["org.bouncycastle"]},
+    {"name": "Adobe (Experience/Analytics/DTM)", "prefixes": ["com.adobe"]},
+    {"name": "Coil v3", "prefixes": ["coil3"]},
+    {"name": "Qualtrics", "prefixes": ["com.qualtrics"]},
+    {"name": "Axiros", "prefixes": ["com.axiros"]},
+    {"name": "Netmetric", "prefixes": ["com.netmetric"]}
   ]
 }

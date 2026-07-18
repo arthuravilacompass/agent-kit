@@ -1,0 +1,43 @@
+%% ============================================================================
+%% C4 model (Container level) -- native<->web seam, generic template.
+%%
+%% Fixed topology: native shell <-> WebView via a JS bridge -> backend APIs,
+%% plus OIDC auth. This is app-shape-specific but assumed stable across runs
+%% of this skill; only the bridge-capability counts are synced from
+%% findings.json.
+%%
+%% Deliberately THIN (design §3, honest-scope rule): findings.json's
+%% metrics.bridge_capabilities carries only the aggregate {value, domains},
+%% not a per-domain breakdown -- so a Component-level diagram (one box per
+%% capability domain) is NOT deterministically renderable from this contract.
+%% That level, if wanted, is agent-authored (see the AGENT block below), not
+%% script-filled.
+%% ============================================================================
+C4Container
+    title Container diagram -- native/web seam (native to Flutter port scope)
+
+    Person(customer, "End user", "End user of the app")
+
+    System_Boundary(app, "App -- native shell + WebView") {
+        Container(shell, "Native shell", "Native host", "Navigation, native flows, secure session, WebView host")
+        Container(web, "WebView", "System WebView", "Hosts the flows served from the backend")
+    }
+
+    System_Boundary(cloud, "Backend -- runs outside the APK") {
+        Container(backend, "Backend APIs", "HTTPS", "Business / self-care backend")
+    }
+
+    System_Ext(oidc, "OIDC provider", "Native OIDC auth")
+
+    Rel(customer, shell, "Uses", "installs / launches")
+    BiRel(shell, web, "JS bridge -- {{ metrics.bridge_capabilities.value }} caps in {{ metrics.bridge_capabilities.domains }} domains", "postMessage both ways")
+    Rel(web, backend, "Loads flows", "HTTPS")
+    Rel(shell, backend, "Token refresh / native fetch", "HTTPS")
+    Rel(shell, oidc, "Authenticates", "OIDC")
+
+%% AGENT:START annotations
+%% Add app-specific engineering interpretation here (not derivable from
+%% findings.json): which flows are money/business-critical, origin tags
+%% (fact vs. interpretation), a per-domain Component-level breakdown, and
+%% any Context-level external systems this run's analysis warrants.
+%% AGENT:END annotations

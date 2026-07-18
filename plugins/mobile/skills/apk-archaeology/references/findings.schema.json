@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-kit:mobile:apk-archaeology:findings-schema",
+  "title": "APK Archaeology findings.json",
+  "description": "Formal contract for findings.json, the headline source-of-truth artifact emitted by the apk-archaeology skill for a single run. Encodes the exact shape of the canonical instance at run-2026-07-17. Each property carries a custom `x-source` annotation (deterministic | synthesized | mixed) recording whether emit_findings.py derives it from data/*.json, an agent authors it, or it's a blend of both -- this is the machine-readable form of design §3 (honest sync reach): what the deterministic sync (emit/render + selftest) owns vs. what stays agent-authored. `x-source` is descriptive metadata only; it never affects validation.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run",
+    "verdict",
+    "what_it_is",
+    "migration_shape",
+    "metrics",
+    "blind_spots",
+    "next_steps",
+    "manifest",
+    "caveats"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "migrationBucket": {
+      "type": "object",
+      "x-source": "synthesized",
+      "description": "One migration-shape bucket: what falls into it, its rough size, and a qualifying note.",
+      "required": ["what", "size", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "what": { "type": "string" },
+        "size": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "metricGroup": {
+      "type": "object",
+      "x-source": "deterministic",
+      "description": "Base shape shared by metrics sub-groups: integer counts plus a qualifying note. Individual groups override required/properties to their own fields.",
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "x-source": "deterministic",
+      "description": "Version tag of this findings.json contract, e.g. \"0.1-pilot\". Fixed by tooling, not authored per-run."
+    },
+    "run": {
+      "type": "object",
+      "x-source": "mixed",
+      "description": "Run identity and provenance. package/version/date/id are deterministic (read off the APK/run folder); sha256 and tooling are deterministic (computed/recorded by the toolchain); mode is contextual -- set by the operator/agent describing what pass(es) actually ran.",
+      "required": ["id", "date", "package", "version", "sha256", "tooling", "mode"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Run identifier, e.g. \"run-2026-07-17\"." },
+        "date": { "type": "string", "description": "Run date." },
+        "package": { "type": "string", "description": "Android application package id." },
+        "version": { "type": "string", "description": "APK version name (and optionally version code)." },
+        "sha256": {
+          "type": "string",
+          "x-source": "mixed",
+          "description": "SHA-256 of the analyzed APK. CLI-provided (passed as a --sha256 override to emit_findings.py), not derived from data/*.json."
+        },
+        "tooling": {
+          "type": "string",
+          "x-source": "mixed",
+          "description": "Toolchain versions used for this run (e.g. jadx, apktool, python). CLI-provided (passed as a --tooling override to emit_findings.py), not derived from data/*.json."
+        },
+        "mode": {
+          "type": "string",
+          "description": "Which passes ran (static-only, static+dynamic, etc.) and why, if constrained."
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "x-source": "synthesized",
+      "description": "The headline call: is the migration feasible, in one line, and how confident is the analyst.",
+      "required": ["feasibility", "one_line", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "feasibility": { "type": "string" },
+        "one_line": { "type": "string" },
+        "confidence": { "type": "string" }
+      }
+    },
+    "what_it_is": {
+      "type": "object",
+      "x-source": "mixed",
+      "description": "What the app actually is under the hood. nature and build_signal are narrative framing, synthesized by an agent; first_party_mass and obfuscated_island are also agent-filled -- classify.json carries no per-package file counts, so none of this group is emitter-derivable today.",
+      "required": ["nature", "first_party_mass", "obfuscated_island", "build_signal"],
+      "additionalProperties": false,
+      "properties": {
+        "nature": {
+          "type": "string",
+          "x-source": "synthesized",
+          "description": "Narrative characterization of the codebase (bespoke vs. white-label platform, etc.)."
+        },
+        "first_party_mass": {
+          "type": "object",
+          "x-source": "synthesized",
+          "description": "Open map of first-party package-path prefix -> file count. Not emitter-derivable -- classify.json carries no per-package file counts; agent-filled until classify emits counts. May carry an optional narrative note.",
+          "properties": {
+            "note": {
+              "type": "string",
+              "x-source": "synthesized",
+              "description": "Optional qualifying note about the package-count breakdown."
+            }
+          },
+          "additionalProperties": { "type": "integer" }
+        },
+        "obfuscated_island": {
+          "type": "object",
+          "x-source": "synthesized",
+          "description": "The (if any) obfuscated/third-party package island found outside the first-party mass. package and files are agent-filled, not emitter-derivable.",
+          "required": ["package", "files", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "package": {
+              "type": "string",
+              "x-source": "synthesized",
+              "description": "Not emitter-derivable -- classify.json carries no per-package file counts; agent-filled until classify emits counts."
+            },
+            "files": {
+              "type": "integer",
+              "x-source": "synthesized",
+              "description": "Not emitter-derivable -- classify.json carries no per-package file counts; agent-filled until classify emits counts."
+            },
+            "note": { "type": "string", "x-source": "synthesized" }
+          }
+        },
+        "build_signal": {
+          "type": "string",
+          "x-source": "synthesized",
+          "description": "Narrative read of build/debug signals (LeakCanary, debug activities, minSdk/target, etc.)."
+        }
+      }
+    },
+    "migration_shape": {
+      "type": "object",
+      "x-source": "synthesized",
+      "description": "The four-bucket migration classification an agent synthesizes from partitions/flows: what ports natively, what stays WebView, what bridge surface must be reimplemented, and what is generic platform/infra tax.",
+      "required": ["port_native", "stays_webview", "bridge_to_reimplement", "infra_platform"],
+      "additionalProperties": false,
+      "properties": {
+        "port_native": { "$ref": "#/$defs/migrationBucket" },
+        "stays_webview": { "$ref": "#/$defs/migrationBucket" },
+        "bridge_to_reimplement": { "$ref": "#/$defs/migrationBucket" },
+        "infra_platform": { "$ref": "#/$defs/migrationBucket" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "x-source": "mixed",
+      "description": "Counts derived by emit_findings.py where a data/*.json carries them; bridge_capabilities and bridge_pilot_handlers are agent-filled (see their x-source).",
+      "required": ["bridge_capabilities", "partitions", "endpoints", "graph", "bridge_pilot_handlers"],
+      "additionalProperties": false,
+      "properties": {
+        "bridge_capabilities": {
+          "type": "object",
+          "x-source": "synthesized",
+          "required": ["value", "domains", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "integer",
+              "x-source": "synthesized",
+              "description": "From arch-map analysis, not data/*.json."
+            },
+            "domains": {
+              "type": "integer",
+              "x-source": "synthesized",
+              "description": "From arch-map analysis, not data/*.json."
+            },
+            "note": { "type": "string" }
+          }
+        },
+        "partitions": {
+          "type": "object",
+          "x-source": "deterministic",
+          "required": ["total", "feature", "infra"],
+          "additionalProperties": false,
+          "properties": {
+            "total": { "type": "integer" },
+            "feature": { "type": "integer" },
+            "infra": { "type": "integer" }
+          }
+        },
+        "endpoints": {
+          "type": "object",
+          "x-source": "deterministic",
+          "required": ["total", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "total": { "type": "integer" },
+            "note": { "type": "string" }
+          }
+        },
+        "graph": {
+          "type": "object",
+          "x-source": "deterministic",
+          "required": ["nodes", "edges", "kind", "largest_component"],
+          "additionalProperties": false,
+          "properties": {
+            "nodes": { "type": "integer" },
+            "edges": { "type": "integer" },
+            "kind": { "type": "string" },
+            "largest_component": { "type": "integer" }
+          }
+        },
+        "bridge_pilot_handlers": {
+          "type": "object",
+          "x-source": "synthesized",
+          "required": ["value", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "integer",
+              "x-source": "synthesized",
+              "description": "From arch-map analysis, not data/*.json."
+            },
+            "note": { "type": "string" }
+          }
+        }
+      }
+    },
+    "blind_spots": {
+      "type": "array",
+      "x-source": "synthesized",
+      "description": "Known gaps/unknowns in this run's coverage, authored by the analyzing agent.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "next_steps": {
+      "type": "array",
+      "x-source": "synthesized",
+      "description": "Recommended follow-up actions, authored by the analyzing agent.",
+      "items": { "type": "string" }
+    },
+    "manifest": {
+      "type": "object",
+      "x-source": "mixed",
+      "description": "Open map of artifact relative-path -> {role, status}. Paths and status are structural/deterministic (produced by the run's file layout and its verification state); role is an authored one-line description of what the artifact is for.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["role", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "x-source": "synthesized",
+            "description": "One-line authored description of the artifact's purpose."
+          },
+          "status": {
+            "type": "string",
+            "x-source": "deterministic",
+            "description": "Verification state of the artifact (e.g. verified, raw, current)."
+          }
+        }
+      }
+    },
+    "caveats": {
+      "type": "array",
+      "x-source": "synthesized",
+      "description": "Cross-cutting qualifications an analyst attaches when citing this run's numbers elsewhere.",
+      "items": { "type": "string" }
+    }
+  }
+}
