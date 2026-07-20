@@ -38,4 +38,21 @@ else
   echo "OK: zero provenance narration ('Promoted from') in plugins/"
 fi
 
+# 3) Personal memory index (MEMORY.md) byte ceiling. Soft check: the memory
+# dir is per-machine/per-user (Claude Code project encoding), so a missing
+# file (fresh clone, different user) SKIPs instead of failing the gate.
+MEMORY_CEILING=8192
+mem_file="$HOME/.claude/projects/$(pwd | sed 's,/,-,g')/memory/MEMORY.md"
+if [ -f "$mem_file" ]; then
+  mem_bytes=$(wc -c <"$mem_file" | tr -d ' ')
+  if [ "$mem_bytes" -gt "$MEMORY_CEILING" ]; then
+    echo "ERROR: MEMORY.md index measures ${mem_bytes} bytes — over the ${MEMORY_CEILING}-byte ceiling"
+    fail=1
+  else
+    echo "OK: MEMORY.md index ${mem_bytes} bytes <= ceiling ${MEMORY_CEILING}"
+  fi
+else
+  echo "SKIP: MEMORY.md not found at ${mem_file} (no personal memory dir on this machine)"
+fi
+
 exit $fail
