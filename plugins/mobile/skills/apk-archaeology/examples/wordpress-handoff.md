@@ -1,5 +1,11 @@
 # apk-archaeology — v0 handoff artifact (WordPress)
 
+> **⚠ Prior doctrine (v0 record).** This artifact proves the acceleration step under the old
+> Dimension A/B/C framing (candidate US + DTO skeletons); it predates the deliverable-first
+> restructure (Foundation + per-feature loop; deliverables — OpenAPI, data dictionary, state
+> machines, TDD stubs — at the center). Kept as the empirical acceleration record, not current
+> method — see `references/cognitive-sequence.md` and `references/deliverables/`.
+
 > Downstream artifact consumable by `tech-breakdown`/`spec-refine`. Format **provisional**
 > (design §5), pinned at first real client use. Companion to `newpipe-demo.md`: the demo
 > proves *viability* (measured extraction fidelity on a clean OSS reference); **this artifact

@@ -1,6 +1,8 @@
 # Relatório de Engenharia Reversa de APK → User Stories
 ### Exemplo trabalhado do método `apk-archaeology` — App: WordPress para Android
 
+> **⚠ Doutrina anterior.** Este exemplo precede a reestruturação *deliverable-first* (Fundação + loop por-feature; os deliverables — OpenAPI, dicionário de dados, máquinas de estado, stubs TDD — no centro, doutrina como carimbo). Ilustra a cadeia CT→RF→US, mas **não** os 6 deliverables concretos nem o spine atual — ver `references/cognitive-sequence.md`. Reescrita completa diferida.
+
 > **Para que serve:** mapear as funcionalidades de um app concorrente ou legado direto para
 > **requisitos de negócio (User Stories + critérios de aceite)**, com cada afirmação ancorada em
 > evidência de código (`arquivo:linha`) e uma **banda de confiança**.

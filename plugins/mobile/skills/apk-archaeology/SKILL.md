@@ -1,19 +1,29 @@
 ---
 name: apk-archaeology
-description: "STATUS: provisional — invoke to extract value from a legacy (decompiled) Android APK toward a migration to Flutter: business flows/rules, API contracts, module graph, with explicit confidence bands. Not wired — refine after first real use."
+description: "STATUS: provisional (refined once, not graduated) — invoke to extract value from a legacy (decompiled) Android APK toward a migration to Flutter: a Foundation pass (contracts, module graph + the seam, cheap static harvest) then a per-feature loop producing concrete migration deliverables (OpenAPI, data dictionary, state machines, TDD stubs), each stamped with origin/confidence/intent/reach. Refined after a second real client run that measured the hard walls (obfuscation, dynamic) without crossing them; n=1, not yet graduated."
 disable-model-invocation: true
 ---
 
 # apk-archaeology — Legacy APK Value Extraction (provisional)
 
-> **STATUS: provisional/experimental.** The consolidation template and handoff contract
-> get refined after the first real use on a client — see design doc:
-> `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md`.
+> **STATUS: provisional/experimental — refined once.** The consolidation template and
+> handoff contract were refined after real client use — a second run that **measured the
+> hard walls (obfuscation, dynamic reach) without crossing them**. Not graduated (n=1
+> real; the ≥2× bar is not met). See design docs:
+> `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md` (graduation bar) and
+> `docs/superpowers/specs/2026-07-17-apk-archaeology-output-architecture-design.md` (output architecture).
+
+> **The cognitive sequence (start here).** The decision sequence *above* this pipeline —
+> *given a decompiled APK, what do you actually do with it?* — lives in
+> `references/cognitive-sequence.md`. The Steps below run in the same two tempos as that
+> reference — **Foundation** (once per APK), then the **per-feature loop** (once per
+> feature) — followed by the output backbone and the optional dynamic pass; that
+> reference is the decision method they serve.
 
 > **From extraction to backlog.** The report method — the CT→RF→US→RN→CA chain,
 > the reach map, the confidence tiers, and the log-based v2 (dynamic) instrument
-> (`scripts/capture_dynamic.sh` + `scripts/parse_logcat.py`, step 8) — lives
-> in `references/method.md`. The client-facing report template (pt-BR) is
+> (`scripts/capture_dynamic.sh` + `scripts/parse_logcat.py`, the Dynamic pass below) —
+> lives in `references/method.md`. The client-facing report template (pt-BR) is
 > `references/modelo-relatorio.pt-BR.md` (the filled file **is** the deliverable,
 > shipped as Markdown — inline Mermaid diagram, no `.docx` conversion); how to fill
 > it (filling order, worked example, conventions — filler/maintainer-facing, never
@@ -21,16 +31,22 @@ disable-model-invocation: true
 > example (WordPress) is
 > `examples/relatorio-wordpress.pt-BR.md`.
 
-Extracts 3 dimensions from a legacy Android APK — business flows/rules (A), API
-contracts (B), module graph (C) — as input for a native→Flutter migration. Adapts the
-`core:archaeology` pattern (parallel dispatch per dimension → structured consolidation)
-for a compiled/possibly obfuscated source instead of live source code.
+Runs in two tempos: **Foundation** (once per APK — contracts, module graph, the seam)
+then a **per-feature loop** that synthesizes over each feature's slice of that data.
+The output is concrete migration deliverables a dev writes Dart against — OpenAPI
+contracts, a data dictionary, state machines, TDD stubs — not a finding dump. The
+three confidence bands (fact / reconstruction / inference) are how the consolidation
+keeps evidence separate, not the skill's output shape. Adapts the `core:archaeology`
+pattern (parallel dispatch, now per feature-slice → structured consolidation) for a
+compiled/possibly obfuscated source instead of live source code.
 
 ## When to Use
 
 You have a `.apk` of a legacy app that will (or might) be migrated to Flutter, and you
-want a candidate spec + API contracts + module boundaries before planning the
-migration. This is not security/malware analysis — it's migration preparation.
+want the concrete deliverables that accelerate that migration — API contracts, module
+topology, business rules and state machines, anti-regression test stubs — each stamped
+with origin/confidence/intent/reach for honesty, before planning the migration. This is
+not security/malware analysis — it's migration preparation.
 
 The same recovery serves adjacent cases when up-to-date documentation is gone:
 resuming maintenance with a team that didn't build the app; auditing behavior before
@@ -51,18 +67,29 @@ Every step below targets one `<work_dir>` tree, laid out like this:
 ├── findings.json          (emit_findings.py skeleton + agent synthesis; contract: references/findings.schema.json)
 ├── backlog.md             (the value — agent-authored)
 ├── analysis/              (feasibility.md, flows.md, architecture.md, bridge-pilot.md, architecture.c4.mmd, decisions.md)
-├── data/                  (classify.json, classify.v1.json, endpoints.json, graph.json, partitions.json)
+├── data/                  (Foundation output: classify.json, classify.v1.json, endpoints.json, graph.json,
+│                            partitions.json, persistence.json, harvest.json)
+├── features/<slice>/      (per-feature loop output, spec'd, not yet exercised on a real run:
+│                            openapi.yaml, data-dictionary.json, state-machines.mmd, <rule>_test.dart)
 ├── report/                (on-demand — generated only when a client-facing report is requested; NEW, never a relocation)
-└── decompile/             (jadx/, apktool/ — gitignored + regenerable cache, see step 1)
+└── decompile/             (jadx/, apktool/ — gitignored + regenerable cache, see Foundation step 1)
 ```
 
-`data/` holds every raw JSON artifact steps 2-4 produce; `analysis/` and
-`backlog.md` are where the agent's synthesis (steps 5-7) lands; `decompile/`
-is disposable — re-running step 1 regenerates it from the same APK.
+`data/` holds every raw JSON artifact **Foundation** produces (classify, endpoints,
+graph, persistence, harvest); `features/<slice>/` holds what the **per-feature loop**
+synthesizes over each feature's slice of that data; `analysis/` and `backlog.md` are
+where the **output backbone**'s synthesis (consolidate + emit_findings/render) lands;
+`decompile/` is disposable — re-running Foundation step 1 regenerates it from the same
+APK.
 
 ## Steps
 
-### 1. Decompile
+### Foundation (runs once per APK)
+
+The app-level substrate every feature draws on. Runs once; the per-feature loop below
+synthesizes over slices of this data, never re-extracting.
+
+#### 1. Decompile
 
 ```
 scripts/decompile.sh <apk_path> <work_dir>
@@ -72,19 +99,26 @@ Produces `<work_dir>/decompile/jadx/sources/` (readable Java) and
 `<work_dir>/decompile/apktool/` (manifest/resources) — see Run layout above.
 `decompile/` is a gitignored, regenerable cache: the script writes a
 `.gitignore` (`*`) into it on every run, so it never needs a manual exclusion
-elsewhere. The script also creates `<work_dir>/data/` up front so steps 2-4
-below always have somewhere to write.
+elsewhere. The script also creates `<work_dir>/data/` up front so Foundation
+steps 2-6 below always have somewhere to write.
 
-### 2. Classify packages
+#### 2. Classify packages → the reach-gate verdict
 
 ```
 python3 scripts/classify_packages.py <work_dir>/decompile/jadx/sources scripts/known-libs.json --out <work_dir>/data/classify.json
 ```
 
 3 buckets: `known-third-party` / `business-candidate` / `unclassifiable`. See design
-doc §6 for why `unclassifiable` exists and is not optional.
+doc §6 for why `unclassifiable` exists and is not optional. The `unclassifiable` ratio
+is also the input to the **reach gate**: a verdict over this step's output —
+**normal / degraded / no-go** — that fires as soon as classify lands, before the
+synthesis investment downstream (`references/method.md`, "The reach gate"; the reach
+gate is a verdict over classify's output, not a literal step ahead of extraction). The
+ballast case came back 96.9% `unclassifiable` with no graph/backlog — the `no-go`
+regime the gate exists to catch. A high ratio bounds or stops the run before the
+per-feature loop ever opens; it is not just a bucket.
 
-### 3. Extract endpoints (Dimension B — fact)
+#### 3. Extract endpoints (Dimension B — fact)
 
 ```
 python3 scripts/extract_endpoints.py <work_dir>/decompile/jadx/sources <work_dir>/data/classify.json --out <work_dir>/data/endpoints.json
@@ -95,7 +129,7 @@ check `secrets_redacted` in the output; if > 0, do **not** expose the raw
 `endpoints.json` outside the local environment before confirming no literal leaked
 (manual grep as a second check is acceptable in this provisional phase).
 
-### 4. Extract module graph (Dimension C — reconstruction)
+#### 4. Extract module graph (Dimension C — reconstruction) → the seam
 
 ```
 python3 scripts/extract_graph.py <work_dir>/decompile/jadx/sources <work_dir>/data/classify.json --out <work_dir>/data/graph.json
@@ -104,7 +138,56 @@ python3 scripts/extract_graph.py <work_dir>/decompile/jadx/sources <work_dir>/da
 Only over `business-candidate`. Note `artifact_warnings` in the output — filtered
 synthetic classes are expected, not a bug.
 
-### 5. Dimension A synthesis (agent — fan-out)
+Out of this graph comes **the seam**: not "N screens" but the critical migration
+unit — the thing that, if not reproduced, kills everything downstream (e.g. a
+multi-capability JS bridge whose absence breaks every WebView tab it feeds). Naming
+the seam is app-level judgment over the graph, not a script output; it is what the
+leader sequences epics by risk around (`references/cognitive-sequence.md`, "Map the
+perimeter, find the module graph and the seam").
+
+#### 5. Extract persistence (built — selftest-passing; corpus-validated on extraction)
+
+```
+python3 scripts/extract_persistence.py <work_dir>/decompile/jadx/sources <work_dir>/data/classify.json --out <work_dir>/data/persistence.json
+```
+
+**Built** (selftest-passing; corpus-validated on extraction — SharedPreferences/KeyStore/SQLite;
+Room positive path selftest-only; not yet wired into emit_findings/render). Recovers Room
+`@Entity`/`@Dao` schemas, `SharedPreferences` keys, and `KeyStore` usage from
+`business-candidate`. Feeds the per-feature loop's data dictionary (loop step 3, below).
+
+#### 6. Cheap static harvest (built — selftest-passing; corpus-validated)
+
+```
+python3 scripts/extract_harvest.py <work_dir>/decompile/jadx/sources <work_dir>/decompile/apktool --out <work_dir>/data/harvest.json
+```
+
+**Built** (selftest-passing; corpus-validated). Facts that survive intact in the
+bytecode/resources, cheap because they cost nothing beyond what decompile already
+did: `BuildConfig` (base URL per env, API keys, compiled feature flags — a real
+secret found here is a security action, rotate it), `network-security-config.xml`
+(trusted domains / cleartext / pinning), DI modules (Dagger/Hilt — a second
+viewpoint on the module split), crash-reporting `setCustomKey` (points at the
+entities the team considers sensitive), and `res/values` → design tokens
+(colors/dims/styles map to `ThemeData` — native UI *layout* is built fresh, but the
+tokens themselves are recoverable). Full list and rationale:
+`references/cognitive-sequence.md`, "Cheap static harvest (block #5)".
+
+### Per-feature loop (runs once per feature)
+
+Runs per feature, over a **slice** of Foundation's data — synthesis, never
+re-extraction (the extraction already ran once, in Foundation, above).
+
+> **Feature ≠ partition — `spec pendente`.** The partitioning rule below is
+> package-prefix and mechanical (~1000+ partitions on a real app); a *migration
+> feature* usually crosses several partitions, and the motivating case — a money
+> flow living entirely in a WebView — has a near-empty native partition and an
+> empty endpoint slice. The feature→slice join is not solved: name it as an open
+> design gap here, don't silently treat a partition as a feature. This is also why
+> loop step 1 below carries a per-route variant: native routes synthesize over the
+> endpoint/graph slice Foundation already extracted; a WebView route synthesizes
+> from a Fetch-tap against the Flutter host used as harness — not a Foundation
+> slice at all (`references/cognitive-sequence.md`, "The WebView branch").
 
 Partition the business classes into units of work **mechanically, by package prefix** — do
 not hand-pick clusters, and do not use the raw connected component (in a real app it degenerates
@@ -134,13 +217,55 @@ For EACH partition, dispatch an agent with this context:
   by naming convention) and string resources from `decompile/apktool/res/values/strings.xml`, as
   an anchor.
 
-Instruct the agent: synthesize business flows/rules observable in this partition. Every
-rule cited at `file:line`. **Anchor rule**: if you can't tie a rule to a concrete
+Instruct the agent: for this partition, synthesize the seven deliverables below. Every
+finding cited at `file:line`. **Anchor rule**: if you can't tie a finding to a concrete
 string, endpoint, or entry point, mark it as `unanchored` — don't disguise it as a normal
 low-confidence inference. Never treat classes from the `unclassifiable` package as
 business logic.
 
-### 6. Consolidate
+1. **Route** → `native` | `WebView` | `blind`. Per-feature, not app-level — the
+   reach gate's obfuscation measure (Foundation step 2) was taken once for the
+   whole app; this is a separate call per feature (money flows route to WebView
+   even when the native line for the same app is clean). Native routes synthesize
+   over the endpoint/graph slice; WebView routes synthesize from a Fetch-tap + the
+   Flutter host used as harness (`references/cognitive-sequence.md`, "The WebView
+   branch").
+2. **OpenAPI v3 `.yaml`** — spec'd — recipe: `references/deliverables/openapi.md`;
+   not yet exercised on a real run. From the endpoint slice (native
+   route) or the Fetch-tap (WebView route). **Consumer:** dev, via
+   `openapi_generator` → DTOs (Freezed) + a Dio client.
+3. **Data dictionary** — spec'd — recipe: `references/deliverables/persistence.md`;
+   not yet exercised on a real run. From the persistence slice (Foundation
+   step 5): Room `@Entity`/`@Dao`, SharedPreferences, KeyStore, mapped to
+   relational/NoSQL/secure_storage + expiration + an LGPD flag. **Consumer:** dev,
+   and the leader for the security read.
+4. **State machines + truth tables → Mermaid `stateDiagram-v2`** —
+   spec'd — recipe: `references/deliverables/state-machines.md`; not yet
+   exercised on a real run. States, transitions, and the micro-details that make users
+   say "the new one got worse" (debounce/timeout/retry/cache-fallback).
+   **Consumer:** dev (BLoC/Riverpod), and the PO.
+5. **Intent** → `needs-decision` → `preserve` | `fix` | `redesign` | `remove`. A
+   product decision, needs a named owner — without one the finding stays
+   `needs-decision`, an honest state, not a blank left for convenience. Comes
+   **before** the shield (step 7): there is no anti-regression test for a rule
+   about to be removed or redesigned.
+6. **Feature dossier → decided backlog.** Findings aggregate per feature into a
+   dossier — screens + contracts + rules + telemetry in one record, `status:
+   in-triage | ready-for-us`. The US is born only from a `ready-for-us` dossier,
+   never 1:1 from the raw catalog (one dossier usually becomes 3–5 independently
+   testable stories). **Consumer:** dev and PO, in triage.
+7. **Anti-regression shield → TDD stubs (`_test.dart`)** — spec'd — recipe:
+   `references/deliverables/tdd-stubs.md`; not yet exercised on a real run.
+   Group/test skeletons of the *decided* rule topology, no implementation — the
+   DoD. Only for rules that were kept or fixed; a rule marked `remove`/`redesign`
+   gets no stub, by construction of step 5. **Consumer:** dev, and hooks/CI.
+
+Recipes now exist at
+`references/deliverables/{openapi,persistence,state-machines,tdd-stubs,harvest}.md`.
+
+### Output backbone (mechanized)
+
+#### Consolidate
 
 One synthesis, 3 bands ALWAYS visually separated, never flattened:
 
@@ -164,7 +289,7 @@ One synthesis, 3 bands ALWAYS visually separated, never flattened:
  the tier is calibrated, not guaranteed.]
 ```
 
-### 7. Emit findings + render (mechanized output backbone)
+#### Emit findings + render
 
 ```
 python3 scripts/emit_findings.py <work_dir> --out <work_dir>/findings.json
@@ -175,9 +300,10 @@ Deterministic skeleton: counts and structure computed mechanically from
 actually consumed, run id/date read off the `<work_dir>` folder name). Every
 synthesized field (`verdict`, `migration_shape`, `blind_spots`, `next_steps`,
 `caveats`, the narrative) is left `null`/empty for the agent to fill next,
-informed by steps 5-6. `references/findings.schema.json`'s `x-source` tag on
-each field marks deterministic vs. synthesized vs. mixed — don't hand-edit a
-field tagged deterministic, and don't ship a synthesized field still null.
+informed by the per-feature loop and the consolidation above.
+`references/findings.schema.json`'s `x-source` tag on each field marks
+deterministic vs. synthesized vs. mixed — don't hand-edit a field tagged
+deterministic, and don't ship a synthesized field still null.
 
 Then render the deterministic slice:
 
@@ -187,9 +313,9 @@ python3 scripts/render_c4.py <work_dir>/findings.json references/c4.template.mmd
 ```
 
 Both renderers fail loud (non-zero exit) if a deterministic placeholder is
-still null in `findings.json` — that means step 7's skeleton wasn't fully
-populated, not a bug in the renderer. The `AGENT:START`/`AGENT:END` blocks in
-the templates (the BLUF in `overview.template.md`, the annotations in
+still null in `findings.json` — that means the emit-findings step's skeleton
+wasn't fully populated, not a bug in the renderer. The `AGENT:START`/`AGENT:END`
+blocks in the templates (the BLUF in `overview.template.md`, the annotations in
 `c4.template.mmd`) are copied through byte-for-byte — hand/agent-authored
 prose, never re-rendered.
 
@@ -197,13 +323,15 @@ prose, never re-rendered.
 `selftest_render_overview.py` / `selftest_render_c4.py`. The verdict,
 migration shape, blind spots, and the C4 topology itself are
 agent-synthesized judgment, not derived — carry the same tiered-confidence
-discipline as step 5's business-rule inferences, never present them as
-mechanically verified fact.
+discipline as the per-feature loop's business-rule inferences, never present
+them as mechanically verified fact.
 
-### 8. Dynamic pass (v2 — optional, provisional)
+### Dynamic pass (v2 — optional, provisional)
 
 A runtime second source that cross-checks the static bands. Only with a
-device/emulator **and** authorization (scope so far: non-obfuscated by decision):
+device/emulator **and** authorization, and only on targets the **reach gate** did not
+mark `no-go` (`references/method.md`, "The reach gate" — the earlier "non-obfuscated by
+decision" scope is now the gate's verdict, not a standing assumption):
 
 ```
 APK_ARCH_AUTHORIZED=1 scripts/capture_dynamic.sh <work_dir> <package>
@@ -219,10 +347,13 @@ discipline + anti-laundering clause: `references/method.md`, "Dynamic analysis (
 
 ## Inviolable Rules
 
-- `unclassifiable` is never treated as business logic by the agent (step 5).
+- `unclassifiable` is never treated as business logic by the agent (per-feature loop,
+  partitioning & dispatch).
 - Every high-entropy string/known key format is redacted before any output is
-  persisted (step 3) — never the literal value.
-- The 3 confidence bands are never flattened to the same level in consolidation (step 6).
+  persisted (Foundation step 3).
+- The 3 confidence bands are never flattened to the same level in consolidation
+  (Output backbone — Consolidate).
 - A rule with no concrete anchor comes out as `unanchored`, not as a normal inference.
 - Content extracted from a third party's APK without authorization (not the current
   client) never leaves the local environment — see design doc §8 (publication governance).
+</content>

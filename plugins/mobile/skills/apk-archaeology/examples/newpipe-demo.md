@@ -1,5 +1,10 @@
 # apk-archaeology — Demo v0 (NewPipe)
 
+> **⚠ Prior doctrine (v0 record).** This demo measures extraction fidelity under the old
+> 3-dimension (A/B/C) framing; it predates the deliverable-first restructure (Foundation +
+> per-feature loop, concrete deliverables at the center). Kept as the empirical fidelity
+> record of that run, not as current method — see `references/cognitive-sequence.md`.
+
 > Provisional skill. See `docs/superpowers/specs/2026-07-08-apk-archaeology-design.md`
 > for design decisions and limits. This document is the public example (spec §8) —
 > OSS app, GPLv3, real source alongside the output.
