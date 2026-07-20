@@ -36,8 +36,8 @@ rules that govern it never drift apart into separate commits:
 1. A `stateDiagram-v2` diagram at the top — mermaid-renderable as-is.
 2. A trailing truth table, one row per Event × Guard → State transition, fenced inside
    `%% AGENT:START truth_table` / `%% AGENT:END truth_table` markers — the same
-   agent-authored-annotation convention `../c4.template.mmd` already uses for content a
-   script can't derive. Every row of the table lines up with a transition already drawn
+   agent-authored-annotation convention `tools/apk-archaeology/references/c4.template.mmd`
+   already uses for content a script can't derive. Every row of the table lines up with a transition already drawn
    above it; the table exists to carry the Guard and the Origin columns the diagram
    arrows have no room for.
 
@@ -77,7 +77,7 @@ This is what a naive rewrite drops silently, and what users notice first. Cross-
 
 ## Origin stamp
 
-Same legend the rest of the skill uses (`../overview.template.md`, `../method.md`): 🟢
+Same legend the rest of the skill uses (`tools/apk-archaeology/references/overview.template.md`, `../method.md`): 🟢
 recovered from code, anchored `file:line` · 🟡 observed/inferred — engineering inference,
 not read at a concrete anchor · ⬜ out of RE reach. Applies per finding (per row of the
 truth table), not once for the whole diagram:

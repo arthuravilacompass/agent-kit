@@ -2,7 +2,7 @@
 # desc: PostToolUse(Edit|Write|MultiEdit) — advisory: edited Dart source declares a codegen part ('.g.dart'/'.freezed.dart'/'.config.dart') whose generated file is missing or older than the source; suggests build_runner, once per file per session.
 #
 # Promotes the build_runner-staleness prose (mobx skill / code-review-mobile
-# COOKBOOK / methodology §build_runner) to a mechanism. Advisory by design:
+# COOKBOOK / methodology references/technical-reference.md) to a mechanism. Advisory by design:
 # PostToolUse exit 2 feeds stderr back to the model, it never blocks the edit.
 # Failure mode: if mtimes lie (e.g. checkout normalizes them), the hook can
 # stay silent — it fails QUIET, never noisy-wrong; the once-per-session marker

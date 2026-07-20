@@ -1,6 +1,6 @@
 ---
 name: pipeline
-description: Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route — and proposes running core:orchestrate when the work is fan-out-shaped — never executes the whole chain by itself.
+description: Invoke when receiving a raw intent for substantial work (feature, bug, investigation, refactor, ticket/US) with no flow already underway, or when the user asks "where do I start", "what's the flow for this", "guide me through this work". Do NOT invoke for a conceptual question or a point lookup ("how does X work?"), nor when a flow is already underway (brainstorming, plan in execution, review). Flow conductor — detects the task's real stage, classifies the intent, and routes through the kit's skills one stage at a time; recommends the next route — and proposes fanning out via superpowers:dispatching-parallel-agents (or native parallel subagents) when the work is fan-out-shaped — never executes the whole chain by itself.
 ---
 
 # Pipeline — flow conductor
@@ -53,8 +53,8 @@ Stage notes:
 - **Decision ledger append (any stage).** A materially resolved decision at any stage (a brainstorming approach choice, an `AskUserQuestion` answer, a `grill-me` interview outcome) appends an `L#` record when a ledger exists for the work — the ledger is emitted by `core:spec-refine` (format: its `references/ledger-format.md`).
 - Review stage: deliverables whose audience didn't live the session get a blind cold-reader pass.
 - Reviewing in a project with the mobile plugin installed: add `mobile:refactor-review` when the change is a refactor.
-- **Type each stage's work.** Map/archaeology and read-heavy research legs are **LABOR** → propose a read-only Worker (the `using-agent-kit` dispatch signal; doctrine in `core:methodology` §Topology / §Choosing the executor). Planning, verifying, synthesizing, and deciding stay **ORCHESTRATION** on the main thread. The work-type, not the stage's name, decides the executor.
-- **Propose the loop when the route fans out.** When classification (§2) yields a route with **3+ independent LABOR legs** (the same fan-out threshold `using-agent-kit` §Dispatch names — "Fan-out: 3+ independent tasks"), the conductor **proposes** invoking `core:orchestrate` for that segment — piggybacking on the route confirmation §2 already does, no separate ceremony. A minimal route (§2) with fewer than 3 independent LABOR legs proposes no loop.
+- **Type each stage's work.** Map/archaeology and read-heavy research legs are **LABOR** → propose a read-only Worker (the `using-agent-kit` dispatch signal; typing doctrine in §6 below). Planning, verifying, synthesizing, and deciding stay **ORCHESTRATION** on the main thread. The work-type, not the stage's name, decides the executor.
+- **Propose the fan-out when the route needs it.** When classification (§2) yields a route with **3+ independent LABOR legs** (the same fan-out threshold `using-agent-kit` §Dispatch names — "Fan-out: 3+ independent tasks"), the conductor **proposes** `superpowers:dispatching-parallel-agents` (or native parallel subagents for a single wave) for that segment — piggybacking on the route confirmation §2 already does, no separate ceremony. A minimal route (§2) with fewer than 3 independent LABOR legs proposes no fan-out.
 
 ## 4. "Challenge my plan" / high-stakes decisions — where to look
 
@@ -73,3 +73,17 @@ Reviewer-escalation mechanics (which mode, which mechanism, when): see grill-me'
 - **State = artifacts.** Progress lives in artifacts (specs/plans/handoffs) — don't create your own *ad-hoc* state marker. The one sanctioned exception is the per-work-unit **loop manifest** (`docs/superpowers/loops/`, convention `references/loop-manifest.md`), which is subordinate to the artifact/git detection in §1, not a competing source of truth.
 - **Session discipline.** One heavy phase per session: *clarify/specify* · *implement* · *review/deliver* · *close*. When crossing a heavy-phase boundary, recommend a new session with a handoff; check `docs/superpowers/` artifacts manually at session start — specs/plans/handoffs are detected by this skill's section 1, not auto-reopened.
 - **Closing always captures.** End of relevant work → `core:learn` (if corrections/decisions occurred) + a handoff proportional to the session's work.
+
+## 6. Dispatch contract
+
+**LABOR vs ORCHESTRATION.** Every unit of work is either **LABOR** (read-heavy execution with no mid-flight decision — map/archaeology, research, sweeps) → a Worker (subagent), or **ORCHESTRATION** (plan / verify / synthesize / escalate / decide) → the main thread. The type, not the seat's convenience, decides who executes — `using-agent-kit` §Dispatch names the shapes (fan-out / isolate / panel / session / don't-delegate); this is the finer-grained typing underneath each of them.
+
+**Worker output contract**, required at the end of every dispatch:
+
+- Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
+- **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block (question + options) — do not finalize or decide alone.
+- On a code change: run build/tests and report the result.
+
+Long outputs go to a file — the chat gets the path plus a 3-line summary. This applies to the main thread too, not only subagents: any long deliverable (doc, analysis, plan) is written to a file, never streamed into the chat.
+
+**Mechanics live in the platform, not here.** The actual fan-out loop — dispatching N parallel workers, collecting results, redispatching a failure — is `superpowers:dispatching-parallel-agents` (or native parallel subagents for a single wave). This section is the decision (who executes, what a worker must return); it is not a loop implementation. Advisor commitment-boundary checkpoints for the loop are §4 above — not restated here.

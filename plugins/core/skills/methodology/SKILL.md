@@ -1,11 +1,11 @@
 ---
 name: methodology
-description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, dispatch/orchestration, shared tooling) and portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner). Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "should this fan out / dispatch a subagent / open a background session?"; the operational topology (roles/edges/tiers) and how to type a unit of work (LABOR vs orchestration)
+description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?"
 ---
 
 # Methodology — tier 2 (on-demand)
 
-Extension of `using-agent-kit`: that tier holds the highest-recurrence principles (always-on); this one holds methodology that's equally valid but more specific in application, plus technical reference portable across projects.
+Extension of `using-agent-kit`: that tier holds the highest-recurrence principles (always-on); this one holds methodology that's equally valid but more specific in application, plus a pointer to a portable technical reference (`references/technical-reference.md`).
 
 ## Methodology
 
@@ -203,107 +203,6 @@ Descended from the always-on tier (`using-agent-kit`, §Permissions) — the rul
 
 **Failure mode**: unwanted commits on the wrong branch; history rewrite required.
 
-## Dispatch — who executes
-
-Who runs a piece of work — the main thread, a subagent, or an external session — is a decision, not a default. `using-agent-kit` carries the signal (when to consider dispatch); this section carries the doctrine (how to do it safely). The fan-out/pipeline mechanics themselves live in superpowers — this is the decision layer, not a duplicate of them.
-
-### Topology — roles, edges, tiers
-
-Substantial work runs as four roles, not one seat doing everything:
-
-- **Orchestrator** (the main thread) — confined to five verbs: **plan, delegate, verify, synthesize, escalate**. It does not do labor.
-- **Worker** — cheap, parallel, read-heavy labor. Receives a typed LABOR task, returns a finding under the lean output contract (§Dispatch contract), not a dump.
-- **Advisor** — premium, on-demand. Consulted at stage transitions (the `grill-me` checkpoints); never in the labor path. Its two forms (full-context for `pre-plan`/`post-plan`, blind-adversarial for `pre-done`) live in `grill-me`'s `REFERENCE.md` — single source; do not restate here.
-- **Operator** — receives **escalation** and decides. Not a labor pool.
-
-Four edges: `delegate` (Orchestrator → Worker), `results-for-verification` (Worker → Orchestrator), `advisor-consult` (Orchestrator → Advisor, on-demand, pull), `escalate` (Orchestrator → Operator).
-
-**Escalation ≠ conducting.** Escalation (correct) hands the Operator a *decision*: "here is a fork, you choose." Conducting (the defect) is the Operator issuing a *process correction*: "go back, you left the rails." A structure that runs correctly produces escalations, not corrections.
-
-**Abstract tiers** (concrete model is the personal binding, never baked here):
-
-| Tier | Role | Note |
-|---|---|---|
-| premium | Advisor | on-demand only; pulled at checkpoints |
-| standard | Orchestrator, Worker | main thread + default labor |
-| cheap | Worker (bulk/parallel) | large read-only fan-out |
-
-The concrete tier → model mapping lives in the operator's `~/.claude/CLAUDE.md`; the kit versions only the abstract roles/edges/tiers so it stays portable.
-
-### Choosing the executor
-
-The discriminating question is the lifecycle contract, not the task's size: **can this need an operator decision mid-flight?**
-
-- **May fork into a decision** → external session (`claude --bg` / Agent View). Only the operator opens sessions; you suggest, you don't open. A diagnosis with a branching root cause ("Path A vs Path B") belongs here — the fork is exactly where a subagent, which has no channel back to the operator, would strand the decision.
-- **Read-heavy, no mid-flight decision** → subagent. Pure research/exploration; the operator doesn't need to steer.
-- **Synthesis that consumes other results** → the main thread. It already holds the returned summaries; reconciling them is its job, not a delegate's.
-
-Worked shape: a diagnosis-that-forks = session; the research it depends on = subagent (dispatched in parallel); the consolidation of both = main thread. Tasks that *look* equally parallelizable separate by which one carries a dependency and which one can fork — not by how many agents you could open.
-
-**Type the work first.** Every unit is either **LABOR** (read-heavy / execution with no mid-flight decision — map/archaeology, research, sweeps) → a Worker, or **ORCHESTRATION** (plan / verify / synthesize / escalate / decisions) → the Orchestrator (main). The type, not the seat's convenience, decides who executes.
-
-### Dispatch contract
-
-A subagent starts near-zero: it gets its system prompt, environment, the CLAUDE.md/memory hierarchy, a git snapshot, named skills — and nothing else. Any path, error message, branch name, or decision already made in the conversation must be written into the dispatch. "Fix the button" produces wrong work.
-
-Output contract, required at the end of every dispatch:
-
-- Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
-- **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block (question + options) — do not finalize or decide alone. (Label in English here; a real dispatch mirrors the operator's language, per kit convention.)
-- On a code change: run build/tests and report the result.
-
-Long outputs go to a file — the chat gets the path plus a 3-line summary. This applies to the **main thread too**, not only subagents: any long deliverable (doc, analysis, plan) is written to a file, never streamed into the chat, so a turn can't be lost to an output-length error.
-
-### Fan-in contract
-
-The synthesis after a fan-out accounts for **every dispatched front**. A front that couldn't be resolved is flagged explicitly — never silently dropped. When several fronts run in parallel, the reconciliation names each one and its status before summarizing.
-
-### Tool scoping
-
-Research/audit agents are read-only (`Read`, `Grep`, `Glob`). **Omitting the `tools` field grants everything, including MCP** — scope deliberately. An edit that would need approval stays in the main thread or runs in the foreground: a background agent auto-denies the approval prompt and fails silently while reporting success.
-
-### Model routing
-
-Execution dispatch (LABOR) goes to the cheaper model — per-agent (`model` field) or globally (`CLAUDE_CODE_SUBAGENT_MODEL`); reconciliation and synthesis are the Orchestrator's verbs, and which concrete model sits in each role (Orchestrator / Advisor / Worker) is the operator's personal binding (§Topology), not a tier baked here. The model-vs-effort trade-off that decides *which* tier fits a given leg lives in the Technical Reference below (§Claude Code, "Model vs. effort") — this subsection is only its application to dispatch, not a restatement.
-
-### Extra-session cheat sheet
-
-Commands verified against CLI 2.1.207 (2026-07-11); items marked `[nota]` are not reconfirmed against this CLI version.
-
-- `claude agents` — open the background-session dashboard. `[verificado]`
-- `claude --bg "<task>"` — dispatch a background session from the shell. `[verificado]`
-- `claude --bg --model sonnet --effort high "<task>"` — background session with explicit model/effort. `[verificado]`
-- `claude --tools "Read,Grep,Glob" "<task>"` — force read-only for a whole session. `[verificado]`
-- `claude agents --json [--all]` — list sessions, scriptable. `[verificado]`
-- `claude -r` — picker to resume a session by id. `[verificado]`
-- In-session: `/agents` (running + library), `/tasks` (background in this session), `Ctrl+B` (send a running subagent to background). `[nota]`
-
-A background session is **local**: it dies with the process or if the machine sleeps. `[nota]` Before deleting a session that edited files, merge/push its worktree (`.claude/worktrees/`) — it is removed with the session. `[nota]` Subagents do not open subagents; orchestration always lives in the main thread. `[nota]`
-
-### Routing to superpowers
-
-This section decides *who executes*; the mechanics of each pattern live in superpowers — don't duplicate them:
-
-- Parallel fan-out over independent tasks → `superpowers:dispatching-parallel-agents`.
-- Executing a written plan task-by-task → `superpowers:subagent-driven-development`.
-- Reviewing a diff/PR with a reviewer panel → the kit's review skills (`core:review-local`).
-
 ## Technical Reference
 
-### Claude Code
-
-- **Hook payload**: `PostToolUse` receives `tool_response` (an object with the result), not `tool_output`; `UserPromptSubmit` delivers `prompt` (raw text). The format varies by hook event — check the official schema (`docs/en/hooks`) before assuming a field.
-- **`UserPromptSubmit` JSON output**: to inject context, `additionalContext` must be nested under `hookSpecificOutput` (`{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "..."}}`). At the root level it's valid JSON but **silently discarded** (exit 0, no error) — the smoke test has to check the effect, not just the exit code.
-- **Checking whether a hook is registered**: check BOTH sources — user settings (`~/.claude/settings.json`) AND project settings (`.claude/settings.json` + `.claude/settings.local.json`) — before concluding "not registered". Checking only one source has already produced a wrong claim, including from a blind adversarial reviewer who checked the wrong source.
-- **`.claude/rules/` vs. `.claude/docs/` vs. `.claude/skills/`**: `rules/*.md` is auto-loaded (the only mechanism that fires at generation time); `docs/*.md` is inert — it only loads if some wired consumer references it explicitly (review-time); `skills/` (SKILL.md) is on-demand but auto-discovered via the description. A rule that needs to shape code at generation time goes in `rules/`, not `docs/`.
-- **Native advisor** (`/advisor <model>`): a server-side tool that consults a stronger model at decision points; Claude itself decides when to call it (model-driven, not a rule). It ALWAYS receives the whole conversation — there is no blind mode. Good for planning (context helps); bad for breaking a self-assessment blind spot ("looks done") — prefer a blind adversarial subagent there (minimal input, mandate to refute).
-- **Model vs. effort**: two axes, not one. Switching models swaps the weights — what Claude *knows*; effort regulates how much work it does before calling it done — how many files it reads, how much it verifies, how far it goes on a multi-step task without checking with you. Wrong result: fix the input first (prompt, tools, skills, context — the most common cause of error is not a setting); if it skipped a file/test/verification, raise effort ("didn't try hard enough"); if it read everything, clearly tried, and confidently kept being wrong, raise model ("didn't know enough"). Effort is a general per-domain preference, not a per-task tweak. Mental model: Fable is the specialist for problems almost no one else can crack, Opus the expert, Sonnet a strong generalist — effort is how much time any of them spends. The cost/quality trade-off flips with difficulty: on routine work a bigger model just adds verification tokens at a higher per-token price for the same result (drop it — cuts cost and latency, no meaningful quality loss); on hard multi-step work the smaller model burns iterations grinding toward its ceiling, so the bigger model can cost *less* per task — and can finish tasks the smaller one can't reach at any effort. Effort shapes token consumption but doesn't cap it — the only hard cap is `max_tokens` (truncates mid-stream; mostly an API concern); guide with soft budgets or "keep it brief", which the model is trained to wind down toward as it nears the limit.
-
-### Git
-
-- **`rerere` can silently reapply a wrong resolution**: with `rerere.enabled=true`, redoing a cherry-pick/merge whose earlier attempt resolved a conflict WRONG makes git reapply the recorded resolution (`using previous resolution`) — no conflict markers, no visual warning. When retrying after a buggy resolution, purge that day's entries in `.git/rr-cache` (or run with `-c rerere.enabled=false`) before continuing.
-- **Recovering a feature from a partial revert**: when a revert kept the infra and reverted only the UI, reapplying the original feature via cherry-pick generates "already applied" conflicts (the infra is already there). The surgical path is `git revert -m 1 <revert-commit>` — reverts the revert, bringing back exactly what was removed, nothing more. Signal to use this path: the revert's diffstat is much smaller than the original feature's (partial revert); if it's symmetric, it's a full revert and a direct cherry-pick is safe.
-
-### Flutter / Dart
-
-- **`build_runner` regenerates files outside the change's scope**: running `build_runner build` for a targeted DI change can regenerate dozens of unrelated modules' `.g.dart` files from purely cosmetic churn (formatting drift between toolchain versions). After running it, restrict the commit to the files actually relevant: list the touched `.g.dart` files, revert the out-of-scope ones, keep only what the change actually asked for. Don't accept "it's pre-existing" from a subagent without checking yourself with `git diff`.
+Portable reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (`build_runner`) — moved out to `references/technical-reference.md` to keep this tier's body to epistemic discipline only.

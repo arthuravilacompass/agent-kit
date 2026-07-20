@@ -25,6 +25,16 @@ When promoting:
 
 Historically, a few items were promoted under rotation-deadline pressure before proven real use — logged with immediate adversarial review of the diff in `CHANGELOG.md`; that path isn't machine-tracked in this doc anymore.
 
+## Skill vs. standalone tool
+
+A skill has stopped being a skill and should become a standalone tool (invoked by a thin skill) when it accumulates **2 or more** of:
+
+- **(a) its own executable scripts with their own test suite** — not one helper script, a suite with selftests.
+- **(b) a dominant fraction of the plugin's files** — the skill outweighs the plugin it's supposed to be one skill within.
+- **(c) its own runtime** — dependencies beyond the language stdlib, a venv, or external binaries the method shells out to.
+
+**Verdict**: `apk-archaeology` met all three before this change — 41 of the `mobile` plugin's 79 files (~52%), 10 selftests, external binaries (`jadx`/`apktool`/`adb`). Extracted to `tools/apk-archaeology/`; the skill remains in `plugins/mobile/skills/apk-archaeology/` as a thin conductor that invokes it.
+
 ## Meta-principle
 
 **A textual rule that keeps failing becomes a mechanism.** Under a finite attention budget, marginal instructions get omitted, not disobeyed — stacking more text reduces aggregate compliance, it doesn't just stop improving it. The rule with the highest failure rate becomes a hook, a mandatory output schema, or a deterministic gate — not more text.
@@ -44,6 +54,20 @@ Identity across the kit's 4 plugins — the coherence test for a new skill: if i
 - **`council`** — epistemic lenses for high-reversal-cost decisions.
 - **`team`** — agile-ceremony copilot (PO refinement, squad communication).
 - **`mobile`** — Flutter/Dart toolkit.
+
+`mobile` is the flagship by admission criterion, not by raw volume: it's the vertical the kit's bar for "earns a place" is calibrated against, but of the kit's 33 skills only 11 are Flutter-specific — the other 22 (`core`/`council`/`team`) are stack-agnostic.
+
+## Architecture — 3 layers
+
+| Layer | What it does | Lives in |
+|---|---|---|
+| **1. Epistemic** | Always-on rules + deterministic gates that don't depend on the model obeying: provenance, `mobile`'s blocking smell-checker, the always-on byte ceiling, plus advisory hooks (codegen-staleness, lifecycle/dispose, DI-mismatch — full list in [INVENTORY.md](../INVENTORY.md)). Council's reasoning postures sit alongside for the judgment calls a gate can't make. | `core` (rules + gates), `mobile` (verifiers), `council` (postures) |
+| **2. Workflow conduction** | `core:pipeline` detects the real stage and conducts stage-to-stage; `superpowers` (or your own method) executes. | `core:pipeline`, optional `superpowers` |
+| **3. Verticals** | `mobile` is the flagship: Flutter/Dart review, scaffolding, and the deterministic checks above, calibrated against a real stack. `team` is the secondary vertical (agile ceremonies). | `mobile`, `team` |
+
+## Posture
+
+Deterministic where determinism is possible; agnostic where it isn't. The gates in layer 1 are mechanically verifiable — run them, get a pass/fail, no interpretation required. The broader claim — that any of this improves model behavior in general — is untested; what's real and checked is narrower: the mechanism either fires or it doesn't.
 
 ## Conventions
 

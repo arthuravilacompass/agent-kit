@@ -12,7 +12,7 @@ app-wide extraction, never a re-run.
 ## Input — Foundation runs the extractor once, per APK
 
 ```
-python3 scripts/extract_persistence.py <sources_dir> <classify.json> --out data/persistence.json
+python3 tools/apk-archaeology/scripts/extract_persistence.py <sources_dir> <classify.json> --out data/persistence.json
 ```
 
 - `<sources_dir>` — decompiled Java sources (jadx output). Required.

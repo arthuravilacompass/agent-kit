@@ -208,7 +208,7 @@ not, and stays named-only so the deferral is on the record, not an implicit prom
 
 The method's deterministic checks are **three distinct mechanisms** — do not collapse them into a single "hook":
 
-- **The classify-gate** — a *script with a selftest* (`scripts/classify_packages.py`), run pre-fan-out at Foundation step 2. It buckets packages; its `unclassifiable` ratio is the obfuscation signal the reach gate reads. A deterministic pipeline step, not a tool-event hook.
+- **The classify-gate** — a *script with a selftest* (`tools/apk-archaeology/scripts/classify_packages.py`), run pre-fan-out at Foundation step 2. It buckets packages; its `unclassifiable` ratio is the obfuscation signal the reach gate reads. A deterministic pipeline step, not a tool-event hook.
 - **The reach gate** — *pre-run doctrine* (this reference, "The reach gate"): reads the classify signal + tamper/reach and decides `normal / degraded / no-go`. A decision, not a script.
 - **The anti-laundering guard** — a *catalog invariant* (the confidence-promotion rule): a 2nd source must be regime-independent; a static re-read cross-validates the transcription, not the reach. Enforced over the catalog, not at a pipeline step.
 
@@ -243,7 +243,8 @@ They differ in kind (script / doctrine / invariant) and in when they act (Founda
 ## Dynamic analysis (v2) — log-based observation
 
 > **Status: instrument BUILT + one instrument-validation exemplar.** The scripts
-> exist (`scripts/capture_dynamic.sh` + `scripts/parse_logcat.py`, unit-tested on a
+> exist (`tools/apk-archaeology/scripts/capture_dynamic.sh` +
+> `tools/apk-archaeology/scripts/parse_logcat.py`, unit-tested on a
 > synthetic framework-log fixture) and were exercised once on WordPress. This is
 > still NOT a validated *method* on the hard axes — read the anti-laundering clause
 > before citing it.
@@ -278,12 +279,12 @@ traffic": for a WebView finding, captured traffic is exactly the regime-independ
 **The instrument (built, not yet run on the hard axes).** Two scripts, mirroring
 the static pipeline's script+selftest convention:
 
-- `scripts/capture_dynamic.sh` — path-scoped, fail-closed capture wrapper: clears
-  the buffer, records `adb logcat -v threadtime` while you drive the app, and dumps
-  the current-screen `uiautomator` view hierarchy. Committed as a runbook; real runs
-  stay local (design doc §8). The `uiautomator` dump is the *only* source that can
-  support a "native" call (0 `WebView` nodes) — logcat can't.
-- `scripts/parse_logcat.py` — deterministic, pure-stdlib parser (unit-tested by
+- `tools/apk-archaeology/scripts/capture_dynamic.sh` — path-scoped, fail-closed
+  capture wrapper: clears the buffer, records `adb logcat -v threadtime` while you
+  drive the app, and dumps the current-screen `uiautomator` view hierarchy. Committed
+  as a runbook; real runs stay local. The `uiautomator` dump is the *only* source
+  that can support a "native" call (0 `WebView` nodes) — logcat can't.
+- `tools/apk-archaeology/scripts/parse_logcat.py` — deterministic, pure-stdlib parser (unit-tested by
   `selftest_parse_logcat.py`). Structures the robust framework-level items
   (navigation sequence; WebView / Custom-Tab *signals*) and only *surfaces* the
   app-specific ones (remote-config / analytics candidate lines) for a human — it
@@ -339,16 +340,16 @@ cover client identity.
 
 ## Outputs
 
-- **Report template** (pt-BR, client-facing): `modelo-relatorio.pt-BR.md` — the
-  filled file **is** the deliverable, shipped as Markdown (no `.docx` conversion;
+- **Report template** (pt-BR, client-facing): `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md`
+  — the filled file **is** the deliverable, shipped as Markdown (no `.docx` conversion;
   the process diagram is inline Mermaid, rendered by the viewer). Delivers two
   client-side audiences: the PO (decision — §6) and the dev team (implementation
   inputs — §7).
-- **Filling guide** (pt-BR, filler/maintainer-facing): `guia-preenchimento.pt-BR.md`
+- **Filling guide** (pt-BR, filler/maintainer-facing): `tools/apk-archaeology/references/guia-preenchimento.pt-BR.md`
   — filling order, worked example, legend pedagogy, conventions. **Never shipped
   with the report** (deliver only the report `.md`).
-- **Worked example** (pt-BR): `../examples/relatorio-wordpress.pt-BR.md` —
-  WordPress 26.9, consolidates the first run.
+- **Worked example** (pt-BR): `tools/apk-archaeology/examples/relatorio-wordpress.pt-BR.md`
+  — WordPress 26.9, consolidates the first run.
 - Runtime output language follows the client (pt-BR here); method internals stay
   in English (kit standard).
 

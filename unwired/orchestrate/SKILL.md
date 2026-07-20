@@ -7,6 +7,8 @@ metadata: {author: "Shubham Saboo", source: "https://github.com/Shubhamsaboo/awe
 # orchestrate — plan→delegate→verify→synthesize loop
 
 > Adapted from [advisor-orchestrator-worker](https://github.com/Shubhamsaboo/awesome-llm-apps/tree/main/agent_skills/advisor-orchestrator-worker) (Shubham Saboo, awesome-llm-apps) — Apache-2.0.
+>
+> **Archived 2026-07-20 (core 0.16.0). Unwired — nothing loads this.** Its `core:methodology §Dispatch/§Topology/§Choosing the executor/§Fan-in/§Tool scoping/§Model routing` cross-references predate the trio collapse: the dispatch doctrine and worker output contract now live in `core:pipeline §6`, and fan-out mechanics defer to `superpowers:dispatching-parallel-agents` / native parallel subagents. Resurrecting this loop requires re-pointing those references first.
 
 This skill sequences the kit's existing dispatch doctrine (`core:methodology` §Dispatch) into a runnable loop. It adds only what that doctrine doesn't already cover: a spend budget, a degraded mode, a status board, and a worker-brief template. It does not restate Topology, the Dispatch contract, the Fan-in contract, Tool scoping, or Model routing — those live in `methodology` and are referenced by name below.
 

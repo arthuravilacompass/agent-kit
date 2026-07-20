@@ -1,6 +1,6 @@
 # Cheap Static Harvest — recipe (Foundation, block #5)
 
-> Recipe for `scripts/extract_harvest.py`. Five independent, mechanically-cheap
+> Recipe for `tools/apk-archaeology/scripts/extract_harvest.py`. Five independent, mechanically-cheap
 > categories of facts that survive intact in the decompiled tree, harvested because
 > they cost nothing beyond what decompile already did. Foundation-level: runs **once
 > per APK**, never per-feature — the per-feature loop later synthesizes over a
@@ -11,13 +11,13 @@
 ## Input / how to run
 
 ```
-python3 scripts/extract_harvest.py <jadx_sources_dir> <apktool_dir> --out data/harvest.json
+python3 tools/apk-archaeology/scripts/extract_harvest.py <jadx_sources_dir> <apktool_dir> --out data/harvest.json
 ```
 
 In the `<work_dir>` layout used by the rest of Foundation:
 
 ```
-python3 scripts/extract_harvest.py <work_dir>/decompile/jadx/sources <work_dir>/decompile/apktool --out <work_dir>/data/harvest.json
+python3 tools/apk-archaeology/scripts/extract_harvest.py <work_dir>/decompile/jadx/sources <work_dir>/decompile/apktool --out <work_dir>/data/harvest.json
 ```
 
 Both directory arguments are positional and required, in that order (jadx sources

@@ -161,7 +161,7 @@ and let `core:pipeline` (or the user) drive stage-to-stage from there.
 Recommending the full chain here would duplicate pipeline's job — don't.
 
 **Model recommendation.** This kit's model strategy runs on two independent
-axes (`core:methodology`, §Model vs. effort is the source of truth — don't
+axes (`core:methodology`'s `references/technical-reference.md`, §Model vs. effort is the source of truth — don't
 invent a parallel policy here):
 
 - **Model** = what it knows. Roles, not versions: **Fable** is the session
@@ -373,8 +373,8 @@ Suggested phases:
 5. Open the PR (native/gh flow) once a phase is independently shippable
 
 Model: Fable or Opus for the cross-session architectural plan (synthesis),
-Sonnet subagent for each phase's implementation — see core:methodology
-§Model vs. effort; this isn't a fixed scope→model table, adjust by the
+Sonnet subagent for each phase's implementation — see core:methodology's
+references/technical-reference.md §Model vs. effort; this isn't a fixed scope→model table, adjust by the
 actual difficulty of each phase.
 
 Do not:
@@ -391,7 +391,7 @@ Do not:
 | `core:pipeline` | Full lifecycle routing — this skill defers to it, never re-derives the stage sequence |
 | `core:grill-me` | Interview mode for operator-owned decisions; escalation mode at `pre-plan`/`post-plan`/`pre-done` |
 | `council:council` | Entry point for a high-reversal-cost decision, at any stage |
-| `core:methodology` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |
+| `core:methodology` → `references/technical-reference.md` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |
 | `mobile:*` | Flutter/Dart stack-specific component catalog, only when that plugin is installed |
 | `core:learn` | Capture stage — persist corrections/decisions worth remembering |
 | `INVENTORY.md` (repo root) | Generated, gate-verified inventory of every skill/agent/hook — use instead of trusting a hardcoded catalog when auditing what's actually installed |

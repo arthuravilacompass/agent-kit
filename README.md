@@ -2,23 +2,9 @@
 
 > **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the conduction and reasoning postures to use them well.**
 
-`mobile` — the Flutter/Dart toolkit — is the flagship vertical: the domain the rest of the kit exists to serve, not an add-on bolted onto a generic base. `core` (flow conduction) and `council` (reasoning postures) are the foundation underneath it, usable on any stack, but the kit's bar for what earns a place in it is set by the vertical: a mechanical check that fires on its own, or it doesn't ship. It doesn't replace a workflow toolkit (`superpowers`, or your own process); it sits on top of one, conducts the stages between them, and layers verification on the result where the domain provides one. It works standalone too.
+**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me`'s internal citation-verification mechanism refuses any finding citing a `file:line` the session never read → `/core:commit` → open the PR (`gh`/native).
 
-The focus is quality and discipline, not raw speed — see Governance below for how the kit curates its own rules.
-
-## Architecture — 3 layers
-
-| Layer | What it does | Lives in |
-|---|---|---|
-| **1. Epistemic** | Always-on rules + deterministic gates that don't depend on the model obeying: provenance, `mobile`'s blocking smell-checker, the always-on byte ceiling. Three more `mobile` verifiers are wired and active — codegen-staleness, lifecycle/dispose, DI-mismatch — all advisory (`PostToolUse`, fire-and-suggest, never block). The citation/read-ledger mechanism lives here too, but scoped as `core:grill-me`-internal infrastructure (its `pre-done` checkpoint), not a standalone gate. Council's reasoning postures sit alongside the gates for the judgment calls a gate can't make. | `core` (rules + gates), `mobile` (4 active verifiers: 1 blocking + 3 advisory), `council` (postures) |
-| **2. Workflow conduction** | `core:pipeline` detects the real stage and conducts stage-to-stage; `superpowers` (or your own method) executes — see [Workflow](#workflow). | `core:pipeline`, optional `superpowers` |
-| **3. Verticals** | `mobile` is the flagship: Flutter/Dart review, scaffolding, and the deterministic checks above, calibrated against a real stack. `team` is the secondary vertical (agile ceremonies). | `mobile` (flagship, Flutter/Dart), `team` (agile ceremonies) |
-
-## Posture
-
-The identity above — deterministic verifiers plus the conduction and postures to use them well — names the mechanism's mandate, not a finished verdict; what follows is how far that mandate verifiably reaches today. That's scope, not a walk-back.
-
-**Deterministic where determinism is possible; honestly agnostic where it isn't.** The gates are mechanically verifiable — run them, get a pass/fail, no interpretation required. What the kit does *not* claim: that it's "proven" or "validated" to improve model behavior in general. That broader claim is untested and this README won't pretend otherwise. What's tested is narrower and real: the mechanism either fires or it doesn't.
+`mobile` (Flutter/Dart) is the flagship vertical; `core` (flow conduction) and `council` (reasoning postures) are the stack-agnostic foundation under it. It sits on top of a workflow toolkit like `superpowers` — or your own process — rather than replacing one, and works standalone too. Architecture (3 layers) and posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
 
 ## What's included
 
@@ -27,7 +13,7 @@ Four plugins installable via a local marketplace:
 | Plugin | What it is | Install when |
 |---|---|---|
 | `mobile` — **flagship** | Flutter/Dart toolkit — **opinionated**: review rules, scaffolding, and four deterministic verifiers calibrated to a MobX + `get_it`/`injectable` stack (scaffold also assumes `dartz`; adaptable, but that's the default): the blocking smell-checker plus three advisory hooks — codegen-staleness, lifecycle/dispose, DI-mismatch. | In a Flutter/Dart project on (or near) that stack — the flagship use case |
-| `core` | Flow conduction (`core:pipeline`, ticket to PR, any stack) plus `core:grill-me`'s escalation checkpoints (`pre-plan`/`post-plan`/`pre-done`) — `pre-done` runs the citation validator against the session's read-ledger internally; it isn't exposed as a standalone gate | Always — it's the foundation for the rest |
+| `core` | Flow conduction (`core:pipeline`, ticket to PR, any stack) plus `core:grill-me`'s escalation checkpoints (`pre-plan`/`post-plan`/`pre-done`) | Always — it's the foundation for the rest |
 | `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
 | `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | If you run refinement or communicate with a squad |
 
@@ -119,7 +105,7 @@ claude plugin marketplace remove agent-kit
 
 ## Workflow
 
-Layer 2 in action: hand `core:pipeline` the raw intent — it detects the real stage, classifies the intent, and proposes the route. One stage at a time, never the whole chain on its own.
+Hand `core:pipeline` the raw intent — it detects the real stage, classifies the intent, and proposes the route. One stage at a time, never the whole chain on its own.
 
 You rarely start at the top. The pipeline classifies the intent and enters where the work actually is:
 
@@ -142,11 +128,9 @@ Each stage is a named skill that produces the artifact the next stage consumes:
 | ship | `/core:commit` → open the PR (`gh`/native) | commit / PR |
 | capture | `core:learn` + handoff | memory for the next session |
 
-**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me`'s internal citation-verification mechanism refuses any finding citing a `file:line` the session never read → `/core:commit` → open the PR (`gh`/native).
-
 A minimal route is legitimate for a small task — the pipeline proposes skipping stages and waits for your confirmation.
 
-When a route fans out into 3+ independent legs — parallel research, generation, or audit — the pipeline proposes `core:orchestrate` for that segment instead: a plan→delegate→verify→synthesize loop with cheap parallel workers and a stronger advisor consulted at the commitment boundaries.
+When a route fans out into 3+ independent legs — parallel research, generation, or audit — the pipeline proposes `superpowers:dispatching-parallel-agents` (or native parallel subagents) for that segment instead.
 
 ## Which skill or agent, when
 
@@ -155,7 +139,7 @@ Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVEN
 | Job | Skill / Agent |
 |---|---|
 | **Start here** | `core:pipeline` — hand it the raw intent, it detects the stage and proposes the route |
-| **Fan out large work** | `core:orchestrate` — plan→delegate→verify→synthesize loop for work too big for one pass, or with 3+ independent parallel legs; invoke by name or accept the pipeline's proposal |
+| **Fan out large work** | `superpowers:dispatching-parallel-agents` — parallel subagents for work too big for one pass, or with 3+ independent legs; invoke by name or accept the pipeline's proposal |
 | **Prove it** | `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
 | **Think it through** | `council:council` (index) → `council:bohr` (false dichotomy) · `council:epicurus` (scope) · `council:sagan` (effort calibration) · `council:schrodinger` (ambiguous diagnosis) · `council:maxwell` / `council:zeno` — agents, not skills (change propagation, invariant stress) |
 | **Shape the work** | `/core:spec-refine` · `/core:tech-breakdown` · `/core:archaeology` |
@@ -178,7 +162,7 @@ Six reasoning modes to deliberately wear when facing a high-cost-to-reverse deci
 
 ### Governance
 
-This kit governs itself with the same rigor it enforces. Many of its rules were born from a real mistake, became a mechanism when text alone failed, and stay loaded only as long as they prove use — likewise, `mobile`/`team` (layer 3, above) exist as applied proof that layers 1–2 hold under a real domain, not just in the abstract. See **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**: artifact lifecycle (the 3-state model — wired/unwired/deleted), the promotion rule, and kit conventions, plus a short "Decisions worth remembering" note. Operations for whoever maintains the kit — publishing, the five-part quality gate, genericized material still without proven use (`unwired/`): **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
+This kit governs itself with the same rigor it enforces. See **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**: the architecture (3 layers), the kit's posture on what's proven vs. untested, the artifact lifecycle (wired/unwired/deleted), the promotion rule, and conventions. Operations for whoever maintains the kit — publishing, the five-part quality gate, genericized material still without proven use (`unwired/`): **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
 ### Repository structure
 
@@ -187,7 +171,7 @@ This kit governs itself with the same rigor it enforces. Many of its rules were 
 | `plugins/` | The four installable plugins (`core`, `council`, `team`, `mobile`) |
 | `unwired/` | Genericized raw material awaiting proof of use — nothing is loaded, zero context cost ([details](docs/OPERATIONS.md)) |
 | `assets/` | Manual copy-paste templates: status line, `CLAUDE.md` skeleton, `settings.json` snippets |
-| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (lifecycle, promotion rule, conventions) and [OPERATIONS.md](docs/OPERATIONS.md) (owner operations) |
+| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) (architecture, posture, lifecycle, promotion rule, conventions) and [OPERATIONS.md](docs/OPERATIONS.md) (owner operations) |
 | `scripts/` | Provenance gate, inventory generator, and maintenance tooling |
 
 ---

@@ -209,12 +209,12 @@ flowchart TD
 
 O que foi de fato executado nesta rodada, via o pipeline do skill (`SKILL.md` passos 1–5):
 
-1. **Decompilação** (`scripts/decompile.sh`) — jadx 1.5.5 + apktool sobre `wpandroid-26.9.apk`,
+1. **Decompilação** (`tools/apk-archaeology/scripts/decompile.sh`) — jadx 1.5.5 + apktool sobre `wpandroid-26.9.apk`,
    produzindo `jadx/sources/` (Java legível) e `apktool/` (manifest/recursos).
-2. **Classificação de pacotes** (`scripts/classify_packages.py`) — 3 baldes:
+2. **Classificação de pacotes** (`tools/apk-archaeology/scripts/classify_packages.py`) — 3 baldes:
    `known-third-party` / `business-candidate` / `unclassifiable`.
-3. **Extração de endpoints** (`scripts/extract_endpoints.py`) — fato, com redação automática de segredos.
-4. **Extração do grafo de módulos** (`scripts/extract_graph.py`) — reconstrução, não fato.
+3. **Extração de endpoints** (`tools/apk-archaeology/scripts/extract_endpoints.py`) — fato, com redação automática de segredos.
+4. **Extração do grafo de módulos** (`tools/apk-archaeology/scripts/extract_graph.py`) — reconstrução, não fato.
 5. **Síntese de Dimensão A** (agente, por partição mecânica de pacote) — as User Stories e RN deste
    relatório vêm dessa etapa, sobre duas partições: `Authenticator.java` +
    `LoginMagicLinkInterceptActivity.java` + `ApplicationPasswordLoginHelper.java` (Autenticação) e
@@ -230,8 +230,8 @@ contrato**: logcat sem interceptação mostra o que o app *faz/renderiza*, nunca
 estático já recupera os endpoints do código. Moldura anti-laundering em `references/method.md`.
 
 > **Instrumento (nota de proveniência).** As observações abaixo foram colhidas **à mão** em
-> 2026-07-09. O instrumento hoje é script-ado — `scripts/capture_dynamic.sh` (captura
-> `adb logcat -v threadtime` + dump `uiautomator`) e `scripts/parse_logcat.py` (estrutura a
+> 2026-07-09. O instrumento hoje é script-ado — `tools/apk-archaeology/scripts/capture_dynamic.sh` (captura
+> `adb logcat -v threadtime` + dump `uiautomator`) e `tools/apk-archaeology/scripts/parse_logcat.py` (estrutura a
 > sequência de navegação e os **sinais** WebView/Custom-Tab; nunca rotula uma tela como
 > "nativa" a partir do logcat — esse veredito vem do dump de hierarquia de views, lido por
 > **humano**). Este run **não** foi re-executado pelo parser; o cruzamento com o extrato
