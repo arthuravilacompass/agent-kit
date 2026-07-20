@@ -14,7 +14,7 @@ Scan the current conversation (or the last N messages if specified) for correcti
 ## Memory system paths
 
 - **Memory dir:** the current project's memory directory (given in the session's system prompt).
-- **Index:** `MEMORY.md` (always loaded; 200-line limit)
+- **Index:** `MEMORY.md` (always loaded; ~8192-byte ceiling — matches `scripts/check-ceiling.sh`, not a line count)
 - **File name:** `{type}_{snake_case_name}.md`
 - **Types:** `feedback` | `reference` | `project` | `user`
 
@@ -31,6 +31,8 @@ pt-BR is the primary language of the workflows this skill runs in, so detection 
 | **Domain knowledge / decisions** | architecture choices, business rules, process decisions explained during the conversation | (same — language-mixed content) |
 | **Confirmed behaviors** | isso, perfeito, exato — after a non-obvious approach | yes exactly, perfect |
 
+**Materiality bar:** a signal only becomes a proposal if it would still be true and still change behavior in a month. Most "isso, perfeito" is plain agreement, not a lesson — the qualifier ("after a non-obvious approach") is the filter; apply it strictly. When in doubt, skip.
+
 Default scope: entire conversation up to the most recent `/clear`. If the user asked for "last N messages", limit to that.
 
 If no signal is found: report *"No learning detected this session."* and stop.
@@ -44,12 +46,14 @@ If no signal is found: report *"No learning detected this session."* and stop.
 | Sprint status, ticket scope, project decisions, deadlines | `project` |
 | Personal tool preferences, settings | `user` |
 
-### 3. Check duplicates
+### 3. Check duplicates and overlap
 
-Read `MEMORY.md`. For each proposal:
-- Compare semantically against existing names/descriptions.
+Read `MEMORY.md`, then **read the full body of any topically-close existing file** — overlap hides behind unrelated-sounding titles (index-line comparison alone missed three separate files independently capturing "a review I commission inherits my framing" because none of their titles or descriptions matched textually).
+
+For each proposal:
 - Identical concept → skip (mark as duplicate).
-- New version adds useful detail → propose an **update** to the existing file (show the diff).
+- New detail on an existing principle → propose an **update** to that file (show the diff).
+- Overlaps substantially with one or more existing entries without being identical → propose a **merge**: one file capturing the shared principle, replacing the existing member(s) (moved to `_archive/` if this memory dir has one). Do not create a new standalone file when a merge is the better fit.
 
 ### 4. Present for approval
 
@@ -86,14 +90,13 @@ type: feedback
 ```
 
 **b. Update the `MEMORY.md` index:**
-- Find the section matching the type: `## Feedback`, `## Reference`, `## Project`, `## User`.
-- Add a bullet: `- [Name](filename.md) — Description` (<150 chars).
-- Verify total <200 lines; warn if >185 and suggest consolidation.
+- The index is a flat list (no `## Feedback`/`## Reference` section headers) — add a bullet: `- [Name](filename.md) — Description` (<150 chars).
+- Verify total index size <8192 bytes (`wc -c MEMORY.md`, matches `scripts/check-ceiling.sh`); warn if >7000 and propose merging into an existing entry instead of appending.
 
 ### 6. Report summary
 
 ```
-Saved N learning(s), skipped M.
-MEMORY.md: X/200 lines used.
-Files created: feedback_name.md, reference_name.md, ...
+Saved N learning(s), skipped M, merged K into existing entries.
+MEMORY.md: X/8192 bytes used.
+Files created/updated: feedback_name.md, reference_name.md, ...
 ```
