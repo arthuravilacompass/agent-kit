@@ -5,6 +5,8 @@
 > restructure (Foundation + per-feature loop; deliverables — OpenAPI, data dictionary, state
 > machines, TDD stubs — at the center). Kept as the empirical acceleration record, not current
 > method — see `references/cognitive-sequence.md` and `references/deliverables/`.
+>
+> **Note (post-extraction):** `references/…` paths here point to the `apk-archaeology` skill (`plugins/mobile/skills/apk-archaeology/references/`); this example now lives under `tools/`, so they are cross-tree pointers, not local files.
 
 > Downstream artifact consumable by `tech-breakdown`/`spec-refine`. Format **provisional**
 > (design §5), pinned at first real client use. Companion to `newpipe-demo.md`: the demo

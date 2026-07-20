@@ -1,5 +1,7 @@
 # Worker brief — input format
 
+> **Archived 2026-07-20 (core 0.16.0). Unwired — nothing loads this.** Its `core:methodology §Topology`/`§Dispatch contract` and `../SKILL.md` cross-references predate the trio collapse: the dispatch doctrine and worker output contract now live in `core:pipeline §6`. Re-point these before resurrecting.
+
 Every worker dispatch is one Agent-tool call (`subagent_type: general-purpose` or a fitting custom agent, Worker tier — default `model: sonnet` per the current personal binding, overridable; concrete model never baked here, see `core:methodology` §Topology) carrying this brief. It is the INPUT side of the dispatch; the OUTPUT side is `core:methodology` §Dispatch contract — referenced here, not restated.
 
 **Context-isolation caveat** (`../SKILL.md` step 4): a kit Agent-tool worker already starts with what `core:methodology` §Dispatch contract gives every subagent — unlike the reference this is adapted from, that includes the CLAUDE.md/memory hierarchy, not a truly empty slate. Write every brief as if it were empty anyway: inputs pasted inline and complete, never "see the conversation above," "the file we discussed," or any other pointer into inherited context the worker cannot be trusted to resolve the same way the orchestrator would.

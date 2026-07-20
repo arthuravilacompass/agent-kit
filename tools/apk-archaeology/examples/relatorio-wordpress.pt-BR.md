@@ -2,6 +2,8 @@
 ### Exemplo trabalhado do método `apk-archaeology` — App: WordPress para Android
 
 > **⚠ Doutrina anterior.** Este exemplo precede a reestruturação *deliverable-first* (Fundação + loop por-feature; os deliverables — OpenAPI, dicionário de dados, máquinas de estado, stubs TDD — no centro, doutrina como carimbo). Ilustra a cadeia CT→RF→US, mas **não** os 6 deliverables concretos nem o spine atual — ver `references/cognitive-sequence.md`. Reescrita completa diferida.
+>
+> **Nota (pós-extração):** os caminhos `references/…` deste doc apontam para o skill `apk-archaeology` (`plugins/mobile/skills/apk-archaeology/references/`); este exemplo agora vive sob `tools/`, então são ponteiros cross-tree, não arquivos locais.
 
 > **Para que serve:** mapear as funcionalidades de um app concorrente ou legado direto para
 > **requisitos de negócio (User Stories + critérios de aceite)**, com cada afirmação ancorada em

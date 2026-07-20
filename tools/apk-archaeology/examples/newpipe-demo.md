@@ -4,6 +4,8 @@
 > 3-dimension (A/B/C) framing; it predates the deliverable-first restructure (Foundation +
 > per-feature loop, concrete deliverables at the center). Kept as the empirical fidelity
 > record of that run, not as current method — see `references/cognitive-sequence.md`.
+>
+> **Note (post-extraction):** `references/…` paths here point to the `apk-archaeology` skill (`plugins/mobile/skills/apk-archaeology/references/`); this example now lives under `tools/`, so they are cross-tree pointers, not local files.
 
 > Provisional skill — see `plugins/mobile/skills/apk-archaeology/SKILL.md` and
 > `references/method.md` for current design and limits. This document is the public
