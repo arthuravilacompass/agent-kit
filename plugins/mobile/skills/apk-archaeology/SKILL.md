@@ -29,6 +29,11 @@ disable-model-invocation: true
 > feature) — followed by the output backbone and the optional dynamic pass; that
 > reference is the decision method they serve.
 
+> **Visual workflow map.** A hand-drawn-style diagram of the whole flow — Foundation →
+> `data/` → per-feature loop → output backbone → dynamic pass, with named artifacts
+> hanging off each step — lives in `references/workflow.md`. Illustrative only: if it
+> ever drifts from the Steps below, this prose wins.
+
 > **From extraction to backlog.** The report method — the CT→RF→US→RN→CA chain, the
 > reach map, the confidence tiers, and the log-based v2 (dynamic) instrument
 > (`tools/apk-archaeology/scripts/capture_dynamic.sh` +

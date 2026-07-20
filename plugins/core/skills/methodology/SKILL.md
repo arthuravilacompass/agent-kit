@@ -1,6 +1,6 @@
 ---
 name: methodology
-description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?"
+description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "Mermaid hand-drawn look not rendering", "workflow diagram reads as generated/generic"
 ---
 
 # Methodology — tier 2 (on-demand)

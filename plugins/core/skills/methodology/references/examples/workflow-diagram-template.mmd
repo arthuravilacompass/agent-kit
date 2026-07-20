@@ -1,0 +1,122 @@
+%% Structural template, not project content. Transcribed from a reference workflow
+%% (Alfonso Graziano's public book-writing process diagram) to validate the technique
+%% in ../../technical-reference.md, "Mermaid / workflow diagrams" — copy the shape, not
+%% the labels, when diagramming a different process.
+---
+config:
+  look: handDrawn
+  theme: base
+  themeVariables:
+    primaryColor: "#fefdfa"
+    primaryBorderColor: "#1a1a1a"
+    primaryTextColor: "#1a1a1a"
+    lineColor: "#1a1a1a"
+    secondaryColor: "#fefdfa"
+    tertiaryColor: "#fefdfa"
+    background: "#ffffff"
+    clusterBkg: "#fefdfa"
+    clusterBorder: "#1a1a1a"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TB
+    subgraph SRC["Source data"]
+        srcExp["My experience and POV"]
+        srcConv["Useful conversations"]
+        srcArt["3-party articles"]
+        srcContent["My content (blog posts, linkedin, podcasts)"]
+    end
+
+    topic["Chapter main topic"]
+    brainstorm["Brainstorming session with the agent + a lot of notes I got over time"]
+    notesFile["NOTES.md"]
+    research["Do online research, gather articles, context etc from NOTES.md links"]
+    researchFile["RESEARCH.md"]
+    outline["Build a first outline"]
+    outlineFile["OUTLINE.md"]
+
+    topic --> brainstorm
+    SRC --> brainstorm
+    brainstorm --> notesFile
+    brainstorm --> research
+    research --> researchFile
+    research --> outline
+    outline --> outlineFile
+    outline --> roast
+
+    subgraph SECTION["For every section"]
+        roast["Roast me with questions"]
+        draft["Draft a first implementation"]
+        images["Create ideas for images"]
+        review["Adversarial review"]
+        feedbackFile["FEDBACK.md"]
+        fix["Fix findings"]
+        apply["Apply editor feedback + formatting skill"]
+
+        roast --> draft
+        draft --> images
+        draft --> review
+        review --> feedbackFile
+        feedbackFile --> fix
+        fix --> apply
+        apply --> review
+    end
+
+    newIdeas["New ideas and questions emerge"]
+    writesNotes["Writes NOTES.md"]
+    ghIssueFromSection["New ideas might become an issue on the GH repo"]
+
+    SECTION --> newIdeas
+    newIdeas --> writesNotes
+    newIdeas --> ghIssueFromSection
+
+    completeReview["Do a complete review of the chapter"]
+    editIter["Edit iteratively the chapter"]
+    checkConsistency["Check consistency, references and links to other chapters"]
+    prCreated["PR created"]
+    plagCheck["Plagiarism, syntax, formatting checks"]
+
+    newIdeas --> completeReview
+    ghIssueFromSection --> completeReview
+    completeReview --> editIter
+    editIter --> checkConsistency
+    checkConsistency --> prCreated
+    completeReview --> plagCheck
+
+    idea["Idea for improvement"]
+    researchCurrent["Research in the current content"]
+    createIssue["Create a GH issue"]
+    agentPicksUp["An agent picks it up"]
+
+    idea --> researchCurrent
+    researchCurrent --> createIssue
+    createIssue --> agentPicksUp
+    agentPicksUp --> roast
+
+    prAvailable["PR available on Github"]
+    editorReviews["Editor reviews the chapter"]
+    prEditorSuggestions["PR generated with editor suggestions"]
+    reviewSuggestions["I review the suggestions and comments"]
+    prMerged["PR Merged"]
+    chapterReady["Chapter ready for external review"]
+    techReviewer["Technical reviewer reviews the content"]
+
+    prCreated --> prAvailable
+    prAvailable --> editorReviews
+    editorReviews --> prEditorSuggestions
+    prEditorSuggestions --> reviewSuggestions
+    reviewSuggestions --> prMerged
+    reviewSuggestions --> chapterReady
+    chapterReady -.-> techReviewer
+    techReviewer -.-> reviewSuggestions
+
+    imagesExcalidraw["Images drafted in Excalidraw"]
+    imagesSent["Images sent to production team"]
+    prodRedraw["Production team redraws the image in O'Reilly style"]
+    prodTakesOver["Production team takes over"]
+    chapterPublished["Chapter published in Early Release"]
+
+    prMerged --> imagesExcalidraw
+    imagesExcalidraw --> imagesSent
+    imagesSent --> prodRedraw
+    prMerged --> prodTakesOver
+    prodTakesOver --> chapterPublished
