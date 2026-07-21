@@ -26,6 +26,10 @@ python3 scripts/generate_inventory.py --check
 
 All five must come back green. There's no separate build/test command — this gate is the repo's CI.
 
+## Commits
+
+`type(scope): short description` — types seen in history: `feat`, `fix`, `docs`, `chore`, `refactor`; scope is a plugin name (`core`, `mobile`, `council`, `team`) or `kit` for a cross-cutting change. When a commit changes a plugin's shipped behavior, the message ends with `(pluginname X.Y.Z)` and the same commit bumps that plugin's `plugin.json` version and adds the `CHANGELOG.md` entry — version and changelog land together with the change, never as a follow-up.
+
 ## Watch out
 
 - **`labs/` is gitignored on purpose.** It holds local working material that must never reach the repo — that's what `check-provenance.sh` guards against for anything that *does* get tracked. Don't force-add anything under `labs/`.
