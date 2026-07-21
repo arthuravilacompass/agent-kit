@@ -239,6 +239,15 @@ They differ in kind (script / doctrine / invariant) and in when they act (Founda
   unit-tested) and exercised once on WordPress; the *method* is not yet validated
   on the hard axes (obfuscated / authenticated / real business webview). See
   "Dynamic analysis (v2) — log-based observation".
+- **`migration_shape` 5th bucket (server-driven transport)** — deferred on purpose.
+  A real run surfaced server-driven transport (a config-and-content WebSocket /
+  JSON-RPC channel) as a peer of the four existing buckets, and today it is
+  captured as `analysis/transport.md` — a doc, not a schema bucket
+  (`findings.schema.json` is `additionalProperties: false`, `overview.template.md`
+  hardcodes "four buckets", and `emit_findings.py` + its selftests + the C4
+  renderer all assume four). Promoting it to a fifth bucket needs a second run that
+  also surfaces server-driven transport — one occurrence does not graduate a
+  schema change (this skill's STATUS is still n=1, not graduated).
 
 ## Dynamic analysis (v2) — log-based observation
 
@@ -268,7 +277,7 @@ the static extract. Same log-watching discipline used to verify GA4 events /
 Flutter logs in debug. **Behavior, not contract — on the native/static path.** logcat without interception
 shows what the app does and renders, never its wire payloads; on the native path the
 static pass already recovers endpoints from code, so v2 does not reach for traffic
-there. **This exclusion is scoped to the native path, not the method as a whole:**
+there. **Caveat — server-driven native transport.** This holds only while the native contract lives in the bytecode. When the native path speaks over a **server-driven transport** (a WebSocket / JSON-RPC config-and-content channel), the real methods and payloads are assembled at runtime and are **not** literals in code — the same *readable ≠ reachable* limit, now on the native path. There v2 *does* reach for the transport's frames: capture them from logcat (the client logs its JSON-RPC in/out) or, when a channel's payloads exceed logcat's per-line cap, over the Chrome DevTools Protocol console (the instrument note below). The rule is "the native path does not need traffic *when the contract is in the bytecode*", not "never". **This exclusion is scoped to the native path, not the method as a whole:**
 where the contract is *not* in the bytecode — the WebView second RE target, whose
 backend is assembled at runtime — a Fetch-tap + proxy is the oracle, not an excluded
 network-interception project (see `cognitive-sequence.md`, "The WebView branch"). The
@@ -290,6 +299,8 @@ the static pipeline's script+selftest convention:
   app-specific ones (remote-config / analytics candidate lines) for a human — it
   does not structure what would generalize from one app. A secret-looking token in a
   Custom Tab's `dat=` URL is redacted on output, reusing `extract_endpoints`' rule.
+
+**A third capture surface — the Chrome DevTools Protocol (CDP) console.** When the WebView is debuggable (a QA build, or `setWebContentsDebuggingEnabled(true)`), attaching to its devtools socket over `adb forward` gives two things logcat cannot: the web-side API breadcrumbs / bridge messages **untruncated** (logcat caps each line at ~4000 chars, cutting large JSON mid-object; CDP has no such cap — a real content contract ran to ~40 KB), plus the page's own `Network`/`console` streams. **Pick the capture surface by transport**: logcat for the native transport-client frames (a config-push WebSocket logs its JSON-RPC there); CDP console for web-side channels and oversized payloads; a Fetch-tap/proxy for the WebView backend (the WebView branch). A minimal stdlib CDP client suffices for the debuggable-WebView case — no proxy or MITM certificate needed.
 
 There is **no auto cross-check script** against the static extract, on purpose: the
 static `graph.json` is an extends/implements reconstruction with no navigation edges,
@@ -340,14 +351,20 @@ cover client identity.
 
 ## Outputs
 
-- **Report template** (pt-BR, client-facing): `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md`
+`report/` covers two client-facing genres, on-demand — not one report for two
+audiences, but two documents:
+
+- **Technical recon report** (pt-BR, client-facing): `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md`
   — the filled file **is** the deliverable, shipped as Markdown (no `.docx` conversion;
-  the process diagram is inline Mermaid, rendered by the viewer). Delivers two
-  client-side audiences: the PO (decision — §6) and the dev team (implementation
-  inputs — §7).
+  the process diagram is inline Mermaid, rendered by the viewer). Internally still
+  delivers two client-side audiences within this one document: the PO (decision —
+  §6) and the dev team (implementation inputs — §7).
+- **Scope proposal** (pt-BR, client-facing): the migration kernel — scenarios,
+  hybrid path, sunset — authored freeform over the same evidence tiers as the recon
+  report. No dedicated template ships with the kit yet.
 - **Filling guide** (pt-BR, filler/maintainer-facing): `tools/apk-archaeology/references/guia-preenchimento.pt-BR.md`
-  — filling order, worked example, legend pedagogy, conventions. **Never shipped
-  with the report** (deliver only the report `.md`).
+  — filling order, worked example, legend pedagogy, conventions (for the recon
+  report). **Never shipped with the report** (deliver only the report `.md`).
 - **Worked example** (pt-BR): `tools/apk-archaeology/examples/relatorio-wordpress.pt-BR.md`
   — WordPress 26.9, consolidates the first run.
 - Runtime output language follows the client (pt-BR here); method internals stay

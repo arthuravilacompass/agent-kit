@@ -38,13 +38,17 @@ disable-model-invocation: true
 > reach map, the confidence tiers, and the log-based v2 (dynamic) instrument
 > (`tools/apk-archaeology/scripts/capture_dynamic.sh` +
 > `tools/apk-archaeology/scripts/parse_logcat.py`, the Dynamic pass below) — lives in
-> `references/method.md`. The client-facing report template (pt-BR) is
-> `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md` (the filled file **is**
+> `references/method.md`. `report/` covers two client-facing genres, on-demand: a
+> **technical recon report** (pt-BR), templated as
+> `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md` — the filled file **is**
 > the deliverable, shipped as Markdown — inline Mermaid diagram, no `.docx`
-> conversion); how to fill it (filling order, worked example, conventions —
+> conversion; how to fill it (filling order, worked example, conventions —
 > filler/maintainer-facing, never shipped with the report) is
 > `tools/apk-archaeology/references/guia-preenchimento.pt-BR.md`; a worked example
-> (WordPress) is `tools/apk-archaeology/examples/relatorio-wordpress.pt-BR.md`.
+> (WordPress) is `tools/apk-archaeology/examples/relatorio-wordpress.pt-BR.md`. And a
+> **scope proposal** (pt-BR) — the migration kernel (scenarios, hybrid path, sunset)
+> authored freeform over the same evidence tiers; no dedicated template ships with the
+> kit yet.
 
 Runs in two tempos: **Foundation** (once per APK — contracts, module graph, the seam)
 then a **per-feature loop** that synthesizes over each feature's slice of that data.
@@ -81,12 +85,13 @@ Every step below targets one `<work_dir>` tree, laid out like this:
 ├── OVERVIEW.md            (rendered: deterministic slice by render_overview.py + agent BLUF)
 ├── findings.json          (emit_findings.py skeleton + agent synthesis; contract: references/findings.schema.json)
 ├── backlog.md             (the value — agent-authored)
-├── analysis/              (feasibility.md, flows.md, architecture.md, bridge-pilot.md, architecture.c4.mmd, decisions.md)
+├── analysis/              (feasibility.md, flows.md, architecture.md, bridge-pilot.md, transport.md, architecture.c4.mmd, decisions.md)
 ├── data/                  (Foundation output: classify.json, classify.v1.json, endpoints.json, graph.json,
 │                            partitions.json, persistence.json, harvest.json)
 ├── features/<slice>/      (per-feature loop output, spec'd, not yet exercised on a real run:
 │                            openapi.yaml, data-dictionary.json, state-machines.mmd, <rule>_test.dart)
-├── report/                (on-demand — generated only when a client-facing report is requested; NEW, never a relocation)
+├── report/                (on-demand client-facing deliverables, two genres: technical recon
+│                            (modelo-relatorio.pt-BR.md) + scope proposal; NEW, never a relocation)
 └── decompile/             (jadx/, apktool/ — gitignored + regenerable cache, see Foundation step 1)
 ```
 
@@ -95,6 +100,11 @@ holds what the **per-feature loop** synthesizes over each feature's slice of tha
 data; `analysis/` and `backlog.md` are where the **output backbone**'s synthesis
 lands; `decompile/` is disposable — re-running Foundation step 1 regenerates it from
 the same APK.
+
+Transport is a first-class category of the method
+(`references/cognitive-sequence.md`, "Map the transport layer, not just the screen
+surface"), synthesized into `analysis/transport.md` — stepless like
+feasibility/flows/decisions, and a **doc**, never a `migration_shape` bucket.
 
 ## Steps
 
