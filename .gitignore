@@ -10,3 +10,6 @@ __pycache__/
 apks/
 # Working labs — local scratch, not kit deliverables
 labs/
+# Local-only Claude Code settings (per-machine permission allowlist, not shared)
+.claude/settings.local.json
+.claude/settings.local.json.new
