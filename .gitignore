@@ -8,3 +8,5 @@ __pycache__/
 *.pyc
 # Client APKs — never commit real client binaries (provenance / pseudonym rule)
 apks/
+# Working labs — local scratch, not kit deliverables
+labs/

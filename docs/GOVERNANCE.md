@@ -25,6 +25,18 @@ When promoting:
 
 Historically, a few items were promoted under rotation-deadline pressure before proven real use — logged with immediate adversarial review of the diff in `CHANGELOG.md`; that path isn't machine-tracked in this doc anymore.
 
+## External unvendored skills
+
+Not every tool this kit's methodology relies on lives inside `plugins/`. Some are adopted as-is from the external Claude Code ecosystem — installed globally (`~/.claude/skills/`, via `npx skills add <repo>`), not vendored, not tracked by `INVENTORY.md` (which only covers this repo's own plugin manifests). They sit outside the wired/unwired/deleted model above entirely — that model is for artifacts that live in this repo.
+
+Adopted after hands-on testing on real artifacts, not source-reading alone — evaluation notes live in the maintainer's local session memory, not in this repo:
+
+- **`writing-fragments` / `writing-shape` / `writing-beats`** (from `mattpocock/skills`) — 2-phase explore/exploit writing discipline for turning session raw material into a structured guide/article. `disable-model-invocation: true` in all three — zero always-on cost.
+- **`walkthrough`** (from `alexanderop/walkthrough`) — generates a self-contained interactive HTML walkthrough (clickable Mermaid + per-node detail) for explaining a flow/architecture/schema. Model-invoked — always-on cost accepted deliberately.
+- **`mermaid-skill`** (from `Agents365-ai/mermaid-skill`) — generates `.mmd` diagrams exported to PNG/SVG. Model-invoked, aggressive auto-trigger description — always-on cost accepted deliberately (low-commitment keep: has a known unresolved subgraph-title clipping bug, `walkthrough` covers the richer "explain this to someone" case, but this one stays for plain diagram-in-a-markdown-doc use).
+
+If one of these earns real, repeated use and the operator wants it to survive an environment reset with edit rights, port it into `plugins/` following the same attribution convention as `core:orchestrate`/`grill-me` (in-body blockquote + `metadata` frontmatter) — that's the point it would actually enter the wired/unwired model above.
+
 ## Skill vs. standalone tool
 
 A skill has stopped being a skill and should become a standalone tool (invoked by a thin skill) when it accumulates **2 or more** of:
