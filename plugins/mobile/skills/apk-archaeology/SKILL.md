@@ -85,9 +85,10 @@ Every step below targets one `<work_dir>` tree, laid out like this:
 ├── OVERVIEW.md            (rendered: deterministic slice by render_overview.py + agent BLUF)
 ├── findings.json          (emit_findings.py skeleton + agent synthesis; contract: references/findings.schema.json)
 ├── backlog.md             (the value — agent-authored)
-├── analysis/              (feasibility.md, flows.md, architecture.md, bridge-pilot.md, transport.md, architecture.c4.mmd, decisions.md)
+├── analysis/              (feasibility.md, flows.md, architecture.md, bridge-pilot.md, transport.md, architecture.c4.mmd, decisions.md, digital-twin.html)
 ├── data/                  (Foundation output: classify.json, classify.v1.json, endpoints.json, graph.json,
-│                            partitions.json, persistence.json, harvest.json)
+│                            partitions.json, persistence.json, harvest.json, coupling.json, layers.json,
+│                            permissions.json)
 ├── features/<slice>/      (per-feature loop output, spec'd, not yet exercised on a real run:
 │                            openapi.yaml, data-dictionary.json, state-machines.mmd, <rule>_test.dart)
 ├── report/                (on-demand client-facing deliverables, two genres: technical recon
@@ -177,6 +178,44 @@ gate, why the seam, the full harvest list) lives in `references/cognitive-sequen
    list and rationale: `references/cognitive-sequence.md`, "Cheap static harvest
    (block #5)"; recipe: `references/deliverables/harvest.md`.
 
+7. **Compute partition coupling** (built, selftest-passing, corpus-validated).
+
+   ```
+   python3 tools/apk-archaeology/scripts/compute_coupling.py <work_dir>/data/graph.json <work_dir>/data/partitions.json --out <work_dir>/data/coupling.json
+   ```
+
+   Cross-partition coupling derived from the inheritance graph, split into `degree_strict`
+   (the real cross-partition signal) and the noisier `degree_raw` (see the script's own
+   docstring for why the two must never be conflated). Depends on `data/partitions.json`,
+   which the per-feature loop's partitioning step below produces — no dedicated Foundation
+   script mints it yet (`partition_work.py` is deferred; see "Per-feature loop",
+   Partitioning). Feeds the seam/isolation read: an `isolated` partition (`degree_strict`
+   == 0) is a strangler-fig extraction candidate.
+
+8. **Extract per-partition layer composition** (built, selftest-passing, corpus-validated).
+
+   ```
+   python3 tools/apk-archaeology/scripts/extract_layers.py <work_dir>/decompile/jadx/sources <work_dir>/data/partitions.json --out <work_dir>/data/layers.json
+   ```
+
+   Buckets each partition's subpackage tree into presentation/domain/data/platform
+   layers, or flags a distinct bridge-handler 5th shape instead of misreporting it as
+   "no layers". Same `data/partitions.json` dependency as step 7. Feeds the per-feature
+   loop's architecture read — a partition with fewer than 2 layers present is either
+   genuinely thin or mis-partitioned, worth a second look before writing its dossier.
+
+9. **Extract declared permissions** (built, selftest-passing, corpus-validated).
+
+   ```
+   python3 tools/apk-archaeology/scripts/extract_permissions.py <work_dir>/decompile/apktool --out <work_dir>/data/permissions.json
+   ```
+
+   The raw declared `<uses-permission>` list only — mechanical extraction, no
+   domain/LGPD mapping (that judgment belongs to a synthesis step over this data, the
+   same split as `extract_persistence.py`'s Room/prefs facts vs. the data dictionary
+   built over them). Feeds the per-feature loop's security/privacy read wherever a
+   feature's capability touches a declared permission.
+
 ### Per-feature loop (runs once per feature)
 
 Synthesis over a **slice** of Foundation's data, never re-extraction. Feature ≠
@@ -257,6 +296,15 @@ never re-rendered.
 shape, blind spots, and the C4 topology itself are agent-synthesized judgment, not
 derived — carry the same tiered-confidence discipline as the per-feature loop's
 business-rule inferences, never present them as mechanically verified fact.
+
+### Optional visual synthesis
+
+A once-per-APK Current-State Digital Twin — a single self-contained HTML file,
+territories colored by `migration_shape`, hand-placed seam edges only — can be
+hand-assembled from Foundation + backbone output (`data/*.json`, `findings.json`).
+Optional, never a gate; nothing downstream depends on it. Recipe, including the
+four-phase build order and the render-to-PNG command:
+`references/deliverables/digital-twin.md`.
 
 ### Dynamic pass (v2 — optional, provisional)
 

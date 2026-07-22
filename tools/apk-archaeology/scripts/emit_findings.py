@@ -74,7 +74,7 @@ SCHEMA_VERSION = "0.1-pilot"
 # per-run measurement.
 GRAPH_KIND = "INHERITANCE (extends/implements) ONLY -- not call/import/coupling"
 
-# The 4 raw data artifacts this skill's pipeline produces per run. Manifest
+# The raw data artifacts this skill's pipeline produces per run. Manifest
 # entries are only emitted for the ones actually present on disk — this
 # script never asserts an artifact exists that it didn't check for.
 KNOWN_DATA_FILES = [
@@ -82,6 +82,9 @@ KNOWN_DATA_FILES = [
     "endpoints.json",
     "graph.json",
     "partitions.json",
+    "coupling.json",
+    "layers.json",
+    "permissions.json",
 ]
 
 RUN_ID_DATE_RE = re.compile(r"run-(\d{4}-\d{2}-\d{2})")
