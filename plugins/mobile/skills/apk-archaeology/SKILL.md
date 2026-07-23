@@ -50,6 +50,11 @@ disable-model-invocation: true
 > authored freeform over the same evidence tiers; no dedicated template ships with the
 > kit yet.
 
+> **Doc discipline.** Every human-read doc (OVERVIEW, analysis/, report/) follows
+> `references/doc-standard.md` — 3 genres, mandatory header (reader · use · source),
+> fact/inference/gap sections (`§Observed`/`§Reading`/`§Open`), typed anchors. Templates:
+> `references/templates/`.
+
 Runs in two tempos: **Foundation** (once per APK — contracts, module graph, the seam)
 then a **per-feature loop** that synthesizes over each feature's slice of that data.
 The output is concrete migration deliverables a dev writes Dart against — OpenAPI
@@ -85,7 +90,7 @@ Every step below targets one `<work_dir>` tree, laid out like this:
 ├── OVERVIEW.md            (rendered: deterministic slice by render_overview.py + agent BLUF)
 ├── findings.json          (emit_findings.py skeleton + agent synthesis; contract: references/findings.schema.json)
 ├── backlog.md             (the value — agent-authored)
-├── analysis/              (feasibility.md, flows.md, architecture.md, bridge-pilot.md, transport.md, architecture.c4.mmd, decisions.md, digital-twin.html)
+├── analysis/              (baseline.md, feasibility.md, flows.md, architecture.md, bridge-pilot.md, transport.md, architecture.c4.mmd, decisions.md, digital-twin.html)
 ├── data/                  (Foundation output: classify.json, classify.v1.json, endpoints.json, graph.json,
 │                            partitions.json, persistence.json, harvest.json, coupling.json, layers.json,
 │                            permissions.json)
