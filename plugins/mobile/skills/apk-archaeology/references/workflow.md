@@ -61,6 +61,13 @@ per-contract honesty stamps (🟢/🟡/⬜) and the confidence ladder (`blind �
 cross-validated → business-ratified`) described in the deliverable recipes, not as a
 step of its own.
 
+The Relational Fidelity Gate (`tools/apk-archaeology/scripts/check_relational_claims.py`,
+`method.md`) is likewise **not** a node here. It runs over `catalog/findings.yaml`, the
+iterative-triage catalog-vivo convention `SKILL.md`'s per-feature-loop step 6 scopes as an
+opt-in extension for projects that keep a persistent multi-run catalog — not yet this
+diagram's default single-run baseline (`INT`/`DOS` above). Drawing it as a node inside
+`LOOP` would misstate it as part of every run.
+
 ```mermaid
 ---
 config:
