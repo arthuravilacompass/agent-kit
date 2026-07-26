@@ -268,6 +268,20 @@ Seven deliverables per partition, every finding cited at `file:line` (full recip
 6. **Feature dossier → decided backlog.** `status: in-triage | ready-for-us`; the US
    is born only from a `ready-for-us` dossier, never 1:1 from the raw catalog.
    **Consumer:** dev and PO, in triage.
+
+   **When the project keeps a persistent, multi-run catalog** (a `catalog/findings.yaml`
+   ledger per `catalog/schema.md`'s conventions — an iterative-triage extension over this
+   skill's default single-run `findings.json`, not yet the kit's own baseline): run the
+   **Relational Fidelity Gate** (`references/method.md`, "The Relational Fidelity Gate")
+   before this dossier is read by anything downstream, and again after any finding in it
+   is edited.
+
+   ```
+   python3 tools/apk-archaeology/scripts/check_relational_claims.py <catalog>/findings.yaml --source-tree <work_dir>/decompile/jadx/sources
+   ```
+
+   Enumerates relational claims, anchor problems, hand-typed counts, and
+   anchor-sharing siblings for re-read — never judges, never edits.
 7. **Anti-regression shield → TDD stubs (`_test.dart`)** — spec'd, not yet exercised
    on a real run — recipe: `references/deliverables/tdd-stubs.md`. Only for rules
    kept or fixed; a rule marked `remove`/`redesign` gets no stub, by construction of

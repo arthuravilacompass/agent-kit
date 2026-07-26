@@ -212,7 +212,47 @@ The method's deterministic checks are **three distinct mechanisms** — do not c
 - **The reach gate** — *pre-run doctrine* (this reference, "The reach gate"): reads the classify signal + tamper/reach and decides `normal / degraded / no-go`. A decision, not a script.
 - **The anti-laundering guard** — a *catalog invariant* (the confidence-promotion rule): a 2nd source must be regime-independent; a static re-read cross-validates the transcription, not the reach. Enforced over the catalog, not at a pipeline step.
 
-They differ in kind (script / doctrine / invariant) and in when they act (Foundation step 2 / pre-run / on promotion) — naming them apart keeps the "just add a hook" reflex from fusing them.
+- **The Relational Fidelity Gate** — a *script* (`tools/apk-archaeology/scripts/check_relational_claims.py`, with a selftest) that enumerates, plus *doctrine* (below, "The Relational Fidelity Gate") that fires it at two points: before any artifact derives from the catalog, and after any finding is corrected. Same script/doctrine split as the pair above — the enumeration is mechanical, the verification against source stays human/agent judgment.
+
+They differ in kind (script / doctrine / invariant) and in when they act (Foundation step 2 / pre-run / on promotion / pre-derivation+post-correction) — naming them apart keeps the "just add a hook" reflex from fusing them.
+
+## The Relational Fidelity Gate — a claim about two artifacts is not verified by verifying either one alone
+
+> **Promoted 2026-07-26** from a client migration's own methodology doc (`pipeline-migracao-metodologia.md`,
+> "L8"), after that project's *first* version of this gate — positioned only "before Phase 1", discriminating
+> by `confidence`, skipping small capabilities — failed to catch the exact class of error it was built for on
+> its own next use. The corrected version below fixes what failed; see that doc's L8/L9-L12 for the incident.
+
+A finding that names one artifact can be individually verified — read the file, confirm the fact. A finding
+that asserts a **relationship between two artifacts** ("mesmo X", "compartilhado", "reutiliza", "herda de",
+"mergeado em", "idêntico") is a different claim shape: verifying either artifact alone does not verify the
+relationship. The archaeologist infers the relationship; the gate is what forces someone to open both files
+and check.
+
+**Two triggers, not one:**
+
+- **Pre-derivation** — before any artifact derives from the catalog (a dossier, a spec, a US — the dossier
+  counts, it is not exempt as "just a summary"). Late is not "before implementation planning starts"; the
+  first derivation is where an unverified relational claim first propagates, and propagation compounds with
+  every derivation after it.
+- **Post-correction** — after any finding is edited for any reason, sweep every **anchor-sibling**: every
+  other finding whose anchor names the same underlying `file:method`. A correction that fixes the finding it
+  started from but leaves an anchor-sibling with the old text is not a fix, it is a second bug wearing the
+  first one's fix as camouflage.
+
+**Discriminator is the claim's form, not `confidence` and not capability size.** Neither axis has
+discriminating power here — `confidence` measures how much evidence backs a finding's own fact, not whether
+its prose asserts a true identity between two *other* artifacts; the two axes are orthogonal, and the
+project that promoted this gate measured it directly: a `cross-validated` finding asserted a false relational
+identity, and two `observed` findings (one inside the capability under review, one outside it) also broke —
+including the exact kind of small-scope finding a skip-by-capability-size heuristic exists to skip.
+**No skip heuristic based on either axis, and none based on `type` (`component` vs `rule`) either.**
+
+**Doctrine — enumerate everything, judge nothing.** The gate's script lists every candidate (relational
+claims by lexicon match, anchors with unconfirmed or confirmed path collisions, numeric claims typed by
+hand, findings sharing an anchor) — it does not decide which are wrong. That step stays human/agent: open
+both referenced files, decide whether they share the instance/field the claim asserts. Selling the script as
+a verifier, rather than an enumerator, is the same laundering the anti-laundering guard forbids for reach.
 
 ## The intent gate — deciding is not free
 
@@ -221,6 +261,8 @@ They differ in kind (script / doctrine / invariant) and in when they act (Founda
 - **Mandate** — whoever moves `intent` must own that behavior. No named owner → the finding stays `needs-decision`. Undecided is an honest state, not a blank to fill for convenience.
 - **Legal right** — if the behavior belongs to a **third-party licensed platform** (not the client's bespoke code), `preserve`/`fix` may not be the client's to make: reimplementing vendor behavior can breach the license. Intent for those findings is gated by the legal question, not only the product one.
 - **Mandatory lock — personal-data / accessibility** — a finding that touches personal data / consent (privacy law) or accessibility does **not** go to `remove`: silently dropping a consent screen or an a11y capability is a decision with legal consequence, not a scope cut.
+
+**Ratification without a formal session (added 2026-07-26)** — the mandate precondition does not require the decision to be *made* inside a triage session, only that it have a named owner. A distinct, narrower path exists: when downstream artifacts already act, consistently and documented, on a scope-boundary decision (never a business rule with financial/session/consent weight) before any formal triage, writing `intent` back is a **ratification** of that decision, not the decision itself — and it is valid only when the legal-right and personal-data/accessibility preconditions above still hold without exception, and the artifacts that already acted are cited as the ratification's basis.
 
 ## Not yet validated — do not sell as done
 
