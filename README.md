@@ -1,10 +1,10 @@
 # agent-kit
 
-> **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the conduction and reasoning postures to use them well.**
+> **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the reasoning postures to use them well.**
 
-**Worked example.** You type *"users report the promo deeplink dies on Android"* → the pipeline classifies it as a bug and routes to systematic debugging, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me`'s internal citation-verification mechanism refuses any finding citing a `file:line` the session never read → `/core:commit` → open the PR (`gh`/native).
+**Worked example.** You type *"users report the promo deeplink dies on Android"* → the loose phrasing routes to `superpowers:systematic-debugging`, keeping rival hypotheses alive until evidence discriminates → the fix goes through review, where `core:grill-me pre-done`'s citation-verification check routes any finding citing a `file:line` the session never read into an "Unverified" section instead of presenting it as fact → `/core:commit` → open the PR (`gh`/native).
 
-`mobile` (Flutter/Dart) is the flagship vertical; `core` (flow conduction) and `council` (reasoning postures) are the stack-agnostic foundation under it. It sits on top of a workflow toolkit like `superpowers` — or your own process — rather than replacing one, and works standalone too. Architecture (3 layers) and posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
+`mobile` (Flutter/Dart) is the flagship vertical; `core` (deterministic mechanism) and `council` (reasoning postures) are the stack-agnostic foundation under it. Conduction and discovery aren't the kit's job — CE and `superpowers` own those, or your own process — and the kit's part runs underneath either. Architecture (3 layers) and posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
 
 ## What's included
 
@@ -13,7 +13,7 @@ Four plugins installable via a local marketplace:
 | Plugin | What it is | Install when |
 |---|---|---|
 | `mobile` — **flagship** | Flutter/Dart toolkit — **opinionated**: review rules, scaffolding, and four deterministic verifiers calibrated to a MobX + `get_it`/`injectable` stack (scaffold also assumes `dartz`; adaptable, but that's the default): the blocking smell-checker plus three advisory hooks — codegen-staleness, lifecycle/dispose, DI-mismatch. | In a Flutter/Dart project on (or near) that stack — the flagship use case |
-| `core` | Flow conduction (`core:pipeline`, ticket to PR, any stack) plus `core:grill-me`'s escalation checkpoints (`pre-plan`/`post-plan`/`pre-done`) | Always — it's the foundation for the rest |
+| `core` | Deterministic mechanism — the read-ledger and citation gate, the always-on discipline rules, `core:grill-me`'s escalation checkpoints (`pre-plan`/`post-plan`/`pre-done`), and the repo gates. Flow conduction lives in CE. | Always — it's the foundation for the rest |
 | `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
 | `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | If you run refinement or communicate with a squad |
 
@@ -68,9 +68,7 @@ Or manually, in a Claude Code session:
 claude plugin list   # should list the plugins you installed (core@agent-kit, ...)
 ```
 
-In a new session, `core`'s rules already come in via SessionStart. Throw a raw, unstructured task at it — `core:pipeline` detects the stage and drives:
-
-> I need to investigate why deeplink X breaks on Android
+In a new session, `core`'s rules already come in via SessionStart. Say what you want in plain language and `superpowers:brainstorming` picks it up; from the spec it writes, `/ce-plan <spec path>` carries it forward. The kit's part runs underneath either — see [How the kit operates](#how-the-kit-operates).
 
 ### 4. Update
 
@@ -103,54 +101,179 @@ claude plugin uninstall core@agent-kit
 claude plugin marketplace remove agent-kit
 ```
 
-## Workflow
+## How the kit operates
 
-Hand `core:pipeline` the raw intent — it detects the real stage, classifies the intent, and proposes the route. One stage at a time, never the whole chain on its own.
+Three systems share this workspace. They do not compete — they answer different questions — but they only compose cleanly if you can tell which *kind* of thing each one is. Classify by kind and the coexistence rules follow; you never have to memorize a matrix of what conflicts with what.
 
-You rarely start at the top. The pipeline classifies the intent and enters where the work actually is:
+| Kind | Coexistence | Activation | Examples |
+|---|---|---|---|
+| **Conductor** | exclusive — one owner per stage | you invoke it | CE's loop: `/ce-plan` → `/ce-work` → `/ce-code-review` → `/ce-compound` |
+| **Conductor fragment** | exclusive within the stage it occupies | you invoke it | `superpowers:brainstorming` → `writing-plans` → `executing-plans`/`subagent-driven-development` (discovery → plan → execution, sequential stages, not contending); `core:tech-breakdown` composes with `writing-plans` the same way — it calls it internally |
+| **Interceptor** | orthogonal — cannot conflict | **fires by itself** | every hook: `core`'s session-start, read-ledger, model-routing, no-silent-removal, citation-check; `mobile`'s smell-checker, codegen-staleness, DI-mismatch, lifecycle; `council`'s posture-signal (pattern-matches the prompt for a posture, a `grill-me` checkpoint, or a past-discussion recall opportunity and suggests one, once per signal per session) |
+| **Lens** | additive — claims no stage | you invoke it | the six `council` postures, `cold-reader`, `consumer-simulation` |
+| **Instrument** | additive — claims no stage | you invoke it | `core:grill-me`, `core:review-local`, `core:commit`, `core:learn`, `core:archaeology` |
+| **Corpus** | inert | — | `core:methodology`, the `mobile` knowledge skills |
 
-| Your intent | Enters at | Route |
+Two consequences fall out of that table, and together they are the operating model.
+
+**Both providers cover most of the same loop, and that overlap — not a count — is what produces every collision.** Wherever both implement a stage, they contend, at least at discovery (`superpowers:brainstorming` vs. `ce-brainstorm`), diagnosis (`superpowers:systematic-debugging` vs. `ce-debug`), planning (`superpowers:writing-plans` vs. `ce-plan`), execution (superpowers' plan-execution flow — `executing-plans`/`subagent-driven-development` — vs. `/ce-work`), and review (`superpowers:requesting-code-review`/`receiving-code-review` vs. `ce-code-review`) — every skill on both sides of every pair is model-invocable, so a loose phrase can land on either. That isn't a defect in either provider; it's what the Conductor row means by *exclusive*. Lenses, interceptors and corpus claim no stage, so they contend nowhere, however many you install. The boundary convention below is what settles the election, and it's why one executor per plan matters.
+
+**Only the interceptor row is a guarantee.** Everything else has to be picked up. A gate you must remember to invoke is a habit wearing a mechanism's clothes: that is true of `/core:review-local` and of `/core:grill-me pre-done` — the review itself only runs if you invoke it. The citation check inside them is now a partial exception: both write their assembled findings to a path a `PostToolUse(Write)` hook watches (`citation-check.sh`), so once you've invoked the review, the citation gate fires on its own rather than on the skill remembering to run it. The exception is partial in a precise way — invoking the review is still yours; only the check inside it became a guarantee. Check which column a thing sits in before you rely on it.
+
+### The boundary convention
+
+A loose phrase ("let's think about this feature", "the deeplink is acting weird") goes to **superpowers**. A slash command (`/ce-plan`, `/ce-work`, `/ce-code-review`) goes to **CE**.
+
+This does not eliminate the competition — `ce-brainstorm` and `ce-debug` are model-invocable and nothing mechanically stops either from firing on a loose phrase. What it does is move the election out of pattern recognition, which is indeterminate, and into syntax, which is not. The selection rule becomes deterministic even though adherence stays yours: a rhetorical rule converted into something close to a mechanism. That conversion is why the chain below behaves predictably rather than by luck.
+
+### The reference chain — substantial new work
+
+```
+loose phrase ("let's think about this feature")   → superpowers:brainstorming
+  → spec at docs/superpowers/specs/<date>-<topic>-design.md
+  → /ce-plan docs/superpowers/specs/<file>.md       ← ALWAYS the explicit path
+  → one executor only (/ce-work OR superpowers execution, never both)
+  → /ce-code-review                                  ← the review
+  → /core:review-local                               ← the gate: lint/tests + citation validation
+  → /core:commit → open the PR (gh/native)
+  → /ce-compound (repo-local learning) + core:learn (cross-project memory)
+```
+
+Every seam in that chain is where it is for a reason. One at a time:
+
+**The spec crosses providers by explicit path — always.** CE's planner auto-discovers only its own artifacts: unified plans under its artifact root, plus legacy `docs/brainstorms/*-requirements.{md,html}` docs. A superpowers spec lives at `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and matches neither pattern, so auto-detection will never find it — not as an error, just silently. Typing `/ce-plan` bare after a superpowers brainstorm doesn't fail loudly; it plans from the wrong input or asks you what to plan. Passing the path routes around discovery by construction. Make it a reflex: the argument to `/ce-plan` is the spec file superpowers just wrote.
+
+**One executor, chosen once.** Both CE (`/ce-work`) and superpowers (its plan-execution flow) can implement a plan. Pick one per piece of work and stay with it: each executor tracks progress against its own artifacts, and handing the same plan to both leaves neither owning completion — you get two half-executions and no one accountable for "done".
+
+**Two reviews that compose, not duplicate.** `/ce-code-review` is the review — CE does the judgment work of reviewing better, and the kit doesn't try to compete with it. `/core:review-local` is the gate, and it runs the two things CE never runs:
+
+1. **Lint and tests as a blocking precondition.** It aborts before spending a single review token if the project's lint or test command fails. CE's review has no such gate.
+2. **Citation validation** — the kit's most distinctive idea, worth understanding precisely because it's half mechanism and half discipline, not all one or the other. The recording half is a real mechanism: every time the session (or any subagent under it) reads a file via the Read or Grep tool, a hook logs the exact file and line range to a per-session ledger — event-driven, nothing to remember, fires whether or not the model cooperates. The checking half is now event-driven too, on the paths the kit's two review producers write to: `/core:review-local`'s Step 5 and `/core:grill-me pre-done`'s Step 4 both write their assembled findings to `${TMPDIR:-/tmp}/agent-kit-findings/<session-id>.findings.json` — a directory deliberately outside the reviewed project, so a review never leaves an untracked artifact in a client repo — and a `PostToolUse(Write)` hook (`citation-check.sh`) fires on that write, calling the validator's `--gate` mode itself, with an explicit session id, never auto-discovery. That directory is also the whole of the hook's claim: a write is the kit's artifact only when its parent directory is `agent-kit-findings`, never on the filename alone. The hook is installed at user scope and therefore fires on every Write in every project, and `findings.json` is a generic name for an unrelated schema — the kit's own `apk-archaeology` emitter writes one, and so does any analyzer told to put its JSON report there. Under a filename-only match, an eslint-shaped array at that name was hard-blocked at exit 2 as fabricated, and object-shaped reports injected a warning about citations into sessions that had none. The write itself succeeds and reports success; the verdict reaches the session as separate feedback on that write, which is what the model acts on (observed, see `CHANGELOG.md`). A citation whose range overlaps nothing that was actually read is marked **unverified**: the hook blocks with exit 2 and forwards the validator's report on stderr — the one exit code on which Claude Code feeds a hook's stderr back to the model — and the finding is routed to its own section, flagged as a hypothesis, never presented as a confirmed finding. A missing, empty, or session-mismatched read-ledger is reported as *nothing to verify against*, never as fabrication, since a false block would be worse than no check at all — but that notice deliberately does **not** travel on stderr, because an exit-0 hook's stderr reaches only the transcript and never the model. It rides `hookSpecificOutput.additionalContext` instead, the same mechanism the kit's `model-routing.sh` advisory uses, and it tells the reader in as many words to treat every citation as unconfirmed rather than cleared. That distinction is not cosmetic: for one round the kit shipped that notice on exit-0 stderr, which meant a cold ledger was indistinguishable from a passed gate — a false clear, the worst direction for a mechanism built on distrust. The hook is the first real caller of the validator's `--gate` flag (hard-block on any unverified citation) — before it, nothing in the kit invoked that flag. One thing the hook cannot do: `PostToolUse` fires *after* the write, so it interrupts the review from proceeding as if a fabrication were confirmed, not the write itself — the findings file still lands on disk either way. One consequence you have to respect regardless: reads via Bash (`cat`, `sed`, shell `grep`) never enter the ledger, so a reviewer that reads that way breaks its own citations at the gate — which is why review dispatches mandate the Read/Grep tools for anything that will be cited.
+
+One prerequisite: `/core:review-local` dispatches its reviewers in parallel through the `pr-review-toolkit` plugin, so it needs that plugin active in the project. Without it, `/core:review-remote` is the fallback — but it isn't the same work done sequentially: it dispatches no agents at all (one session working through fixed steps) and runs no citation validation; its integrity mechanism is re-reading each finding's file:line by hand, which `review-local` itself calls out as not equivalent ("a mechanism, not just manual re-reading — re-reading alone doesn't catch fabrication"). So the real cost of skipping `pr-review-toolkit` isn't lost parallelism, it's losing the citation check — the kit's most distinctive idea. The lint/test divergence holds only for `review-remote`'s pre-push mode (Flow A: it reports a failure as a finding and carries on, where `review-local` blocks); its remote-PR mode (Flow B) runs no lint/tests at all, leaving that to CI. If the citation check is the reason you're running `review-local`, install the plugin.
+
+**Capture runs twice because it writes to two different memories.** `/ce-compound` writes repo-local learnings — durable solution docs, committed, shared with anyone who works in the repo. `core:learn` writes personal memory outside the repo — the auto-memory Claude Code injects at every session start. The link between them is real but looser than a clean producer/consumer pair: ce-compound's Phase 0.5 ("Auto Memory Scan") reads whatever auto-memory block Claude Code injects — CE has no reference to `core:learn` specifically — and treats it explicitly as "additional context, not primary evidence", lower priority than the conversation and codebase findings. Run `core:learn` and the next `/ce-compound` may fold in something relevant; skip it and the chain still works, but only the repo remembers.
+
+### A worked session
+
+End to end, in a Flutter app: adding offline caching to the promo feed. Commands as you'd actually type them, in order.
+
+> let's think about caching the promo feed so it survives offline
+
+A loose phrase, so `superpowers:brainstorming` fires: it explores the project, asks clarifying questions one at a time, proposes 2–3 approaches, and after you approve the design writes it to `docs/superpowers/specs/2026-07-26-promo-feed-offline-cache-design.md` and commits. **On disk now: the spec.**
+
+```
+/ce-plan docs/superpowers/specs/2026-07-26-promo-feed-offline-cache-design.md
+```
+
+The explicit path hands the spec across the provider boundary — auto-detection would never have found it there. CE interrogates the design where it's still vague and enriches it into an implementation-ready plan under its own artifact root. **On disk now: the plan.**
+
+```
+/ce-work
+```
+
+CE executes the plan task by task. The kit is not idle here — its mechanism layer runs underneath any conductor: when the executor writes `GetIt.I<PromoRepository>()` inside `promo_feed_store.dart`, the `mobile` smell-checker blocks the edit before it lands (DI001 — dependencies arrive via the constructor) and the executor corrects course; when the store changes without regeneration, the codegen-staleness hook points out that `promo_feed_store.g.dart` is now older than its source. **On disk now: the diff on the branch.**
+
+```
+/ce-code-review
+```
+
+CE's structured review of the branch — bugs, regressions, missing tests, standards. Report-only; you decide what gets fixed. **Produced: review findings.**
+
+```
+/core:review-local
+```
+
+The gate. Lint and tests first — if either fails it aborts with "fix it before spending tokens on review". Then the citation check: every finding on the table is cross-checked against the session's read-ledger, and anything citing lines nobody actually read lands in an "Unverified" section instead of being presented as fact. **Produced: findings you can trust the evidence of.**
+
+```
+/core:grill-me pre-done
+```
+
+Cheap insurance on consequential work: a blind reviewer receives only the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the plan itself, the commits, or the session's rationale — so it can't inherit the session's optimism. Its findings are written to the bound findings path, which fires the same citation gate `review-local` uses. **Produced: an outside opinion with verifiable evidence.**
+
+```
+/core:commit
+```
+
+Validation once more, then a conventional commit — proposed, never executed without your approval. Open the PR with `gh` or the native flow. **On disk now: the commit / PR.**
+
+```
+/ce-compound
+```
+
+CE documents the solved problem as a durable repo learning under its solutions directory — and its memory scan folds in anything relevant your personal memory already knew. Then close the loop:
+
+> save this — the cache-invalidation gotcha and the store-constructor rule
+
+`core:learn` scans the session, proposes typed memory entries, and writes the approved ones to your auto-memory — injected into every future session in this project. **Produced: a repo learning doc + personal memory. The session can close.**
+
+### What the kit deliberately no longer does
+
+Conduct flow. No kit skill routes you from stage to stage anymore — CE conducts, superpowers discovers, and the kit shows up as gates, hooks, a vertical, and postures. This is on purpose: a solo maintainer will not out-refine a large multi-contributor project on flow methodology, and dropping that layer costs nothing while CE is MIT and free. The kit's real differentiator was never methodology — it is **instrumented distrust**: the read-ledger, the citation check, the blocking smell-checker, the no-silent-removal guard on annotations. Gates a model cannot ignore on a bad day. That is the part nothing else provides, so that is the part the kit keeps.
+
+## Which tool, when
+
+Indexed by the situation you're in, not by plugin. Exhaustive generated list of the kit's own artifacts: **[INVENTORY.md](INVENTORY.md)**.
+
+### "I have a vague feature idea"
+
+Say it loose — "let's think about X" — and `superpowers:brainstorming` fires. You get an interrogation one question at a time, 2–3 candidate approaches, and a committed spec at `docs/superpowers/specs/<date>-<topic>-design.md`. From there, the reference chain in [How the kit operates](#how-the-kit-operates): `/ce-plan <that spec path>` and onward.
+
+### "I have a ticket"
+
+Type `/core:tech-breakdown <TICKET>`. CE's planner builds from plans and briefs, never from a ticket, so this skill owns the ticket→plan seam. It fetches the ticket, runs discovery through `superpowers:brainstorming`, generates the plan via `superpowers:writing-plans` (the adversarial-refinement step that used to sit between them is currently unowned — the skill that ran it was retired, and what replaces it is deferred to this skill's own thinning pass), has a critic phase grill the plan against the real codebase, and writes the plan path back to the ticket as a comment.
+
+The seam is narrower than "the kit reads trackers and CE doesn't" — CE does read them, just not to start a plan from one: `ce-debug` fetches a referenced GitHub/Linear/Jira issue, and `ce-sweep` reads issues through `gh issue list` / `view` / `api`. No total is claimed about either provider; two third-party plugins on their own release schedules make any such sentence stale the next time one of them releases.
+
+Note the asymmetry: this is the one path that does **not** route through CE. Whether it should hand the enriched ticket to `/ce-plan` instead of superpowers' planner is an open question, not a settled design.
+
+At review time, pass `--ticket <TICKET>` to `/core:review-local` so the `consumer-simulation` agent joins the panel. It receives only the ticket text and its acceptance criteria — never the diff — precisely so it can notice what the implementation quietly dropped. `/core:review-remote` also accepts `--ticket`, but does something narrower: an inline comparison of the diff against the ticket's acceptance criteria, with no `consumer-simulation` agent.
+
+### "Something is broken"
+
+Say it loose — "this test started failing" — and `superpowers:systematic-debugging` fires: rival hypotheses stay alive until evidence discriminates. Type `/ce-debug` when you want CE's diagnosis loop instead. Honest note: this is one instance of the collision the boundary convention exists for — the same shape recurs at every stage both providers implement (see [How the kit operates](#how-the-kit-operates)) — `ce-debug` is model-invocable and claims the same utterances ("errors, stack traces, regressions, failed tests"), so a loose phrase can land on either. The convention (loose → superpowers, slash → CE) is the only separation.
+
+### "I'm touching Flutter code"
+
+Nothing to type — this is the vertical, and it fires on its own regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness (a generated file missing or older than its source), DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource added to a store with no `dispose()`). On demand: `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest of the toolkit. CE has zero Flutter coverage — the vertical is entirely the kit's.
+
+### "I'm about to make a decision that's expensive to undo"
+
+Wear a `council` posture. Postures are a reasoning layer, not a flow layer — they compose with any conductor, and nothing here changed with the restructure.
+
+| Posture | Question it forces | Wear it when |
 |---|---|---|
-| "add authentication" (new feature) | clarify | the full funnel below |
-| "this deeplink broke" (bug) | diagnose | diagnose → fix → review → ship |
-| "why does X happen?" (investigation) | diagnose | ends at a report — no forced implementation |
-| ticket / user story from the board | clarify | funnel + `consumer-simulation` checks the ticket against what ships |
+| `council:schrodinger` | which explanations still coexist? | a diagnosis is ambiguous and you're tempted to settle |
+| `council:bohr` | is the dichotomy false? | a decision is stuck on "A or B" |
+| `council:epicurus` | what here is excess? | before calling a design or scope done |
+| `council:sagan` | does this matter, at what scale? | before investing real effort |
+| `maxwell` (agent — not a slash skill, dispatch via the Agent tool) | how does this propagate? | before touching something coupled |
+| `zeno` (agent — not a slash skill, dispatch via the Agent tool) | where does this break? | validating a proposed solution |
 
-Each stage is a named skill that produces the artifact the next stage consumes:
+One posture per decision is the default; escalation to blind mode (`epistemic-council`, an isolated subagent that never sees the thread's lean) has its own criteria — the map is `council:council`. CE's `ce-pov` overlaps only Sagan and Maxwell, partially; the other four have no counterpart.
 
-| Stage | Skill | Produces |
-|---|---|---|
-| clarify | `core:grill-me` / brainstorming | agreed decisions |
-| specify | `/core:spec-refine` | spec |
-| break down | `/core:tech-breakdown` | plan |
-| implement | execution, enforcement hooks active | code |
-| review | `/core:review-local` (+ `mobile:refactor-review` on a refactor) | resolved findings |
-| ship | `/core:commit` → open the PR (`gh`/native) | commit / PR |
-| capture | `core:learn` + handoff | memory for the next session |
+### "I'm about to say it's done"
 
-A minimal route is legitimate for a small task — the pipeline proposes skipping stages and waits for your confirmation.
+`/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and its findings go through the citation gate before you see them. If what needs pressing is a *decision you own* rather than an artifact, bare `core:grill-me` is the interview mode.
 
-When a route fans out into 3+ independent legs — parallel research, generation, or audit — the pipeline proposes `superpowers:dispatching-parallel-agents` (or native parallel subagents) for that segment instead.
+### "The work just split into independent legs"
 
-## Which skill or agent, when
+Three or more legs with no shared state — parallel research, generation, audit — go to `superpowers:dispatching-parallel-agents` (or native parallel subagents) instead of one long sequential pass.
 
-Grouped by job, not by plugin. Exhaustive generated list: **[INVENTORY.md](INVENTORY.md)**.
+### "We just solved something worth keeping"
 
-| Job | Skill / Agent |
-|---|---|
-| **Start here** | `core:pipeline` — hand it the raw intent, it detects the stage and proposes the route |
-| **Fan out large work** | `superpowers:dispatching-parallel-agents` — parallel subagents for work too big for one pass, or with 3+ independent legs; invoke by name or accept the pipeline's proposal |
-| **Prove it** | `/core:review-local` or `/core:review-remote` (diff review) · `core:grill-me` (interview a plan, or escalate it to a stronger reviewer) |
-| **Think it through** | `council:council` (index) → `council:bohr` (false dichotomy) · `council:epicurus` (scope) · `council:sagan` (effort calibration) · `council:schrodinger` (ambiguous diagnosis) · `council:maxwell` / `council:zeno` — agents, not skills (change propagation, invariant stress) |
-| **Shape the work** | `/core:spec-refine` · `/core:tech-breakdown` · `/core:archaeology` |
-| **Ship & remember** | `/core:commit` · open the PR (`gh`/native) · `core:learn` |
-| **Flutter** | `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest of the toolkit |
-| **Ceremonies** | `/team:refine-live` · `/team:refine-async` · `team:chat-draft` |
+Both captures, because they feed different memories: `/ce-compound` writes the repo-local learning doc; `core:learn` ("save this") writes your personal cross-session memory — which the next `/ce-compound` reads. See the capture seam in [How the kit operates](#how-the-kit-operates).
+
+### "I'm running refinement or writing to the squad"
+
+`/team:refine-live` (with the PO in the room), `/team:refine-async` (from the board), `team:chat-draft` (pt-BR message for Teams/Slack). Both expect a board/kanban MCP that this kit does not ship, but they don't fail the same way without one: `refine-async` degrades gracefully on both ends (works from a manually pasted context summary if `refine-live`'s state file is missing, exports subtasks as text if the board call fails); `refine-live` has no fallback — without the MCP it cannot get past fetching the card.
 
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) with plugin support
-- **Optional:** the [superpowers](https://github.com/obra/superpowers) marketplace — some `core` flows reference it (brainstorming, writing-plans, systematic-debugging); without it nothing breaks, the pipeline indicates each stage's internal fallback
+- The [superpowers](https://github.com/obra/superpowers) marketplace — owns discovery in the workflow above (brainstorming, systematic debugging, parallel dispatch); the kit's gates and hooks run without it, but the chain in [How the kit operates](#how-the-kit-operates) assumes it
+- The [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) plugin ("CE", MIT, tested against 3.20.0) — owns stage conduction (`/ce-plan`, `/ce-work`, `/ce-code-review`, `/ce-compound`); installed at user scope, it conducts in every project on this machine
 - **`core:review-local` requires the `pr-review-toolkit` plugin** (parallel reviewer dispatch); without it, use `core:review-remote` (sequential, no external dependency)
 - For `mobile`: a Flutter/Dart project. The registered MCP servers are only the generic toolchain ones — no backend/project server
 

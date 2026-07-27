@@ -10,14 +10,19 @@
 # $TMPDIR, com fallback pra <repo>/.eval-tmp se TMPDIR não estiver setado — hoje o
 # harness quebraria sob sandbox que restringe write a um diretório específico.
 #
-# Correção 2 (stderr entra na captura): advisories PostToolUse (exit 2) escrevem
-# em stderr por contrato — é o que o Claude Code realimenta pro modelo. A captura
-# original usava `2>/dev/null`, descartando esse canal; expect_contains contra
-# uma mensagem de stderr nunca batia (exit code ok, substring nunca encontrada).
-# Trocado pra `2>&1`: os casos de posture-signal usam expect_not_contains, e o
-# merge continua seguro pra eles — misturar stderr só pode tornar uma asserção
-# negativa mais estrita (falso-fail na presença de ruído extra), nunca produz
-# falso-pass.
+# Correção 2 (stderr entra na captura, e os canais ficam SEPARADOS): a captura
+# original usava `2>/dev/null`, descartando stderr; expect_contains contra uma
+# mensagem de stderr nunca batia. A correção seguinte trocou pra `2>&1`, o que
+# resolveu aquilo e criou um defeito pior: com os canais fundidos, um caso não
+# conseguia distinguir "o hook escreveu em stderr" de "o modelo recebeu". Os dois
+# não são a mesma coisa — stderr de um hook que sai com 0 NÃO chega ao modelo
+# (só ao transcript); só chega via hookSpecificOutput.additionalContext em stdout,
+# ou via stderr quando o exit é 2. Quatro casos de fail-open do citation-check
+# ficaram verdes enquanto o aviso era invisível pro leitor a quem ele se dirigia.
+# Agora stdout e stderr são capturados separadamente; expect_contains /
+# expect_not_contains seguem valendo sobre a união (compatibilidade com os casos
+# existentes), e expect_stdout_contains / expect_stderr_contains permitem afirmar
+# QUAL canal carregou a mensagem — que é o que um caso de fail-open precisa dizer.
 #
 # Nota (não-concorrência, 2026-07-13): este harness NÃO é concurrency-safe —
 # EVAL_ROOT é um path fixo compartilhado, apagado com `rm -rf` no início de cada
@@ -38,6 +43,15 @@
 #   env                        (opcional) dict de env vars pra essa invocação
 #   expect_contains            (opcional) substring que DEVE aparecer na saída (stdout+stderr)
 #   expect_not_contains        (opcional) substring que NÃO PODE aparecer na saída (stdout+stderr)
+#   expect_stdout_contains     (opcional) substring que DEVE aparecer em stdout SOMENTE —
+#                              o canal model-visible de um hook que sai com 0 (envelope
+#                              hookSpecificOutput.additionalContext). Use isto, não
+#                              expect_contains, pra qualquer aviso que precise CHEGAR ao
+#                              modelo: expect_contains passa igual se a mensagem sair por
+#                              stderr, que num exit 0 o modelo nunca vê.
+#   expect_stderr_contains     (opcional) substring que DEVE aparecer em stderr SOMENTE —
+#                              o canal do relatório de bloqueio (exit 2), o único exit em
+#                              que o Claude Code realimenta stderr pro modelo.
 #   expect_side_file           (opcional) path que DEVE existir após rodar o hook
 #   expect_side_file_contains  (opcional, usa junto com expect_side_file) substring
 #                              que o side file deve conter
@@ -109,6 +123,43 @@ printf "class NewService {\n  int x = 1;\n}\n" > "$DI/new_service.dart"
 printf "class OldService {\n  int x = 1;\n}\n" > "$DI/old_service.dart"
 printf "// GENERATED\ngh.factory<OldService>(() => OldService());\n" > "$DI/injection.config.dart"
 
+# citation-check fixtures (fix round 1, 2026-07-27): a real read-ledger for "cc-real-session"
+# (covers some/fake/verified.dart:10-20, NOT some/fake/bar.dart — the fixtures at
+# evals/fixtures/citation-check/agent-kit-findings/{fabricated,verified}.findings.json cite
+# bar.dart and verified.dart
+# respectively), a NEWER "decoy" ledger for a different session that WOULD wrongly cover
+# bar.dart if auto-discovery ever grabbed it instead of the session actually passed via
+# --session, and an empty ledger for "cc-empty-ledger-session".
+#
+# ALL THREE mtimes are pinned with `touch -t`, and the empty one is pinned OLDEST on
+# purpose. Pinning only two of them (the first version of these fixtures) left the empty
+# ledger carrying its run-time mtime, which made IT — not the decoy — the most recent file
+# in this dir. discover_ledger()'s "most recent" fallback then picked an empty ledger, so
+# dropping --session from the hook still produced "unverified", and the decoy never got
+# exercised: the mutation that deletes the --session pass-through survived the suite while
+# the comment above claimed the decoy was newer. Verified by mutation testing, fix round 1.
+CC_STATE="$EVAL_ROOT/citation-check-data/state"
+mkdir -p "$CC_STATE"
+printf '{"file":"some/fake/verified.dart","start":10,"end":20,"tool":"Read","ts":1}\n' \
+  > "$CC_STATE/read-ledger-cc-real-session.jsonl"
+touch -t 202001010000 "$CC_STATE/read-ledger-cc-real-session.jsonl"
+printf '{"file":"some/fake/bar.dart","start":1,"end":100,"tool":"Read","ts":1}\n' \
+  > "$CC_STATE/read-ledger-cc-decoy-session.jsonl"
+touch -t 202301010000 "$CC_STATE/read-ledger-cc-decoy-session.jsonl"
+: > "$CC_STATE/read-ledger-cc-empty-ledger-session.jsonl"
+touch -t 201901010000 "$CC_STATE/read-ledger-cc-empty-ledger-session.jsonl"
+
+# Fix round 3 (2026-07-27): the hook matches the CONTAINING DIRECTORY (parent component
+# == agent-kit-findings), not the basename alone. This fixture is a directory whose name
+# merely CONTAINS that string — the bash pre-filter is a substring test and lets it
+# through, python's parent-component test is an equality and must not. The file has to
+# EXIST and carry gate-tripping content, or the case would come back exit 0 through the
+# isfile guard and pin nothing whichever way python's test was written.
+CC_NEARMISS="$EVAL_ROOT/agent-kit-findings-backup"
+mkdir -p "$CC_NEARMISS"
+cp "$REPO_ROOT/evals/fixtures/citation-check/agent-kit-findings/fabricated.findings.json" \
+   "$CC_NEARMISS/fabricated.findings.json"
+
 PASS=0
 FAIL=0
 LINE_NO=0
@@ -126,6 +177,8 @@ while IFS= read -r raw_line; do
   expect=$(python3 -c "import json,sys; print(json.loads(sys.argv[1])['expect_exit'])" "$line")
   contains=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_contains',''))" "$line")
   not_contains=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_not_contains',''))" "$line")
+  stdout_contains=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_stdout_contains',''))" "$line")
+  stderr_contains=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_stderr_contains',''))" "$line")
   side_file=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_side_file',''))" "$line")
   side_needle=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_side_file_contains',''))" "$line")
   side_missing=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('expect_side_file_missing',''))" "$line")
@@ -148,19 +201,32 @@ while IFS= read -r raw_line; do
     continue
   fi
 
+  # Canais separados (ver "Correção 2" no cabeçalho): stderr num arquivo por caso,
+  # nunca fundido com stdout na captura. `out` = stdout puro, `err` = stderr puro,
+  # `both` = a união, só pra manter expect_contains/expect_not_contains como estavam.
+  ERR_FILE="$EVAL_ROOT/.case-stderr"
   if [[ ${#env_args[@]} -gt 0 ]]; then
-    out=$(echo "$payload" | env "${env_args[@]}" bash "$hook_path" 2>&1)
+    out=$(echo "$payload" | env "${env_args[@]}" bash "$hook_path" 2>"$ERR_FILE")
   else
-    out=$(echo "$payload" | bash "$hook_path" 2>&1)
+    out=$(echo "$payload" | bash "$hook_path" 2>"$ERR_FILE")
   fi
   actual=$?
+  err=$(cat "$ERR_FILE" 2>/dev/null)
+  both="$out
+$err"
 
   ok=1
   [[ "$actual" != "$expect" ]] && ok=0
-  if [[ -n "$contains" ]] && ! echo "$out" | grep -qF "$contains"; then
+  if [[ -n "$contains" ]] && ! echo "$both" | grep -qF "$contains"; then
     ok=0
   fi
-  if [[ -n "$not_contains" ]] && echo "$out" | grep -qF "$not_contains"; then
+  if [[ -n "$not_contains" ]] && echo "$both" | grep -qF "$not_contains"; then
+    ok=0
+  fi
+  if [[ -n "$stdout_contains" ]] && ! echo "$out" | grep -qF "$stdout_contains"; then
+    ok=0
+  fi
+  if [[ -n "$stderr_contains" ]] && ! echo "$err" | grep -qF "$stderr_contains"; then
     ok=0
   fi
   if [[ -n "$side_file" ]]; then
@@ -179,7 +245,7 @@ while IFS= read -r raw_line; do
     echo "  ✓ $desc"
   else
     FAIL=$((FAIL + 1))
-    echo "  ✗ $desc (exit esperado=$expect, obtido=$actual; out=$(echo "$out" | head -c 120))"
+    echo "  ✗ $desc (exit esperado=$expect, obtido=$actual; stdout=$(echo "$out" | head -c 100); stderr=$(echo "$err" | head -c 100))"
   fi
 done < "$CASES"
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 # desc: PreToolUse(Edit|Write|MultiEdit) — advisory: the session model (persisted by session-start.sh) is a synthesis-tier model (e.g. Fable) writing a code artifact directly; house model strategy routes code/fix/eval work to a Sonnet subagent; non-blocking (exit 0 + additionalContext), once per session.
+# retire-review: this gate's subject is a model behavior — a synthesis-tier session model
+# writing a code artifact itself instead of dispatching it to an executor. Re-verify its
+# necessity at each major model generation, and retire it if it stops firing in real
+# sessions across one.
 #
 # Self-enforcement for the operator's model strategy (his CLAUDE.md: Fable is the session
 # default for synthesis/decisions, Sonnet/Opus SUBAGENTS execute code). Observed failure

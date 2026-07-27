@@ -1,6 +1,6 @@
 ---
 name: methodology
-description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "Mermaid hand-drawn look not rendering", "workflow diagram reads as generated/generic"
+description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "Mermaid hand-drawn look not rendering", "workflow diagram reads as generated/generic", "the map/investigation just closed — build now, or another pass first?"
 ---
 
 # Methodology — tier 2 (on-demand)
@@ -170,6 +170,16 @@ In mapping/exploration output meant for a decision (not a point-in-time review),
 **Signal**: severity with no rubric; no TL;DR; more than ~5 items all "priority".
 
 **Failure mode**: the reader gets a wall of data and has to redo the prioritization the report should have done.
+
+---
+
+### Analysis is a means, not a deliverable
+
+When an analysis, map, or investigation closes, the default next move is the concrete construction it enables — not another round of analysis. Recommending more analysis requires naming the decision it unblocks. The exception is work whose deliverable *is* the report: there, the report is the construction.
+
+**Signal**: an analysis closes and the recommended next step is more analysis, with no named decision waiting on it.
+
+**Failure mode**: the session cycles through investigation after investigation, producing more maps and no delivered change; effort accumulates with nothing built on top of it.
 
 ---
 

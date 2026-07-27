@@ -78,15 +78,11 @@ This skill assumes the consumer project defines:
 
 5. **Adversarial spec refinement**
 
-   Before writing the plan, run `core:spec-refine` (if available in this kit) against the spec produced in step 4.
-
-   This stress-tests the spec for missing error paths, ambiguous states, and unwritten invariants. The session produces a Gap Summary that is incorporated into the spec before planning begins.
-
-   Skip only if the TL explicitly says "skip refinement" or the ticket is a trivial 1-file change.
+   Unowned in this version — the skill that ran this step was retired, and which flow takes it over is deferred to this skill's own thinning pass.
 
 6. **Generate implementation plan**
 
-   After brainstorming produces the spec (and refinement closes the gaps), invoke the superpowers:writing-plans skill.
+   After brainstorming produces the spec, invoke the superpowers:writing-plans skill.
 
    The plan will be saved to:
    ```

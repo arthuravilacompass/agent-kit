@@ -3,19 +3,27 @@
     "SessionStart": [
       {
         "matcher": "startup|clear|compact",
-        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"" } ]
+        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"", "timeout": 30 } ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
-        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/model-routing.sh\"" } ]
+        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/model-routing.sh\"", "timeout": 10 } ]
+      },
+      {
+        "matcher": "Edit|MultiEdit",
+        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/no-silent-removal.sh\"", "timeout": 10 } ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Read|Grep",
-        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/read-ledger.sh\"" } ]
+        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/read-ledger.sh\"", "timeout": 10 } ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/citation-check.sh\"", "timeout": 45 } ]
       }
     ]
   }

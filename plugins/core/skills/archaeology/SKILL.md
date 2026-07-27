@@ -20,8 +20,6 @@ This skill assumes the consumer project defines:
 archaeology <US | ticket | domain>   ← you are here
         ↓
 core:tech-breakdown                    ← receives the map as context (US/ticket mode)
-        ↓
-core:spec-refine
 ```
 
 ## When to Use

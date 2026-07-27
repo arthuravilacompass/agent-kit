@@ -3,7 +3,13 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
-CEILING=16384
+# Absolute ceiling — the governance limit (docs/GOVERNANCE.md §Always-on tier ceiling).
+CEILING="${CEILING_OVERRIDE:-16384}"
+# Ratchet — the last measured size, committed. Growing the tier is allowed, but the
+# ratchet must be raised in the SAME commit, which makes accretion a signed act instead
+# of a silent one. History of why: the tier was dieted to 8529 on 2026-07-15 and regained
+# 544 bytes the next day, for an engine (core:orchestrate) later deleted. See CHANGELOG.
+RATCHET="${TIER_RATCHET:-10182}"
 fail=0
 
 # 1) Always-on ceiling: session-start.sh's actual output (full JSON)
@@ -21,8 +27,12 @@ else
   if [ "$bytes" -gt "$CEILING" ]; then
     echo "ERROR: always-on tier measures ${bytes} bytes — over the ${CEILING}-byte ceiling (docs/GOVERNANCE.md §Always-on tier ceiling)"
     fail=1
+  elif [ "$bytes" -gt "$RATCHET" ]; then
+    echo "ERROR: always-on tier measures ${bytes} bytes — over the ${RATCHET}-byte ratchet."
+    echo "       Growing the tier is allowed. Raise RATCHET in scripts/check-ceiling.sh to ${bytes} in THIS commit."
+    fail=1
   else
-    echo "OK: always-on tier ${bytes} bytes <= ceiling ${CEILING}"
+    echo "OK: always-on tier ${bytes} bytes <= ratchet ${RATCHET} <= ceiling ${CEILING}"
   fi
 fi
 

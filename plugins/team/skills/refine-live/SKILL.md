@@ -14,16 +14,16 @@ Copilot for use during the weekly refinement session with the PO. Takes the boar
         ↓
 /team:refine-async <card-id>               ← post-session (triage + subtasks)
         ↓
-archaeology → tech-breakdown → spec-refine → plan
+archaeology → tech-breakdown → plan
 ```
 
-(`archaeology`, `tech-breakdown`, `spec-refine` are skills from this kit's `core` plugin — invoke as `/core:archaeology`, `/core:tech-breakdown`, `/core:spec-refine`.)
+(`archaeology`, `tech-breakdown` are skills from this kit's `core` plugin — invoke as `/core:archaeology`, `/core:tech-breakdown`.)
 
 ## When to Use
 
 Run **during the refinement session** when the PO presents a US. Use in parallel with the PO talking — you type bullets of what they say and the AI generates questions to ask on the spot.
 
-Not for: deep technical exploration (use `/core:archaeology`), spec stress-testing (use `/core:spec-refine`), decomposition into subtasks (use `/team:refine-async`).
+Not for: deep technical exploration (use `/core:archaeology`), decomposition into subtasks (use `/team:refine-async`).
 
 ## Input
 
@@ -134,6 +134,6 @@ The session stays active after "close" — the user can run another `/team:refin
 - **No technical jargon in the questions**: the PO is business-side. Ask about expected behavior, not about stores/repositories.
 - **No heavy codebase exploration**: opportunistic grep is ok (<2s). Anything beyond that, leave for the async step.
 - **No subtasks**: subtask generation is `/team:refine-async`'s responsibility.
-- **No spec-level questions**: error paths, race conditions, complex state transitions → `/core:spec-refine` does this better with full context.
+- **No spec-level questions**: error paths, race conditions, complex state transitions need full context — leave them for later.
 - **One US per invocation**: don't mix context from different cards in the same call.
 - **`<BOARD_NAME>`, `<TICKET>`, and module/store names in this file are placeholders** — adapt them to the real board and consumer project names when using this skill; this kit has no board of its own to fill these in with.

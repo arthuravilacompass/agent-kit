@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: PostToolUse(Read|Grep) — records the range read into the session ledger (basis of the citation mechanism). Internal infrastructure of core:grill-me pre-done (operator decision 2026-07-12) — not a standalone gate.
+# desc: PostToolUse(Read|Grep) — records the range read into the session ledger (basis of the citation mechanism). Repository infrastructure (ownership reverted 2026-07-27): consumed by core:grill-me pre-done and by citation-check.sh's PostToolUse(Write) event.
 # read-ledger.sh — PostToolUse Read|Grep hook (Layer 1 / citation verification)
 #
 # Records, per session, the file:line ranges the agent ACTUALLY read. The deterministic

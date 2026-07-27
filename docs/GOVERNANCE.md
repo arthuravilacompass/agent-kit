@@ -35,7 +35,7 @@ Adopted after hands-on testing on real artifacts, not source-reading alone — e
 - **`walkthrough`** (from `alexanderop/walkthrough`) — generates a self-contained interactive HTML walkthrough (clickable Mermaid + per-node detail) for explaining a flow/architecture/schema. Model-invoked — always-on cost accepted deliberately.
 - **`mermaid-skill`** (from `Agents365-ai/mermaid-skill`) — generates `.mmd` diagrams exported to PNG/SVG. Model-invoked, aggressive auto-trigger description — always-on cost accepted deliberately (low-commitment keep: has a known unresolved subgraph-title clipping bug, `walkthrough` covers the richer "explain this to someone" case, but this one stays for plain diagram-in-a-markdown-doc use).
 
-If one of these earns real, repeated use and the operator wants it to survive an environment reset with edit rights, port it into `plugins/` following the same attribution convention as `core:orchestrate`/`grill-me` (in-body blockquote + `metadata` frontmatter) — that's the point it would actually enter the wired/unwired model above.
+If one of these earns real, repeated use and the operator wants it to survive an environment reset with edit rights, port it into `plugins/` carrying its external attribution — author, source, license — in the frontmatter's `metadata` field plus an in-body blockquote: the convention `core:orchestrate` used before its removal. One wired skill is already vendored from an external source (`core:prompt-optimizer`, see its own attribution blockquote) but carries only the body half of the convention — the frontmatter `metadata` field isn't applied anywhere yet — so treat this as documented, not yet fully practiced, rather than moot.
 
 ## Skill vs. standalone tool
 
@@ -67,14 +67,14 @@ Identity across the kit's 4 plugins — the coherence test for a new skill: if i
 - **`team`** — agile-ceremony copilot (PO refinement, squad communication).
 - **`mobile`** — Flutter/Dart toolkit.
 
-`mobile` is the flagship by admission criterion, not by raw volume: it's the vertical the kit's bar for "earns a place" is calibrated against, but of the kit's 33 skills only 11 are Flutter-specific — the other 22 (`core`/`council`/`team`) are stack-agnostic.
+`mobile` is the flagship by admission criterion, not by raw volume: it's the vertical the kit's bar for "earns a place" is calibrated against, but of the kit's 31 skills only 11 are Flutter-specific — the other 20 (`core`/`council`/`team`) are stack-agnostic.
 
 ## Architecture — 3 layers
 
 | Layer | What it does | Lives in |
 |---|---|---|
 | **1. Epistemic** | Always-on rules + deterministic gates that don't depend on the model obeying: provenance, `mobile`'s blocking smell-checker, the always-on byte ceiling, plus advisory hooks (codegen-staleness, lifecycle/dispose, DI-mismatch — full list in [INVENTORY.md](../INVENTORY.md)). Council's reasoning postures sit alongside for the judgment calls a gate can't make. | `core` (rules + gates), `mobile` (verifiers), `council` (postures) |
-| **2. Workflow conduction** | `core:pipeline` detects the real stage and conducts stage-to-stage; `superpowers` (or your own method) executes. | `core:pipeline`, optional `superpowers` |
+| **2. Conduction — now external** | The kit does not conduct workflow itself. Stage-to-stage conduction lives in CE (`/ce-plan` → `/ce-work` → `/ce-code-review` → `/ce-compound`); discovery lives in `superpowers:brainstorming`. What still crosses this boundary from inside the kit: the mechanism (layer 1) keeps enforcing underneath whichever conductor is running, the vertical (layer 3) fires the same regardless of who conducts, and `council`'s postures wear alongside either — additive, claiming no stage of their own. | CE + `superpowers` (external, not shipped here); `core`/`mobile`/`council` compose with both |
 | **3. Verticals** | `mobile` is the flagship: Flutter/Dart review, scaffolding, and the deterministic checks above, calibrated against a real stack. `team` is the secondary vertical (agile ceremonies). | `mobile`, `team` |
 
 ## Posture
@@ -85,6 +85,7 @@ Deterministic where determinism is possible; agnostic where it isn't. The gates 
 
 - **Language**: skill/doc bodies in English; runtime output (Council callouts, review findings, `grill-me`, etc.) mirrors the user's language, default English — deterministic scripts/gates always emit English.
 - **Slash-only**: `disable-model-invocation: true` when the cost of a wrong trigger is high — an effect hard to reverse, a high orchestration cost, or a long ceremony that shouldn't start on the model's own initiative.
+- **`# retire-review:` on a gate whose subject is a model behavior**: the kit governs an artifact's kind, state and size, but not its trajectory — a gate that compensates for how models behave depreciates in relevance as models improve, while staying mechanically correct the whole way down, and a stale *blocking* gate fails loudly (false positives), not quietly. Such a hook carries a `# retire-review:` line beside its `# desc:` naming the behavior it compensates for and the condition for reconsidering it. The line is a marker for a human pass, not a mechanism; nothing in the gate reads it.
 - **No provenance narration in a shipped body**: a skill/agent/hook doesn't narrate its own history ("Promoted from `unwired/`", origin-project notes) — that lives in git and `CHANGELOG.md`, not in something loaded every session. `check-ceiling.sh`'s grep for "Promoted from" is only the mechanizable half of this rule; the rest is reviewer judgment.
 
 ## Decisions worth remembering

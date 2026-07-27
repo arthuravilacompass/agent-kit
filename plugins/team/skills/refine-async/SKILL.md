@@ -14,14 +14,14 @@ Asynchronous processing after the refinement session. Consolidates the context c
         ↓
 /team:refine-async <card-id>               ← you are here (post-session)
         ↓
-archaeology → tech-breakdown → spec-refine → plan
+archaeology → tech-breakdown → plan
 ```
 
 ## When to Use
 
 Run **after the refinement session**, once `/team:refine-live` has already consolidated the US's context. Can be immediately after (same session) or at another time (reads from the state file).
 
-Not for: deep architectural exploration (use `/core:archaeology`), detailed technical decomposition (use `/core:tech-breakdown`), spec stress-testing (use `/core:spec-refine`).
+Not for: deep architectural exploration (use `/core:archaeology`), detailed technical decomposition (use `/core:tech-breakdown`).
 
 ## Input
 
@@ -172,6 +172,6 @@ Update the state file at `docs/refine/refine-<card-id>.md` (make sure the direct
 - **Approval gate is mandatory**: NEVER create subtasks on the board without the user's explicit approval.
 - **Light grep, not archaeology**: max 10 queries, max 30s. If more is needed, flag it: "I recommend running `/core:archaeology` for full mapping."
 - **Graceful fallback**: without a board MCP, or if the call fails, export text. Don't block the workflow.
-- **No detailed spec**: don't generate acceptance criteria, test plans, or design docs. Those are outputs of `/core:tech-breakdown` + `/core:spec-refine`.
+- **No detailed spec**: don't generate acceptance criteria, test plans, or design docs. Those are outputs of `/core:tech-breakdown`.
 - **Idempotency**: if run twice on the same card, detect existing subtasks and ask: "Subtasks already exist on the card. Add new ones or replace?"
 - **`<TICKET>`, module/store/repository names, and the board in this file are placeholders** — adapt them to the consumer project's real names when using this skill; this kit has no stack of its own to fill these in with.

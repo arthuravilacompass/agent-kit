@@ -1,0 +1,1 @@
+[{"claim": "eval fixture: a citation with no matching ledger entry", "epistemicSource": "tool-output", "evidence": {"file": "some/fake/bar.dart", "lineStart": 42, "lineEnd": 44}, "severity": "consideration", "rule": null}]

@@ -83,9 +83,9 @@ On a multi-part request (or a "grill me"-style interview), reflect your understa
 
 ### No silent removal of annotations/imports 🔴
 
-Don't remove dependency-injection, singleton, observability, lifecycle/dispose, or override annotations, or imports, without explicit justification.
+Don't remove imports, lifecycle/dispose, or override annotations without explicit justification. (DI/singleton/observability annotation removal is now blocked mechanically at `PreToolUse`.)
 
-**Signal**: the diff removes any of these annotations with no explanation in the PR or commit.
+**Signal**: the diff removes an import or one of these annotations with no explanation in the PR or commit.
 
 — detail: core:methodology
 
@@ -114,10 +114,16 @@ Who executes is a decision, not a default. At decomposition time, check the shap
 - **Panel**: a finished artifact (diff, doc, spec) needing quality review → blind multi-lens reviewers.
 - **Session**: a diagnosis that may fork into a decision mid-flight → suggest Agent View / `claude --bg` to the operator (only they can open sessions).
 - **Don't delegate**: trivial task, B depends on A, shared file/state, uncertain scope. More agents requires a concrete requirement, not "coverage".
-- **Worker default (read-only):** voluminous material whose value is a *finding* (a sweep, a dump, a whole doc) is LABOR — dispatch a cheap read-only worker with the lean output contract (`core:pipeline` §6 "Dispatch contract") rather than reading it in the main seat; read-only is safe-default (writes/fan-out/sessions still propose).
-- **Advisor-gated transitions:** at a stage transition the route includes, propose the Advisor consult and let the operator confirm (pull) — routing and the three checkpoints live in `core:pipeline` §4.
+- **Worker default (read-only):** voluminous material whose value is a *finding* (a sweep, a dump, a whole doc) is LABOR — dispatch a cheap read-only worker rather than reading it in the main seat; read-only is safe-default (writes/fan-out/sessions still propose). **This is not a preference: the read-ledger records only `Read`/`Grep`, so material consumed via Bash never becomes citable evidence.**
+- **Advisor-gated transitions:** at a transition that commits (before planning, before calling it done), propose the Advisor consult and let the operator confirm — pull, never default-fire. Checkpoints and modes: `core:grill-me`.
 
-A dispatch opportunity is a proposal to the user, never an action — name the shape, ask, then dispatch. Contract and routing: `core:pipeline` §6 "Dispatch contract".
+**Worker output contract** — required at the end of every dispatch:
+- Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
+- **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block — do not decide alone.
+- On a code change: run build/tests and report the result.
+- Long outputs go to a file; the chat gets the path plus a 3-line summary. This applies to the main thread too.
+
+A dispatch opportunity is a proposal to the user, never an action — name the shape, ask, then dispatch.
 
 ## Bugfix Principles
 

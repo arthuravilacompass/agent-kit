@@ -8,8 +8,9 @@ session's read-ledger (what was ACTUALLY read via Read/Grep, recorded by the rea
 hook). A tool-output finding whose range doesn't overlap any read → UNVERIFIED. Mechanism,
 not instruction: you can't cite code you didn't read.
 
-Internal infrastructure of core:grill-me pre-done (operator decision 2026-07-12) — not a
-standalone gate.
+Repository infrastructure (ownership reverted 2026-07-27, was "grill-me-internal" since
+2026-07-12): consumed by core:grill-me pre-done and, event-driven, by the
+PostToolUse(Write) hook plugins/core/hooks/citation-check.sh — not `grill-me`-exclusive.
 
 Verdicts:
   verified     — tool-output claim whose range overlaps a read in the ledger.

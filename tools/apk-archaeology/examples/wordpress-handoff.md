@@ -8,7 +8,7 @@
 >
 > **Note (post-extraction):** `references/…` paths here point to the `apk-archaeology` skill (`plugins/mobile/skills/apk-archaeology/references/`); this example now lives under `tools/`, so they are cross-tree pointers, not local files.
 
-> Downstream artifact consumable by `tech-breakdown`/`spec-refine`. Format **provisional**
+> Downstream artifact consumable by `tech-breakdown`. Format **provisional**
 > (design §5), pinned at first real client use. Companion to `newpipe-demo.md`: the demo
 > proves *viability* (measured extraction fidelity on a clean OSS reference); **this artifact
 > proves the *acceleration step*** — that Dimension A/B output actually feeds the

@@ -63,27 +63,22 @@ Before analyzing the prompt, detect the current project context:
 If no project files are found (e.g., the prompt is abstract or for a new project),
 skip detection and flag "tech stack unknown" in Phase 4.
 
-Whether this task is already mid-flow (an existing spec/plan/handoff in
-`docs/superpowers/`) is `core:pipeline`'s job (its stage-detection step), not
-this phase's — don't re-check it here; if `core:pipeline` is already active
-for this task, defer to it instead of re-running this phase.
-
 ### Phase 1: Intent Detection
 
 Classify the user's task into one or more categories:
 
-| Category | Signal Words (EN / pt-BR) | `core:pipeline` class |
-|----------|-------------|---------|
-| New Feature | build, create, add, implement / construir, criar, adicionar, implementar | New feature |
-| Bug Fix | fix, broken, not working, error / corrigir, quebrado, não funciona, erro | Bug |
-| Refactor | refactor, clean up, restructure / refatorar, limpar, reestruturar | Refactor |
-| Investigation | how to, what is, explore, investigate / como, o que é, explorar, investigar | Investigation |
-| External spec (ticket/US) | ticket, US, story, acceptance criteria / ticket, US, história, critério de aceite | External spec |
-| Testing | test, coverage, verify / testar, cobertura, verificar | cross-cutting — see Phase 4's test-policy check |
-| Review | review, audit, check / revisar, auditar, checar | maps directly to `core:review-local`/`core:review-remote`, not a pipeline stage class |
-| Documentation | document, update docs / documentar, atualizar docs | no dedicated pipeline stage |
-| Infrastructure | deploy, CI, docker, database / deploy, CI, docker, banco de dados | folds into New feature or Refactor depending on scope |
-| Design | design, architecture, plan / desenhar, arquitetura, planejar | folds into New feature's clarify/specify stages; triggers `council:council` at HIGH+ scope |
+| Category | Signal Words (EN / pt-BR) |
+|----------|-------------|
+| New Feature | build, create, add, implement / construir, criar, adicionar, implementar |
+| Bug Fix | fix, broken, not working, error / corrigir, quebrado, não funciona, erro |
+| Refactor | refactor, clean up, restructure / refatorar, limpar, reestruturar |
+| Investigation | how to, what is, explore, investigate / como, o que é, explorar, investigar |
+| External spec (ticket/US) | ticket, US, story, acceptance criteria / ticket, US, história, critério de aceite |
+| Testing | test, coverage, verify / testar, cobertura, verificar |
+| Review | review, audit, check / revisar, auditar, checar |
+| Documentation | document, update docs / documentar, atualizar docs |
+| Infrastructure | deploy, CI, docker, database / deploy, CI, docker, banco de dados |
+| Design | design, architecture, plan / desenhar, arquitetura, planejar |
 
 ### Phase 2: Scope Assessment
 
@@ -93,10 +88,10 @@ from the prompt description alone and mark the estimate as uncertain.
 | Scope | Heuristic | Orchestration |
 |-------|-----------|---------------|
 | TRIVIAL | Single file, < 50 lines | Direct execution |
-| LOW | Single component or module | Single skill, or direct execution — a minimal route is legitimate (`core:pipeline`'s own rule: propose skipping stages and let the user confirm) |
-| MEDIUM | Multiple components, same domain | `core:pipeline`'s stage chain + `core:review-local`/`core:review-remote` + `core:commit` |
-| HIGH | Cross-domain, 5+ files | `core:archaeology` (map) first, then `core:pipeline`'s phased stages; `council:council` for any high-reversal-cost call inside it |
-| EPIC | Multi-session, multi-PR, architectural shift | `core:pipeline`'s session-discipline rule (one heavy phase per session + handoff at each boundary) + `core:learn` at each close; `council:sagan` to calibrate whether the effort altitude is actually warranted |
+| LOW | Single component or module | Single skill, or direct execution — a minimal route is legitimate |
+| MEDIUM | Multiple components, same domain | `core:review-local`/`core:review-remote` + `core:commit` |
+| HIGH | Cross-domain, 5+ files | `core:archaeology` (map) first; `council:council` for any high-reversal-cost call inside it |
+| EPIC | Multi-session, multi-PR, architectural shift | `core:learn` at each close; `council:sagan` to calibrate whether the effort altitude is actually warranted |
 
 ### Phase 3: Kit Component Matching
 
@@ -108,17 +103,17 @@ the only stack-opinionated vertical it ships is `mobile` (Flutter/Dart).
 
 | Intent | Skills | Agents / Council postures |
 |--------|--------|--------|
-| New Feature | `core:pipeline` (feature route) → `superpowers:brainstorming` or `core:grill-me` (clarify) → `core:spec-refine` (specify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
-| Bug Fix | `core:pipeline` (bug route): `superpowers:systematic-debugging` (diagnose) → implement fix → `core:review-local`/`core:review-remote` → `core:commit` | `council:schrodinger` (if more than one live hypothesis for the cause) |
-| Refactor | `core:pipeline` (refactor route): `core:archaeology` (map) → clarify scope → implement → `core:review-local`/`core:review-remote` (+ `mobile:refactor-review` if the `mobile` plugin is active) → `core:commit` | `council:maxwell` (coupling map before touching), `council:epicurus` |
-| Investigation | `core:pipeline` (investigation route): `core:archaeology` (map) → `superpowers:systematic-debugging` (diagnose) → report/handoff (terminal — don't force implementation) | `council:schrodinger` |
+| New Feature | `superpowers:brainstorming` or `core:grill-me` (clarify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
+| Bug Fix | `superpowers:systematic-debugging` (diagnose) → implement fix → `core:review-local`/`core:review-remote` → `core:commit` | `council:schrodinger` (if more than one live hypothesis for the cause) |
+| Refactor | `core:archaeology` (map) → clarify scope → implement → `core:review-local`/`core:review-remote` (+ `mobile:refactor-review` if the `mobile` plugin is active) → `core:commit` | `council:maxwell` (coupling map before touching), `council:epicurus` |
+| Investigation | `core:archaeology` (map) → `superpowers:systematic-debugging` (diagnose) → report/handoff (terminal — don't force implementation) | `council:schrodinger` |
 | External spec (ticket/US) | `core:archaeology` → `core:tech-breakdown` or `superpowers:brainstorming` → continues as New Feature | `core:consumer-simulation` (ticket-vs-implementation gap check) |
 | Testing | No dedicated skill — check `core:methodology` if a verification-gate question is involved; if a TDD flow is already in use, `superpowers:test-driven-development` | — |
 | Review | `core:review-local` (needs the `pr-review-toolkit` plugin) or `core:review-remote` (plugin-free) + `core:grill-me` escalation mode `pre-done` | `core:cold-reader`, `core:consumer-simulation` |
 | Documentation | No dedicated skill in this kit | — |
 | Infrastructure | No dedicated skill — treat as New Feature or Refactor by scope; `core:methodology` has portable git/hook reference | `council:maxwell` if coupling is the concern |
 | Design (HIGH) | `superpowers:brainstorming`, `council:council` (entry point for a high-reversal-cost decision, any stage) | `council:maxwell`, `council:sagan` |
-| Design (EPIC) | No blueprint-equivalent skill — `core:pipeline`'s session-discipline rule (one heavy phase/session, handoff between phases) | `council:sagan` (calibrate altitude before committing effort) |
+| Design (EPIC) | No blueprint-equivalent skill | `council:sagan` (calibrate altitude before committing effort) |
 
 #### By Tech Stack
 
@@ -153,13 +148,6 @@ answers into the optimized prompt.
 
 ### Phase 5: Workflow & Model Recommendation
 
-**Lifecycle routing.** Don't re-derive a stage sequence here — that's
-`core:pipeline`'s job (its §3 "Stages → skills" table is the single source).
-This phase's only job is to state where in that flow the prompt currently
-sits (e.g. "this is a Clarify-stage prompt, next stop `core:spec-refine`")
-and let `core:pipeline` (or the user) drive stage-to-stage from there.
-Recommending the full chain here would duplicate pipeline's job — don't.
-
 **Model recommendation.** This kit's model strategy runs on two independent
 axes (`core:methodology`'s `references/technical-reference.md`, §Model vs. effort is the source of truth — don't
 invent a parallel policy here):
@@ -181,8 +169,8 @@ invent a parallel policy here):
   changes are the last resort, not the first.
 
 **Multi-session splitting** (for HIGH/EPIC scope): this kit has no
-`save-session`/`resume-session` command pair — apply `core:pipeline`'s
-session-discipline rule instead (one heavy phase per session: *clarify/specify*
+`save-session`/`resume-session` command pair — apply the session-discipline
+rule instead (one heavy phase per session: *clarify/specify*
 · *implement* · *review/deliver* · *close*), with a handoff at each boundary
 and `core:learn` capturing decisions/corrections at each close.
 
@@ -210,7 +198,6 @@ If Phase 0 auto-detected the answer, state it instead of asking.
 
 | Type | Component | Purpose |
 |------|-----------|---------|
-| Skill | `core:spec-refine` | Stress-test the spec before planning |
 | Skill | `superpowers:writing-plans` | Turn the refined spec into a plan |
 | Agent/Posture | `council:maxwell` | Map coupling before touching a shared module |
 | Model | Sonnet subagent (+ Fable in-session for judgment calls) | Recommended role split for this scope |
@@ -221,12 +208,12 @@ Present the complete optimized prompt inside a single fenced code block.
 The prompt must be self-contained and ready to copy-paste. Include:
 - Clear task description with context
 - Tech stack (detected or specified)
-- Skill/agent invocations at the right workflow stages (reference `core:pipeline` for the stage sequence rather than re-listing every stage)
+- Skill/agent invocations at the right workflow stages
 - Acceptance criteria
 - Verification steps
 - Scope boundaries (what NOT to do)
 
-For EPIC-scope prompts, write "apply `core:pipeline`'s session-discipline rule
+For EPIC-scope prompts, write "apply the session-discipline rule
 (one heavy phase per session + handoff)" — this kit has no blueprint-equivalent
 skill to invoke instead.
 
@@ -236,14 +223,14 @@ A compact version for experienced kit users. Vary by intent type:
 
 | Intent | Quick Pattern |
 |--------|--------------|
-| New Feature | `core:spec-refine` the ask. `superpowers:writing-plans`. Implement. `core:review-local`/`core:review-remote`. `core:commit`.` |
+| New Feature | `superpowers:writing-plans` the ask. Implement. `core:review-local`/`core:review-remote`. `core:commit`.` |
 | Bug Fix | `superpowers:systematic-debugging` for [bug] (`council:schrodinger` if >1 hypothesis). Fix. `core:review-local`/`core:review-remote`. `core:commit`.` |
 | Refactor | `core:archaeology` [scope]. Implement. `core:review-local`/`core:review-remote` (+ `mobile:refactor-review` if mobile). `core:commit`.` |
 | Investigation | `core:archaeology` for [topic]. Diagnose. Report/handoff — no forced implementation.` |
 | Testing | Check `CLAUDE.md` test policy first. `superpowers:test-driven-development` if that flow applies.` |
 | Review | `core:review-local` (or `core:review-remote` without the toolkit plugin). `core:grill-me pre-done`.` |
 | Docs | Direct edit. `core:commit`.` |
-| EPIC | `council:sagan` to calibrate. Phase via `core:pipeline`'s session discipline, handoff between phases, `core:learn` to capture.` |
+| EPIC | `council:sagan` to calibrate. Phase via session discipline, handoff between phases, `core:learn` to capture.` |
 
 ### Section 5: Enhancement Rationale
 
@@ -358,7 +345,7 @@ entry point for the high-reversal-cost architectural calls inside it.
 
 Scope: EPIC — multi-session, architectural shift.
 
-Session discipline (core:pipeline): one heavy phase per session —
+Session discipline: one heavy phase per session —
 clarify/specify · implement · review/deliver · close — with a handoff
 at each boundary and core:learn capturing decisions between sessions.
 
@@ -366,7 +353,7 @@ Suggested phases:
 1. core:archaeology per current domain/module to map real coupling
    (council:maxwell if coupling is the open question)
 2. Clarify service boundaries and messaging pattern (superpowers:brainstorming
-   or core:grill-me) → core:spec-refine
+   or core:grill-me)
 3. superpowers:writing-plans or core:tech-breakdown for the phased plan
 4. Execute one service extraction per session, core:review-local/
    core:review-remote + core:commit at the end of each
@@ -388,7 +375,6 @@ Do not:
 
 | Component | When to Reference |
 |-----------|------------------|
-| `core:pipeline` | Full lifecycle routing — this skill defers to it, never re-derives the stage sequence |
 | `core:grill-me` | Interview mode for operator-owned decisions; escalation mode at `pre-plan`/`post-plan`/`pre-done` |
 | `council:council` | Entry point for a high-reversal-cost decision, at any stage |
 | `core:methodology` → `references/technical-reference.md` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |

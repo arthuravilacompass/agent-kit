@@ -1,0 +1,1 @@
+[{"filePath": "/a/b.js", "messages": [{"ruleId": "no-var", "line": 3, "message": "eval fixture: eslint-shaped output, not a kit findings array"}]}]
