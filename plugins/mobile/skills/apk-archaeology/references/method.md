@@ -218,16 +218,19 @@ They differ in kind (script / doctrine / invariant) and in when they act (Founda
 
 ## The Relational Fidelity Gate — a claim about two artifacts is not verified by verifying either one alone
 
-> **Promoted 2026-07-26** from a client migration's own methodology doc (`pipeline-migracao-metodologia.md`,
-> "L8"), after that project's *first* version of this gate — positioned only "before Phase 1", discriminating
-> by `confidence`, skipping small capabilities — failed to catch the exact class of error it was built for on
-> its own next use. The corrected version below fixes what failed; see that doc's L8/L9-L12 for the incident.
-
 A finding that names one artifact can be individually verified — read the file, confirm the fact. A finding
 that asserts a **relationship between two artifacts** ("mesmo X", "compartilhado", "reutiliza", "herda de",
 "mergeado em", "idêntico") is a different claim shape: verifying either artifact alone does not verify the
 relationship. The archaeologist infers the relationship; the gate is what forces someone to open both files
 and check.
+
+**A single checkpoint positioned only before the first derivation is not enough — a correction is also an
+injection point.** A gate that fires once, early, and never again catches a bad relational claim on its way
+into the catalog but not one introduced (or left stale) by a later edit: a finding gets corrected, but its
+**anchor-siblings** — other findings pointing at the same underlying artifact — don't get re-swept, so a fix
+that reads as complete leaves a second, identically-shaped bug sitting one layer below the editor's attention.
+That is why the gate below fires twice, not once, and why the discriminator that decides which findings it
+enumerates is the claim's **form**, never a proxy for how much scrutiny a finding already received.
 
 **Two triggers, not one:**
 
@@ -242,10 +245,10 @@ and check.
 
 **Discriminator is the claim's form, not `confidence` and not capability size.** Neither axis has
 discriminating power here — `confidence` measures how much evidence backs a finding's own fact, not whether
-its prose asserts a true identity between two *other* artifacts; the two axes are orthogonal, and the
-project that promoted this gate measured it directly: a `cross-validated` finding asserted a false relational
-identity, and two `observed` findings (one inside the capability under review, one outside it) also broke —
-including the exact kind of small-scope finding a skip-by-capability-size heuristic exists to skip.
+its prose asserts a true identity between two *other* artifacts; the two axes are orthogonal, measured
+directly rather than assumed: a `cross-validated` finding asserted a false relational identity, and two
+`observed` findings (one inside the capability under review, one outside it) also broke — including the
+exact kind of small-scope finding a skip-by-capability-size heuristic exists to skip.
 **No skip heuristic based on either axis, and none based on `type` (`component` vs `rule`) either.**
 
 **Doctrine — enumerate everything, judge nothing.** The gate's script lists every candidate (relational
@@ -296,9 +299,11 @@ a verifier, rather than an enumerator, is the same laundering the anti-launderin
 > **Status: instrument BUILT + one instrument-validation exemplar.** The scripts
 > exist (`tools/apk-archaeology/scripts/capture_dynamic.sh` +
 > `tools/apk-archaeology/scripts/parse_logcat.py`, unit-tested on a
-> synthetic framework-log fixture) and were exercised once on WordPress. This is
-> still NOT a validated *method* on the hard axes — read the anti-laundering clause
-> before citing it.
+> synthetic framework-log fixture) and were exercised once on WordPress. A third
+> script, `tools/apk-archaeology/scripts/cdp_netcap.py` (unit-tested by
+> `selftest_cdp_netcap.py`), covers the CDP capture surface below — built, not
+> yet exercised on a real target either. This is still NOT a validated *method*
+> on the hard axes — read the anti-laundering clause before citing it.
 
 **Anti-laundering clause (load-bearing — stated first, on purpose).** Log-based
 v2 on an unauthenticated, non-obfuscated app (WordPress) demonstrates the
@@ -327,7 +332,7 @@ rule is "the native path does not *need* traffic", not "the method never taps
 traffic": for a WebView finding, captured traffic is exactly the regime-independent
 2nd source that promotes it `observed → cross-validated`.
 
-**The instrument (built, not yet run on the hard axes).** Two scripts, mirroring
+**The instrument (built, not yet run on the hard axes).** Three scripts, mirroring
 the static pipeline's script+selftest convention:
 
 - `tools/apk-archaeology/scripts/capture_dynamic.sh` — path-scoped, fail-closed
@@ -341,8 +346,18 @@ the static pipeline's script+selftest convention:
   app-specific ones (remote-config / analytics candidate lines) for a human — it
   does not structure what would generalize from one app. A secret-looking token in a
   Custom Tab's `dat=` URL is redacted on output, reusing `extract_endpoints`' rule.
+- `tools/apk-archaeology/scripts/cdp_netcap.py` — deterministic, pure-stdlib
+  CDP client (unit-tested by `selftest_cdp_netcap.py`), the third capture
+  surface below. Same fail-closed `APK_ARCH_AUTHORIZED=1` gate as
+  `capture_dynamic.sh` — it captures live network/console traffic, not an
+  offline parse. Every header/body/URL/contract field is redacted before it
+  reaches the output, reusing the same `extract_endpoints`/`parse_logcat`
+  redaction rules. App-specific surfaces stay opt-in, not defaulted: the
+  breadcrumb-contract marker has no default (one app's own logging
+  convention), and the bridge-message marker defaults only to the generic
+  term "bridge" — widen either with the script's flags for a given app.
 
-**A third capture surface — the Chrome DevTools Protocol (CDP) console.** When the WebView is debuggable (a QA build, or `setWebContentsDebuggingEnabled(true)`), attaching to its devtools socket over `adb forward` gives two things logcat cannot: the web-side API breadcrumbs / bridge messages **untruncated** (logcat caps each line at ~4000 chars, cutting large JSON mid-object; CDP has no such cap — a real content contract ran to ~40 KB), plus the page's own `Network`/`console` streams. **Pick the capture surface by transport**: logcat for the native transport-client frames (a config-push WebSocket logs its JSON-RPC there); CDP console for web-side channels and oversized payloads; a Fetch-tap/proxy for the WebView backend (the WebView branch). A minimal stdlib CDP client suffices for the debuggable-WebView case — no proxy or MITM certificate needed.
+**A third capture surface — the Chrome DevTools Protocol (CDP) console.** When the WebView is debuggable (a QA build, or `setWebContentsDebuggingEnabled(true)`), attaching to its devtools socket over `adb forward` gives two things logcat cannot: the web-side API breadcrumbs / bridge messages **untruncated** (logcat caps each line at ~4000 chars, cutting large JSON mid-object; CDP has no such cap — a real content contract ran to ~40 KB), plus the page's own `Network`/`console` streams. **Pick the capture surface by transport**: logcat for the native transport-client frames (a config-push WebSocket logs its JSON-RPC there); `cdp_netcap.py`'s console capture for web-side channels and oversized payloads; a Fetch-tap/proxy for the WebView backend (the WebView branch). A minimal stdlib CDP client suffices for the debuggable-WebView case — no proxy or MITM certificate needed.
 
 There is **no auto cross-check script** against the static extract, on purpose: the
 static `graph.json` is an extends/implements reconstruction with no navigation edges,

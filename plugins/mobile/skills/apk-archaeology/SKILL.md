@@ -35,10 +35,11 @@ disable-model-invocation: true
 > ever drifts from the Steps below, this prose wins.
 
 > **From extraction to backlog.** The report method — the CT→RF→US→RN→CA chain, the
-> reach map, the confidence tiers, and the log-based v2 (dynamic) instrument
+> reach map, the confidence tiers, and the v2 (dynamic) instruments
 > (`tools/apk-archaeology/scripts/capture_dynamic.sh` +
-> `tools/apk-archaeology/scripts/parse_logcat.py`, the Dynamic pass below) — lives in
-> `references/method.md`. `report/` covers two client-facing genres, on-demand: a
+> `tools/apk-archaeology/scripts/parse_logcat.py` for the logcat transport,
+> `tools/apk-archaeology/scripts/cdp_netcap.py` for the CDP/debuggable-WebView
+> transport, the Dynamic pass below) — lives in `references/method.md`. `report/` covers two client-facing genres, on-demand: a
 > **technical recon report** (pt-BR), templated as
 > `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md` — the filled file **is**
 > the deliverable, shipped as Markdown — inline Mermaid diagram, no `.docx`
@@ -342,6 +343,29 @@ signals, config/analytics candidate lines). It emits SIGNALS, never a "native"
 verdict — that call needs the `uiautomator` dump, read by a human. The cross-check
 against the static bands is a human step (no auto-reconciliation, by design). Full
 discipline + anti-laundering clause: `references/method.md`, "Dynamic analysis (v2)".
+
+**Discriminator — logcat vs. CDP.** Both read the same running app; pick by
+payload size and transport, not by preference. **logcat** (above) is the
+default: it needs nothing beyond `adb`, but truncates each line at ~4000
+chars, cutting a large JSON payload mid-object. **CDP** is the fallback when
+the WebView is debuggable (a QA build, or
+`setWebContentsDebuggingEnabled(true)`) and the payload logcat would truncate
+is exactly the thing you need — a real content contract has run to ~40 KB
+with no cap on the CDP side:
+
+```
+adb forward tcp:9222 localabstract:webview_devtools_remote_<pid>
+curl http://localhost:9222/json   # copy a page target's webSocketDebuggerUrl
+APK_ARCH_AUTHORIZED=1 python3 tools/apk-archaeology/scripts/cdp_netcap.py <ws_debugger_url> \
+    --out <work_dir>/cdp.json
+```
+
+`cdp_netcap.py` captures Network requests/responses plus console/log lines
+matching a bridge marker, redacting every header/body/URL/contract field
+before it reaches the output (reusing `extract_endpoints`'s secret heuristic).
+App-specific surfaces are opt-in, not defaulted — see its `--help` for
+`--bridge-marker` / `--contract-marker`. Same fail-closed authorization gate
+as `capture_dynamic.sh`; same human cross-check discipline as `parse_logcat.py`.
 
 ## Inviolable Rules
 

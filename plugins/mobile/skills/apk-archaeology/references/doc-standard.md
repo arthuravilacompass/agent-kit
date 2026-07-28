@@ -124,6 +124,6 @@ not redefine or duplicate either one:
   proposal + backlog; a verdict → VERDICT; a decision → LEDGER; run-specific
   method/tooling → the run's method notes or `data/` artifacts. A view is not the
   graveyard of what doesn't fit — the run keeps the knowledge, sorted by genre.
-- **Lifecycle: overwrite (L8).** A doc reflects current state only. When later evidence
+- **Lifecycle: overwrite.** A doc reflects current state only. When later evidence
   moves an item between sections, it overwrites what was there — the epistemic history
   lives in git, not in an inline "corrected" note or a per-doc changelog section.

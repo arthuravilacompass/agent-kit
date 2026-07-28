@@ -85,7 +85,7 @@ Documented limitations:
     `SomeClass.java` (optionally followed by `:methodName` or `:CONST_NAME`)
     token and stripping numeric line ranges — it does not resolve relative
     vs. full-path anchors to the same key (e.g. `Connection.java` and
-    `com/tuenti/.../Connection.java` are DIFFERENT keys here). Section (b)'s
+    `com/telecorp/.../Connection.java` are DIFFERENT keys here). Section (b)'s
     bare-filename check is what surfaces that ambiguity instead; fixing
     anchors to carry full paths (per L10 in the migration methodology) also
     makes (d)'s grouping exact.

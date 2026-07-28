@@ -1,0 +1,26 @@
+# Template for scripts/check-provenance.sh's local literal denylist.
+#
+# This repo is public. check-provenance.sh ships two tiers of pattern:
+#   - STRUCTURAL patterns (ticket-ID formats, branch-naming conventions) live
+#     inside the script itself — a naming FORMAT doesn't identify anyone, so
+#     it's safe to publish.
+#   - LITERAL patterns — an actual client name, an internal domain, a squad
+#     name, a personal handle tied to one engagement — must never live in
+#     tracked content. A denylist that ships its own literals in a public repo
+#     publishes the very thing it exists to hide.
+#
+# Copy this file to .provenance-deny (already gitignored, never commit it) and
+# fill in your own literals below, one extended-regex (grep -E) alternative
+# per line. Blank lines and lines starting with # are ignored.
+#
+# If .provenance-deny is absent, check-provenance.sh still runs — using only
+# the structural patterns shipped in the script — and its OK/FAILED line
+# always states whether a local file was loaded and how many patterns it
+# contributed, so absence is visible in the gate's own output, never silent.
+# A .provenance-deny that exists but yields zero usable lines is instead
+# treated as an error (truncated/corrupted file), not as "nothing to hide".
+#
+# Examples only — replace with your own real values, don't ship these as-is:
+# example-client-name
+# example\.client\.domain
+# \bExampleClientName\b

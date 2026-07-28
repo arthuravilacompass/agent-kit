@@ -36,16 +36,26 @@ else
   fi
 fi
 
-# 2) Provenance-narration ban, scoped to plugins/: "Promoted from" belongs in
-# CHANGELOG.md, not in a shipped skill/agent body. Scoped (not repo-wide) so the
-# CHANGELOG's own legitimate promotion narration never trips it.
-hits=$(grep -rIn 'Promoted from' plugins/ 2>/dev/null)
+# 2) Provenance-narration ban, scoped to plugins/: "Promoted from" (and variants —
+# "Promotion from", lowercase, or with text in between, e.g. "Promoted 2026-07-26
+# from") belongs in CHANGELOG.md, not in a shipped skill/agent body. Case-insensitive
+# and tolerant of an inserted date/clause is deliberate: a literal-string match let
+# "Promoted 2026-07-26 from ..." through once already (the two words split by a date).
+# `[^.]{0,40}` bounds the gap to the same sentence, so it can't reach across a
+# period into unrelated prose. Scoped (not repo-wide) so the CHANGELOG's own
+# legitimate promotion narration never trips it. Validated against a manual review
+# of every "promot*" hit in plugins/ (incl. case-insensitive) at the time this
+# pattern was written: legitimate uses either don't pair "promot(ed|ion)" with
+# "from" at all, or the two words aren't followed by "from" within the same clause
+# (e.g. "promotion to BLOCKER", "promoted this gate", "not yet promoted to wired") —
+# none of them false-positive against this pattern.
+hits=$(grep -rEIni 'promot(ed|ion)[^.]{0,40}from' plugins/ 2>/dev/null)
 if [ -n "$hits" ]; then
-  echo "ERROR: provenance narration ('Promoted from') found in plugins/:"
+  echo "ERROR: provenance narration ('Promoted from' or a variant) found in plugins/:"
   echo "$hits"
   fail=1
 else
-  echo "OK: zero provenance narration ('Promoted from') in plugins/"
+  echo "OK: zero provenance narration ('Promoted from' or a variant) in plugins/"
 fi
 
 # 3) Personal memory index (MEMORY.md) byte ceiling. Soft check: the memory

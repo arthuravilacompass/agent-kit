@@ -13,3 +13,7 @@ labs/
 # Local-only Claude Code settings (per-machine permission allowlist, not shared)
 .claude/settings.local.json
 .claude/settings.local.json.new
+# check-provenance.sh's literal denylist (client/engagement names) — never tracked.
+# .provenance-deny.example (the shipped, name-free template) is intentionally NOT
+# matched by this line — it's a different filename, not a suffix of this one.
+.provenance-deny
