@@ -12,11 +12,9 @@ what the system does, not why — legacy behavior ≠ intent ≠ spec of the new
 
 ## §Genres
 
-The standard defines **3 genres**:
+The standard defines **2 genres** (G2 retired — see §G2 below):
 
 - **G1 target-view** — `analysis/*.md`, engineer reader.
-- **G2 baseline** — `analysis/baseline.md`, engineer/architect onboarding onto the
-  system.
 - **G3 report** — `report/*`, PO + client dev (see §report).
 
 `analysis/` also hosts three genres this standard names but does **not** define the
@@ -30,7 +28,7 @@ skeleton of, because they belong to other bodies:
   to the target stack). Its worth is the demonstration itself, so it is not forced into
   the G1 fact/inference/gap skeleton.
 
-Recommendation and verdict never invade the 3 genres this standard defines — they live
+Recommendation and verdict never invade the 2 genres this standard defines — they live
 in VERDICT, LEDGER, PROOF, or `report/`.
 
 ## §Header
@@ -74,18 +72,18 @@ distinction — the marker is not repeated in the text. The anchor itself is the
 signal. Markers 🟢🟡⬜ survive only where no section can carry the distinction:
 diagrams (C4) and `findings.json`.
 
-## §G2 — baseline
+## §G2 — retired
 
-Skeleton, in order:
+`analysis/baseline.md` never had a consumer — no doc, step, or script in this skill
+reads it — and the one real run this standard was validated against never produced
+one. Its three intended functions (context-as-fact, known/open inventory, view
+index) are already performed by `OVERVIEW.md`: a black-box/external-actors passage,
+a closed-vs-still-unknown section, and a guided reading-order tour. A dedicated G2
+doc would duplicate work `OVERVIEW.md` already does, not fill a gap it leaves open.
 
-1. **Context-as-fact** — black box + external actors/systems, C4 Context level. 🟢
-   only: observable fact, never a decision.
-2. **Known/open inventory** — the aggregate (manual in v1) of every view's `§Open`.
-   Regenerated from current state each run, never patched.
-3. **View index** — a guided tour: recommended reading order by reader goal.
-
-OVERVIEW does not duplicate the baseline — it keeps viability + manifest and points
-here.
+Number retired, not reassigned: `CHANGELOG.md` cites G2 by number in history that
+stays as written, and G1/G3 below keep their numbers unchanged rather than closing
+the gap.
 
 ## §report
 

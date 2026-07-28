@@ -52,7 +52,7 @@ disable-model-invocation: true
 > kit yet.
 
 > **Doc discipline.** Every human-read doc (OVERVIEW, analysis/, report/) follows
-> `references/doc-standard.md` — 3 genres, mandatory header (reader · use · source),
+> `references/doc-standard.md` — 2 genres (G2 retired), mandatory header (reader · use · source),
 > fact/inference/gap sections (`§Observed`/`§Reading`/`§Open`), typed anchors. Templates:
 > `references/templates/`.
 
@@ -91,7 +91,7 @@ Every step below targets one `<work_dir>` tree, laid out like this:
 ├── OVERVIEW.md            (rendered: deterministic slice by render_overview.py + agent BLUF)
 ├── findings.json          (emit_findings.py skeleton + agent synthesis; contract: references/findings.schema.json)
 ├── backlog.md             (the value — agent-authored)
-├── analysis/              (baseline.md, feasibility.md, flows.md, architecture.md, bridge-pilot.md, transport.md, architecture.c4.mmd, decisions.md, digital-twin.html)
+├── analysis/              (flows.md, architecture.md, architecture.c4.mmd, transport.md, bridge-pilot.md, analise-portabilidade.md; digital-twin.html when the optional visual synthesis step runs)
 ├── data/                  (Foundation output: classify.json, classify.v1.json, endpoints.json, graph.json,
 │                            partitions.json, persistence.json, harvest.json, coupling.json, layers.json,
 │                            permissions.json)
@@ -111,7 +111,7 @@ the same APK.
 Transport is a first-class category of the method
 (`references/cognitive-sequence.md`, "Map the transport layer, not just the screen
 surface"), synthesized into `analysis/transport.md` — stepless like
-feasibility/flows/decisions, and a **doc**, never a `migration_shape` bucket.
+flows/architecture, and a **doc**, never a `migration_shape` bucket.
 
 ## Steps
 
