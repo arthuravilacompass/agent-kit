@@ -117,11 +117,7 @@ Who executes is a decision, not a default. At decomposition time, check the shap
 - **Worker default (read-only):** voluminous material whose value is a *finding* (a sweep, a dump, a whole doc) is LABOR — dispatch a cheap read-only worker rather than reading it in the main seat; read-only is safe-default (writes/fan-out/sessions still propose). **This is not a preference: the read-ledger records only `Read`/`Grep`, so material consumed via Bash never becomes citable evidence.**
 - **Advisor-gated transitions:** at a transition that commits (before planning, before calling it done), propose the Advisor consult and let the operator confirm — pull, never default-fire. Checkpoints and modes: `core:grill-me`.
 
-**Worker output contract** — required at the end of every dispatch:
-- Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
-- **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block — do not decide alone.
-- On a code change: run build/tests and report the result.
-- Long outputs go to a file; the chat gets the path plus a 3-line summary. This applies to the main thread too.
+**Worker output contract** — required at the end of every dispatch — contract: `core:methodology`.
 
 A dispatch opportunity is a proposal to the user, never an action — name the shape, ask, then dispatch.
 
@@ -175,8 +171,6 @@ State that survives multiple operations needs an explicit origin, a named home, 
 When the reported bug is "action X does nothing", the fix needs to make X work — decorating the broken state with an error message, a warning, or a UX change instead of that is not a fix for the reported bug.
 
 **Signal**: the fix responds to "X doesn't work" with new messaging/UX instead of making X execute/record.
-
-— detail: core:methodology
 
 ## Permissions
 

@@ -1,6 +1,6 @@
 ---
 name: methodology
-description: Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "Mermaid hand-drawn look not rendering", "workflow diagram reads as generated/generic", "the map/investigation just closed — build now, or another pass first?"
+description: A corpus to read, not a conductor — it holds rules to consult and never structures, sequences, or drives a session; conduction lives in CE (`/ce-*`) and discovery in superpowers. Invoke when the always-on tier (using-agent-kit) isn't enough — methodology for more specific application (verification, evidence, scope, investigation, exploration, shared tooling) and a pointer to portable technical reference for Claude Code (hooks, advisor), git (rerere, partial revert), and Flutter/Dart (build_runner) in references/technical-reference.md. Triggers: "could this gate false-negative?", "is this criterion a proxy for the real goal?", "hook didn't fire", "post-release partial revert", "about to call it done/execute — did I verify the final artifact?", "Mermaid hand-drawn look not rendering", "workflow diagram reads as generated/generic", "the map/investigation just closed — build now, or another pass first?"
 ---
 
 # Methodology — tier 2 (on-demand)
@@ -155,14 +155,6 @@ Descended from the always-on tier (`using-agent-kit`) — the rule and its **Sig
 
 ---
 
-### Fix scope = reported-bug scope — detail
-
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the failure mode.
-
-**Failure mode**: the action stays broken; the delivery looks like progress but the reported bug remains open.
-
----
-
 ### Exploration output uses an opportunity frame, with anchored severity
 
 In mapping/exploration output meant for a decision (not a point-in-time review), prefer "Improvement opportunities" over "Risks"/"Removals". Anchor severity to an explicit rubric (blocks the decision vs. has a workaround vs. known debt), not vibe. Open with a short TL;DR, rank at most ~5 key items, cite file:line per item — no citation is inference, cut it.
@@ -212,6 +204,17 @@ Descended from the always-on tier (`using-agent-kit`, §Permissions) — the rul
 **Why**: committing or pushing on the user's behalf bypasses their review of what goes on the branch and in history.
 
 **Failure mode**: unwanted commits on the wrong branch; history rewrite required.
+
+---
+
+### Worker output contract
+
+Descended from the always-on tier (`using-agent-kit`, §Dispatch) — the trigger ("required at the end of every dispatch") stays there as a one-line pointer; this holds the full contract.
+
+- Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
+- **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block — do not decide alone.
+- On a code change: run build/tests and report the result.
+- Long outputs go to a file; the chat gets the path plus a 3-line summary. This applies to the main thread too.
 
 ## Technical Reference
 

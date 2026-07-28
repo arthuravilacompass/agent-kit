@@ -163,4 +163,4 @@ Without these configs, the skill still runs — just with less specialized conte
 - Never modify code inside this skill. It only loads context, escalates, verifies, presents, and asks. Fixes are a separate step taken after user approval.
 - Do not commit memory entries or update project docs based on findings — that's a separate capture via skill `core:learn` (or inline write with approval).
 - Invocation order in a typical feature track: `pre-plan` (before `superpowers:writing-plans`) → `post-plan` (after plan approval) → `pre-done` (before `core:review-local`).
-- **Native advisor vs. this mode:** for a routine second opinion with full context, the native `/advisor` is lighter — Claude calls it on its own. Use grill-me's escalation mode when you need a **guaranteed checkpoint**, **controlled or blind context**, or **citation-verified structured findings**.
+- **Native advisor vs. this mode:** see §Two mechanisms, by design above — same context/trigger split, stated once.

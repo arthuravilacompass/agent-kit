@@ -1,6 +1,7 @@
 ---
 name: prompt-optimizer
 description: Invoke when the user asks to optimize, improve, or rewrite a draft prompt before running it, or asks how best to phrase a request for this kit ("optimize this prompt", "help me prompt for X", "how should I ask for this", "rewrite this prompt"). Analyzes intent, project context, and scope gaps, matches this kit's real skills/agents/postures, and outputs a ready-to-paste optimized prompt (full + quick) plus rationale. Advisory only — never executes the task itself. Do NOT invoke when the user wants the task run directly ("just do it", "só faz"), or for code/performance optimization requests ("otimizar código", "optimize this code", "optimize performance") — those are refactor/perf tasks, not prompt optimization.
+metadata: author=Affaan Mustafa; source=LittleBearBond/everything-claude-code@e0ddb33 (skills/prompt-optimizer/SKILL.md); license=MIT
 ---
 
 # prompt-optimizer — draft-prompt analysis and rewrite

@@ -32,5 +32,5 @@ All five must come back green. There's no separate build/test command — this g
 
 ## Watch out
 
-- **`labs/` is gitignored on purpose.** It holds local working material that must never reach the repo — that's what `check-provenance.sh` guards against for anything that *does* get tracked. Don't force-add anything under `labs/`.
+- **Don't force-add under the gitignored working tree.** Which directories, why, and the mechanical safety net: `docs/GOVERNANCE.md`'s "Gitignored working tree" section.
 - **Skill/doc bodies are English, always** — even though the maintainer's own environment defaults to Portuguese everywhere else. Runtime output (Council callouts, review findings, `grill-me`) mirrors the user's language; shipped skill/doc content does not.

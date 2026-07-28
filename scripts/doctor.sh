@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # desc: Post-install health check for the agent-kit plugin kit — one pass/fail/info line per check, with a one-line fix on failure.
 # usage: bash scripts/doctor.sh [--maintainer]
-#   (default)     colleague checks: claude CLI present, marketplace registered, plugins installed.
+#   (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,
+#                 external marketplaces (superpowers, compound-engineering) reported informationally.
 #   --maintainer  additionally runs kit-maintainer gates: check-ceiling.sh, check-provenance.sh,
 #                 claude plugin validate ., generate_inventory.py --check.
 set -uo pipefail
@@ -17,7 +18,8 @@ for arg in "$@"; do
     --maintainer) MAINTAINER_MODE=1 ;;
     -h|--help)
       echo "Usage: bash scripts/doctor.sh [--maintainer]"
-      echo "  (default)     colleague checks: claude CLI present, marketplace registered, plugins installed"
+      echo "  (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,"
+      echo "                external marketplaces (superpowers, compound-engineering) reported informationally"
       echo "  --maintainer  additionally run kit-maintainer repo gates (check-ceiling, check-provenance, plugin validate, inventory --check)"
       exit 0
       ;;
@@ -168,7 +170,87 @@ done
 
 echo
 
-# 4) repo self-checks (kit-maintainer gates only — not colleague-facing:
+# 4) external marketplaces (superpowers, compound-engineering) — informational only.
+# These are separate marketplaces, not plugins of this one, so they need their own
+# detection: match by plugin name only (ignore the marketplace suffix in "id"), since
+# the same plugin can be installed from more than one marketplace (e.g. superpowers
+# ships both from its own superpowers-dev marketplace and bundled in
+# claude-plugins-official) — matching the exact "name@marketplace" id here would
+# false-negative on a colleague who has the functionality via a different route.
+# Absence is never a failure: the kit's own gates and hooks work without them
+# (see README Requirements) — only the README's routing chain assumes them.
+EXTERNAL_NAMES=(superpowers compound-engineering)
+EXTERNAL_MARKETPLACES=(superpowers-dev compound-engineering-plugin)
+EXTERNAL_URLS=(
+  https://github.com/obra/superpowers
+  https://github.com/EveryInc/compound-engineering-plugin
+)
+EXTERNAL_COSTS=(
+  "discovery workflow — brainstorming, systematic debugging, parallel dispatch"
+  "the /ce-* command family — /ce-plan, /ce-work, /ce-code-review, /ce-compound"
+)
+
+PY_PLUGIN_NAME_HAS=$(cat <<'PYEOF'
+import json, sys
+name = sys.argv[1]
+try:
+    data = json.loads(sys.stdin.read())
+except Exception:
+    sys.exit(2)
+if not isinstance(data, list):
+    sys.exit(2)
+matches = [x for x in data if isinstance(x, dict) and str(x.get("id", "")).rsplit("@", 1)[0] == name]
+if not matches:
+    sys.exit(1)
+enabled = any(bool(x.get("enabled")) for x in matches)
+ids = sorted({str(x.get("id", "")) for x in matches})
+print(("enabled" if enabled else "disabled") + " via " + ",".join(ids))
+sys.exit(0)
+PYEOF
+)
+
+# external_plugin_status <name>: 0 = found (any marketplace), 1 = not found, 2 = json path unavailable/failed.
+EXTERNAL_STATUS_DETAIL=""
+external_plugin_status() {
+  local name="$1" json py_out py_rc
+  EXTERNAL_STATUS_DETAIL=""
+  json="$(claude plugin list --json 2>/dev/null)" || return 2
+  [ -n "$json" ] || return 2
+  command -v python3 >/dev/null 2>&1 || return 2
+  py_out="$(printf '%s' "$json" | python3 -c "$PY_PLUGIN_NAME_HAS" "$name")"
+  py_rc=$?
+  EXTERNAL_STATUS_DETAIL="$py_out"
+  return "$py_rc"
+}
+
+for i in "${!EXTERNAL_NAMES[@]}"; do
+  ext_name="${EXTERNAL_NAMES[$i]}"
+  ext_marketplace="${EXTERNAL_MARKETPLACES[$i]}"
+  ext_url="${EXTERNAL_URLS[$i]}"
+  ext_cost="${EXTERNAL_COSTS[$i]}"
+  external_plugin_status "$ext_name"
+  ext_rc=$?
+  if [ "$ext_rc" -eq 2 ]; then
+    # No --json support — tolerant text fallback: match the plugin name followed by
+    # "@<any marketplace>", not anchored to a glyph or a specific marketplace.
+    plugin_list="$(claude plugin list 2>&1)"
+    if printf '%s\n' "$plugin_list" | grep -qE '(^|[^A-Za-z0-9._-])'"${ext_name}"'@[A-Za-z0-9._-]+([^A-Za-z0-9._-]|$)'; then
+      ext_rc=0
+      EXTERNAL_STATUS_DETAIL="status unknown"
+    else
+      ext_rc=1
+    fi
+  fi
+  if [ "$ext_rc" -eq 0 ]; then
+    info "'${ext_name}' plugin present (${EXTERNAL_STATUS_DETAIL:-status unknown}) — external marketplace, not one of this kit's own plugins"
+  else
+    info "'${ext_name}' plugin not found — the README's routing chain assumes it (${ext_cost}); fix: claude plugin marketplace add ${ext_url} && claude plugin install ${ext_name}@${ext_marketplace} (see README Installation)"
+  fi
+done
+
+echo
+
+# 5) repo self-checks (kit-maintainer gates only — not colleague-facing:
 # provenance/ceiling failures aren't fixable by someone who just installed the kit).
 if [ "$MAINTAINER_MODE" -ne 1 ]; then
   info "maintainer checks skipped (repo self-checks) — run with --maintainer to include them"

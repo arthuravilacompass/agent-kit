@@ -8,8 +8,11 @@ CEILING="${CEILING_OVERRIDE:-16384}"
 # Ratchet — the last measured size, committed. Growing the tier is allowed, but the
 # ratchet must be raised in the SAME commit, which makes accretion a signed act instead
 # of a silent one. History of why: the tier was dieted to 8529 on 2026-07-15 and regained
-# 544 bytes the next day, for an engine (core:orchestrate) later deleted. See CHANGELOG.
-RATCHET="${TIER_RATCHET:-10182}"
+# 544 bytes the next day, for an engine (core:orchestrate) later deleted. Lowered again to
+# 9811 on 2026-07-28, when the Worker output contract descended to core:methodology and
+# only a one-line pointer stayed always-on, then to 9776 the same day when the thinning pass
+# retired one tier-2 detail section and its now-dangling tier-1 pointer. See CHANGELOG.
+RATCHET="${TIER_RATCHET:-9776}"
 fail=0
 
 # 1) Always-on ceiling: session-start.sh's actual output (full JSON)

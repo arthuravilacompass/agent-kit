@@ -1,6 +1,6 @@
 ---
 name: tech-breakdown
-description: Invoke to turn a ticket into a developer-ready implementation plan — fetches the ticket, runs brainstorming + adversarial refinement + writing-plans, and has the critic phase grill the plan against the real codebase. Typical Tech Lead use.
+description: Invoke to turn a ticket into a developer-ready implementation plan — fetches the ticket, runs brainstorming + writing-plans, and has the critic phase grill the plan against the real codebase. Typical Tech Lead use.
 disable-model-invocation: true
 ---
 
@@ -76,9 +76,9 @@ This skill assumes the consumer project defines:
    - Get the TL's approval on the chosen approach
    - Produce a validated design/spec
 
-5. **Adversarial spec refinement**
+5. **Adversarial spec refinement (no-op in this version)**
 
-   Unowned in this version — the skill that ran this step was retired, and which flow takes it over is deferred to this skill's own thinning pass.
+   This step does nothing right now — the skill that used to run it was retired, and which flow takes it over is deferred to this skill's own thinning pass. Go directly from step 4's spec to step 6.
 
 6. **Generate implementation plan**
 

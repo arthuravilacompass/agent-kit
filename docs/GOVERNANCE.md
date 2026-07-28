@@ -35,7 +35,7 @@ Adopted after hands-on testing on real artifacts, not source-reading alone — e
 - **`walkthrough`** (from `alexanderop/walkthrough`) — generates a self-contained interactive HTML walkthrough (clickable Mermaid + per-node detail) for explaining a flow/architecture/schema. Model-invoked — always-on cost accepted deliberately.
 - **`mermaid-skill`** (from `Agents365-ai/mermaid-skill`) — generates `.mmd` diagrams exported to PNG/SVG. Model-invoked, aggressive auto-trigger description — always-on cost accepted deliberately (low-commitment keep: has a known unresolved subgraph-title clipping bug, `walkthrough` covers the richer "explain this to someone" case, but this one stays for plain diagram-in-a-markdown-doc use).
 
-If one of these earns real, repeated use and the operator wants it to survive an environment reset with edit rights, port it into `plugins/` carrying its external attribution — author, source, license — in the frontmatter's `metadata` field plus an in-body blockquote: the convention `core:orchestrate` used before its removal. One wired skill is already vendored from an external source (`core:prompt-optimizer`, see its own attribution blockquote) but carries only the body half of the convention — the frontmatter `metadata` field isn't applied anywhere yet — so treat this as documented, not yet fully practiced, rather than moot.
+If one of these earns real, repeated use and the operator wants it to survive an environment reset with edit rights, port it into `plugins/` carrying its external attribution — author, source, license — in the frontmatter's `metadata` field plus an in-body blockquote: the convention `core:orchestrate` used before its removal. One wired skill is vendored from an external source — `core:prompt-optimizer` — and it now carries both halves: an in-body attribution blockquote and the frontmatter field (`grep -n "^metadata:" plugins/core/skills/prompt-optimizer/SKILL.md`). It is the convention's only live example, which is why its shape is flat `key=value; key=value` rather than nested YAML: `scripts/generate_inventory.py`'s frontmatter parser accepts only top-level single-line pairs and exits 1 on an indented one, so a nested `metadata:` block fails the gate even though `claude plugin validate` accepts it.
 
 ## Skill vs. standalone tool
 
@@ -87,6 +87,27 @@ Deterministic where determinism is possible; agnostic where it isn't. The gates 
 - **Slash-only**: `disable-model-invocation: true` when the cost of a wrong trigger is high — an effect hard to reverse, a high orchestration cost, or a long ceremony that shouldn't start on the model's own initiative.
 - **`# retire-review:` on a gate whose subject is a model behavior**: the kit governs an artifact's kind, state and size, but not its trajectory — a gate that compensates for how models behave depreciates in relevance as models improve, while staying mechanically correct the whole way down, and a stale *blocking* gate fails loudly (false positives), not quietly. Such a hook carries a `# retire-review:` line beside its `# desc:` naming the behavior it compensates for and the condition for reconsidering it. The line is a marker for a human pass, not a mechanism; nothing in the gate reads it.
 - **No provenance narration in a shipped body**: a skill/agent/hook doesn't narrate its own history ("Promoted from `unwired/`", origin-project notes) — that lives in git and `CHANGELOG.md`, not in something loaded every session. `check-ceiling.sh`'s grep for "Promoted from" is only the mechanizable half of this rule; the rest is reviewer judgment.
+
+## Gitignored working tree — a protection, not an omission
+
+Three directories inside this repo are deliberately gitignored and stay that way: `labs/` (local working material), `docs/superpowers/` (discovery specs, plans, handoffs, and loop records), and `docs/plans/` (CE plan artifacts). They hold the session material the kit is *developed with*, not the kit itself.
+
+A fourth directory, `apks/`, is gitignored for the same reason — real client APK binaries, per `.gitignore`'s own comment — but is not one of the three above and does not share their mechanism: it holds binaries, not prose, and `check-provenance.sh` greps with `-I`, which treats binary content as non-matching regardless of what literal it contains. The "safety net is already mechanical" claim below is verified true for the three text-bearing directories; it does not extend to `apks/` the same way, since a force-added APK would not trip the same content grep. Whether `apks/` needs a separate, non-text guard is not decided here.
+
+The ignore is load-bearing rather than incidental: files under the three text-bearing directories carry client and engagement names — the very literals `check-provenance.sh` exists to keep out of a public repo. Tracking them would not be a tidiness improvement; it would be a provenance incident. Re-derive the current extent rather than trusting a number written here, since both the denylist and the file set move:
+
+```bash
+# how many ignored working files would the gate flag if they were tracked
+D=$(sed -n "s/^DENY_STRUCTURAL='\(.*\)'\$/\1/p" scripts/check-provenance.sh)
+while IFS= read -r p; do case "$p" in ''|\#*) ;; *) D="$D|$p";; esac; done < .provenance-deny
+grep -rlEI "$D" docs/superpowers docs/plans | wc -l
+```
+
+That command reads the structural patterns out of the gate instead of restating them, for two reasons. It cannot drift from the gate it describes — and a copy pasted into this file would itself trip the gate, since `check-provenance.sh` excludes only *itself* from the scan. Keep the run case-sensitive to match the gate. A case-insensitive variant inflates the count, because at least one local literal is a capitalized proper noun whose lowercase form is an ordinary Portuguese word that appears in normal prose — case is the only thing separating the two, which is why the gate never passes `-i`.
+
+The safety net is already mechanical for the three text-bearing directories, and it is the reason this convention needs no new gate there: `check-provenance.sh` scans `git ls-files`, so a force-add turns an ignored file into a tracked one and the very next gate run fails on it. That makes the rule enforceable without scanning ignored content — the gate guards the boundary, not the working tree behind it. Do not force-add under `labs/`, `docs/superpowers/`, `docs/plans/`, or `apks/` — the first three are caught by the gate on the next run; `apks/` is not, per the caveat above.
+
+The trade this accepts, stated plainly: plans and specs written in the three text-bearing directories drive shipped work from outside every repo gate — nothing reviews them, and nothing catches a claim in them going stale. That cost is accepted knowingly in exchange for keeping client-identifying material out of a public history. The durable record of a decision belongs in `CHANGELOG.md` or a tracked doc, never only in an ignored plan.
 
 ## Decisions worth remembering
 
