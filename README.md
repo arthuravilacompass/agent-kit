@@ -96,45 +96,45 @@ Full native-command reference, `AGENTS.md` emission mechanics, and uninstall: **
 
 ## Which tool, when
 
-Indexed by the situation you're in, not by plugin.
+Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching, since both implement most of the same loop and nothing mechanically stops a loose phrase from also landing on CE's model-invocable skill. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
 
-**The boundary convention.** Loose phrase → `superpowers`; slash command → CE. Both implement most of the same loop, so nothing mechanically stops a loose phrase from landing on either side's model-invocable skill — the convention moves the election from pattern-matching (indeterminate) to syntax (not).
-
-**Ground rules for the chain in the diagram:**
-
-- **Explicit path, always.** CE's planner auto-discovers only its own artifacts (plus legacy `docs/brainstorms/*-requirements.md`); a superpowers spec at `docs/superpowers/specs/...` matches neither, so a bare `/ce-plan` plans from the wrong input.
-- **One executor, chosen once.** `/ce-work` and superpowers' execution flow can both implement a plan; giving it to both leaves neither accountable for "done."
-- **The two reviews compose.** `/ce-code-review` is the judgment pass. `/core:review-local` is the gate: blocks before spending a review token if lint or tests fail (CE's review has no such gate), then validates every citation against the read-ledger.
-- **Cite only what you read via `Read`/`Grep`.** The ledger is event-driven off those two tools; reads via `Bash` (`cat`, `sed`, shell `grep`) never enter it, so a reviewer that reads that way breaks its own citations at the gate.
-- **Unverified ≠ fabricated.** A citation overlapping nothing read lands in its own "Unverified" section as a hypothesis. A missing or session-mismatched ledger reports "nothing to verify against" — never proof of fabrication.
-- **Capture runs twice, on purpose.** `/ce-compound` writes the repo-local learning doc (committed, shared); `core:learn` writes personal cross-session memory. `ce-compound`'s scan folds in auto-memory as lower-priority context — run `core:learn` first if you want that.
-- **The kit no longer conducts flow.** No kit skill routes you stage to stage. Why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record.
+| Situation | You say/type | What fires | Owner |
+|---|---|---|---|
+| Vague feature idea | loose phrase ("let's think about X") | `superpowers:brainstorming` | superpowers |
+| Ticket for new/changed behavior | `/core:tech-breakdown <TICKET>` | ticket→plan seam | kit |
+| Something broken | loose phrase, or `/ce-debug` | `superpowers:systematic-debugging` \| CE's diagnosis loop | superpowers \| CE |
+| Touching Flutter code | nothing — fires automatically | smell-checker (blocking) + 3 advisory hooks | kit (mobile) |
+| Decision expensive to undo | wear a `council` posture | reasoning layer (posture table below) | council |
+| About to say it's done | `/core:grill-me pre-done` | blind pre-done reviewer | kit |
+| Work split into independent legs | (none, or dispatch agents) | `superpowers:dispatching-parallel-agents` | superpowers |
+| Running refinement / writing to squad | `/team:refine-live` \| `/team:refine-async` \| `team:chat-draft` | board-driven refinement / chat draft | team |
+| About to commit / want review | `/core:review-local` and/or `/ce-code-review` | gate (lint, tests, citations) / judgment pass | kit / CE |
 
 ### "I have a vague feature idea"
 
-Say it loose — "let's think about X" — and `superpowers:brainstorming` fires: interrogation one question at a time, 2–3 candidate approaches, and a committed spec at `docs/superpowers/specs/<date>-<topic>-design.md`. From there, `/ce-plan <that spec path>` and onward.
+**Discriminator: new behavior, not yet specified.** Say it loose — "let's think about X" — and `superpowers:brainstorming` fires: interrogation one question at a time, 2–3 candidate approaches, and a committed spec at `docs/superpowers/specs/<date>-<topic>-design.md`. From there, `/ce-plan <that spec path>` — always with the explicit path, since CE's planner auto-discovers only its own artifacts (plus legacy `docs/brainstorms/*-requirements.md`) and a superpowers spec matches neither; a bare `/ce-plan` plans from the wrong input. Once a plan exists, pick one executor: `/ce-work` and superpowers' execution flow can both implement it, and giving it to both leaves neither accountable for "done."
 
 ### "I have a ticket"
 
-For a ticket asking for new or changed behavior — a ticket *reporting a bug* goes to the next section instead, whatever tracker it lives in. The discriminator is what the ticket asks for, not its source format.
+**Discriminator: the ticket asks for new or changed behavior** — a ticket *reporting a bug* goes to the next section instead, whatever tracker it lives in; the discriminator is what it asks for, not its source format.
 
 Type `/core:tech-breakdown <TICKET>`. CE's planner builds from plans and briefs, never from a ticket, so this skill owns the ticket→plan seam: fetches the ticket, runs discovery, generates the plan, runs a critic phase against the real codebase, and writes the plan path back as a comment.
 
-The seam is narrower than "the kit reads trackers and CE doesn't" — CE does read them, just not to start a plan from one (`ce-debug` fetches a referenced GitHub/Linear/Jira issue; `ce-sweep` reads issues through `gh`). No total is claimed about either provider: two third-party plugins on their own release schedules would make one stale fast. And note the asymmetry — this is the one path that does **not** route through CE. Whether it should hand the enriched ticket to `/ce-plan` instead is an open question, not a settled design.
+The seam is narrower than "the kit reads trackers and CE doesn't" — CE does read them, just not to start a plan from one (`ce-debug` fetches a referenced GitHub/Linear/Jira issue; `ce-sweep` reads issues through `gh`). No total is claimed about either provider: two third-party plugins on their own release schedules would make one stale fast. And note the asymmetry — this is the one path that does **not** route through CE.
 
 At review time, pass `--ticket <TICKET>` to `/core:review-local` so the `consumer-simulation` agent joins the panel — it gets only the ticket text and acceptance criteria, never the diff, so it can notice what the implementation quietly dropped. `/core:review-remote` also accepts `--ticket`, but only compares inline, with no agent.
 
 ### "Something is broken"
 
-Existing behavior misbehaving. Say it loose — "this test started failing" — and `superpowers:systematic-debugging` fires; type `/ce-debug` for CE's diagnosis loop instead. `ce-debug` is model-invocable and claims the same utterances, so only the loose/slash split decides.
+**Discriminator: existing behavior misbehaving,** not new behavior wanted. Say it loose — "this test started failing" — and `superpowers:systematic-debugging` fires; type `/ce-debug` for CE's diagnosis loop instead. `ce-debug` is model-invocable and claims the same utterances, so only the loose/slash split decides.
 
 ### "I'm touching Flutter code"
 
-Nothing to type — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On demand: `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest. CE has zero Flutter coverage — the vertical is entirely the kit's.
+**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On demand: `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest. CE has zero Flutter coverage — the vertical is entirely the kit's.
 
 ### "I'm about to make a decision that's expensive to undo"
 
-Wear a `council` posture. Postures are a reasoning layer, not a flow layer — they compose with any conductor.
+**Discriminator: the decision is costly to reverse.** Wear a `council` posture — a reasoning layer, not a flow layer, so it composes with any conductor.
 
 | Posture | Question it forces | Wear it when |
 |---|---|---|
@@ -149,15 +149,21 @@ One posture per decision is the default; escalation to blind mode (`epistemic-co
 
 ### "I'm about to say it's done"
 
-`/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and its findings go through the citation gate before you see them. If what needs pressing is a *decision you own* rather than an artifact, bare `core:grill-me` is the interview mode.
+**Discriminator: you're about to claim done, not mid-work.** `/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and its findings go through the citation gate before you see them. If what needs pressing is a *decision you own* rather than an artifact, bare `core:grill-me` is the interview mode.
 
 ### "The work just split into independent legs"
 
-Three or more legs with no shared state — parallel research, generation, audit — go to `superpowers:dispatching-parallel-agents` (or native parallel subagents) instead of one long sequential pass.
+**Discriminator: 3+ legs with no shared state.** Parallel research, generation, audit — go to `superpowers:dispatching-parallel-agents` (or native parallel subagents) instead of one long sequential pass.
 
 ### "I'm running refinement or writing to the squad"
 
-`/team:refine-live` (PO in the room), `/team:refine-async` (from the board), `team:chat-draft` (pt-BR message for Teams/Slack). Both refines expect a board/kanban MCP this kit does not ship, and fail differently without one: `refine-async` degrades gracefully on both ends (works from a pasted context summary if `refine-live`'s state file is missing, exports subtasks as text if the board call fails); `refine-live` has no fallback — it cannot get past fetching the card.
+**Discriminator: the task is ceremony/comms, not implementation.** `/team:refine-live` (PO in the room), `/team:refine-async` (from the board), `team:chat-draft` (pt-BR message for Teams/Slack). Both refines expect a board/kanban MCP this kit does not ship, and fail differently without one: `refine-async` degrades gracefully on both ends (works from a pasted context summary if `refine-live`'s state file is missing, exports subtasks as text if the board call fails); `refine-live` has no fallback — it cannot get past fetching the card.
+
+### "I'm about to commit / I want review"
+
+**Discriminator: the change is about to leave your hands.** The two reviews compose: `/core:review-local` is the gate — it blocks before spending a review token if lint or tests fail, then validates every citation against the read-ledger — and `/ce-code-review` is the judgment pass on top. Cite only what you read via `Read`/`Grep`: the ledger is event-driven off those two tools, so reads via `Bash` (`cat`, `sed`, shell `grep`) never enter it and break a reviewer's own citations at the gate. Unverified ≠ fabricated: a citation overlapping nothing read lands in its own "Unverified" section as a hypothesis, and a missing or session-mismatched ledger reports "nothing to verify against" — never proof of fabrication.
+
+Once it passes, capture runs twice, on purpose: `/ce-compound` writes the repo-local learning doc (committed, shared); `core:learn` writes personal cross-session memory. `ce-compound`'s scan folds in auto-memory as lower-priority context — run `core:learn` first if you want that.
 
 ---
 
