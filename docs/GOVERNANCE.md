@@ -90,24 +90,24 @@ Deterministic where determinism is possible; agnostic where it isn't. The gates 
 
 ## Gitignored working tree — a protection, not an omission
 
-Three directories inside this repo are deliberately gitignored and stay that way: `labs/` (local working material), `docs/superpowers/` (discovery specs, plans, handoffs, and loop records), and `docs/plans/` (CE plan artifacts). They hold the session material the kit is *developed with*, not the kit itself.
+Four directories inside this repo are deliberately gitignored and stay that way: `labs/` (local working material), `docs/superpowers/` (discovery specs, plans, handoffs, and loop records), `docs/plans/` (CE plan artifacts), and `docs/ideation/` (CE ideation artifacts). They hold the session material the kit is *developed with*, not the kit itself.
 
-A fourth directory, `apks/`, is gitignored for the same reason — real client APK binaries, per `.gitignore`'s own comment — but is not one of the three above and does not share their mechanism: it holds binaries, not prose, and `check-provenance.sh` greps with `-I`, which treats binary content as non-matching regardless of what literal it contains. The "safety net is already mechanical" claim below is verified true for the three text-bearing directories; it does not extend to `apks/` the same way, since a force-added APK would not trip the same content grep. Whether `apks/` needs a separate, non-text guard is not decided here.
+A fifth directory, `apks/`, is gitignored for the same reason — real client APK binaries, per `.gitignore`'s own comment — but is not one of the four above and does not share their mechanism: it holds binaries, not prose, and `check-provenance.sh` greps with `-I`, which treats binary content as non-matching regardless of what literal it contains. The "safety net is already mechanical" claim below is verified true for the four text-bearing directories; it does not extend to `apks/` the same way, since a force-added APK would not trip the same content grep. Whether `apks/` needs a separate, non-text guard is not decided here.
 
-The ignore is load-bearing rather than incidental: files under the three text-bearing directories carry client and engagement names — the very literals `check-provenance.sh` exists to keep out of a public repo. Tracking them would not be a tidiness improvement; it would be a provenance incident. Re-derive the current extent rather than trusting a number written here, since both the denylist and the file set move:
+The ignore is load-bearing rather than incidental: files under the text-bearing directories carry client and engagement names — the very literals `check-provenance.sh` exists to keep out of a public repo. Tracking them would not be a tidiness improvement; it would be a provenance incident. Re-derive the current extent rather than trusting a number written here, since both the denylist and the file set move:
 
 ```bash
 # how many ignored working files would the gate flag if they were tracked
 D=$(sed -n "s/^DENY_STRUCTURAL='\(.*\)'\$/\1/p" scripts/check-provenance.sh)
 while IFS= read -r p; do case "$p" in ''|\#*) ;; *) D="$D|$p";; esac; done < .provenance-deny
-grep -rlEI "$D" docs/superpowers docs/plans | wc -l
+grep -rlEI "$D" docs/superpowers docs/plans docs/ideation | wc -l
 ```
 
 That command reads the structural patterns out of the gate instead of restating them, for two reasons. It cannot drift from the gate it describes — and a copy pasted into this file would itself trip the gate, since `check-provenance.sh` excludes only *itself* from the scan. Keep the run case-sensitive to match the gate. A case-insensitive variant inflates the count, because at least one local literal is a capitalized proper noun whose lowercase form is an ordinary Portuguese word that appears in normal prose — case is the only thing separating the two, which is why the gate never passes `-i`.
 
-The safety net is already mechanical for the three text-bearing directories, and it is the reason this convention needs no new gate there: `check-provenance.sh` scans `git ls-files`, so a force-add turns an ignored file into a tracked one and the very next gate run fails on it. That makes the rule enforceable without scanning ignored content — the gate guards the boundary, not the working tree behind it. Do not force-add under `labs/`, `docs/superpowers/`, `docs/plans/`, or `apks/` — the first three are caught by the gate on the next run; `apks/` is not, per the caveat above.
+The safety net is already mechanical for the four text-bearing directories, and it is the reason this convention needs no new gate there: `check-provenance.sh` scans `git ls-files`, so a force-add turns an ignored file into a tracked one and the very next gate run fails on it. That makes the rule enforceable without scanning ignored content — the gate guards the boundary, not the working tree behind it. Do not force-add under `labs/`, `docs/superpowers/`, `docs/plans/`, `docs/ideation/`, or `apks/` — the first four are caught by the gate on the next run; `apks/` is not, per the caveat above.
 
-The trade this accepts, stated plainly: plans and specs written in the three text-bearing directories drive shipped work from outside every repo gate — nothing reviews them, and nothing catches a claim in them going stale. That cost is accepted knowingly in exchange for keeping client-identifying material out of a public history. The durable record of a decision belongs in `CHANGELOG.md` or a tracked doc, never only in an ignored plan.
+The trade this accepts, stated plainly: plans and specs written in the text-bearing directories drive shipped work from outside every repo gate — nothing reviews them, and nothing catches a claim in them going stale. That cost is accepted knowingly in exchange for keeping client-identifying material out of a public history. The durable record of a decision belongs in `CHANGELOG.md` or a tracked doc, never only in an ignored plan.
 
 ## Decisions worth remembering
 

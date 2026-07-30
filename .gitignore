@@ -2,8 +2,9 @@
 *.log
 .superpowers/
 docs/superpowers/
-# CE plan artifacts — session material, not kit deliverables
+# CE plan and ideation artifacts — session material, not kit deliverables
 docs/plans/
+docs/ideation/
 .eval-tmp/
 .worktrees/
 __pycache__/
