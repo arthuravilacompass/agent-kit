@@ -30,7 +30,28 @@ Four plugins installable via a local marketplace. `mobile` is the flagship verti
 
 Full generated catalog of every skill, agent, hook, and script: **[INVENTORY.md](INVENTORY.md)**.
 
+## Requirements
+
+Severity of each dependency — what you'll actually observe if it's missing, not just whether it's "recommended."
+
+| Dependency | Severity | Symptom if missing |
+|---|---|---|
+| [Claude Code](https://claude.com/claude-code) with plugin support | **hard** | nothing works — no `claude plugin` commands, no hooks, no skills |
+| `superpowers` + `compound-engineering` (external plugins, own marketplaces) | **assumed-by-routing** | the routing map below references `/ce-*` and `superpowers:*` skills that don't resolve; `scripts/doctor.sh` reports this as `INFO`, not a failure |
+| `pr-review-toolkit` (external plugin, generic marketplace) | **degrades** | `/core:review-local` falls back to `/core:review-remote` — no citation gate, no parallel dispatch (full cost: [docs/INSTALL.md](docs/INSTALL.md#requirements--detail)) |
+| A Flutter/Dart project, for `mobile` | **degrades** | `mobile`'s verifiers never fire — no DI/lifecycle/codegen checks |
+
 ## Installation
+
+**Three ways in — pick one:**
+
+| Path | Pick it when | Where |
+|---|---|---|
+| Profile script (`scripts/install.sh`) | you're on Claude Code — most people | below |
+| Native `claude plugin` commands | you want to see/control each install step | [docs/INSTALL.md](docs/INSTALL.md#native-install-commands) |
+| **Not on Claude Code** (Copilot, Cursor, ...) | you still want the epistemic tier | [docs/INSTALL.md](docs/INSTALL.md#use-the-epistemic-tier-on-another-ai-tool) — emits `AGENTS.md` |
+
+The rest of this section is the happy path for the first row.
 
 ### 1. Clone (once)
 
@@ -55,25 +76,7 @@ Run it **from inside the project where the kit should be active**. `claude plugi
 | `team` | minimal + team | you run refinement / talk to a squad — needs a board MCP you supply |
 | `full` | all four | everything above applies |
 
-Prefer the native commands? They're exactly what the script wraps:
-
-```bash
-claude plugin marketplace add "$HOME/dev/agent-kit"
-claude plugin install core@agent-kit
-claude plugin install council@agent-kit  # recommended with core
-claude plugin install team@agent-kit     # optional: agile ceremonies with PO/squad
-claude plugin install mobile@agent-kit   # only in a Flutter/Dart project
-```
-
-**Three external plugins, none of them installed by any profile.** The kit's gates and hooks work with nothing else installed — skip this if that's all you want. But the routing below assumes CE and `superpowers`; without them `/ce-plan`, `/ce-work`, and `superpowers:brainstorming` don't exist yet. The third, `pr-review-toolkit`, gates `/core:review-local` — this repo pins no source for it (it's a generic marketplace plugin), so install it from wherever you get it; see [Requirements](#requirements) for exactly what you lose without it.
-
-```bash
-claude plugin marketplace add https://github.com/obra/superpowers
-claude plugin install superpowers@superpowers-dev
-
-claude plugin marketplace add https://github.com/EveryInc/compound-engineering-plugin
-claude plugin install compound-engineering@compound-engineering-plugin
-```
+The profile script installs only this kit's own four plugins. `superpowers`, `compound-engineering`, and `pr-review-toolkit` are separate marketplaces — see [docs/INSTALL.md](docs/INSTALL.md#external-plugins) for those commands and what each one costs you if skipped.
 
 ### 3. Verify, and update later
 
@@ -85,28 +88,11 @@ claude plugin list                  # or manually: should list what you installe
 claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
-In a new session, `core`'s rules already come in via SessionStart — nothing to type. A plugin installed at project scope needs `--scope project` on update too.
+Anything missing — the CLI, the marketplace, a plugin, an external plugin the routing assumes — `doctor.sh` prints the exact install command to fix it, not just a pass/fail line. In a new session, `core`'s rules already come in via SessionStart — nothing to type. A plugin installed at project scope needs `--scope project` on update too.
 
-### Use the epistemic tier on another AI tool
+**Maintaining the kit itself?** `scripts/doctor.sh --maintainer` additionally runs four of the kit-maintainer gates (ceiling, provenance, plugin manifest validation, inventory); the full six-command gate is [docs/OPERATIONS.md](docs/OPERATIONS.md) §4.
 
-The plugins are Claude Code-native, but the always-on epistemic tier is tool-agnostic. Emit it as an `AGENTS.md`, read by GitHub Copilot, Cursor, and other AGENTS.md-honoring tools:
-
-```bash
-~/dev/agent-kit/scripts/install.sh --tool copilot --out .   # writes ./AGENTS.md
-# --dry-run to preview · --force to overwrite an existing AGENTS.md
-```
-
-Enforcement doesn't travel — hooks and subagent skills run only under Claude Code, so there the rules are **advisory**, and the emitted header says so. Source of truth stays the `using-agent-kit` skill shipped in `core`; re-run to refresh, never hand-edit the output.
-
-### Uninstall
-
-```bash
-claude plugin uninstall mobile@agent-kit   # if installed
-claude plugin uninstall team@agent-kit
-claude plugin uninstall council@agent-kit
-claude plugin uninstall core@agent-kit
-claude plugin marketplace remove agent-kit
-```
+Full native-command reference, `AGENTS.md` emission mechanics, and uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Which tool, when
 
@@ -173,29 +159,6 @@ Three or more legs with no shared state — parallel research, generation, audit
 
 `/team:refine-live` (PO in the room), `/team:refine-async` (from the board), `team:chat-draft` (pt-BR message for Teams/Slack). Both refines expect a board/kanban MCP this kit does not ship, and fail differently without one: `refine-async` degrades gracefully on both ends (works from a pasted context summary if `refine-live`'s state file is missing, exports subtasks as text if the board call fails); `refine-live` has no fallback — it cannot get past fetching the card.
 
-## Requirements
-
-- [Claude Code](https://claude.com/claude-code) with plugin support
-- [superpowers](https://github.com/obra/superpowers) — owns discovery (brainstorming, systematic debugging, parallel dispatch)
-- [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE", MIT, tested against 3.20.0) — owns stage conduction; at user scope it conducts in every project on this machine
-- **`core:review-local` requires the `pr-review-toolkit` plugin** (parallel reviewer dispatch). Without it the fallback is `/core:review-remote` — not an equivalent. The real cost isn't lost parallelism: it's losing the citation check, the kit's most distinctive idea, which `review-remote` substitutes with hand re-reading it does not itself call equivalent. Lost alongside: parallel dispatch, and lint/test behavior that differs by mode (pre-push reports a failure as a finding and continues; remote-PR mode skips lint/tests entirely, leaving that to CI)
-- For `mobile`: a Flutter/Dart project
-- The kit ships no MCP servers of its own. The one place it expects one you supply is `team`'s two refine commands — a board/kanban MCP; nothing else in the kit assumes any
-
-## Advanced
-
-**Governance.** This kit governs itself with the same rigor it enforces. See **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**: the architecture, the posture on what's proven vs. untested, the artifact lifecycle (wired/unwired/deleted), the promotion rule, and conventions. Owner operations — publishing, the five-part quality gate, `unwired/` triage: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
-
-**Repository structure.**
-
-| Directory | What it is |
-|---|---|
-| `plugins/` | The four installable plugins (`core`, `council`, `team`, `mobile`) |
-| `unwired/` | Genericized raw material awaiting proof of use — nothing is loaded, zero context cost ([details](docs/OPERATIONS.md)) |
-| `assets/` | Manual copy-paste templates: status line, `CLAUDE.md` skeleton, `settings.json` snippets |
-| `docs/` | [GOVERNANCE.md](docs/GOVERNANCE.md) and [OPERATIONS.md](docs/OPERATIONS.md) |
-| `scripts/` | Provenance gate, inventory generator, and maintenance tooling |
-
 ---
 
-[INVENTORY.md](INVENTORY.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
+[INVENTORY.md](INVENTORY.md) · [docs/INSTALL.md](docs/INSTALL.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
