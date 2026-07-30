@@ -4,60 +4,14 @@
 
 > **agent-kit é um kit de disciplina epistêmica para trabalho Flutter/Dart com Claude Code — verificadores determinísticos para o que o harness não checa, mais as posturas de raciocínio para usá-los bem.**
 
-**Como ler o mapa abaixo.** Este repo é a banda de baixo, e os comandos dele são `/core:*` e `/team:*`. Tudo acima pertence a dois plugins externos que você instala à parte: `/ce-*` é o [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" daqui pra frente), e o lado da frase solta é o [superpowers](https://github.com/obra/superpowers).
+**Como ler o mapa abaixo.** A banda de cima é entrada — três jeitos de entrar: uma frase solta, um comando `/ce-*`, ou sempre ativo (sem invocação nenhuma). O trilho embaixo é condução: `superpowers` é dono de Discover, o [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" daqui pra frente) é dono de Plan até Ship — os dois são plugins externos que você instala à parte. Este repo (`/core:*`, `/team:*`) é o piso sempre ativo sob qualquer condutor.
 
-```mermaid
----
-config:
-  look: handDrawn
-  theme: base
-  flowchart:
-    wrappingWidth: 320
-  themeVariables:
-    primaryColor: "#fefdfa"
-    primaryBorderColor: "#2b2b2b"
-    lineColor: "#4a453c"
-    primaryTextColor: "#1a1a1a"
-    clusterBkg: "#fefdfa"
-    clusterBorder: "#8a8378"
-    edgeLabelBackground: "#fefdfa"
-    fontFamily: "Comic Sans MS, Chalkboard SE, Comic Neue, cursive"
----
-flowchart TB
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/routing-diagram-dark.svg">
+  <img alt="agent-kit routing map: how you enter (loose phrase, /ce-*, always-on) and who conducts each stage" src="assets/routing-diagram-light.svg">
+</picture>
 
-LOOSE(["uma frase solta"])
-SLASH(["um slash command"])
-
-subgraph CHAIN["Condução — externa. Um dono por etapa; toda caixa aqui é invocada por você."]
-  direction LR
-  DISC["Descobrir · diagnosticar<br/><i>superpowers</i>"]
-  PLAN["Planejar<br/><i>/ce-plan &lt;caminho do spec&gt;</i>"]
-  EXEC["Executar<br/><i>um executor, nunca dois</i>"]
-  REV["Revisar<br/><i>/ce-code-review</i>"]
-  DISC --> PLAN --> EXEC --> REV
-end
-
-subgraph SHIPB["Entregar"]
-  direction LR
-  GATE["O gate<br/><i>/core:review-local</i><br/>lint · testes · validação de citação"]
-  COM["Commit, abrir o PR<br/><i>/core:commit</i>"]
-  CAP["Capturar<br/><i>/ce-compound</i> · <i>core:learn</i>"]
-  GATE --> COM --> CAP
-end
-
-subgraph KIT["agent-kit — sempre ativo, sob qualquer condutor"]
-  direction LR
-  HOOKS["Hooks<br/>disparam sozinhos<br/>regras de sessão · read-ledger · citation check · verificadores Flutter"]
-  POST["Posturas<br/>você as veste<br/><i>council</i>, antes de decisão cara de desfazer"]
-  HOOKS ~~~ POST
-end
-
-LOOSE ==> DISC
-SLASH ==> PLAN
-REV ==> GATE
-SHIPB ~~~ KIT
-CHAIN -.-> KIT
-```
+*O gate depois de Ship é `/core:review-local` (lint · testes · validação de citação); a captura depois é `/ce-compound` e `core:learn`. `/core:tech-breakdown` (beco sem saída, pontilhado) nunca entra na CE automaticamente — a saída dele é copiada e colada em `/ce-plan`.*
 
 Conduzir e descobrir não são trabalho do kit — CE e `superpowers` são donos disso, ou o seu próprio processo. De tudo que o kit entrega, **só os hooks são garantia**: disparam sozinhos. Toda skill, gate e postura roda porque você invocou. Arquitetura (3 camadas) e postura: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
 
