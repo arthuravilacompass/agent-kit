@@ -43,7 +43,7 @@ Don't fix, in the current PR, problems the change didn't introduce — functiona
 
 ### Edit only in scope — detail
 
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+Descended from the always-on tier (`using-agent-kit`) — the **Signal** stays there, and the rule statement is question 1 of that tier's `3 Questions Before Editing`; this holds the rationale.
 
 **Why**: editing "while I'm in here" hijacks the PR and makes review impossible.
 
@@ -187,13 +187,15 @@ In a long investigation, don't stack parallel hypotheses without closing each on
 
 ---
 
-### Confirm understanding before producing — detail
+### Confirm the route before crossing plan → execution — detail
 
 Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
 
-**Why**: going straight to output buries silent choices that only surface after the work is done.
+**Why**: going straight to output buries silent choices that only surface after the work is done. The plan → execution boundary is where the omission costs most, because everything downstream inherits the unconfirmed reading.
 
-**Failure mode**: wasted effort when the understanding was wrong; eroded trust.
+**Failure mode**: wasted effort when the understanding was wrong; eroded trust. A broad licence read as a waiver of the checkpoint is the specific way this fails.
+
+**How to apply**: at the opening of each heavy phase, list the route and the stages you intend to skip, and confirm. The harness default already covers checking in when competing readings would change the work materially; this rule is the narrower, stronger case — the stage boundary itself.
 
 ---
 

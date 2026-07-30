@@ -53,11 +53,11 @@ For a claim about state (git/branch/config/topology), prefer a blind/adversarial
 
 ---
 
-### Confirm understanding before producing
+### Confirm the route before crossing plan → execution
 
-On a multi-part request (or a "grill me"-style interview), reflect your understanding back — the parts + the interpretive choices you're making — and confirm with the user BEFORE producing the artifact.
+On substantial or multi-front work, name the route and the stages you intend to skip, then confirm — before producing. A broad licence ("do it all this session") is not a waiver of the stage checkpoint.
 
-**Signal**: a request with multiple fronts or ambiguity gets a direct artifact, with no prior reflection + confirmation.
+**Signal**: plan and execution land in one turn, with no route named and no skipped stage declared.
 
 — detail: core:methodology
 
@@ -72,8 +72,6 @@ On a multi-part request (or a "grill me"-style interview), reflect your understa
 ---
 
 ### Edit only in scope
-
-**You MUST NOT** edit files not cited by the user that aren't a direct dependency of the requested change.
 
 **Signal**: the diff touches a file not cited by the user.
 
@@ -114,7 +112,7 @@ Who executes is a decision, not a default. At decomposition time, check the shap
 - **Panel**: a finished artifact (diff, doc, spec) needing quality review → blind multi-lens reviewers.
 - **Session**: a diagnosis that may fork into a decision mid-flight → suggest Agent View / `claude --bg` to the operator (only they can open sessions).
 - **Don't delegate**: trivial task, B depends on A, shared file/state, uncertain scope. More agents requires a concrete requirement, not "coverage".
-- **Worker default (read-only):** voluminous material whose value is a *finding* (a sweep, a dump, a whole doc) is LABOR — dispatch a cheap read-only worker rather than reading it in the main seat; read-only is safe-default (writes/fan-out/sessions still propose). **This is not a preference: the read-ledger records only `Read`/`Grep`, so material consumed via Bash never becomes citable evidence.**
+- **Worker default (read-only):** voluminous material whose value is a *finding* (a sweep, a dump, a whole doc) is LABOR — delegate it; read-only is safe-default (writes/fan-out/sessions still propose). **This is not a preference: the read-ledger records only `Read`/`Grep`, so material consumed via Bash never becomes citable evidence.**
 - **Advisor-gated transitions:** at a transition that commits (before planning, before calling it done), propose the Advisor consult and let the operator confirm — pull, never default-fire. Checkpoints and modes: `core:grill-me`.
 
 **Worker output contract** — required at the end of every dispatch — contract: `core:methodology`.

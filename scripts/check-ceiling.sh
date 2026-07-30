@@ -12,7 +12,7 @@ CEILING="${CEILING_OVERRIDE:-16384}"
 # 9811 on 2026-07-28, when the Worker output contract descended to core:methodology and
 # only a one-line pointer stayed always-on, then to 9776 the same day when the thinning pass
 # retired one tier-2 detail section and its now-dangling tier-1 pointer. See CHANGELOG.
-RATCHET="${TIER_RATCHET:-9776}"
+RATCHET="${TIER_RATCHET:-9595}"
 fail=0
 
 # 1) Always-on ceiling: session-start.sh's actual output (full JSON)
