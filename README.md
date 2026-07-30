@@ -13,7 +13,7 @@
 
 *The gate behind Ship is `/core:review-local` (lint · tests · citation validation); capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
 
-Conduction and discovery aren't the kit's job — CE and `superpowers` own those, or your own process. Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own, and every skill, gate, and posture runs because you invoked it. Architecture (3 layers) and posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
+Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own, and every skill, gate, and posture runs because you invoked it. Architecture (3 layers) and posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
 
 ## What's included
 
@@ -51,8 +51,6 @@ Severity of each dependency — what you'll actually observe if it's missing, no
 | Native `claude plugin` commands | you want to see/control each install step | [docs/INSTALL.md](docs/INSTALL.md#native-install-commands) |
 | **Not on Claude Code** (Copilot, Cursor, ...) | you still want the epistemic tier | [docs/INSTALL.md](docs/INSTALL.md#use-the-epistemic-tier-on-another-ai-tool) — emits `AGENTS.md` |
 
-The rest of this section is the happy path for the first row.
-
 ### 1. Clone (once)
 
 Already have a clone, at any path, from any source? Skip to step 2 — every command below uses `~/dev/agent-kit` as a placeholder; substitute your actual path.
@@ -88,15 +86,15 @@ claude plugin list                  # or manually: should list what you installe
 claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
-Anything missing — the CLI, the marketplace, a plugin, an external plugin the routing assumes — `doctor.sh` prints the exact install command to fix it, not just a pass/fail line. In a new session, `core`'s rules already come in via SessionStart — nothing to type. A plugin installed at project scope needs `--scope project` on update too.
+Anything missing — the CLI, the marketplace, a plugin, an external plugin the routing assumes — `doctor.sh` prints the exact install command to fix it. In a new session, `core`'s rules already come in via SessionStart — nothing to type. A plugin installed at project scope needs `--scope project` on update too.
 
-**Maintaining the kit itself?** `scripts/doctor.sh --maintainer` additionally runs four of the kit-maintainer gates (ceiling, provenance, plugin manifest validation, inventory); the full six-command gate is [docs/OPERATIONS.md](docs/OPERATIONS.md) §4.
+**Maintaining the kit?** `scripts/doctor.sh --maintainer` runs four of the kit-maintainer gates (ceiling, provenance, plugin manifest validation, inventory); the full six-command gate is [docs/OPERATIONS.md](docs/OPERATIONS.md) §4.
 
 Full native-command reference, `AGENTS.md` emission mechanics, and uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Which tool, when
 
-Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching, since both implement most of the same loop and nothing mechanically stops a loose phrase from also landing on CE's model-invocable skill. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
+Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching, since both can claim the same utterance. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
 
 | Situation | You say/type | What fires | Owner |
 |---|---|---|---|
@@ -104,7 +102,7 @@ Indexed by the situation you're in, not by plugin. **The boundary convention:** 
 | Ticket for new/changed behavior | `/core:tech-breakdown <TICKET>` | ticket→plan seam | kit |
 | Something broken | loose phrase, or `/ce-debug` | `superpowers:systematic-debugging` \| CE's diagnosis loop | superpowers \| CE |
 | Touching Flutter code | nothing — fires automatically | smell-checker (blocking) + 3 advisory hooks | kit (mobile) |
-| Decision expensive to undo | wear a `council` posture | reasoning layer (posture table below) | council |
+| Decision expensive to undo | wear a `council` posture | reasoning layer (postures — [INVENTORY.md](INVENTORY.md)) | council |
 | About to say it's done | `/core:grill-me pre-done` | blind pre-done reviewer | kit |
 | Work split into independent legs | (none, or dispatch agents) | `superpowers:dispatching-parallel-agents` | superpowers |
 | Running refinement / writing to squad | `/team:refine-live` \| `/team:refine-async` \| `team:chat-draft` | board-driven refinement / chat draft | team |
@@ -120,32 +118,23 @@ Indexed by the situation you're in, not by plugin. **The boundary convention:** 
 
 Type `/core:tech-breakdown <TICKET>`. CE's planner builds from plans and briefs, never from a ticket, so this skill owns the ticket→plan seam: fetches the ticket, runs discovery, generates the plan, runs a critic phase against the real codebase, and writes the plan path back as a comment.
 
-The seam is narrower than "the kit reads trackers and CE doesn't" — CE does read them, just not to start a plan from one (`ce-debug` fetches a referenced GitHub/Linear/Jira issue; `ce-sweep` reads issues through `gh`). No total is claimed about either provider: two third-party plugins on their own release schedules would make one stale fast. And note the asymmetry — this is the one path that does **not** route through CE.
+The seam is narrower than "the kit reads trackers and CE doesn't" — CE does read them, just not to start a plan from one (`ce-debug` fetches a referenced GitHub/Linear/Jira issue; `ce-sweep` reads issues through `gh`). Note the asymmetry — this is the one path that does **not** route through CE.
 
 At review time, pass `--ticket <TICKET>` to `/core:review-local` so the `consumer-simulation` agent joins the panel — it gets only the ticket text and acceptance criteria, never the diff, so it can notice what the implementation quietly dropped. `/core:review-remote` also accepts `--ticket`, but only compares inline, with no agent.
 
 ### "Something is broken"
 
-**Discriminator: existing behavior misbehaving,** not new behavior wanted. Say it loose — "this test started failing" — and `superpowers:systematic-debugging` fires; type `/ce-debug` for CE's diagnosis loop instead. `ce-debug` is model-invocable and claims the same utterances, so only the loose/slash split decides.
+**Discriminator: existing behavior misbehaving,** not new behavior wanted. Say it loose — "this test started failing" — and `superpowers:systematic-debugging` fires; type `/ce-debug` for CE's diagnosis loop instead — syntax decides, since both claim the same utterances.
 
 ### "I'm touching Flutter code"
 
-**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On demand: `mobile:code-review-mobile`, `mobile:mobx`, `mobile:performance-patterns`, `mobile:feature-scaffold`, `mobile:marionette`, and the rest. CE has zero Flutter coverage — the vertical is entirely the kit's.
+**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On-demand skills: full list in **[INVENTORY.md](INVENTORY.md)**. CE has zero Flutter coverage — the vertical is entirely the kit's.
 
 ### "I'm about to make a decision that's expensive to undo"
 
 **Discriminator: the decision is costly to reverse.** Wear a `council` posture — a reasoning layer, not a flow layer, so it composes with any conductor.
 
-| Posture | Question it forces | Wear it when |
-|---|---|---|
-| `council:schrodinger` | which explanations still coexist? | a diagnosis is ambiguous and you're tempted to settle |
-| `council:bohr` | is the dichotomy false? | a decision is stuck on "A or B" |
-| `council:epicurus` | what here is excess? | before calling a design or scope done |
-| `council:sagan` | does this matter, at what scale? | before investing real effort |
-| `maxwell` (agent — dispatch via the Agent tool) | how does this propagate? | before touching something coupled |
-| `zeno` (agent — dispatch via the Agent tool) | where does this break? | validating a proposed solution |
-
-One posture per decision is the default; escalation to blind mode (`epistemic-council`, an isolated subagent that never sees the thread's lean) has its own criteria — the map is `council:council`. CE's `ce-pov` overlaps only Sagan and Maxwell, partially; the other four have no counterpart.
+Six postures, each with its own question and "wear it when" — cataloged in **[INVENTORY.md](INVENTORY.md)**, indexed in `council:council`. One posture per decision is the default; escalation to blind mode (`epistemic-council`, an isolated subagent that never sees the thread's lean) has its own criteria. CE's `ce-pov` overlaps only Sagan and Maxwell, partially; the other four have no counterpart.
 
 ### "I'm about to say it's done"
 
