@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideation: README.md Evolution</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --ink: #2b2b2b;
+    --muted: #6b6257;
+    --line: #d9d2c5;
+    --card: #ffffff;
+    --accent: #7a5c3e;
+    --accent-soft: #f3ece1;
+    --accent-text: #5c4327;
+    --good: #3d6b45;
+    --good-soft: #e7f0e8;
+    --warn: #8a6d1f;
+    --warn-soft: #f6efdb;
+    --bad: #963c3c;
+    --bad-soft: #f6e5e5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 900px; margin-inline: auto; padding: 2.5rem 1.5rem 4rem; }
+  p, li { max-width: 72ch; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: .2rem 0 .4rem; }
+  h2 { font-size: 1.25rem; margin: 2.4rem 0 .8rem; padding-bottom: .3rem; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 1.05rem; margin: 0 0 .4rem; }
+  code { background: var(--accent-soft); padding: .08em .35em; border-radius: 4px; font-size: .88em; }
+  a { color: var(--accent-text); }
+  .eyebrow { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .meta { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; color: var(--muted); font-size: .85rem; margin: .3rem 0 1.2rem; }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .stats { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 0; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: .5rem .9rem; }
+  .stat .n { font-size: 1.25rem; font-weight: 700; display: block; }
+  .stat .l { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .chip { display: inline-block; border-radius: 999px; padding: .1em .7em; font-size: .74rem; font-weight: 600; letter-spacing: .03em; }
+  .chip.axis { background: var(--accent-soft); color: var(--accent-text); }
+  .chip.conf-high { background: var(--good-soft); color: var(--good); }
+  .chip.conf-med { background: var(--warn-soft); color: var(--warn); }
+  .chip.cx { background: #ececec; color: #555; }
+  article.idea { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.1rem 0; }
+  article.idea header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .7rem; margin-bottom: .5rem; }
+  .idnum { font-weight: 800; color: var(--accent-text); }
+  dl.fields { margin: .8rem 0 0; }
+  dl.fields dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: .7rem; }
+  dl.fields dd { margin: .15rem 0 0; }
+  ul.jump { columns: 2; gap: 2rem; padding-left: 1.2rem; }
+  ul.jump li { margin: .2rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--accent-soft); font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--accent-text); }
+  figure { margin: 1rem 0 .4rem; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption { font-size: .8rem; color: var(--muted); margin-top: .3rem; }
+  .callout { background: var(--warn-soft); border: 1px solid var(--line); border-radius: 8px; padding: .7rem 1rem; margin: 1rem 0; }
+  .callout .eyebrow { color: var(--warn); }
+  footer.composition-signal { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .78rem; color: var(--muted); }
+  @media (max-width: 640px) { ul.jump { columns: 1; } }
+</style>
+</head>
+<body>
+<main>
+
+<span class="eyebrow">Ideation</span>
+<h1>README.md Evolution — agent-kit</h1>
+<div class="meta">
+  <span><b>Date</b> 2026-07-30</span>
+  <span><b>Topic</b> readme-evolution</span>
+  <span><b>Mode</b> repo-grounded</span>
+  <span><b>Focus</b> diagram quality · text blocks · richer structure</span>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="n">42</span><span class="l">raw ideas</span></div>
+  <div class="stat"><span class="n">5</span><span class="l">frames</span></div>
+  <div class="stat"><span class="n">5</span><span class="l">axes covered</span></div>
+  <div class="stat"><span class="n">6</span><span class="l">survivors</span></div>
+  <div class="stat"><span class="n">1</span><span class="l">idea refuted</span></div>
+</div>
+
+<h2 id="grounding-context">Grounding Context</h2>
+<p><strong>Codebase Context.</strong> README.md is 247 lines / 16.7 KB: header + tagline; a Mermaid routing diagram (lines ~9–62, <code>look: handDrawn</code>, four subgraphs); a 4-plugin table; Installation (~79–155: three profiles via script, native commands, <code>--tool</code> AGENTS.md emission, uninstall); "Which tool, when" (~157–221: boundary convention, seven ground-rule bullets, eight situation subsections); Requirements; Advanced. <code>README.pt-BR.md</code> mirrors it 1:1 with English as source of truth.</p>
+<p>Load-bearing facts the ideas were qualified against:</p>
+<ul>
+  <li><strong>The size gate is recorded and missed.</strong> CHANGELOG.md states a ≤160-line / ≤14&nbsp;KB target for the README; current state is 247 lines / 16,749 bytes.</li>
+  <li><strong>The diagram's weakness has a documented probable root cause.</strong> The CHANGELOG itself records "not verifiable from here: whether GitHub's own Mermaid version honors <code>look: handDrawn</code>" — GitHub's embedded renderer may degrade the hand-drawn style to <code>classic</code>, and the cream palette (<code>#fefdfa</code>) is untested against dark theme. The kit already ships <code>mermaid-skill</code> (mmdc/Kroki export) and a worked diagram template.</li>
+  <li><strong>The situational index is the differentiator.</strong> Surveyed competitor Claude Code marketplace READMEs are flat catalogs; none routes by user situation. Preserve and reinforce, don't flatten.</li>
+  <li><strong>The bilingual pair has live drift.</strong> README.md:94 reads <code># or:</code> while README.pt-BR.md:94 reads <code># ou:</code> — violating commit 246a340's own byte-identity claim for command blocks. Verified by direct read. No tooling targets the pair.</li>
+  <li><strong>Coverage is uneven.</strong> The eight situations route to core/CE heavily; team and mobile get one situation each, and roughly 11 shipped skills are never mentioned.</li>
+  <li>No <code>docs/solutions/</code> learnings corpus exists (null result, reported as such). External research value: moderate.</li>
+</ul>
+
+<h2 id="topic-axes">Topic Axes</h2>
+<ul>
+  <li><strong>routing-diagram</strong> — the diagram's technology, rendering, structure</li>
+  <li><strong>which-tool-when</strong> — the situational index section</li>
+  <li><strong>onboarding-path</strong> — install / quickstart / requirements flow</li>
+  <li><strong>visual-richness</strong> — badges, <code>&lt;details&gt;</code>, <code>&lt;picture&gt;</code>, tables, layout within GitHub markdown</li>
+  <li><strong>bilingual-pair</strong> — the pt-BR mirror and the sync cost of any restructure</li>
+</ul>
+
+<h2 id="ranked-ideas">Ranked Ideas</h2>
+<ul class="jump">
+  <li><a href="#i1">1. The controlled front door</a></li>
+  <li><a href="#i2">2. Routing section 2.0</a></li>
+  <li><a href="#i3">3. Mirror economics first</a></li>
+  <li><a href="#i4">4. Size-gate closure package</a></li>
+  <li><a href="#i5">5. Onboarding on doctor's spine</a></li>
+  <li><a href="#i6">6. Honest badges + generated plugin table</a></li>
+</ul>
+
+<article class="idea" id="i1">
+  <header>
+    <span class="idnum">1.</span><h3>The controlled front door</h3>
+    <span class="chip axis">routing-diagram</span>
+    <span class="chip conf-high">Confidence 90%</span>
+    <span class="chip cx">Complexity Medium</span>
+  </header>
+  <p><strong>Description:</strong> Take rendering of the routing diagram back under the kit's control. Externalize the Mermaid source to a tracked <code>.mmd</code> file; pre-render it with <code>mmdc</code> (the kit's own <code>mermaid-skill</code>) into committed light and dark SVGs, verified with the existing <code>grep data-look="handDrawn"</code> check; embed via GitHub's <code>&lt;picture prefers-color-scheme&gt;</code> pattern. While rebuilding, strip the diagram to the one decision only it can show — the entry election (loose phrase / slash command / automatic → which owner) — deleting the 3-line prose labels crammed into nodes, and give the tech-breakdown asymmetry (the one slash path that does not route through CE) an honest distinct edge style instead of implying full connectivity.</p>
+  <figure>
+    <svg viewBox="0 0 860 210" role="img" aria-label="Before and after rendering pipeline">
+      <text x="10" y="22" font-size="12" font-weight="700" fill="#963c3c">TODAY</text>
+      <rect x="10" y="35" width="170" height="46" rx="8" fill="#fff" stroke="#d9d2c5"/>
+      <text x="95" y="55" font-size="12" text-anchor="middle" fill="#2b2b2b">52-line Mermaid source</text>
+      <text x="95" y="71" font-size="11" text-anchor="middle" fill="#6b6257">inline in README ×2 files</text>
+      <line x1="180" y1="58" x2="240" y2="58" stroke="#6b6257" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="240" y="35" width="190" height="46" rx="8" fill="#f6e5e5" stroke="#d9d2c5"/>
+      <text x="335" y="55" font-size="12" text-anchor="middle" fill="#2b2b2b">GitHub's Mermaid version</text>
+      <text x="335" y="71" font-size="11" text-anchor="middle" fill="#963c3c">may drop handDrawn → classic</text>
+      <line x1="430" y1="58" x2="490" y2="58" stroke="#6b6257" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="490" y="35" width="160" height="46" rx="8" fill="#fff" stroke="#d9d2c5"/>
+      <text x="570" y="55" font-size="12" text-anchor="middle" fill="#2b2b2b">Reader sees…</text>
+      <text x="570" y="71" font-size="11" text-anchor="middle" fill="#6b6257">unverifiable from here</text>
+      <text x="10" y="132" font-size="12" font-weight="700" fill="#3d6b45">PROPOSED</text>
+      <rect x="10" y="145" width="150" height="46" rx="8" fill="#fff" stroke="#d9d2c5"/>
+      <text x="85" y="165" font-size="12" text-anchor="middle" fill="#2b2b2b">tracked .mmd</text>
+      <text x="85" y="181" font-size="11" text-anchor="middle" fill="#6b6257">single source</text>
+      <line x1="160" y1="168" x2="216" y2="168" stroke="#6b6257" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="216" y="145" width="180" height="46" rx="8" fill="#e7f0e8" stroke="#d9d2c5"/>
+      <text x="306" y="165" font-size="12" text-anchor="middle" fill="#2b2b2b">mmdc render + grep gate</text>
+      <text x="306" y="181" font-size="11" text-anchor="middle" fill="#3d6b45">handDrawn verified</text>
+      <line x1="396" y1="168" x2="452" y2="168" stroke="#6b6257" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="452" y="145" width="180" height="46" rx="8" fill="#fff" stroke="#d9d2c5"/>
+      <text x="542" y="165" font-size="12" text-anchor="middle" fill="#2b2b2b">committed SVG ×2</text>
+      <text x="542" y="181" font-size="11" text-anchor="middle" fill="#6b6257">light + dark</text>
+      <line x1="632" y1="168" x2="688" y2="168" stroke="#6b6257" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="688" y="145" width="160" height="46" rx="8" fill="#fff" stroke="#d9d2c5"/>
+      <text x="768" y="165" font-size="12" text-anchor="middle" fill="#2b2b2b">&lt;picture&gt; embed</text>
+      <text x="768" y="181" font-size="11" text-anchor="middle" fill="#6b6257">identical everywhere</text>
+      <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b6257"/></marker></defs>
+    </svg>
+    <figcaption>The failure mode is delegation: today the last mile belongs to GitHub's renderer. Pre-rendering moves verification inside the kit's own gate.</figcaption>
+  </figure>
+  <dl class="fields">
+    <dt>Basis</dt>
+    <dd><code>direct:</code> CHANGELOG (quoted in evidence dossier): "Not verifiable from here: whether GitHub's own Mermaid version honors <code>look: handDrawn</code>; if it does not, the diagram degrades to <code>classic</code>." Node labels at README.md:42 and :50 carry three rendered lines of prose each. The tech-breakdown dead-end is recorded as "an open question, not a settled design." All five ideation frames converged on pre-rendering independently.</dd>
+    <dt>Rationale</dt>
+    <dd>The user's complaint ("o diagrama não está bom") is most plausibly this documented degradation happening in production. The fix uses tooling the kit already ships, applies the kit's own epistemics (verified artifact over unverifiable delegation) to its front door, fixes dark-mode legibility, and moves 52 lines of source out of the README body — feeding idea 4.</dd>
+    <dt>Downsides</dt>
+    <dd>Committed generated assets need a regeneration step on every diagram edit (worth folding into the gate); the live-editable Mermaid preview on GitHub is lost; the <em>clickable-nodes</em> extension was verified false (links inside <code>&lt;img&gt;</code>-embedded SVG don't fire) — this idea ships without interactivity.</dd>
+  </dl>
+</article>
+
+<article class="idea" id="i2">
+  <header>
+    <span class="idnum">2.</span><h3>Routing section 2.0</h3>
+    <span class="chip axis">which-tool-when</span>
+    <span class="chip conf-high">Confidence 85%</span>
+    <span class="chip cx">Complexity Medium-High</span>
+  </header>
+  <p><strong>Description:</strong> Rebuild "Which tool, when" around its actual job — routing. Lead with a scannable table (<em>Situation | You say/type | What fires | Owner</em>); open every situation with its observable discriminator, dichotomous-key style (two situations currently both say "say it loose" and route differently on an unstated utterance test — line 179 already does discriminator-first once, informally); add the missing ninth situation "I'm about to commit / I want review", giving the citation gate and <code>/core:review-local</code> vs <code>/ce-code-review</code> a trigger; and dissolve the seven-bullet "Ground rules" slab by attaching each rule to the situation where its failure actually fires (the aviation-checklist move: cautions live on the procedure step, not in a limitations chapter nobody reads). Optional add-on: a coverage check diffing INVENTORY.md's skill list against skills the section mentions (~11 shipped skills are absent today), so the index can't silently go stale.</p>
+  <figure>
+    <svg viewBox="0 0 860 190" role="img" aria-label="Before and after section structure">
+      <text x="10" y="20" font-size="12" font-weight="700" fill="#963c3c">TODAY</text>
+      <rect x="10" y="30" width="250" height="26" rx="5" fill="#f6e5e5" stroke="#d9d2c5"/>
+      <text x="135" y="47" font-size="11" text-anchor="middle" fill="#2b2b2b">7-bullet ground-rules slab</text>
+      <rect x="10" y="62" width="250" height="18" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <rect x="10" y="84" width="250" height="18" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <rect x="10" y="106" width="250" height="18" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <rect x="10" y="128" width="250" height="18" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <text x="135" y="163" font-size="11" text-anchor="middle" fill="#6b6257">8 prose subsections, rules far from use</text>
+      <line x1="300" y1="95" x2="360" y2="95" stroke="#6b6257" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <text x="600" y="20" font-size="12" font-weight="700" fill="#3d6b45" text-anchor="middle">PROPOSED</text>
+      <rect x="380" y="30" width="440" height="24" rx="5" fill="#f3ece1" stroke="#d9d2c5"/>
+      <text x="600" y="46" font-size="11" text-anchor="middle" fill="#5c4327">Situation | You say/type | What fires | Owner</text>
+      <rect x="380" y="58" width="440" height="20" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <text x="600" y="72" font-size="11" text-anchor="middle" fill="#2b2b2b">▸ discriminator-first row + ⚠ caution where it fires</text>
+      <rect x="380" y="82" width="440" height="20" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <text x="600" y="96" font-size="11" text-anchor="middle" fill="#2b2b2b">▸ row 9 (new): "about to commit / want review"</text>
+      <rect x="380" y="106" width="440" height="20" rx="5" fill="#fff" stroke="#d9d2c5"/>
+      <text x="600" y="120" font-size="11" text-anchor="middle" fill="#2b2b2b">▸ &lt;details&gt; keeps every caveat, closed by default</text>
+      <rect x="380" y="134" width="440" height="20" rx="5" fill="#e7f0e8" stroke="#d9d2c5"/>
+      <text x="600" y="148" font-size="11" text-anchor="middle" fill="#3d6b45">coverage check vs INVENTORY.md (optional gate)</text>
+      <defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b6257"/></marker></defs>
+    </svg>
+    <figcaption>Same content, inverted spine: table routes in 15 seconds, gaps become visible as empty cells, rules sit where their failure fires.</figcaption>
+  </figure>
+  <dl class="fields">
+    <dt>Basis</dt>
+    <dd><code>direct:</code> Evidence dossier: "A single table (situation → plugin → entry point) would make routing explicit and checkable"; "No situation reinforces these [ground rules]; they're discovered only when you hit the failure mode"; README:175 and :189 both open "Say it loose" and route to different skills; the citation gate has no trigger situation. <code>external:</code> competitor survey — no other marketplace README routes by situation.</dd>
+    <dt>Rationale</dt>
+    <dd>This section is the kit's one genuine differentiator, and it currently undermines itself: the stated boundary (syntax) differs from the actual routing (utterance), and the flagship mechanism (the citation gate) is unroutable. The redesign reinforces the differentiator instead of flattening it, and it is the direct answer to "tem blocos de texto".</dd>
+    <dt>Downsides</dt>
+    <dd>Largest rewrite in the set; the table's column vocabulary becomes doctrine (choose carefully); adding a ninth situation and per-row details pushes against the size target unless paired with idea 4.</dd>
+  </dl>
+</article>
+
+<article class="idea" id="i3">
+  <header>
+    <span class="idnum">3.</span><h3>Mirror economics first</h3>
+    <span class="chip axis">bilingual-pair</span>
+    <span class="chip conf-high">Confidence 85%</span>
+    <span class="chip cx">Complexity Small-Medium</span>
+  </header>
+  <p><strong>Description:</strong> Before any restructure, settle what the pt-BR mirror owes the English file — because every idea above doubles in cost against a 247-line 1:1 mirror. GOVERNANCE.md:86 scopes the bilingual exception to "the public face" and requires only the cross-linked pair with English as source of truth — nothing mandates full-body parity. Candidate: demote README.pt-BR.md to a ~60-line front page (tagline, diagram, routing table, install line) linking into the English body for depth. Then land a <code>check-readme-pair.sh</code> gate verifying the mechanical invariants (byte-identical bash fences, identical Mermaid/asset references, heading order) — its first catch is already waiting: the live <code># or:</code> → <code># ou:</code> drift at line 94 of the pair, which violates the byte-identity rule stated in the very commit that created the mirror.</p>
+  <dl class="fields">
+    <dt>Basis</dt>
+    <dd><code>direct:</code> Verified by direct read: README.md:94 <code># or: mobile · team · full</code> vs README.pt-BR.md:94 <code># ou: mobile · team · full</code>; commit 246a340's message claims "Command blocks are byte-identical between the two files." GOVERNANCE.md:86 confirmed verbatim as scoping the exception to the public face only. No tooling targets the pair today.</dd>
+    <dt>Rationale</dt>
+    <dd>The invariant broke within two days of being declared, under near-zero churn — a restructure is exactly when it breaks again. Deciding scope first, then gating it, halves the cost of every other idea in this document. Sequencing is the point: gate a policy <em>after</em> deciding whether the policy is full parity or front-page parity.</dd>
+    <dt>Downsides</dt>
+    <dd>Demoting the mirror reduces what pt-BR readers get natively (a judgment call about who that reader is); a sixth gate check is a standing governance change; keeping full parity instead means the gate is bigger and the tax on ideas 1–2 stays doubled.</dd>
+  </dl>
+</article>
+
+<article class="idea" id="i4">
+  <header>
+    <span class="idnum">4.</span><h3>Size-gate closure package</h3>
+    <span class="chip axis">onboarding-path</span>
+    <span class="chip conf-med">Confidence 70%</span>
+    <span class="chip cx">Complexity Medium</span>
+  </header>
+  <p><strong>Description:</strong> The only structural route back to the recorded ≤160-line / ≤14&nbsp;KB target, composed of subtractions: the board-game rulebook split — README keeps the "learn to play" material (tagline, diagram, plugin table, one install path, routing table, requirements) while the "rules reference" (native install commands, AGENTS.md emission mechanics, uninstall, Advanced tables) moves to a linked <code>docs/INSTALL.md</code>; the externalized <code>.mmd</code> from idea 1 buys 52 lines; table consolidation trims duplication (postures and repo-structure tables become pointers into INVENTORY.md / GOVERNANCE.md — exact table inventory partially unverified, treat as a caveat); and <code>check-ceiling.sh</code> gains a twin that fails the gate when README exceeds its own recorded target, so the miss cannot silently recur.</p>
+  <dl class="fields">
+    <dt>Basis</dt>
+    <dd><code>direct:</code> CHANGELOG.md:145 records the ≤160 / ≤14&nbsp;KB target as "missed" at 247 lines / 16,749 bytes. <code>check-ceiling.sh</code> already implements exactly this ratchet pattern for the always-on tier (RATCHET=9776 / CEILING=16384). <code>external:</code> FFG's two-booklet Learn-to-Play / Rules-Reference model; inverted-pyramid README consensus.</dd>
+    <dt>Rationale</dt>
+    <dd>Every other idea adds weight; without a subtraction package the README drifts further from its own standard. The rulebook analogy supplies a principled cut line (first-session reader vs. returning reader) instead of an arbitrary trim, and the gate extension makes the target binding rather than aspirational.</dd>
+    <dt>Downsides</dt>
+    <dd>Partially reverses a week-old consolidation commit — the maintainer should own that oscillation explicitly; a second file (INSTALL.md) is a second thing to keep truthful; the "5 tables → 2" sub-claim was only directionally verified.</dd>
+  </dl>
+</article>
+
+<article class="idea" id="i5">
+  <header>
+    <span class="idnum">5.</span><h3>Onboarding on doctor's spine</h3>
+    <span class="chip axis">onboarding-path</span>
+    <span class="chip conf-med">Confidence 75%</span>
+    <span class="chip cx">Complexity Medium</span>
+  </header>
+  <p><strong>Description:</strong> Restructure onboarding around what the kit already ships instead of prose promises. A compact Requirements block moves <em>above</em> Installation as a severity-graded matrix (hard: Claude Code / assumed-by-routing: superpowers + CE / degrades: optional plugins) with a symptom column — mirroring what <code>doctor.sh</code> already encodes (<code>REQUIRED_PLUGINS=(core)</code>). The three install paths (profile script / native commands / <code>--tool</code> AGENTS.md emission — today a hidden third path inside the script) become one up-front decision fork, giving the non-Claude-Code audience a visible row. The flow becomes clone → install → <code>doctor.sh</code>, with a small script change so doctor prints the install command for each missing external. A one-line callout surfaces <code>doctor.sh --maintainer</code> and the five gates — currently zero README mentions of the mode that runs what CLAUDE.md calls "the repo's CI".</p>
+  <dl class="fields">
+    <dt>Basis</dt>
+    <dd><code>direct:</code> Evidence dossier: "No early blocker on missing superpowers/CE… the routing chain will reference skills that don't exist; doctor.sh reports as info, not fail"; "AGENTS.md emission is a third path (--tool flag) hiding inside the script"; <code>--maintainer</code> confirmed at doctor.sh:3,18–23 with zero README mentions of "maintainer".</dd>
+    <dt>Rationale</dt>
+    <dd>The README's current ordering manufactures the kit's worst onboarding failure: a routing map referencing tools that don't resolve, with no symptom table to debug it. A kit whose thesis is "deterministic verifiers over prose promises" onboarding via prose promises is a brand contradiction — making doctor the spine is both simplification and identity statement.</dd>
+    <dt>Downsides</dt>
+    <dd>Requires a (small) doctor.sh change, so it's not a pure doc edit; moving Requirements up front trades a little "pitch first" energy for correctness of sequence.</dd>
+  </dl>
+</article>
+
+<article class="idea" id="i6">
+  <header>
+    <span class="idnum">6.</span><h3>Honest badges + generated plugin table</h3>
+    <span class="chip axis">visual-richness</span>
+    <span class="chip conf-med">Confidence 65%</span>
+    <span class="chip cx">Complexity Small-Medium</span>
+  </header>
+  <p><strong>Description:</strong> The README has zero badges against a 2–4 norm — but stock shields would violate the kit's own epistemics, since no CI exists to back a status badge ("this gate is the repo's CI" = a local script). The honest versions: (a) a minimal GitHub Actions workflow that runs the existing five-part gate on push, backing a real gate-status badge; and/or (b) per-plugin version badges generated from <code>plugin.json</code> — mechanically truthful because the repo's commit rule bumps version and CHANGELOG in the same commit as the behavior change — palette-matched to the diagram (<code>#fefdfa</code> field) rather than default shields green. Same move applied to content: generate the "What's included" plugin table from <code>plugin.json</code>, the way <code>generate_inventory.py</code> already generates INVENTORY.md. If the Actions cost is declined, record "no badges, on principle" as a decision instead of a default.</p>
+  <dl class="fields">
+    <dt>Basis</dt>
+    <dd><code>direct:</code> "Zero shield.io, GitHub Actions badge, or custom badges" (evidence dossier); CLAUDE.md: "There's no separate build/test command — this gate is the repo's CI"; commit rule: "version and changelog land together with the change, never as a follow-up"; <code>generate_inventory.py</code> as live precedent for generated markdown. <code>external:</code> shields.io guidance, 2–4 badge norm.</dd>
+    <dt>Rationale</dt>
+    <dd>A green gate badge on a repo <em>about verification</em> is the thesis made visible — visual richness that inherits the kit's discipline instead of decorating over it. The generated table kills a silent-drift surface (hand-maintained versions) at zero marginal cost per release.</dd>
+    <dt>Downsides</dt>
+    <dd>The backed-badge variant is infrastructure work (a new Actions workflow), not a README edit — a real scope call; generated README fragments add a build step to doc edits; unbacked version badges are the only zero-infra option and cover less.</dd>
+  </dl>
+</article>
+
+<h2 id="rejection-summary">Rejection Summary</h2>
+<table>
+  <tr><th>#</th><th>Idea</th><th>Reason rejected</th></tr>
+  <tr><td>1</td><td>Clickable diagram-as-navigation (Mermaid <code>click</code> → SVG anchors)</td><td><strong>Basis refuted by verification:</strong> links inside an <code>&lt;img&gt;</code>/<code>&lt;picture&gt;</code>-embedded SVG do not fire; only inline SVG or <code>&lt;object&gt;</code> preserve them, and GitHub's sanitizer blocks those. Incompatible with the pre-render delivery it was meant to extend.</td></tr>
+  <tr><td>2</td><td>Micro-transcripts (3-line worked invocation per situation)</td><td>Weak: formatting elaboration of ideas 2's table + details, no independent basis; fails the meeting-test alone. Available as a variant inside idea 2 if wanted.</td></tr>
+  <tr><td>3</td><td>16 further single-move candidates (pre-render, table-first, parity gate, etc. as standalone items)</td><td>Not rejected — merged into the six survivor packages above; each package's bracket lineage is preserved in the run's scratch record.</td></tr>
+  <tr><td>—</td><td>Axis coverage</td><td>No axis ended with zero survivors.</td></tr>
+</table>
+
+<div class="callout">
+  <span class="eyebrow">Sequencing note</span>
+  <p style="margin:.3rem 0 0">Idea 3 (mirror economics) is a prerequisite multiplier, not the flashiest item: deciding pt-BR scope and landing the parity gate first halves the execution cost of ideas 1, 2 and 4. Ideas 1 + 4 together are the only combination that both fixes the diagram and closes the recorded size miss.</p>
+</div>
+
+<footer class="composition-signal">Composed 2026-07-30 by ce-ideate (repo-grounded, agent-kit) from the session focus "evoluir e melhorar nosso README.md" — 42 raw ideas, 5 frames, adversarial basis verification pass included.</footer>
+
+</main>
+</body>
+</html>
