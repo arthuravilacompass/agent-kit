@@ -14,6 +14,8 @@ jobs:
         run: bash scripts/check-provenance.sh
       - name: Ceiling gate
         run: bash scripts/check-ceiling.sh
+      - name: README pair gate
+        run: bash scripts/check-readme-pair.sh
       - name: Inventory up-to-date
         run: python3 scripts/generate_inventory.py --check
       - name: Hook evals (tier 1)

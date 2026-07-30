@@ -91,7 +91,7 @@ git clone <this-repo-url> ~/dev/agent-kit
 Rode **de dentro do projeto onde o kit deve ficar ativo**. `claude plugin install` instala em escopo de usuário por padrão — todo projeto desta máquina; passe `--scope project` pra confinar a este.
 
 ```bash
-~/dev/agent-kit/scripts/install.sh minimal   # ou: mobile · team · full
+~/dev/agent-kit/scripts/install.sh minimal   # or: mobile · team · full
 ```
 
 | Perfil | Plugins | Escolha quando |
