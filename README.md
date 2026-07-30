@@ -4,6 +4,10 @@
 
 > **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the reasoning postures to use them well.**
 
+<!-- generated:badges:begin -->
+![mobile 0.15.0](https://img.shields.io/badge/mobile-0.15.0-8a8378) ![core 0.28.1](https://img.shields.io/badge/core-0.28.1-8a8378) ![council 0.5.1](https://img.shields.io/badge/council-0.5.1-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
+<!-- generated:badges:end -->
+
 **How to read the map below.** The top band is entry — three ways in: a loose phrase, a `/ce-*` command, or always-on (no invocation needed). The rail underneath is conduction: `superpowers` owns Discover, [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" from here on) owns Plan through Ship — both external plugins you install separately. This repo (`/core:*`, `/team:*`) is the always-on floor under either conductor.
 
 <picture>
@@ -19,12 +23,14 @@ Of everything the kit ships, **only the hooks are a guarantee**: they fire on th
 
 Four plugins installable via a local marketplace. `mobile` is the flagship vertical; `core` and `council` are the stack-agnostic foundation under it.
 
+<!-- generated:plugin-table:begin -->
 | Plugin | What it is | Install when |
 |---|---|---|
 | `mobile` — **flagship** | Flutter/Dart toolkit: review rules, scaffolding, four deterministic verifiers (one blocking smell-checker + three advisory hooks) | Flutter/Dart project on (or near) the assumed stack — note below |
 | `core` | Deterministic mechanism: read-ledger and citation gate, the always-on discipline rules, `core:grill-me`'s checkpoints (`pre-plan`/`post-plan`/`pre-done`), the repo gates | Always — the foundation for the rest |
 | `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
 | `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | You run refinement or write to a squad |
+<!-- generated:plugin-table:end -->
 
 **The `mobile` stack assumption.** Verifiers are calibrated to MobX + `get_it`/`injectable` (scaffolding also assumes `dartz`). On Bloc/Riverpod the DI and lifecycle checks simply don't fire — they look for `get_it` calls inside `_store.dart`/`_controller.dart`. No false positives, but no coverage either, until you edit the hook regexes yourself.
 
@@ -53,15 +59,13 @@ Severity of each dependency — what you'll actually observe if it's missing, no
 
 ### 1. Clone (once)
 
-Already have a clone, at any path, from any source? Skip to step 2 — every command below uses `~/dev/agent-kit` as a placeholder; substitute your actual path.
-
 ```bash
 git clone <this-repo-url> ~/dev/agent-kit
 ```
 
 ### 2. Install — one line, by profile
 
-Run it **from inside the project where the kit should be active**. `claude plugin install` installs at user scope by default — every project on this machine; pass `--scope project` to confine it to this one.
+Run it **from inside the project where the kit should be active** (scope detail: [docs/INSTALL.md](docs/INSTALL.md#native-install-commands)).
 
 ```bash
 ~/dev/agent-kit/scripts/install.sh minimal   # or: mobile · team · full
@@ -74,7 +78,7 @@ Run it **from inside the project where the kit should be active**. `claude plugi
 | `team` | minimal + team | you run refinement / talk to a squad — needs a board MCP you supply |
 | `full` | all four | everything above applies |
 
-The profile script installs only this kit's own four plugins. `superpowers`, `compound-engineering`, and `pr-review-toolkit` are separate marketplaces — see [docs/INSTALL.md](docs/INSTALL.md#external-plugins) for those commands and what each one costs you if skipped.
+Installs only this kit's four plugins — `superpowers`, `compound-engineering`, `pr-review-toolkit` are separate marketplaces: commands and per-plugin cost in [docs/INSTALL.md](docs/INSTALL.md#external-plugins).
 
 ### 3. Verify, and update later
 
@@ -86,11 +90,7 @@ claude plugin list                  # or manually: should list what you installe
 claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
-Anything missing — the CLI, the marketplace, a plugin, an external plugin the routing assumes — `doctor.sh` prints the exact install command to fix it. In a new session, `core`'s rules already come in via SessionStart — nothing to type. A plugin installed at project scope needs `--scope project` on update too.
-
-**Maintaining the kit?** `scripts/doctor.sh --maintainer` runs four of the kit-maintainer gates (ceiling, provenance, plugin manifest validation, inventory); the full six-command gate is [docs/OPERATIONS.md](docs/OPERATIONS.md) §4.
-
-Full native-command reference, `AGENTS.md` emission mechanics, and uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
+`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins); `core`'s rules arrive via SessionStart — nothing to type. **Maintaining?** `--maintainer` runs four gate commands (ceiling, provenance, manifest, inventory) — full seven-command gate: [docs/OPERATIONS.md](docs/OPERATIONS.md) §4. Native commands / `AGENTS.md` / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Which tool, when
 

@@ -18,6 +18,8 @@ jobs:
         run: bash scripts/check-readme-pair.sh
       - name: Inventory up-to-date
         run: python3 scripts/generate_inventory.py --check
+      - name: README fragments up-to-date
+        run: python3 scripts/generate_readme_fragments.py --check
       - name: Hook evals (tier 1)
         run: ./evals/run-evals.sh
       - name: Shellcheck

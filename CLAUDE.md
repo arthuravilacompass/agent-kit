@@ -14,7 +14,7 @@ This is **agent-kit** — a Claude Code plugin marketplace (`core`, `council`, `
 
 ## Before any commit
 
-Run the six-part gate (`docs/OPERATIONS.md` §4):
+Run the seven-part gate (`docs/OPERATIONS.md` §4):
 
 ```bash
 ./scripts/check-provenance.sh
@@ -23,9 +23,10 @@ claude plugin validate .
 python3 scripts/generate_inventory.py --check
 ./scripts/check-ceiling.sh
 ./scripts/check-readme-pair.sh
+python3 scripts/generate_readme_fragments.py --check
 ```
 
-All six must come back green. There's no separate build/test command — this gate is the repo's CI.
+All seven must come back green. There's no separate build/test command — this gate is the repo's CI.
 
 ## Commits
 

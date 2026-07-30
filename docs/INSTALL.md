@@ -4,7 +4,7 @@ Detail behind the README's one-line happy path: native `claude plugin` commands 
 
 ## Native install commands
 
-Prefer the native commands over `scripts/install.sh`? This is exactly what the script wraps.
+Prefer the native commands over `scripts/install.sh`? This is exactly what the script wraps. Run any of it **from inside the project where the kit should be active** — `claude plugin install`/`update` default to user scope (every project on this machine); pass `--scope project` to confine an install (and its later `update`) to this one.
 
 ### Kit plugins
 
