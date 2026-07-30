@@ -94,7 +94,7 @@ Full native-command reference, `AGENTS.md` emission mechanics, and uninstall: **
 
 ## Which tool, when
 
-Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching, since both can claim the same utterance. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
+Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching. Neither plugin enforces this: both loops stay model-invocable, so the always-on tier (`core:using-agent-kit`) is what restates the boundary. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
 
 | Situation | You say/type | What fires | Owner |
 |---|---|---|---|
