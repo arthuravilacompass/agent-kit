@@ -6,7 +6,8 @@ This is **agent-kit** — a Claude Code plugin marketplace (`core`, `council`, `
 
 ## Map
 
-- **[README.md](README.md)** — what the kit is, install, day-to-day use, which skill for which job.
+- **[README.md](README.md)** — what the kit is, day-to-day use, which skill for which job.
+- **[docs/INSTALL.md](docs/INSTALL.md)** — install detail: native `claude plugin` commands, non-Claude-Code use, requirements in full.
 - **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)** — architecture (3 layers), artifact lifecycle (wired/unwired/deleted), promotion rule, always-on byte ceiling, conventions (language, slash-only, no provenance narration).
 - **[docs/OPERATIONS.md](docs/OPERATIONS.md)** — publishing, the quality gate, `unwired/` triage. Owner-only.
 - **[INVENTORY.md](INVENTORY.md)** — generated catalog of every skill/agent/hook/script. Never hand-edit; regenerate with `python3 scripts/generate_inventory.py`.

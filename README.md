@@ -8,16 +8,16 @@
 ![mobile 0.15.0](https://img.shields.io/badge/mobile-0.15.0-8a8378) ![core 0.28.1](https://img.shields.io/badge/core-0.28.1-8a8378) ![council 0.5.1](https://img.shields.io/badge/council-0.5.1-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
 <!-- generated:badges:end -->
 
-**How to read the map below.** The top band is entry — three ways in: a loose phrase, a `/ce-*` command, or always-on (no invocation needed). The rail underneath is conduction: `superpowers` owns Discover, [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" from here on) owns Plan through Ship — both external plugins you install separately. This repo (`/core:*`, `/team:*`) is the always-on floor under either conductor.
+**How to read the map below.** The top band is entry — three ways in: a loose phrase, a `/ce-*` command, or always-on (no invocation). The rail underneath is conduction: `superpowers` owns Discover, [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" from here on) owns Plan through Ship — both external plugins you install separately. This repo (`/core:*`, `/team:*`) is the always-on floor under either conductor.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/routing-diagram-dark.svg">
   <img alt="agent-kit routing map: how you enter (loose phrase, /ce-*, always-on) and who conducts each stage" src="assets/routing-diagram-light.svg">
 </picture>
 
-*The gate behind Ship is `/core:review-local` (lint · tests · citation validation); capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
+*The gate behind Ship is `/core:review-local` (lint · tests · citation validation); the commit itself is `/core:commit`; capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
 
-Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own, and every skill, gate, and posture runs because you invoked it. Architecture (3 layers) and posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
+Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own; every skill, gate, and posture runs because you invoked it. Architecture (3 layers), posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
 
 ## What's included
 
@@ -34,7 +34,7 @@ Four plugins installable via a local marketplace. `mobile` is the flagship verti
 
 **The `mobile` stack assumption.** Verifiers are calibrated to MobX + `get_it`/`injectable` (scaffolding also assumes `dartz`). On Bloc/Riverpod the DI and lifecycle checks simply don't fire — they look for `get_it` calls inside `_store.dart`/`_controller.dart`. No false positives, but no coverage either, until you edit the hook regexes yourself.
 
-Full generated catalog of every skill, agent, hook, and script: **[INVENTORY.md](INVENTORY.md)**.
+Full generated catalog of every skill, agent, hook, script: **[INVENTORY.md](INVENTORY.md)**.
 
 ## Requirements
 
@@ -43,7 +43,7 @@ Severity of each dependency — what you'll actually observe if it's missing, no
 | Dependency | Severity | Symptom if missing |
 |---|---|---|
 | [Claude Code](https://claude.com/claude-code) with plugin support | **hard** | nothing works — no `claude plugin` commands, no hooks, no skills |
-| `superpowers` + `compound-engineering` (external plugins, own marketplaces) | **assumed-by-routing** | the routing map below references `/ce-*` and `superpowers:*` skills that don't resolve; `scripts/doctor.sh` reports this as `INFO`, not a failure |
+| `superpowers` + `compound-engineering` (external plugins, own marketplaces) | **assumed-by-routing** | the "Which tool, when" table below references `/ce-*` and `superpowers:*` skills that don't resolve; `scripts/doctor.sh` reports this as `INFO`, not a failure |
 | `pr-review-toolkit` (external plugin, generic marketplace) | **degrades** | `/core:review-local` falls back to `/core:review-remote` — no citation gate, no parallel dispatch (full cost: [docs/INSTALL.md](docs/INSTALL.md#requirements--detail)) |
 | A Flutter/Dart project, for `mobile` | **degrades** | `mobile`'s verifiers never fire — no DI/lifecycle/codegen checks |
 

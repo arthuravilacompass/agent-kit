@@ -135,8 +135,11 @@ def discover_plugins():
 
 def load_manifest(plugin):
     manifest_path = os.path.join(PLUGINS_DIR, plugin, ".claude-plugin", "plugin.json")
-    with open(manifest_path, encoding="utf-8") as f:
-        data = json.load(f)
+    try:
+        with open(manifest_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        raise FragmentError(f"{rel(manifest_path)}: could not read/parse manifest ({e})")
     for field in ("name", "description", "version"):
         if field not in data:
             raise FragmentError(f"{rel(manifest_path)}: missing required field '{field}'")
@@ -170,7 +173,13 @@ def render_badges_fragment():
     for plugin in PLUGIN_ORDER:
         manifest = load_manifest(plugin)
         version = manifest["version"]
-        url = f"https://img.shields.io/badge/{plugin}-{version}-{BADGE_COLOR}"
+        # shields.io treats literal '-' as a field separator and '_' as a space
+        # escape, so both must be doubled in the plugin/version segments before
+        # interpolation — underscores first, so a doubled '__' from an
+        # underscore escape is never re-escaped as a hyphen pair.
+        badge_plugin = plugin.replace("_", "__").replace("-", "--")
+        badge_version = version.replace("_", "__").replace("-", "--")
+        url = f"https://img.shields.io/badge/{badge_plugin}-{badge_version}-{BADGE_COLOR}"
         badges.append(f"![{plugin} {version}]({url})")
     return [BADGES_BEGIN, " ".join(badges), BADGES_END]
 
