@@ -4,7 +4,7 @@
 
 > **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the reasoning postures to use them well.**
 
-![mobile 0.15.0](https://img.shields.io/badge/mobile-0.15.0-8a8378) ![core 0.29.0](https://img.shields.io/badge/core-0.29.0-8a8378) ![council 0.5.1](https://img.shields.io/badge/council-0.5.1-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
+![mobile 0.16.0](https://img.shields.io/badge/mobile-0.16.0-8a8378) ![core 0.30.0](https://img.shields.io/badge/core-0.30.0-8a8378) ![council 0.6.0](https://img.shields.io/badge/council-0.6.0-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
 
 **How to read the map below.** The top band is entry — three ways in: a loose phrase, a `/ce-*` command, or always-on (no invocation). The rail underneath is conduction: `superpowers` owns Discover, [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" from here on) owns Plan through Ship — both external plugins you install separately. This repo (`/core:*`, `/team:*`) is the always-on floor under either conductor.
 
@@ -86,7 +86,7 @@ claude plugin list                  # or manually: should list what you installe
 claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
-`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins); `core`'s rules arrive via SessionStart — nothing to type. **Maintaining?** `--maintainer` runs all five gate commands (ceiling, provenance, manifest, evals, README pair) — full gate detail: [docs/OPERATIONS.md](docs/OPERATIONS.md) §4. Native commands / `AGENTS.md` / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
+`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins); `core`'s rules arrive via SessionStart — nothing to type. **Maintaining?** `--maintainer` runs all four gate commands (ceiling, provenance, manifest validate, README pair) — full gate detail: [docs/OPERATIONS.md](docs/OPERATIONS.md) §2. Native commands / `AGENTS.md` / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Which tool, when
 

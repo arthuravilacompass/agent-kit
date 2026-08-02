@@ -41,14 +41,14 @@ claude plugin install mobile@agent-kit    # only in a Flutter/Dart project
 
 Local commit pays one check: `./scripts/check-provenance.sh` — the one leak cheaper to catch before the commit exists than after. That's the whole commit-time gate.
 
-The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`) and/or `scripts/doctor.sh --maintainer` as the optional local rehearsal:
+The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`), 4 mechanical steps:
 
 1. `check-provenance.sh` — structural patterns shipped in the script; literal patterns (real client/product names) from local `.provenance-deny`, gitignored — CI runs structural-only.
 2. `check-ceiling.sh` — always-on byte ceiling, see §3.
 3. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present.
-4. `shellcheck` over every `.sh` under `plugins scripts tools` — CI-only, no local equivalent.
+4. `shellcheck` over every `.sh` under `plugins scripts tools`.
 
-`claude plugin validate .` (marketplace + plugin manifests) is currently local-only, run via `doctor.sh --maintainer`; whether it joins CI is an open operator decision.
+`scripts/doctor.sh --maintainer` is the optional local rehearsal, also 4 gates: `check-ceiling.sh`, `check-provenance.sh`, `check-readme-pair.sh`, and `claude plugin validate .` (marketplace + plugin manifests) in place of `shellcheck`. `claude plugin validate .` is deliberately local-only — the `claude` CLI isn't installed on CI runners, so it can only ever run on the maintainer's machine — and `shellcheck` is deliberately CI-only, with no local equivalent invoked by `doctor.sh`.
 
 Version bumps and the `(plugin X.Y.Z)` changelog trailer move to **publish**, batched across whatever commits accumulated since the last one — not per commit. Going-forward `CHANGELOG.md` entries are 1-3 lines.
 

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Governance v2: commit-time gate shrinks to provenance-only, the full gate moves to publish/CI (2026-08-02) (core 0.30.0, council 0.6.0, mobile 0.16.0)** — README generators + `INVENTORY.md`, the ceiling ratchet + its selftest, `unwired/`, `validate_citations.py`, and the `evals/` harness are all deleted; 7 hooks cut to 3 (`session-start`, `model-routing`, `smell-checker`), so review flows fall back to manual citation spot-check; `docs/GOVERNANCE.md` merges into `docs/OPERATIONS.md`; `core:grill-me` becomes escalation-only, interview delegated to the user-scope `/grilling`. Always-on tier: 9595 → 6253 bytes. README badges and plugin table are hand-maintained from here on.
+
 ### Added
 
 - **`core:codebase-design` + `core:deepen-architecture` — a design vocabulary and the scan that speaks it, adapted from external skills (2026-08-02) (core 0.29.0)** — `core:codebase-design` is a corpus, not a workflow: the deep-module glossary (module, interface, depth, seam, adapter, leverage, locality), the principles (deletion test, interface-is-the-test-surface, one-adapter-vs-two), plus `DEEPENING.md` (four dependency categories, seam discipline, replace-don't-layer testing) and `DESIGN-IT-TWICE.md` (parallel sub-agents designing one interface several ways). `core:deepen-architecture` is one caller of it: scans for **shallow** modules worth deepening, presents up to five candidates as a self-contained HTML report written to `$TMPDIR` (never the repo), then grills whichever one the user picks. Both adapted from `mattpocock/skills` (Matt Pocock, MIT), each carrying both halves of the attribution convention — the flat `metadata:` frontmatter line and an in-body blockquote.

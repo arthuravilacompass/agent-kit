@@ -71,4 +71,4 @@ claude plugin marketplace remove agent-kit
 | `plugins/` | The four installable plugins (`core`, `council`, `team`, `mobile`) |
 | `assets/` | Manual copy-paste templates: status line, `CLAUDE.md` skeleton, `settings.json` snippets |
 | `docs/` | [OPERATIONS.md](OPERATIONS.md) |
-| `scripts/` | Provenance gate, inventory generator, and maintenance tooling |
+| `scripts/` | Provenance/ceiling/README-pair gates, `doctor.sh`, and install/maintenance tooling |
