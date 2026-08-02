@@ -57,27 +57,25 @@ If this marketplace is installed inside a workspace that already has its own com
 
 ## 4. Quality gate
 
-Seven commands, all must come back green before any commit:
+Five commands, all must come back green before any commit:
 
 ```bash
 ./scripts/check-provenance.sh
 claude plugin validate .
 ./evals/run-evals.sh
-python3 scripts/generate_inventory.py --check
 ./scripts/check-ceiling.sh
 ./scripts/check-readme-pair.sh
-python3 scripts/generate_readme_fragments.py --check
 ```
 
 - `check-provenance.sh` — denylist of company/product/board names and internal paths, run over the whole repo (including `unwired/`, no exception). Two tiers: **structural** patterns (ticket-ID formats, branch-naming conventions — a format identifies nobody) are hardcoded in the script and shipped; **literal** patterns (the actual client name, internal domain, squad name, personal handles) live in `.provenance-deny` at repo root — gitignored, never tracked, populated locally by the maintainer only. `.provenance-deny.example` (tracked) documents the format with no real names; copy it to `.provenance-deny` and fill in real values on a fresh clone that needs the literal tier. Without the file the gate still runs — structural patterns only — and its `OK`/`FAILED` line always states how many local literal patterns loaded (0 if absent), so the local tier being missing is visible in the gate's own output, not silent. This is also the gate's real-world default in CI: `.github/workflows/ci.yml`'s checkout never has `.provenance-deny` (it's gitignored, never pushed), so CI enforces structural patterns only — full literal coverage happens locally, pre-commit, which is where this gate is meant to catch a leak before it's ever committed.
 - `claude plugin validate .` — validates the marketplace manifest and each plugin's manifest.
 - `run-evals.sh` — deterministic Tier 1: runs the real hooks against synthetic payloads. Runs via heredoc; in environments that sandbox temp-file creation (some agent harnesses), run with the sandbox disabled for this specific command.
-- `generate_inventory.py --check` — `INVENTORY.md` is generated, never hand-edited; this command fails (red gate) if the repo tree diverges from the recorded inventory. Regenerate with `python3 scripts/generate_inventory.py` and commit the result.
-- `check-ceiling.sh` — measures `session-start.sh`'s real output against the always-on tier's byte ceiling, and bans "Promoted from" provenance narration inside `plugins/`. Ceiling and rationale: `docs/GOVERNANCE.md`.
+- `check-ceiling.sh` — measures `session-start.sh`'s real output against the always-on tier's byte ceiling, bans "Promoted from" provenance narration inside `plugins/`, and (a third, independent function) soft-checks the maintainer's personal `$HOME` `MEMORY.md` index against its own 8192-byte ceiling — this sub-check `SKIP`s (not a failure) when the file is absent, which is the normal state on any other machine or in CI, so it can fail on the maintainer's own machine while CI stays green. Ceiling and rationale: `docs/GOVERNANCE.md`.
 - `check-readme-pair.sh` — mechanical invariants of the bilingual README pair: every pt-BR bash fence exists byte-identically in `README.md` or `docs/INSTALL.md`, every referenced SVG asset exists and carries `data-look="handDrawn"`, and both source-of-truth cross-link headers are present.
-- `generate_readme_fragments.py --check` — the "What's included" plugin table and the version badges line in `README.md` are generated from `plugins/*/.claude-plugin/plugin.json`, never hand-edited, inside the `<!-- generated:plugin-table -->`/`<!-- generated:badges -->` marker pairs; this command fails (red gate) if the file diverges. Regenerate with `python3 scripts/generate_readme_fragments.py` and commit the result.
 
-Normative convention behind the inventory: the `# desc:` line (line 2 of every hook/script under `plugins/*/hooks` and `plugins/*/scripts`) is the source of the description shown in `INVENTORY.md`. Any prose header already in the file is free commentary, with no effect on the inventory. When the two diverge, fix the `# desc:` line — not the prose header.
+Normative convention behind hook/script descriptions: the `# desc:` line (line 2 of every hook/script under `plugins/*/hooks` and `plugins/*/scripts`) is the source of truth. Any prose header already in the file is free commentary, with no effect on tooling. When the two diverge, fix the `# desc:` line — not the prose header.
+
+CI (`.github/workflows/ci.yml`) runs the same five commands, plus two checks with no local-only equivalent: `shellcheck` over every `.sh` file under `plugins scripts evals tools`, and `scripts/selftest-check-ceiling.sh` (asserts `check-ceiling.sh`'s ratchet actually fails when the tier exceeds it, not just that the gate is green at the committed value).
 
 Surface docs (README, this file, and `docs/GOVERNANCE.md`) don't carry dates — history lives in `CHANGELOG.md`. Check: `grep -q` for a year-month pattern (`YYYY-`) over the file must fail to match. Note: `grep -c` exits with code 1 when there's no match — don't use `-c` as a chained pass condition in `&&`.
 

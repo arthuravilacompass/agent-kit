@@ -87,7 +87,7 @@ if not isinstance(ti, dict):
 # list locking its own vocabulary (narrowing it would first require writing an escape
 # marker into the very file the hook is blocking). Restrict to source extensions where
 # these tokens are actually code, not prose — .md/.json/.jsonl/.sh (this repo's own
-# CHANGELOG.md, INVENTORY.md, hook-cases.jsonl, and hook sources) all fall outside it.
+# CHANGELOG.md, hook-cases.jsonl, and hook sources) all fall outside it.
 SOURCE_EXTS = (
     ".dart", ".ts", ".tsx", ".js", ".jsx", ".py", ".kt", ".java", ".swift", ".go",
     ".rb", ".cs",

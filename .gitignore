@@ -5,6 +5,10 @@ docs/superpowers/
 # CE plan and ideation artifacts — session material, not kit deliverables
 docs/plans/
 docs/ideation/
+# Local wayfinder/tracker config (issue-tracker.md, domain.md) — not a kit deliverable
+docs/agents/
+# Wayfinder maps and local-markdown issue tracker — session material, not deliverables
+.scratch/
 .eval-tmp/
 .worktrees/
 __pycache__/

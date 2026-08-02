@@ -4,9 +4,7 @@
 
 > **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the reasoning postures to use them well.**
 
-<!-- generated:badges:begin -->
 ![mobile 0.15.0](https://img.shields.io/badge/mobile-0.15.0-8a8378) ![core 0.28.1](https://img.shields.io/badge/core-0.28.1-8a8378) ![council 0.5.1](https://img.shields.io/badge/council-0.5.1-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
-<!-- generated:badges:end -->
 
 **How to read the map below.** The top band is entry — three ways in: a loose phrase, a `/ce-*` command, or always-on (no invocation). The rail underneath is conduction: `superpowers` owns Discover, [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" from here on) owns Plan through Ship — both external plugins you install separately. This repo (`/core:*`, `/team:*`) is the always-on floor under either conductor.
 
@@ -23,18 +21,16 @@ Of everything the kit ships, **only the hooks are a guarantee**: they fire on th
 
 Four plugins installable via a local marketplace. `mobile` is the flagship vertical; `core` and `council` are the stack-agnostic foundation under it.
 
-<!-- generated:plugin-table:begin -->
 | Plugin | What it is | Install when |
 |---|---|---|
 | `mobile` — **flagship** | Flutter/Dart toolkit: review rules, scaffolding, four deterministic verifiers (one blocking smell-checker + three advisory hooks) | Flutter/Dart project on (or near) the assumed stack — note below |
 | `core` | Deterministic mechanism: read-ledger and citation gate, the always-on discipline rules, `core:grill-me`'s checkpoints (`pre-plan`/`post-plan`/`pre-done`), the repo gates | Always — the foundation for the rest |
 | `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
 | `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | You run refinement or write to a squad |
-<!-- generated:plugin-table:end -->
 
 **The `mobile` stack assumption.** Verifiers are calibrated to MobX + `get_it`/`injectable` (scaffolding also assumes `dartz`). On Bloc/Riverpod the DI and lifecycle checks simply don't fire — they look for `get_it` calls inside `_store.dart`/`_controller.dart`. No false positives, but no coverage either, until you edit the hook regexes yourself.
 
-Full generated catalog of every skill, agent, hook, script: **[INVENTORY.md](INVENTORY.md)**.
+Full catalog of every skill, agent, hook, script: browse `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks`.
 
 ## Requirements
 
@@ -90,7 +86,7 @@ claude plugin list                  # or manually: should list what you installe
 claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
-`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins); `core`'s rules arrive via SessionStart — nothing to type. **Maintaining?** `--maintainer` runs four gate commands (ceiling, provenance, manifest, inventory) — full seven-command gate: [docs/OPERATIONS.md](docs/OPERATIONS.md) §4. Native commands / `AGENTS.md` / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
+`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins); `core`'s rules arrive via SessionStart — nothing to type. **Maintaining?** `--maintainer` runs all five gate commands (ceiling, provenance, manifest, evals, README pair) — full gate detail: [docs/OPERATIONS.md](docs/OPERATIONS.md) §4. Native commands / `AGENTS.md` / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Which tool, when
 
@@ -102,7 +98,7 @@ Indexed by the situation you're in, not by plugin. **The boundary convention:** 
 | Ticket for new/changed behavior | `/core:tech-breakdown <TICKET>` | ticket→plan seam | kit |
 | Something broken | loose phrase, or `/ce-debug` | `superpowers:systematic-debugging` \| CE's diagnosis loop | superpowers \| CE |
 | Touching Flutter code | nothing — fires automatically | smell-checker (blocking) + 3 advisory hooks | kit (mobile) |
-| Decision expensive to undo | wear a `council` posture | reasoning layer (postures — [INVENTORY.md](INVENTORY.md)) | council |
+| Decision expensive to undo | wear a `council` posture | reasoning layer (postures — `plugins/council/`) | council |
 | About to say it's done | `/core:grill-me pre-done` | blind pre-done reviewer | kit |
 | Work split into independent legs | (none, or dispatch agents) | `superpowers:dispatching-parallel-agents` | superpowers |
 | Running refinement / writing to squad | `/team:refine-live` \| `/team:refine-async` \| `team:chat-draft` | board-driven refinement / chat draft | team |
@@ -128,13 +124,13 @@ At review time, pass `--ticket <TICKET>` to `/core:review-local` so the `consume
 
 ### "I'm touching Flutter code"
 
-**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On-demand skills: full list in **[INVENTORY.md](INVENTORY.md)**. CE has zero Flutter coverage — the vertical is entirely the kit's.
+**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On-demand skills: full list under `plugins/mobile/skills/`. CE has zero Flutter coverage — the vertical is entirely the kit's.
 
 ### "I'm about to make a decision that's expensive to undo"
 
 **Discriminator: the decision is costly to reverse.** Wear a `council` posture — a reasoning layer, not a flow layer, so it composes with any conductor.
 
-Six postures, each with its own question and "wear it when" — cataloged in **[INVENTORY.md](INVENTORY.md)**, indexed in `council:council`. One posture per decision is the default; escalation to blind mode (`epistemic-council`, an isolated subagent that never sees the thread's lean) has its own criteria. CE's `ce-pov` overlaps only Sagan and Maxwell, partially; the other four have no counterpart.
+Six postures, each with its own question and "wear it when" — cataloged under `plugins/council/`, indexed in `council:council`. One posture per decision is the default; escalation to blind mode (`epistemic-council`, an isolated subagent that never sees the thread's lean) has its own criteria. CE's `ce-pov` overlaps only Sagan and Maxwell, partially; the other four have no counterpart.
 
 ### "I'm about to say it's done"
 
@@ -156,4 +152,4 @@ Once it passes, capture runs twice, on purpose: `/ce-compound` writes the repo-l
 
 ---
 
-[INVENTORY.md](INVENTORY.md) · [docs/INSTALL.md](docs/INSTALL.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
+[docs/INSTALL.md](docs/INSTALL.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)

@@ -10,28 +10,35 @@ This is **agent-kit** — a Claude Code plugin marketplace (`core`, `council`, `
 - **[docs/INSTALL.md](docs/INSTALL.md)** — install detail: native `claude plugin` commands, non-Claude-Code use, requirements in full.
 - **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)** — architecture (3 layers), artifact lifecycle (wired/unwired/deleted), promotion rule, always-on byte ceiling, conventions (language, slash-only, no provenance narration).
 - **[docs/OPERATIONS.md](docs/OPERATIONS.md)** — publishing, the quality gate, `unwired/` triage. Owner-only.
-- **[INVENTORY.md](INVENTORY.md)** — generated catalog of every skill/agent/hook/script. Never hand-edit; regenerate with `python3 scripts/generate_inventory.py`.
 - **[CHANGELOG.md](CHANGELOG.md)** — history. Surface docs (this file, README, GOVERNANCE) don't carry dates.
 
 ## Before any commit
 
-Run the seven-part gate (`docs/OPERATIONS.md` §4):
+Run the five-part gate (`docs/OPERATIONS.md` §4):
 
 ```bash
 ./scripts/check-provenance.sh
 claude plugin validate .
 ./evals/run-evals.sh
-python3 scripts/generate_inventory.py --check
 ./scripts/check-ceiling.sh
 ./scripts/check-readme-pair.sh
-python3 scripts/generate_readme_fragments.py --check
 ```
 
-All seven must come back green. There's no separate build/test command — this gate is the repo's CI.
+All five must come back green. There's no separate build/test command — this gate is the repo's CI.
 
 ## Commits
 
 `type(scope): short description` — types seen in history: `feat`, `fix`, `docs`, `chore`, `refactor`; scope is a plugin name (`core`, `mobile`, `council`, `team`) or `kit` for a cross-cutting change. When a commit changes a plugin's shipped behavior, the message ends with `(pluginname X.Y.Z)` and the same commit bumps that plugin's `plugin.json` version and adds the `CHANGELOG.md` entry — version and changelog land together with the change, never as a follow-up.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as markdown files under `.scratch/<feature-slug>/` — part of the gitignored working tree. See `docs/agents/issue-tracker.md` — local, gitignored config, same tier as `.scratch/`, not a kit deliverable.
+
+### Domain docs
+
+Single-context. The kit's real domain docs are `docs/GOVERNANCE.md` and `docs/OPERATIONS.md`; `CONTEXT.md` and `docs/adr/` don't exist here. See `docs/agents/domain.md` — local, gitignored config, same tier as `.scratch/`, not a kit deliverable.
 
 ## Watch out
 

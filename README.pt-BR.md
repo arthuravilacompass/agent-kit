@@ -21,21 +21,11 @@ Quatro plugins instaláveis por um marketplace local: `mobile` (carro-chefe, too
 
 **A stack que `mobile` assume:** MobX + `get_it`/`injectable` (scaffolding também assume `dartz`). Em Bloc/Riverpod os checks de DI e lifecycle simplesmente não disparam — sem falso positivo, mas sem cobertura também.
 
-Catálogo gerado de toda skill, agente, hook e script: **[INVENTORY.md](INVENTORY.md)**. Severidade de cada dependência (o que quebra se faltar): tabela de requisitos em **[README.md](README.md#requirements)**.
+Catálogo completo de toda skill, agente, hook e script: navegue `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks`. Severidade de cada dependência (o que quebra se faltar): tabela de requisitos em **[README.md](README.md#requirements)**.
 
 ## Instalação
 
-Clone (uma vez — substitua o placeholder pelo seu caminho real):
-
-```bash
-git clone <this-repo-url> ~/dev/agent-kit
-```
-
-Instale — de dentro do projeto onde o kit deve ficar ativo:
-
-```bash
-~/dev/agent-kit/scripts/install.sh minimal   # or: mobile · team · full
-```
+Os comandos de clone e instalação vivem no [README.md](README.md#1-clone-once) — copie de lá; esta página não duplica comandos.
 
 Verifique com `~/dev/agent-kit/scripts/doctor.sh` — checa CLI, marketplace, plugins e os gates do próprio kit, e imprime o comando exato pra corrigir o que faltar.
 
@@ -47,4 +37,4 @@ A convenção de fronteira: frase solta → `superpowers`; slash command → CE 
 
 ---
 
-[INVENTORY.md](INVENTORY.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/INSTALL.md](docs/INSTALL.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
+[docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/INSTALL.md](docs/INSTALL.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)

@@ -3,8 +3,9 @@
 # usage: bash scripts/doctor.sh [--maintainer]
 #   (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,
 #                 external marketplaces (superpowers, compound-engineering) reported informationally.
-#   --maintainer  additionally runs kit-maintainer gates: check-ceiling.sh, check-provenance.sh,
-#                 claude plugin validate ., generate_inventory.py --check.
+#   --maintainer  additionally runs all five kit-maintainer gates: check-ceiling.sh,
+#                 check-provenance.sh, claude plugin validate .,
+#                 run-evals.sh, check-readme-pair.sh.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
@@ -20,7 +21,7 @@ for arg in "$@"; do
       echo "Usage: bash scripts/doctor.sh [--maintainer]"
       echo "  (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,"
       echo "                external marketplaces (superpowers, compound-engineering) reported informationally"
-      echo "  --maintainer  additionally run kit-maintainer repo gates (check-ceiling, check-provenance, plugin validate, inventory --check)"
+      echo "  --maintainer  additionally run all five kit-maintainer repo gates (check-ceiling, check-provenance, plugin validate, run-evals, check-readme-pair)"
       exit 0
       ;;
     *)
@@ -293,21 +294,6 @@ else
   printf '%s\n' "$out" | sed 's/^/    /'
 fi
 
-if [ -f scripts/generate_inventory.py ]; then
-  if grep -q -- '--check' scripts/generate_inventory.py; then
-    if out="$(python3 scripts/generate_inventory.py --check 2>&1)"; then
-      pass "INVENTORY.md up to date"
-    else
-      fail "INVENTORY.md out of date" "run: python3 scripts/generate_inventory.py"
-      printf '%s\n' "$out" | sed 's/^/    /'
-    fi
-  else
-    info "scripts/generate_inventory.py has no --check mode — skipped"
-  fi
-else
-  info "scripts/generate_inventory.py not found — skipped"
-fi
-
 if [ -f evals/run-evals.sh ]; then
   if out="$(bash evals/run-evals.sh 2>&1)"; then
     pass "evals/run-evals.sh (tier-1 hook evals)"
@@ -317,6 +303,17 @@ if [ -f evals/run-evals.sh ]; then
   fi
 else
   info "evals/run-evals.sh not found — skipped"
+fi
+
+if [ -f scripts/check-readme-pair.sh ]; then
+  if out="$(bash scripts/check-readme-pair.sh 2>&1)"; then
+    pass "scripts/check-readme-pair.sh"
+  else
+    fail "scripts/check-readme-pair.sh" "run 'bash scripts/check-readme-pair.sh' directly and read its ERROR line"
+    printf '%s\n' "$out" | sed 's/^/    /'
+  fi
+else
+  info "scripts/check-readme-pair.sh not found — skipped"
 fi
 
 echo

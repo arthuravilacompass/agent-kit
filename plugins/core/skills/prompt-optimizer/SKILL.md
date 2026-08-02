@@ -24,7 +24,7 @@ Analyze a draft prompt, critique it, match it to this kit's real skills/agents/p
 - User wants the task done directly (just execute it) — "just do it", "só faz", "direto"
 - User says "otimizar código", "otimizar performance", "optimize this code", "optimize performance" — these are refactoring/perf tasks, not prompt optimization
 - User wants help installing/configuring the kit itself — that's the README + `scripts/install.sh`, not this skill
-- User wants a component inventory — point to `INVENTORY.md` at the repo root (generated, verified in the gate) instead of hand-listing skills here
+- User wants a component inventory — point to browsing `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks` directly instead of hand-listing skills here
 
 ## How It Works
 
@@ -381,4 +381,4 @@ Do not:
 | `core:methodology` → `references/technical-reference.md` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |
 | `mobile:*` | Flutter/Dart stack-specific component catalog, only when that plugin is installed |
 | `core:learn` | Capture stage — persist corrections/decisions worth remembering |
-| `INVENTORY.md` (repo root) | Generated, gate-verified inventory of every skill/agent/hook — use instead of trusting a hardcoded catalog when auditing what's actually installed |
+| `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks` | Live source of every skill/agent/hook — browse directly instead of trusting a hardcoded catalog when auditing what's actually installed |
