@@ -1,28 +1,16 @@
 ---
 name: grill-me
-description: Invoke when the user asks to "grill me" / press on a design decision, or before calling a plan done (interview mode); or at the deterministic checkpoints pre-plan / post-plan / pre-done to escalate to a stronger reviewer with controlled or blind context (escalation mode, e.g., `/core:grill-me pre-done`).
+description: Invoke at the deterministic checkpoints pre-plan / post-plan / pre-done to escalate to a stronger reviewer with controlled or blind context (e.g., `/core:grill-me pre-done`). Not for interview-style "grill me" requests — those route to the user-scope `/grilling` skill (Matt Pocock's pattern).
 ---
 
-# grill-me — relentless interview + checkpoint escalation
+# grill-me — checkpoint escalation
 
-One skill, two modes. Mode selection happens in the first lines of the request:
+One skill, one mode: escalation. Mode selection happens in the first lines of the request:
 
-- **No argument** (or a "grill me" / challenge-my-decision request) → **interview mode**.
+- **No argument, or a "grill me" / challenge-my-decision request** → this isn't escalation's job. Interview mode now lives in the user-scope `/grilling` skill (Matt Pocock's "grill me" pattern, `mattpocock/skills`) — tell the user and stop; don't attempt an interview here.
 - **Argument `pre-plan <TICKET> [--greenfield]` | `post-plan` | `pre-done`** → **escalation mode** (absorbs the former escalation-checkpoint skill; same checkpoint semantics).
-- **Route by object, not by phrasing**: escalation reviews *work artifacts* (a plan, a diff, a deliverable). When the material to press on is **operator knowledge** — their intent, domain facts, a decision they own — route to **interview mode** even if the request arrived sounding like a checkpoint: interrogate the operator; don't dispatch a reviewer at what only they know. The converse binds just as hard: when a question's answer sits in the environment — a file, a config, a command's output, a frontmatter field — it is not operator knowledge, and putting it to them as a question is a dispatch that did not happen. Go find it. What only they can settle is intent, preference, and a decision whose cost they carry; everything else is a read.
+- **Route by object, not by phrasing**: escalation reviews *work artifacts* (a plan, a diff, a deliverable). When the material to press on is **operator knowledge** — their intent, domain facts, a decision they own — route to **`/grilling`** even if the request arrived sounding like a checkpoint: interrogate the operator; don't dispatch a reviewer at what only they know. The converse binds just as hard: when a question's answer sits in the environment — a file, a config, a command's output, a frontmatter field — it is not operator knowledge, and putting it to them as a question is a dispatch that did not happen. Go find it. What only they can settle is intent, preference, and a decision whose cost they carry; everything else is a read.
 - Invalid argument → show the usage above and stop.
-
-## Interview mode
-
-> Follows Matt Pocock's "grill me" prompt pattern (`mattpocock/skills`).
-
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
-
-Ask the questions one at a time.
-
-If a question can be answered by exploring the codebase, explore the codebase instead.
-
-Interview mode interrogates a specific decision without producing an artifact — inside a design flow, use `superpowers:brainstorming` instead.
 
 ## Escalation mode
 

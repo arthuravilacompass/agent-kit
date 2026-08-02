@@ -92,5 +92,5 @@ List any Figma elements with no design-system match, suggesting either a legacy 
 ## Delegation
 
 - For state + data architecture design, use superpowers brainstorming/writing-plans before scaffolding
-- For a post-implementation visual fidelity check, see `unwired/ui-comparison/SKILL.md` — not yet promoted to wired in this kit; promote it if you want this step automated
+- For a post-implementation visual fidelity check, no wired skill exists yet in this kit — do it manually or write one if it earns repeated use
 - The developer implements the actual Flutter code

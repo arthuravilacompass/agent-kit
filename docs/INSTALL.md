@@ -69,7 +69,6 @@ claude plugin marketplace remove agent-kit
 | Directory | What it is |
 |---|---|
 | `plugins/` | The four installable plugins (`core`, `council`, `team`, `mobile`) |
-| `unwired/` | Genericized raw material awaiting proof of use — nothing is loaded, zero context cost ([details](OPERATIONS.md)) |
 | `assets/` | Manual copy-paste templates: status line, `CLAUDE.md` skeleton, `settings.json` snippets |
 | `docs/` | [GOVERNANCE.md](GOVERNANCE.md) and [OPERATIONS.md](OPERATIONS.md) |
 | `scripts/` | Provenance gate, inventory generator, and maintenance tooling |

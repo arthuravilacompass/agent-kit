@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Hygiene gate: no content from the origin domain/company in the kit (including unwired/).
+# Hygiene gate: no content from the origin domain/company in the kit.
 # Scans ONLY git-tracked files — gitignored and untracked paths (e.g. .claude/settings.local.json,
 # docs/superpowers/, .worktrees/) never reach a commit, so flagging them is a false positive.
 # Exit: 0 = clean · 1 = provenance content found · >=2 = grep aborted (indeterminate).

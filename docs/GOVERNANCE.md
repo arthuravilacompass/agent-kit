@@ -1,6 +1,6 @@
 # Kit governance
 
-Canonical doc for the agent-kit artifact lifecycle. `README.md`, `unwired/README.md`, and `using-agent-kit` point here. History and dates live in `CHANGELOG.md`; the always-on byte ceiling is measured by `scripts/check-ceiling.sh`.
+Canonical doc for the agent-kit artifact lifecycle. `README.md` and `using-agent-kit` point here. History and dates live in `CHANGELOG.md`; the always-on byte ceiling is measured by `scripts/check-ceiling.sh`.
 
 ## The 3-state model (D10)
 
