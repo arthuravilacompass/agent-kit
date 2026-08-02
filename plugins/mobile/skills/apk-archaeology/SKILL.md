@@ -13,8 +13,9 @@ disable-model-invocation: true
 
 > **This skill conducts; the tool executes.** Every script, selftest, and output
 > template lives in `tools/apk-archaeology/` (repo-root, not inside this plugin) — a
-> standalone tool by the criterion in `docs/GOVERNANCE.md`, "Skill vs. standalone
-> tool." This SKILL.md is the thin conductor: when to use, what phase does what, and
+> standalone tool: its own test suite, a dominant share of the plugin's files, and
+> external runtime deps (`jadx`/`apktool`/`adb`) — see `docs/OPERATIONS.md` §7
+> (Lifecycle). This SKILL.md is the thin conductor: when to use, what phase does what, and
 > how to invoke the tool. **Run every command below from the repo root**
 > (`cd ~/dev/agent-kit`) — all paths are repo-root-relative.
 

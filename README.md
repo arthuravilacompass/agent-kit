@@ -15,7 +15,7 @@
 
 *The gate behind Ship is `/core:review-local` (lint · tests · citation validation); the commit itself is `/core:commit`; capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
 
-Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own; every skill, gate, and posture runs because you invoked it. Architecture (3 layers), posture: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
+Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own; every skill, gate, and posture runs because you invoked it. Architecture, lifecycle, posture: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
 ## What's included
 
@@ -152,4 +152,4 @@ Once it passes, capture runs twice, on purpose: `/ce-compound` writes the repo-l
 
 ---
 
-[docs/INSTALL.md](docs/INSTALL.md) · [docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
+[docs/INSTALL.md](docs/INSTALL.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)

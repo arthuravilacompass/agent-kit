@@ -3,7 +3,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
-# Absolute ceiling — the governance limit (docs/GOVERNANCE.md §Always-on tier ceiling).
+# Absolute ceiling — the governance limit (docs/OPERATIONS.md §3, always-on tier ceiling).
 # CEILING_OVERRIDE exists for seeding a failure in tests, not for routine use.
 CEILING="${CEILING_OVERRIDE:-16384}"
 fail=0
@@ -21,7 +21,7 @@ if [ "$rc" -ne 0 ]; then
 else
   bytes=$(printf '%s' "$out" | wc -c | tr -d ' ')
   if [ "$bytes" -gt "$CEILING" ]; then
-    echo "ERROR: always-on tier measures ${bytes} bytes — over the ${CEILING}-byte ceiling (docs/GOVERNANCE.md §Always-on tier ceiling)"
+    echo "ERROR: always-on tier measures ${bytes} bytes — over the ${CEILING}-byte ceiling (docs/OPERATIONS.md §3, always-on tier ceiling)"
     fail=1
   else
     echo "OK: always-on tier ${bytes} bytes <= ceiling ${CEILING}"

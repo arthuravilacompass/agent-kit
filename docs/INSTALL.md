@@ -62,7 +62,7 @@ claude plugin marketplace remove agent-kit
 
 ## Advanced
 
-**Governance.** This kit governs itself with the same rigor it enforces. See **[docs/GOVERNANCE.md](GOVERNANCE.md)**: the architecture, the posture on what's proven vs. untested, the artifact lifecycle (wired/unwired/deleted), the promotion rule, and conventions. Owner operations — publishing, the quality gate, `unwired/` triage: **[docs/OPERATIONS.md](OPERATIONS.md)**.
+**Governance & operations.** This kit governs itself with the same rigor it enforces. See **[docs/OPERATIONS.md](OPERATIONS.md)**: architecture, the artifact lifecycle, the promotion rule, publishing, and the quality gate.
 
 **Repository structure.**
 
@@ -70,5 +70,5 @@ claude plugin marketplace remove agent-kit
 |---|---|
 | `plugins/` | The four installable plugins (`core`, `council`, `team`, `mobile`) |
 | `assets/` | Manual copy-paste templates: status line, `CLAUDE.md` skeleton, `settings.json` snippets |
-| `docs/` | [GOVERNANCE.md](GOVERNANCE.md) and [OPERATIONS.md](OPERATIONS.md) |
+| `docs/` | [OPERATIONS.md](OPERATIONS.md) |
 | `scripts/` | Provenance gate, inventory generator, and maintenance tooling |

@@ -13,7 +13,7 @@
 
 *O gate depois de Ship é `/core:review-local`; a captura depois é `/ce-compound` e `core:learn`. `/core:tech-breakdown` (beco sem saída, pontilhado) nunca entra na CE sozinho — a saída dele é copiada e colada em `/ce-plan`.*
 
-Só os hooks são garantia: disparam sozinhos. Toda skill, gate e postura roda porque você invocou. Arquitetura completa e postura: **[docs/GOVERNANCE.md](docs/GOVERNANCE.md)**.
+Só os hooks são garantia: disparam sozinhos. Toda skill, gate e postura roda porque você invocou. Arquitetura completa e postura: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
 ## O que vem junto
 
@@ -37,4 +37,4 @@ A convenção de fronteira: frase solta → `superpowers`; slash command → CE 
 
 ---
 
-[docs/GOVERNANCE.md](docs/GOVERNANCE.md) · [docs/INSTALL.md](docs/INSTALL.md) · [docs/OPERATIONS.md](docs/OPERATIONS.md) · [CHANGELOG.md](CHANGELOG.md)
+[docs/OPERATIONS.md](docs/OPERATIONS.md) · [docs/INSTALL.md](docs/INSTALL.md) · [CHANGELOG.md](CHANGELOG.md)

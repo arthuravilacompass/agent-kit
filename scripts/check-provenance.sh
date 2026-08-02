@@ -29,7 +29,7 @@ DENY_STRUCTURAL='TF-[0-9]{3,}|TF-\\d|BM-[0-9]+|ID-[0-9]{6}|release_26|snapshot/2
 # --- Local literal tier: optional by necessity, never silent about it ---------------
 # scripts/ isn't part of any plugin manifest — this gate doesn't ship to plugin
 # installers. It runs in exactly two places: the maintainer's local pre-commit gate
-# (docs/OPERATIONS.md §4), and .github/workflows/ci.yml on every push/PR to this public
+# (docs/OPERATIONS.md §2), and .github/workflows/ci.yml on every push/PR to this public
 # repo. CI's checkout NEVER has .provenance-deny — it's gitignored, so it's never pushed
 # — which makes "clone without the file" the gate's own normal, guaranteed-to-recur
 # state, not a hypothetical edge case. Hard-failing on absence would turn the
