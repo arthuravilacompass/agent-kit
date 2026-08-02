@@ -13,9 +13,9 @@
   <img alt="agent-kit routing map: how you enter (loose phrase, /ce-*, always-on) and who conducts each stage" src="assets/routing-diagram-light.svg">
 </picture>
 
-*The gate behind Ship is `/core:review-local` (lint · tests · citation validation); the commit itself is `/core:commit`; capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
+*The gate behind Ship is `/core:review-local` (lint · tests · manual citation spot-check); the commit itself is `/core:commit`; capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
 
-Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own; every skill, gate, and posture runs because you invoked it. Architecture, lifecycle, posture: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
+Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own; every skill, gate, and posture runs because you invoked it. Lifecycle, the promotion rule, the always-on ceiling, publishing, and the gates: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
 ## What's included
 
@@ -42,6 +42,7 @@ Severity of each dependency — what you'll actually observe if it's missing, no
 | `superpowers` + `compound-engineering` (external plugins, own marketplaces) | **assumed-by-routing** | the "Which tool, when" table below references `/ce-*` and `superpowers:*` skills that don't resolve; `scripts/doctor.sh` reports this as `INFO`, not a failure |
 | `pr-review-toolkit` (external plugin, generic marketplace) | **degrades** | `/core:review-local` falls back to `/core:review-remote` — no parallel dispatch (full cost: [docs/INSTALL.md](docs/INSTALL.md#requirements--detail)) |
 | A Flutter/Dart project, for `mobile` | **degrades** | `mobile`'s verifier never fires — no DI check |
+| `grilling` (user-scope skill, `mattpocock/skills`, `~/.claude/skills/`) | **degrades** | grill-me's interview route and deepen-architecture step 3 both dead-end |
 
 ## Installation
 
@@ -102,7 +103,7 @@ Indexed by the situation you're in, not by plugin. **The boundary convention:** 
 | About to say it's done | `/core:grill-me pre-done` | blind pre-done reviewer | kit |
 | Work split into independent legs | (none, or dispatch agents) | `superpowers:dispatching-parallel-agents` | superpowers |
 | Running refinement / writing to squad | `/team:refine-live` \| `/team:refine-async` \| `team:chat-draft` | board-driven refinement / chat draft | team |
-| About to commit / want review | `/core:review-local` and/or `/ce-code-review` | gate (lint, tests, citations) / judgment pass | kit / CE |
+| About to commit / want review | `/core:review-local` and/or `/ce-code-review` | gate (lint, tests, manual citation spot-check) / judgment pass | kit / CE |
 
 ### "I have a vague feature idea"
 
@@ -134,7 +135,7 @@ Six postures, each with its own question and "wear it when" — cataloged under 
 
 ### "I'm about to say it's done"
 
-**Discriminator: you're about to claim done, not mid-work.** `/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and you manually spot-check its citations against the code before you present its findings. If what needs pressing is a *decision you own* rather than an artifact, bare `core:grill-me` is the interview mode.
+**Discriminator: you're about to claim done, not mid-work.** `/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and you manually spot-check its citations against the code before you present its findings. If what needs pressing is a *decision you own* rather than an artifact, that's the user-scope `/grilling` skill instead of this checkpoint (see Requirements).
 
 ### "The work just split into independent legs"
 

@@ -31,7 +31,7 @@ When generating, editing, or reviewing any `*_store.dart`, `*_controller.dart`, 
 
 ## Enforcement
 
-Code with an ID is only born together with its machine-validator (hook, eval, or agent); with no validator, write prose with a strong title. IDs with a mechanical validator:
+Code with an ID is only born together with its machine-validator (hook or agent); with no validator, write prose with a strong title. IDs with a mechanical validator:
 
 - **DI001, ARCH001, LOG001** — this plugin's `hooks/smell-checker.sh` (exit 2, add-only). The remaining BLOCKER items (MOBX001-005, "Store isn't created in build()") stay prose-only in this skill — there's no automatic gate for them.
 - **FSM001 / SSOT001 / CMD001 / MOBX006** — `mobile:mobx-smell-hunter` agent.
@@ -168,7 +168,7 @@ FSM001, CMD001, SSOT001, MOBX006 (with IDs — validated by the `mobile:mobx-sme
 
 ## Code Policy
 
-Code with an ID is only born together with its machine-validator (hook, eval, or agent); with no validator, write prose with a strong title in this section.
+Code with an ID is only born together with its machine-validator (hook or agent); with no validator, write prose with a strong title in this section.
 
 ## Adding New Codes
 

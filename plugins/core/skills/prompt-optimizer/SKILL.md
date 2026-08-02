@@ -104,7 +104,7 @@ the only stack-opinionated vertical it ships is `mobile` (Flutter/Dart).
 
 | Intent | Skills | Agents / Council postures |
 |--------|--------|--------|
-| New Feature | `superpowers:brainstorming` or `core:grill-me` (clarify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
+| New Feature | `superpowers:brainstorming` or the user-scope `/grilling` skill (clarify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
 | Bug Fix | `superpowers:systematic-debugging` (diagnose) → implement fix → `core:review-local`/`core:review-remote` → `core:commit` | `council:schrodinger` (if more than one live hypothesis for the cause) |
 | Refactor | `core:archaeology` (map) → clarify scope → implement → `core:review-local`/`core:review-remote` (+ `mobile:refactor-review` if the `mobile` plugin is active) → `core:commit` | `council:maxwell` (coupling map before touching), `council:epicurus` |
 | Investigation | `core:archaeology` (map) → `superpowers:systematic-debugging` (diagnose) → report/handoff (terminal — don't force implementation) | `council:schrodinger` |
@@ -354,7 +354,7 @@ Suggested phases:
 1. core:archaeology per current domain/module to map real coupling
    (council:maxwell if coupling is the open question)
 2. Clarify service boundaries and messaging pattern (superpowers:brainstorming
-   or core:grill-me)
+   or the user-scope /grilling skill)
 3. superpowers:writing-plans or core:tech-breakdown for the phased plan
 4. Execute one service extraction per session, core:review-local/
    core:review-remote + core:commit at the end of each
@@ -376,7 +376,7 @@ Do not:
 
 | Component | When to Reference |
 |-----------|------------------|
-| `core:grill-me` | Interview mode for operator-owned decisions; escalation mode at `pre-plan`/`post-plan`/`pre-done` |
+| `core:grill-me` | Escalation mode at `pre-plan`/`post-plan`/`pre-done`; interview mode is the user-scope `/grilling` skill, not this one |
 | `council:council` | Entry point for a high-reversal-cost decision, at any stage |
 | `core:methodology` → `references/technical-reference.md` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |
 | `mobile:*` | Flutter/Dart stack-specific component catalog, only when that plugin is installed |

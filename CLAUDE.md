@@ -8,7 +8,7 @@ This is **agent-kit** — a Claude Code plugin marketplace (`core`, `council`, `
 
 - **[README.md](README.md)** — what the kit is, day-to-day use, which skill for which job.
 - **[docs/INSTALL.md](docs/INSTALL.md)** — install detail: native `claude plugin` commands, non-Claude-Code use, requirements in full.
-- **[docs/OPERATIONS.md](docs/OPERATIONS.md)** — the single governance/operations doc: architecture, artifact lifecycle, promotion rule, always-on byte ceiling, publishing, and the quality gate. Owner-only.
+- **[docs/OPERATIONS.md](docs/OPERATIONS.md)** — the single governance/operations doc: artifact lifecycle, promotion rule, always-on byte ceiling, publishing, and the quality gate. Owner-only.
 - **[CHANGELOG.md](CHANGELOG.md)** — history. Surface docs (this file, README, OPERATIONS) don't carry dates.
 
 ## Before publishing

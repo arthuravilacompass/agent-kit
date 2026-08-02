@@ -71,9 +71,9 @@ These are agent-kit's epistemic and discipline rules, emitted for AGENTS.md-hono
 regardless of stack or domain.
 
 > **Portability note — enforcement does not travel.** In Claude Code, agent-kit backs these
-> rules with deterministic hooks (session-start injection, provenance/citation gates, the
-> mobile smell-checker) and with skills that consult a stronger advisor model or dispatch
-> blind subagents (grill-me, pipeline, the council postures). None of that machinery runs
+> rules with deterministic hooks (session-start injection, the mobile smell-checker) and
+> with skills that consult a stronger advisor model or dispatch blind subagents (grill-me,
+> the council postures). None of that machinery runs
 > here: under an AGENTS.md-only tool these rules are **advisory** — you are asked to follow
 > them, not blocked from violating them — and the advisor/subagent skills degrade to doing
 > the equivalent work **inline**. Treat the 🔴-marked rules as hard requirements anyway.

@@ -187,9 +187,13 @@ In a long investigation, don't stack parallel hypotheses without closing each on
 
 ---
 
-### Confirm the route before crossing plan → execution — detail
+### Confirm the route before crossing plan → execution
 
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+At the opening of each heavy phase, before crossing from plan into execution, list the route you intend to take — the stages you'll run and the ones you intend to skip — and confirm it with the operator.
+
+**Signal**: a plan → execution transition, or the start of a heavy phase, with no route confirmed to the operator beforehand.
+
+This checkpoint was cut from the always-on tier (`using-agent-kit`) deliberately by the operator; methodology is now its only home, as a corpus entry to consult — not a reinstated always-on rule.
 
 **Why**: going straight to output buries silent choices that only surface after the work is done. The plan → execution boundary is where the omission costs most, because everything downstream inherits the unconfirmed reading.
 
@@ -211,7 +215,7 @@ Descended from the always-on tier (`using-agent-kit`, §Permissions) — the rul
 
 ### Worker output contract
 
-Descended from the always-on tier (`using-agent-kit`, §Dispatch) — the trigger ("required at the end of every dispatch") stays there as a one-line pointer; this holds the full contract.
+Required at the end of every dispatch.
 
 - Verdict + evidence + `file:line` refs, max 10 bullets, no raw logs or transcript.
 - **STOP on a pending decision**: if anything depends on the operator, return only a numbered `PENDING DECISIONS` block — do not decide alone.

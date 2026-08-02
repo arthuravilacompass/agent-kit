@@ -35,8 +35,9 @@ The README's Requirements table is deliberately compact. The full detail behind 
 - [Claude Code](https://claude.com/claude-code) with plugin support
 - [superpowers](https://github.com/obra/superpowers) — owns discovery (brainstorming, systematic debugging, parallel dispatch)
 - [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE", MIT, tested against 3.20.0) — owns stage conduction; at user scope it conducts in every project on this machine
-- **`core:review-local` requires the `pr-review-toolkit` plugin** (parallel reviewer dispatch). Without it the fallback is `/core:review-remote` — not an equivalent. The real cost isn't lost parallelism: it's losing the citation check, the kit's most distinctive idea, which `review-remote` substitutes with hand re-reading it does not itself call equivalent. Lost alongside: parallel dispatch, and lint/test behavior that differs by mode (pre-push reports a failure as a finding and continues; remote-PR mode skips lint/tests entirely, leaving that to CI)
+- **`core:review-local` requires the `pr-review-toolkit` plugin** (parallel reviewer dispatch). Without it the fallback is `/core:review-remote` — not an equivalent. The cost is parallel dispatch, plus lint/test behavior that differs by mode (pre-push reports a failure as a finding and continues; remote-PR mode skips lint/tests entirely, leaving that to CI). Citation spot-checking is manual in both paths now
 - For `mobile`: a Flutter/Dart project
+- **`grilling`** (user-scope skill, source `mattpocock/skills`, installed to `~/.claude/skills/`) — severity **degrades**. Without it: grill-me's interview route and deepen-architecture step 3 both dead-end
 - The kit ships no MCP servers of its own. The one place it expects one you supply is `team`'s two refine commands — a board/kanban MCP; nothing else in the kit assumes any
 
 ## Use the epistemic tier on another AI tool
@@ -62,7 +63,7 @@ claude plugin marketplace remove agent-kit
 
 ## Advanced
 
-**Governance & operations.** This kit governs itself with the same rigor it enforces. See **[docs/OPERATIONS.md](OPERATIONS.md)**: architecture, the artifact lifecycle, the promotion rule, publishing, and the quality gate.
+**Governance & operations.** This kit governs itself with the same rigor it enforces. See **[docs/OPERATIONS.md](OPERATIONS.md)**: the artifact lifecycle, the promotion rule, the always-on byte ceiling, publishing, and the quality gate.
 
 **Repository structure.**
 

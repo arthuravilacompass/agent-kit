@@ -13,13 +13,13 @@
 
 *O gate depois de Ship é `/core:review-local`; a captura depois é `/ce-compound` e `core:learn`. `/core:tech-breakdown` (beco sem saída, pontilhado) nunca entra na CE sozinho — a saída dele é copiada e colada em `/ce-plan`.*
 
-Só os hooks são garantia: disparam sozinhos. Toda skill, gate e postura roda porque você invocou. Arquitetura completa e postura: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
+Só os hooks são garantia: disparam sozinhos. Toda skill, gate e postura roda porque você invocou. Lifecycle, regra de promoção, teto sempre-ativo, publicação e os gates: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
 ## O que vem junto
 
 Quatro plugins instaláveis por um marketplace local: `mobile` (carro-chefe, toolkit Flutter/Dart), `core` (mecanismo determinístico — sempre necessário), `council` (lentes de raciocínio para decisões caras de reverter, recomendado com `core`), `team` (cerimônias ágeis, refinement e comunicação com squad). Detalhe de cada um, requisitos e o que falta se você pular um: tabela completa em **[README.md](README.md#whats-included)**.
 
-**A stack que `mobile` assume:** MobX + `get_it`/`injectable` (scaffolding também assume `dartz`). Em Bloc/Riverpod os checks de DI e lifecycle simplesmente não disparam — sem falso positivo, mas sem cobertura também.
+**A stack que `mobile` assume:** MobX + `get_it`/`injectable` (scaffolding também assume `dartz`). Em Bloc/Riverpod o check de DI simplesmente não dispara — sem falso positivo, mas sem cobertura também.
 
 Catálogo completo de toda skill, agente, hook e script: navegue `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks`. Severidade de cada dependência (o que quebra se faltar): tabela de requisitos em **[README.md](README.md#requirements)**.
 
