@@ -1,9 +1,0 @@
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [ { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/posture-signal.sh\"" } ]
-      }
-    ]
-  }
-}

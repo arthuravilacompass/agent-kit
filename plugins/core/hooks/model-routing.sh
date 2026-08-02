@@ -19,7 +19,7 @@
 #       this hook's own payload) -> silent.
 #   (3) malformed JSON, on either this hook's stdin or a corrupted state file -> silent.
 #   (4) marker-dir write failure never suppresses the advisory itself (same contract as
-#       posture-signal / codegen-staleness).
+#       codegen-staleness).
 
 set -uo pipefail
 
@@ -76,7 +76,7 @@ def main(data):
         return
 
     # Once per session — marker keyed by session_id only (one advisory message, not one
-    # per file), mirroring posture-signal's session-keyed marker mechanics.
+    # per file), mirroring codegen-staleness's session-keyed marker mechanics.
     marker_dir = os.environ.get("MARKER_DIR", "")
     marker = os.path.join(marker_dir, hashlib.sha1(session_id.encode()).hexdigest())
     if marker_dir and os.path.exists(marker):
@@ -101,7 +101,7 @@ def main(data):
 
 
 # Broad exception guard: fails toward silence, never a noisy exit-1 traceback on every
-# Edit/Write/MultiEdit (mirrors posture-signal's top-level guard).
+# Edit/Write/MultiEdit (mirrors codegen-staleness's top-level guard).
 try:
     data = json.loads(os.environ.get("INPUT_JSON", "{}"))
     if isinstance(data, dict):
