@@ -105,8 +105,8 @@ Without these configs, the skill still runs — just with less specialized conte
    - Dispatch **one** subagent via the Agent tool (`model: opus`). It is blind to your **narrative**, not to the **code** — it reads the repo fresh.
    - Pass it ONLY: the diff, the ticket ACs, the paths of the rule files for the affected modules, and the plan's `session-settled:` Key Decision entries if any were loaded in step 2 (it reads them).
    - Mandate (adversarial):
-     > "This change is presented as complete. Assume it is **not**. Find the regression, the dropped behavior, the scope drift, the missing verification. Run the bidirectional trace: **every diff hunk must trace to an AC** (unmatched hunk = scope creep) and **every AC must have a corresponding hunk** (unmatched AC = omission) — list the orphans of both sides explicitly. If the plan carries `session-settled:` Key Decision entries, every one must be covered by the artifact or explicitly deferred — list uncovered entries as findings. Work against the diff and read the surrounding code to confirm. **Use the Read/Grep tool — never `cat`/`sed`/`grep` via Bash — for any file you will cite as evidence: reads through Bash do not enter the read-ledger, so a citation gathered that way fails the gate no matter how accurate it is.** For every claim about current code, cite `file:lineStart-lineEnd` and set `epistemicSource`. Return findings as a JSON array."
-   - Findings schema (the array you write in step 4; consumed as-is by `validate_citations.py`):
+     > "This change is presented as complete. Assume it is **not**. Find the regression, the dropped behavior, the scope drift, the missing verification. Run the bidirectional trace: **every diff hunk must trace to an AC** (unmatched hunk = scope creep) and **every AC must have a corresponding hunk** (unmatched AC = omission) — list the orphans of both sides explicitly. If the plan carries `session-settled:` Key Decision entries, every one must be covered by the artifact or explicitly deferred — list uncovered entries as findings. Work against the diff and read the surrounding code to confirm. For every claim about current code, cite `file:lineStart-lineEnd` precisely — it will be spot-checked against the actual file — and set `epistemicSource`. Return findings as a JSON array."
+   - Findings schema (the array the subagent returns; you spot-check it in step 4):
      ```json
      [{ "claim": "...", "epistemicSource": "tool-output",
         "evidence": {"file": "...", "lineStart": N, "lineEnd": M},
@@ -114,17 +114,16 @@ Without these configs, the skill still runs — just with less specialized conte
      ```
      Use `epistemicSource: "inference"` for judgment calls that don't cite code (validator passes these through).
 
-4. **(`pre-done` only) Write the findings — the citation gate fires on the write**
+4. **(`pre-done` only) Spot-check the citations — manual now, mechanical before**
 
-   The read-ledger hook and `validate_citations.py` are repository infrastructure (ownership reverted 2026-07-27; the 2026-07-12 "grill-me-internal, other skills must not depend on them" declaration no longer holds): `grill-me` is one consumer among others, and the check runs from a `PostToolUse(Write)` hook (`citation-check.sh`) rather than from any skill remembering to invoke it. This step used to reason about whether a mechanism was available and run it by hand; it no longer decides anything — it writes, and the write is the trigger.
+   The read-ledger hook and `citation-check.sh` are retired: there is no `PostToolUse(Write)` gate resolving citations against a session read-ledger anymore. Manual spot-check replaces the retired citation gate — **you**, the orchestrator, re-read every cited `file:lineStart-lineEnd` yourself before presenting findings, rather than trusting a mechanical verdict.
 
-   - **Write** the array the subagent returned to `${TMPDIR:-/tmp}/agent-kit-findings/<session-id>.findings.json`, using **your own** session id — not the subagent's. Subagent reads are logged under the parent session, so the parent's ledger is the one the hook must resolve, and it resolves it itself, with an explicit session id, never auto-discovery. Two constraints bind that path, so don't relocate it: the hook matches on the **directory** — the parent must be `agent-kit-findings` — plus the `.findings.json` suffix, and that directory sits **outside the reviewed project's working tree**, so a review never leaves an untracked artifact behind in a client repo. The directory half of the match is not decoration: the hook ships at user scope and fires on every Write in every project, so anywhere else the same filename belongs to somebody else's tool. `core:review-local`'s Step 5 writes to the same bound path.
-   - The write itself succeeds and reports success; the hook's verdict arrives as **separate feedback** on that write, so act on that, not on the write's result:
-     - `verified` / `passthrough` → present normally.
-     - `unverified` (cited code that overlaps no actual read — likely fabrication) → the hook blocks and forwards the validator's report naming the offenders. Route each to the "⚠️ Unverified" bucket, marked as a hypothesis, **never** as a confirmed finding.
-     - The hook reports it **could not check at all** — no session id in the event, no usable read-ledger for it, or a validator error → treat **every** citation as unconfirmed, not as cleared. The mechanism didn't run, so nothing passed it; a cold ledger is not a clean bill of health. That notice is never silence, and it reaches you on the hook's model-visible channel by construction.
+   - For each finding with `epistemicSource: "tool-output"`, open the cited range (Read/Grep) and confirm it actually shows what the claim asserts.
+   - Citation confirmed → present normally.
+   - Citation doesn't match — wrong lines, the file doesn't contain the claimed code, or the file/range doesn't exist → drop the finding, or route it to the "⚠️ Unverified" bucket marked as a hypothesis, **never** as a confirmed finding.
+   - `epistemicSource: "inference"` findings (judgment calls that don't cite code) pass through without a citation check.
 
-   Complementary, not a substitute: re-read the cited lines and drop findings already addressed in the diff.
+   Complementary, not a substitute: while re-reading, also drop findings already addressed in the diff.
 
 ## Presentation format
 
@@ -144,7 +143,7 @@ Without these configs, the skill still runs — just with less specialized conte
    - <finding>
 
    ### ⚠️ Unverified (<n>)   ← pre-done only
-   - <finding> — <file>:<line> (citation doesn't overlap a ledger read — possible fabrication)
+   - <finding> — <file>:<line> (citation didn't match the code on manual spot-check — possible fabrication)
    ```
 
 6. **Ask the user how to proceed**

@@ -11,9 +11,9 @@
 #
 # Session-model state: SessionStart's stdin JSON may carry `model`/`session_id` (both
 # optional — absent on older Claude Code builds, or when the field names drift). Written
-# to STATE_DIR/session-model-<session_id> (mirrors read-ledger.sh's state-dir convention)
-# for model-routing.sh (PreToolUse) to read later. Missing either field, malformed JSON,
-# or a write failure -> skip silently, never touch the exit code.
+# to STATE_DIR/session-model-<session_id> for model-routing.sh (PreToolUse) to read later.
+# Missing either field, malformed JSON, or a write failure -> skip silently, never touch
+# the exit code.
 
 set -euo pipefail
 

@@ -23,12 +23,12 @@ Four plugins installable via a local marketplace. `mobile` is the flagship verti
 
 | Plugin | What it is | Install when |
 |---|---|---|
-| `mobile` — **flagship** | Flutter/Dart toolkit: review rules, scaffolding, four deterministic verifiers (one blocking smell-checker + three advisory hooks) | Flutter/Dart project on (or near) the assumed stack — note below |
-| `core` | Deterministic mechanism: read-ledger and citation gate, the always-on discipline rules, `core:grill-me`'s checkpoints (`pre-plan`/`post-plan`/`pre-done`), the repo gates | Always — the foundation for the rest |
+| `mobile` — **flagship** | Flutter/Dart toolkit: review rules, scaffolding, one deterministic verifier (the blocking smell-checker) | Flutter/Dart project on (or near) the assumed stack — note below |
+| `core` | Deterministic mechanism: the session-start and model-routing hooks, the always-on discipline rules, `core:grill-me`'s checkpoints (`pre-plan`/`post-plan`/`pre-done`), the repo gates | Always — the foundation for the rest |
 | `council` | Epistemic lenses (reasoning postures) for high-cost-to-reverse decisions | Recommended with `core` |
 | `team` | Copilot for agile ceremonies — refinement with the PO, squad communication | You run refinement or write to a squad |
 
-**The `mobile` stack assumption.** Verifiers are calibrated to MobX + `get_it`/`injectable` (scaffolding also assumes `dartz`). On Bloc/Riverpod the DI and lifecycle checks simply don't fire — they look for `get_it` calls inside `_store.dart`/`_controller.dart`. No false positives, but no coverage either, until you edit the hook regexes yourself.
+**The `mobile` stack assumption.** The verifier is calibrated to MobX + `get_it`/`injectable` (scaffolding also assumes `dartz`). On Bloc/Riverpod the DI check simply doesn't fire — it looks for `get_it` calls inside `_store.dart`/`_controller.dart`. No false positives, but no coverage either, until you edit the hook regex yourself.
 
 Full catalog of every skill, agent, hook, script: browse `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks`.
 
@@ -40,8 +40,8 @@ Severity of each dependency — what you'll actually observe if it's missing, no
 |---|---|---|
 | [Claude Code](https://claude.com/claude-code) with plugin support | **hard** | nothing works — no `claude plugin` commands, no hooks, no skills |
 | `superpowers` + `compound-engineering` (external plugins, own marketplaces) | **assumed-by-routing** | the "Which tool, when" table below references `/ce-*` and `superpowers:*` skills that don't resolve; `scripts/doctor.sh` reports this as `INFO`, not a failure |
-| `pr-review-toolkit` (external plugin, generic marketplace) | **degrades** | `/core:review-local` falls back to `/core:review-remote` — no citation gate, no parallel dispatch (full cost: [docs/INSTALL.md](docs/INSTALL.md#requirements--detail)) |
-| A Flutter/Dart project, for `mobile` | **degrades** | `mobile`'s verifiers never fire — no DI/lifecycle/codegen checks |
+| `pr-review-toolkit` (external plugin, generic marketplace) | **degrades** | `/core:review-local` falls back to `/core:review-remote` — no parallel dispatch (full cost: [docs/INSTALL.md](docs/INSTALL.md#requirements--detail)) |
+| A Flutter/Dart project, for `mobile` | **degrades** | `mobile`'s verifier never fires — no DI check |
 
 ## Installation
 
@@ -97,7 +97,7 @@ Indexed by the situation you're in, not by plugin. **The boundary convention:** 
 | Vague feature idea | loose phrase ("let's think about X") | `superpowers:brainstorming` | superpowers |
 | Ticket for new/changed behavior | `/core:tech-breakdown <TICKET>` | ticket→plan seam | kit |
 | Something broken | loose phrase, or `/ce-debug` | `superpowers:systematic-debugging` \| CE's diagnosis loop | superpowers \| CE |
-| Touching Flutter code | nothing — fires automatically | smell-checker (blocking) + 3 advisory hooks | kit (mobile) |
+| Touching Flutter code | nothing — fires automatically | smell-checker (blocking) | kit (mobile) |
 | Decision expensive to undo | wear a `council` posture | reasoning layer (postures — `plugins/council/`) | council |
 | About to say it's done | `/core:grill-me pre-done` | blind pre-done reviewer | kit |
 | Work split into independent legs | (none, or dispatch agents) | `superpowers:dispatching-parallel-agents` | superpowers |
@@ -124,7 +124,7 @@ At review time, pass `--ticket <TICKET>` to `/core:review-local` so the `consume
 
 ### "I'm touching Flutter code"
 
-**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. Three advisory hooks warn without blocking: codegen staleness, DI mismatch (an `@injectable` class missing from the generated config), and lifecycle (a disposable resource with no `dispose()`). On-demand skills: full list under `plugins/mobile/skills/`. CE has zero Flutter coverage — the vertical is entirely the kit's.
+**Discriminator: the file being edited is Dart/Flutter** — this is the vertical, and it fires regardless of who's conducting. The smell-checker **blocks** an edit that adds a Dart correctness smell (DI resolved inside a store/controller, BuildContext/navigation in a store, `print()`/`debugPrint()` in production code) — add-only, so legacy files stay editable. On-demand skills: full list under `plugins/mobile/skills/`. CE has zero Flutter coverage — the vertical is entirely the kit's.
 
 ### "I'm about to make a decision that's expensive to undo"
 
@@ -134,7 +134,7 @@ Six postures, each with its own question and "wear it when" — cataloged under 
 
 ### "I'm about to say it's done"
 
-**Discriminator: you're about to claim done, not mid-work.** `/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and its findings go through the citation gate before you see them. If what needs pressing is a *decision you own* rather than an artifact, bare `core:grill-me` is the interview mode.
+**Discriminator: you're about to claim done, not mid-work.** `/core:grill-me pre-done`. A blind reviewer gets the diff, the acceptance criteria, the rule-file paths, and the plan's `session-settled:` decision entries if it carries any — never the session's narrative — and you manually spot-check its citations against the code before you present its findings. If what needs pressing is a *decision you own* rather than an artifact, bare `core:grill-me` is the interview mode.
 
 ### "The work just split into independent legs"
 
@@ -146,7 +146,7 @@ Six postures, each with its own question and "wear it when" — cataloged under 
 
 ### "I'm about to commit / I want review"
 
-**Discriminator: the change is about to leave your hands.** The two reviews compose: `/core:review-local` is the gate — it blocks before spending a review token if lint or tests fail, then validates every citation against the read-ledger — and `/ce-code-review` is the judgment pass on top. Cite only what you read via `Read`/`Grep`: the ledger is event-driven off those two tools, so reads via `Bash` (`cat`, `sed`, shell `grep`) never enter it and break a reviewer's own citations at the gate. Unverified ≠ fabricated: a citation overlapping nothing read lands in its own "Unverified" section as a hypothesis, and a missing or session-mismatched ledger reports "nothing to verify against" — never proof of fabrication.
+**Discriminator: the change is about to leave your hands.** The two reviews compose: `/core:review-local` is the gate — it blocks before spending a review token if lint or tests fail, then you manually spot-check every citation against the actual file before presenting findings — and `/ce-code-review` is the judgment pass on top. Cite `file:lineStart-lineEnd` precisely: it gets re-read and checked, not just trusted. Unverified ≠ fabricated: a citation that doesn't match the code on spot-check lands in its own "Unverified" section as a hypothesis, never presented as a confirmed finding.
 
 Once it passes, capture runs twice, on purpose: `/ce-compound` writes the repo-local learning doc (committed, shared); `core:learn` writes personal cross-session memory. `ce-compound`'s scan folds in auto-memory as lower-priority context — run `core:learn` first if you want that.
 

@@ -71,7 +71,7 @@ For a claim about state (git/branch/config/topology), prefer a blind/adversarial
 
 ### No silent removal of annotations/imports 🔴
 
-Don't remove imports, lifecycle/dispose, or override annotations without explicit justification. (DI/singleton/observability annotation removal is now blocked mechanically at `PreToolUse`.)
+Don't remove imports, lifecycle/dispose, or override annotations without explicit justification.
 
 **Signal**: the diff removes an import or one of these annotations with no explanation in the PR or commit.
 

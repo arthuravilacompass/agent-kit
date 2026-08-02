@@ -1,1 +1,0 @@
-{"app": "eval fixture", "capabilities": [{"name": "login", "evidence": "apk-archaeology emits a top-level object, not a findings array"}]}

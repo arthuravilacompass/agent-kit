@@ -13,7 +13,7 @@ This is **agent-kit** — a Claude Code plugin marketplace (`core`, `council`, `
 
 ## Before publishing
 
-Local commit pays one check: `./scripts/check-provenance.sh`. The full gate — provenance, ceiling, readme-pair, evals, shellcheck — runs at publish via CI, plus `scripts/doctor.sh --maintainer` as the optional local rehearsal. Detail: `docs/OPERATIONS.md` §2.
+Local commit pays one check: `./scripts/check-provenance.sh`. The full gate — provenance, ceiling, readme-pair, shellcheck — runs at publish via CI, plus `scripts/doctor.sh --maintainer` as the optional local rehearsal. Detail: `docs/OPERATIONS.md` §2.
 
 ## Commits
 

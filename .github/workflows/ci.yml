@@ -16,12 +16,10 @@ jobs:
         run: bash scripts/check-ceiling.sh
       - name: README pair gate
         run: bash scripts/check-readme-pair.sh
-      - name: Hook evals (tier 1)
-        run: ./evals/run-evals.sh
       - name: Shellcheck
         # Pinned version = the same one used locally (shellcheck-py). The runner's
         # apt shellcheck (0.9.x) diverges from the local one (0.11.x) and flags
         # different rules — the gate needs to be deterministic across both environments.
         run: |
           pip install shellcheck-py==0.11.0.1
-          find plugins scripts evals tools -name '*.sh' -print0 | xargs -0 shellcheck
+          find plugins scripts tools -name '*.sh' -print0 | xargs -0 shellcheck

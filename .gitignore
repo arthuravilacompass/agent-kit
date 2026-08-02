@@ -9,7 +9,6 @@ docs/ideation/
 docs/agents/
 # Wayfinder maps and local-markdown issue tracker — session material, not deliverables
 .scratch/
-.eval-tmp/
 .worktrees/
 __pycache__/
 *.pyc

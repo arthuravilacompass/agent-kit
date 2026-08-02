@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-# desc: Validates finding citations against the session's read-ledger (Layer 1).
+# desc: ORPHANED (2026-08-02) — no in-repo caller. Validates finding citations against a session read-ledger (Layer 1); kept as a manual-use CLI pending an operator decision to delete or retain it standalone.
 """
 validate_citations.py — Deterministic citation validator (Layer 1).
 
-Cross-checks a subagent's findings (each with evidence.file:lineStart-lineEnd) against the
-session's read-ledger (what was ACTUALLY read via Read/Grep, recorded by the read-ledger.sh
-hook). A tool-output finding whose range doesn't overlap any read → UNVERIFIED. Mechanism,
-not instruction: you can't cite code you didn't read.
+Cross-checks a subagent's findings (each with evidence.file:lineStart-lineEnd) against a
+session's read-ledger (what was ACTUALLY read via Read/Grep, as a read-ledger.sh-style hook
+would have recorded it). A tool-output finding whose range doesn't overlap any read →
+UNVERIFIED. Mechanism, not instruction: you can't cite code you didn't read.
 
-Repository infrastructure (ownership reverted 2026-07-27, was "grill-me-internal" since
-2026-07-12): consumed by core:grill-me pre-done and, event-driven, by the
-PostToolUse(Write) hook plugins/core/hooks/citation-check.sh — not `grill-me`-exclusive.
+ORPHANED (2026-08-02): its former event-driven caller, the PostToolUse(Write) hook
+`plugins/core/hooks/citation-check.sh`, was retired along with the `read-ledger.sh` hook
+that fed its ledger. `core:grill-me` and `core:review-local` now spot-check citations
+manually instead of invoking this script. No in-repo consumer remains — this file is dead
+code kept as a standalone CLI pending an operator decision to delete it or keep it for
+manual use.
 
 Verdicts:
   verified     — tool-output claim whose range overlaps a read in the ledger.

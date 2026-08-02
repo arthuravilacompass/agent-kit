@@ -46,8 +46,7 @@ The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`) and/or `s
 1. `check-provenance.sh` — structural patterns shipped in the script; literal patterns (real client/product names) from local `.provenance-deny`, gitignored — CI runs structural-only.
 2. `check-ceiling.sh` — always-on byte ceiling, see §3.
 3. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present.
-4. `evals/run-evals.sh` — Tier 1: the real hooks run against synthetic payloads.
-5. `shellcheck` over every `.sh` under `plugins scripts evals tools` — CI-only, no local equivalent.
+4. `shellcheck` over every `.sh` under `plugins scripts tools` — CI-only, no local equivalent.
 
 `claude plugin validate .` (marketplace + plugin manifests) is currently local-only, run via `doctor.sh --maintainer`; whether it joins CI is an open operator decision.
 

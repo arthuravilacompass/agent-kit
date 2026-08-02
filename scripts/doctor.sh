@@ -3,9 +3,9 @@
 # usage: bash scripts/doctor.sh [--maintainer]
 #   (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,
 #                 external marketplaces (superpowers, compound-engineering) reported informationally.
-#   --maintainer  additionally runs all five kit-maintainer gates: check-ceiling.sh,
+#   --maintainer  additionally runs all four kit-maintainer gates: check-ceiling.sh,
 #                 check-provenance.sh, claude plugin validate .,
-#                 run-evals.sh, check-readme-pair.sh.
+#                 check-readme-pair.sh.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
@@ -21,7 +21,7 @@ for arg in "$@"; do
       echo "Usage: bash scripts/doctor.sh [--maintainer]"
       echo "  (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,"
       echo "                external marketplaces (superpowers, compound-engineering) reported informationally"
-      echo "  --maintainer  additionally run all five kit-maintainer repo gates (check-ceiling, check-provenance, plugin validate, run-evals, check-readme-pair)"
+      echo "  --maintainer  additionally run all four kit-maintainer repo gates (check-ceiling, check-provenance, plugin validate, check-readme-pair)"
       exit 0
       ;;
     *)
@@ -292,17 +292,6 @@ if out="$(claude plugin validate . 2>&1)"; then
 else
   fail "claude plugin validate ." "run 'claude plugin validate .' directly and read its error"
   printf '%s\n' "$out" | sed 's/^/    /'
-fi
-
-if [ -f evals/run-evals.sh ]; then
-  if out="$(bash evals/run-evals.sh 2>&1)"; then
-    pass "evals/run-evals.sh (tier-1 hook evals)"
-  else
-    fail "evals/run-evals.sh" "run 'bash evals/run-evals.sh' directly and read the failing case"
-    printf '%s\n' "$out" | sed 's/^/    /'
-  fi
-else
-  info "evals/run-evals.sh not found — skipped"
 fi
 
 if [ -f scripts/check-readme-pair.sh ]; then

@@ -1,1 +1,0 @@
-[{"claim": "eval fixture: a citation that overlaps a real ledger entry", "epistemicSource": "tool-output", "evidence": {"file": "some/fake/verified.dart", "lineStart": 12, "lineEnd": 15}, "severity": "consideration", "rule": null}]
