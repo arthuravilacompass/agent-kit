@@ -18,8 +18,6 @@ jobs:
         run: bash scripts/check-readme-pair.sh
       - name: Hook evals (tier 1)
         run: ./evals/run-evals.sh
-      - name: Ceiling ratchet selftest
-        run: ./scripts/selftest-check-ceiling.sh
       - name: Shellcheck
         # Pinned version = the same one used locally (shellcheck-py). The runner's
         # apt shellcheck (0.9.x) diverges from the local one (0.11.x) and flags

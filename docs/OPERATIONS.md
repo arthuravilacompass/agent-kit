@@ -75,7 +75,7 @@ claude plugin validate .
 
 Normative convention behind hook/script descriptions: the `# desc:` line (line 2 of every hook/script under `plugins/*/hooks` and `plugins/*/scripts`) is the source of truth. Any prose header already in the file is free commentary, with no effect on tooling. When the two diverge, fix the `# desc:` line — not the prose header.
 
-CI (`.github/workflows/ci.yml`) runs the same five commands, plus two checks with no local-only equivalent: `shellcheck` over every `.sh` file under `plugins scripts evals tools`, and `scripts/selftest-check-ceiling.sh` (asserts `check-ceiling.sh`'s ratchet actually fails when the tier exceeds it, not just that the gate is green at the committed value).
+CI (`.github/workflows/ci.yml`) runs the same five commands, plus one check with no local-only equivalent: `shellcheck` over every `.sh` file under `plugins scripts evals tools`.
 
 Surface docs (README, this file, and `docs/GOVERNANCE.md`) don't carry dates — history lives in `CHANGELOG.md`. Check: `grep -q` for a year-month pattern (`YYYY-`) over the file must fail to match. Note: `grep -c` exits with code 1 when there's no match — don't use `-c` as a chained pass condition in `&&`.
 
