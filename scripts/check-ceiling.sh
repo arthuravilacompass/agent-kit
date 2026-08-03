@@ -53,7 +53,9 @@ fi
 # 3) Personal memory index (MEMORY.md) byte ceiling. Soft check: the memory
 # dir is per-machine/per-user (Claude Code project encoding), so a missing
 # file (fresh clone, different user) SKIPs instead of failing the gate.
-MEMORY_CEILING=8192
+# Raised 8192 -> 12288 on 2026-08-03 (operator call): the index kept hitting the
+# original ceiling on ordinary session-end writes, forcing a trim pass every time.
+MEMORY_CEILING=12288
 mem_file="$HOME/.claude/projects/$(pwd | sed 's,/,-,g')/memory/MEMORY.md"
 if [ -f "$mem_file" ]; then
   mem_bytes=$(wc -c <"$mem_file" | tr -d ' ')

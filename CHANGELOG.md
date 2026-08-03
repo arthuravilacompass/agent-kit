@@ -4,6 +4,8 @@
 
 ### Changed
 
+- **Personal `MEMORY.md` byte ceiling raised 8192 → 12288 (2026-08-03)** — `scripts/check-ceiling.sh` §3's soft check kept forcing a trim pass on ordinary session-end writes; operator call to loosen it. No plugin version bump: `scripts/`-only, same precedent as other `scripts/`-only entries in this file.
+
 - **Governance v2: commit-time gate shrinks to provenance-only, the full gate moves to publish/CI (2026-08-02) (core 0.30.0, council 0.6.0, mobile 0.16.0)** — README generators + `INVENTORY.md`, the ceiling ratchet + its selftest, `unwired/`, `validate_citations.py`, and the `evals/` harness are all deleted; 7 hooks cut to 3 (`session-start`, `model-routing`, `smell-checker`), so review flows fall back to manual citation spot-check; `docs/GOVERNANCE.md` merges into `docs/OPERATIONS.md`; `core:grill-me` becomes escalation-only, interview delegated to the user-scope `/grilling`. Always-on tier: 9595 → 6253 bytes. README badges and plugin table are hand-maintained from here on.
 
 ### Added
