@@ -45,7 +45,7 @@ The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`), 4 mechan
 
 1. `check-provenance.sh` — structural patterns shipped in the script; literal patterns (real client/product names) from local `.provenance-deny`, gitignored — CI runs structural-only.
 2. `check-ceiling.sh` — always-on byte ceiling, see §3.
-3. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present.
+3. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present, and every version badge agrees with its `plugin.json` in both the alt text and the URL, with every on-disk plugin carrying a badge (the badges are hand-maintained since the fragment generator was retired, so this is what catches a forgotten bump).
 4. `shellcheck` over every `.sh` under `plugins scripts tools`.
 
 `scripts/doctor.sh --maintainer` is the optional local rehearsal, also 4 gates: `check-ceiling.sh`, `check-provenance.sh`, `check-readme-pair.sh`, and `claude plugin validate .` (marketplace + plugin manifests) in place of `shellcheck`. `claude plugin validate .` is deliberately local-only — the `claude` CLI isn't installed on CI runners, so it can only ever run on the maintainer's machine — and `shellcheck` is deliberately CI-only, with no local equivalent invoked by `doctor.sh`.

@@ -21,6 +21,19 @@
 #   3) Both files carry their source-of-truth header substance: README.md's
 #      header declares itself the source; README.pt-BR.md's declares English
 #      as the source it follows.
+#   4) Every plugin version badge in README.md (and in README.pt-BR.md, if it
+#      ever carries badges) agrees with plugins/<plugin>/.claude-plugin/plugin.json's
+#      "version" field — both the alt-text version and the URL version, so a
+#      half-edit of a badge (one occurrence updated, the other stale) is caught.
+#      Checked in BOTH directions: every badge found must agree with its
+#      plugin.json (drift), AND every plugin directory on disk that has a
+#      readable plugin.json with a version must HAVE a badge in README.md
+#      (coverage) — a plugin with no badge is named as an ERROR, so adding a
+#      plugin and forgetting its badge (or deleting an existing one) fails the
+#      gate instead of passing silently. The plugin list is derived from the
+#      plugins/*/ directories present, not hardcoded. A missing badge line
+#      (README.md) or an unreadable/missing plugin.json version is
+#      indeterminate, not clean.
 #
 # Env overrides (scratch-copy testing, mirrors check-ceiling.sh's CEILING_OVERRIDE
 # style): README_EN, README_PT default to the repo's real pair; README_INSTALL
@@ -266,6 +279,127 @@ if ! grep -qi 'fonte de verdade' <<<"$pt_line3" || ! grep -q "$(basename "$READM
   fail=1
 else
   echo "OK: $README_PT:3 declares $README_EN as the source of truth"
+fi
+
+# --- 4) README version badges must agree with plugins/<name>/plugin.json ----------
+# (in both directions: drift AND coverage — see sub-check 4 in the header) --------
+BADGE_FAIL=0
+BADGE_INDETERMINATE=0
+badge_compared_total=0
+EN_BADGE_PLUGINS=()
+EN_BADGE_LINE_FOUND=0
+
+# Prints plugins/$1/.claude-plugin/plugin.json's "version" field value, or
+# nothing (with a non-zero return) if the file is missing/unreadable or has no
+# version field — callers must treat empty output as indeterminate, not "0".
+get_plugin_version() {
+  local pj="plugins/$1/.claude-plugin/plugin.json"
+  [ -r "$pj" ] || return 1
+  grep -m1 '"version"' "$pj" | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/'
+}
+
+# Extracts every `![<plugin> <version>](.../badge/<plugin>-<version>-<color>)`
+# badge from $1 and checks both version occurrences against the owning
+# plugin's plugin.json. $2=1 means "a badge line is required here" (README.md);
+# $2=0 means "absence is fine, this pair member may carry no badges at all".
+check_version_badges_in() {
+  local src="$1" required="$2" badges badge
+  local alt_plugin alt_version url_plugin url_version json_version
+  badges=$(grep -oE '!\[[^]]+\]\([^)]*img\.shields\.io/badge/[^)]+\)' "$src")
+  if [ -z "$badges" ]; then
+    if [ "$required" -eq 1 ]; then
+      echo "ERROR: $src — no version badge line found (expected e.g. img.shields.io/badge/<plugin>-<version>-<color>) — indeterminate" >&2
+      BADGE_INDETERMINATE=1
+    fi
+    return 0
+  fi
+  if [ "$src" = "$README_EN" ]; then
+    EN_BADGE_LINE_FOUND=1
+  fi
+  while IFS= read -r badge; do
+    [ -z "$badge" ] && continue
+    if [[ "$badge" =~ ^\!\[([A-Za-z][A-Za-z0-9]*)\ ([0-9]+\.[0-9]+\.[0-9]+)\]\(https://img\.shields\.io/badge/([A-Za-z][A-Za-z0-9]*)-([0-9]+\.[0-9]+\.[0-9]+)-[0-9a-fA-F]+\)$ ]]; then
+      alt_plugin="${BASH_REMATCH[1]}"
+      alt_version="${BASH_REMATCH[2]}"
+      url_plugin="${BASH_REMATCH[3]}"
+      url_version="${BASH_REMATCH[4]}"
+    else
+      echo "ERROR: $src — badge '$badge' does not match the expected ![<plugin> <version>](.../badge/<plugin>-<version>-<color>) shape"
+      BADGE_FAIL=1
+      continue
+    fi
+    if [ "$alt_plugin" != "$url_plugin" ]; then
+      echo "ERROR: $src — badge alt text plugin '$alt_plugin' disagrees with URL plugin '$url_plugin'"
+      BADGE_FAIL=1
+      continue
+    fi
+    if [ ! -d "plugins/$url_plugin" ]; then
+      echo "ERROR: $src — badge references unknown plugin '$url_plugin' (no plugins/$url_plugin directory)"
+      BADGE_FAIL=1
+      continue
+    fi
+    if [ "$src" = "$README_EN" ]; then
+      EN_BADGE_PLUGINS+=("$url_plugin")
+    fi
+    json_version="$(get_plugin_version "$url_plugin")"
+    if [ -z "$json_version" ]; then
+      echo "ERROR: plugins/$url_plugin/.claude-plugin/plugin.json unreadable or missing a version field — indeterminate" >&2
+      BADGE_INDETERMINATE=1
+      continue
+    fi
+    badge_compared_total=$((badge_compared_total + 1))
+    if [ "$alt_version" != "$json_version" ]; then
+      echo "ERROR: $src — badge alt text for '$url_plugin' says $alt_version but plugins/$url_plugin/.claude-plugin/plugin.json says $json_version"
+      BADGE_FAIL=1
+    fi
+    if [ "$url_version" != "$json_version" ]; then
+      echo "ERROR: $src — badge URL for '$url_plugin' says $url_version but plugins/$url_plugin/.claude-plugin/plugin.json says $json_version"
+      BADGE_FAIL=1
+    fi
+  done <<<"$badges"
+}
+
+check_version_badges_in "$README_EN" 1
+check_version_badges_in "$README_PT" 0
+
+# --- 4, coverage direction: every plugin dir with a readable version must have ----
+# a badge in README_EN — not just every badge found must agree (drift, above). -----
+disk_plugin_count=0
+if [ "$EN_BADGE_LINE_FOUND" -eq 1 ]; then
+  for pdir in plugins/*/; do
+    [ -d "$pdir" ] || continue
+    plugin_name="$(basename "$pdir")"
+    disk_plugin_count=$((disk_plugin_count + 1))
+    plugin_json_version="$(get_plugin_version "$plugin_name")"
+    if [ -z "$plugin_json_version" ]; then
+      echo "ERROR: plugins/$plugin_name/.claude-plugin/plugin.json unreadable or missing a version field — indeterminate" >&2
+      BADGE_INDETERMINATE=1
+      continue
+    fi
+    plugin_has_badge=0
+    for found_plugin in "${EN_BADGE_PLUGINS[@]}"; do
+      if [ "$found_plugin" = "$plugin_name" ]; then
+        plugin_has_badge=1
+        break
+      fi
+    done
+    if [ "$plugin_has_badge" -ne 1 ]; then
+      echo "ERROR: $README_EN — plugin '$plugin_name' (plugins/$plugin_name/.claude-plugin/plugin.json, version $plugin_json_version) has no version badge in $README_EN; add one or the badge line has drifted out of sync with the plugin set"
+      BADGE_FAIL=1
+    fi
+  done
+fi
+
+if [ "$BADGE_INDETERMINATE" -eq 0 ]; then
+  if [ "$BADGE_FAIL" -eq 1 ]; then
+    fail=1
+  else
+    echo "OK: $badge_compared_total version badge(s) in $README_EN compared against $disk_plugin_count plugin(s) found on disk (both alt-text and URL occurrences agree with plugins/<name>/.claude-plugin/plugin.json, and every on-disk plugin has a badge — full coverage)"
+  fi
+fi
+
+if [ "$BADGE_INDETERMINATE" -eq 1 ]; then
+  exit 2
 fi
 
 exit $fail
