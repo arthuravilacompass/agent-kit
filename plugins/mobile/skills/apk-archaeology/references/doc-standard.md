@@ -15,7 +15,7 @@ what the system does, not why — legacy behavior ≠ intent ≠ spec of the new
 The standard defines **2 genres** (G2 retired — see §G2 below):
 
 - **G1 target-view** — `analysis/*.md`, engineer reader.
-- **G3 report** — `report/*`, PO + client dev (see §report).
+- **G3 report** — `report/*`, internal-only readers (PO + dev team) (see §report).
 
 `analysis/` also hosts three genres this standard names but does **not** define the
 skeleton of, because they belong to other bodies:
@@ -87,10 +87,14 @@ the gap.
 
 ## §report
 
-The `report/` genre is already governed by shipped state (mobile 0.9.0):
+The `report/` genre is already governed by shipped state (mobile 0.9.0), and is
+**internal-only, never a client deliverable** (mobile 0.17.0): decompilation is
+the genre's source, and a contractual constraint on this class of engagement bars
+exposing that origin to any channel where the client is present. Both shipped
+artifacts stay in the local run tree, marked `⛔ DOCUMENTO INTERNO — NÃO CIRCULAR`.
 
 - **Recon report** — `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md`. The
-  filled file *is* the deliverable, with the internal PO/§6 and dev/§7 split.
+  filled file *is* the artifact, with the internal PO/§6 and dev/§7 split.
 - **Scope proposal** — freeform, no template.
 
 This standard adds only the epistemic discipline on top of those artifacts, and does

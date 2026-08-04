@@ -408,15 +408,19 @@ cover client identity.
 
 ## Outputs
 
-`report/` covers two client-facing genres, on-demand — not one report for two
-audiences, but two documents:
+`report/` covers two **internal-only** genres, on-demand — not one report for two
+audiences, but two documents. Neither is a client deliverable: a contractual
+constraint on this class of engagement bars exposing anything sourced from
+decompilation to a channel where the client is present, and a report that traces a
+claim back to that source does exactly that. Both stay in the local run tree, marked
+`⛔ DOCUMENTO INTERNO — NÃO CIRCULAR`.
 
-- **Technical recon report** (pt-BR, client-facing): `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md`
-  — the filled file **is** the deliverable, shipped as Markdown (no `.docx` conversion;
-  the process diagram is inline Mermaid, rendered by the viewer). Internally still
-  delivers two client-side audiences within this one document: the PO (decision —
-  §6) and the dev team (implementation inputs — §7).
-- **Scope proposal** (pt-BR, client-facing): the migration kernel — scenarios,
+- **Technical recon report** (pt-BR, internal-only): `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md`
+  — the filled file **is** the artifact, shipped as Markdown (no `.docx` conversion;
+  the process diagram is inline Mermaid, rendered by the viewer). Structured for two
+  internal readers within this one document: the PO (decision — §6) and the dev team
+  (implementation inputs — §7).
+- **Scope proposal** (pt-BR, internal-only): the migration kernel — scenarios,
   hybrid path, sunset — authored freeform over the same evidence tiers as the recon
   report. No dedicated template ships with the kit yet.
 - **Filling guide** (pt-BR, filler/maintainer-facing): `tools/apk-archaeology/references/guia-preenchimento.pt-BR.md`

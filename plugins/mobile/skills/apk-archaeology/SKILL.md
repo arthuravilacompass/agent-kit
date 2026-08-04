@@ -39,17 +39,20 @@ disable-model-invocation: true
 > (`tools/apk-archaeology/scripts/capture_dynamic.sh` +
 > `tools/apk-archaeology/scripts/parse_logcat.py` for the logcat transport,
 > `tools/apk-archaeology/scripts/cdp_netcap.py` for the CDP/debuggable-WebView
-> transport, the Dynamic pass below) — lives in `references/method.md`. `report/` covers two client-facing genres, on-demand: a
-> **technical recon report** (pt-BR), templated as
+> transport, the Dynamic pass below) — lives in `references/method.md`. `report/` covers two
+> **internal-only** genres, on-demand — never a client deliverable: a contractual constraint
+> on this class of engagement bars exposing anything sourced from decompilation to a channel
+> where the client is present, and a report that traces a claim back to that source does
+> exactly that. A **technical recon report** (pt-BR), templated as
 > `tools/apk-archaeology/references/modelo-relatorio.pt-BR.md` — the filled file **is**
-> the deliverable, shipped as Markdown — inline Mermaid diagram, no `.docx`
+> the artifact, shipped as Markdown — inline Mermaid diagram, no `.docx`
 > conversion; how to fill it (filling order, worked example, conventions —
-> filler/maintainer-facing, never shipped with the report) is
+> filler/maintainer-facing, never shipped alongside the report) is
 > `tools/apk-archaeology/references/guia-preenchimento.pt-BR.md`; a worked example
 > (WordPress) is `tools/apk-archaeology/examples/relatorio-wordpress.pt-BR.md`. And a
 > **scope proposal** (pt-BR) — the migration kernel (scenarios, hybrid path, sunset)
 > authored freeform over the same evidence tiers; no dedicated template ships with the
-> kit yet.
+> kit yet. Both stay in the local run tree, marked `⛔ DOCUMENTO INTERNO — NÃO CIRCULAR`.
 
 > **Doc discipline.** Every human-read doc (OVERVIEW, analysis/, report/) follows
 > `references/doc-standard.md` — 2 genres (G2 retired), mandatory header (reader · use · source),
@@ -97,8 +100,9 @@ Every step below targets one `<work_dir>` tree, laid out like this:
 │                            permissions.json)
 ├── features/<slice>/      (per-feature loop output, spec'd, not yet exercised on a real run:
 │                            openapi.yaml, data-dictionary.json, state-machines.mmd, <rule>_test.dart)
-├── report/                (on-demand client-facing deliverables, two genres: technical recon
-│                            (modelo-relatorio.pt-BR.md) + scope proposal; NEW, never a relocation)
+├── report/                (on-demand internal-only deliverables, two genres: technical recon
+│                            (modelo-relatorio.pt-BR.md) + scope proposal — never circulated to
+│                            the client, contractual constraint; NEW, never a relocation)
 └── decompile/             (jadx/, apktool/ — gitignored + regenerable cache, see Foundation step 1)
 ```
 
