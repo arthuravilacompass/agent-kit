@@ -56,7 +56,7 @@ Version bumps and the `(plugin X.Y.Z)` changelog trailer move to **publish**, ba
 
 ## 3. Always-on tier ceiling
 
-`using-agent-kit`'s always-on body (injected by `plugins/core/hooks/session-start.sh`) has a hard ceiling of **16,384 bytes**, measured on the hook's real output by `check-ceiling.sh` — no ratchet, just pass/fail against that number. A separate, informational sub-check measures the maintainer's personal `$HOME` `MEMORY.md` index against its own 8,192-byte ceiling — `SKIP`s (not a failure) when the file is absent, the normal state on any other machine or in CI, so it can fail locally while CI stays green.
+`using-agent-kit`'s always-on body (injected by `plugins/core/hooks/session-start.sh`) has a hard ceiling of **16,384 bytes**, measured on the hook's real output by `check-ceiling.sh` — no ratchet, just pass/fail against that number. A separate, informational sub-check measures the maintainer's personal `$HOME` `MEMORY.md` index against its own 12,288-byte ceiling — `SKIP`s (not a failure) when the file is absent, the normal state on any other machine or in CI, so it can fail locally while CI stays green.
 
 ## 4. Composition with the harness's permission mode
 
