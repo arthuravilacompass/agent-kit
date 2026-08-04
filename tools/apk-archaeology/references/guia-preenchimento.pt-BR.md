@@ -16,13 +16,13 @@
 ## Convenções
 
 - **`origin` por afirmação (fixo):** 🟢 recuperado do código (âncora `arquivo:linha`) · 🟡 inferido (hipótese de engenharia, sem âncora direta) · ⬜ fora do alcance. Nunca disfarce uma regra sem âncora concreta de inferência comum — marque o ponto cego. `origin` não muda depois de escrito; quem confirma o achado é `confidence` (2ª fonte / PO), quem decide o que fazer é `intent` (§5.1) — não confundir os três.
-- **Status de alcance do run:** se o run rodou sob parede conhecida (ofuscação pesada, tamper, contrato fora do bytecode), preencha `normal`/`degradado`/`no-go` em §2 — não invente um `normal` só para simplificar; o campo existe para o cliente calibrar quanto do relatório é extração direta vs. inferência sob limite.
+- **Status de alcance do run:** se o run rodou sob parede conhecida (ofuscação pesada, tamper, contrato fora do bytecode), preencha `normal`/`degradado`/`no-go` em §2 — não invente um `normal` só para simplificar; o campo existe para o PO/time calibrar quanto do relatório é extração direta vs. inferência sob limite.
 - **RN dentro da US, sem catálogo global** — a Matriz (§8) é a única vista consolidada, gerada a partir de §6. É uma aposta estrutural validada em ~1 épico por rodada; se a citação cruzada entre épicos escalar mal, reavalie explicitamente.
 - **Status de cobertura (§8):** "confirmado em código **e** em tela" (2ª fonte da dinâmica) diz mais que "só em código". Registre a triangulação, não uma escala paralela.
 - **Derivação da US** (o que é 🟢 capability vs. 🟡 persona/benefício) e o mecanismo do pipeline: consulte a *Reach map* de `method.md`; não reescreva aqui.
 
-## Entrega em `.md`
+## Circulação interna, em `.md`
 
-O entregável do cliente é o **`modelo-relatorio.pt-BR.md` preenchido**, entregue como Markdown — **sem conversão**. O diagrama do §3 é **Mermaid inline**, que renderiza nativo no GitHub/GitLab/VS Code/Obsidian; não há pandoc nem imagem embarcada (era de lá que vinham os erros de formatação do `.docx`, por isso a entrega migrou para `.md`). Se o destinatário usar um viewer sem Mermaid, exporte um PNG opcional (`mermaid-cli`) ao lado — mas o `.md` é a fonte. **Entregue só o relatório**, nunca este guia.
+O **`modelo-relatorio.pt-BR.md` preenchido é documento interno — nunca entregável ao cliente** (a decompilação é a fonte do relatório; restrição contratual deste engajamento veda expor essa origem em qualquer canal onde o cliente esteja presente; ver `doc-standard.md` §report). Circula como Markdown — **sem conversão** — entre PO e time de desenvolvimento. O diagrama do §3 é **Mermaid inline**, que renderiza nativo no GitHub/GitLab/VS Code/Obsidian; não há pandoc nem imagem embarcada (era de lá que vinham os erros de formatação do `.docx`, por isso a circulação migrou para `.md`). Se quem recebe internamente usar um viewer sem Mermaid, exporte um PNG opcional (`mermaid-cli`) ao lado — mas o `.md` é a fonte. **Compartilhe só o relatório preenchido**, nunca este guia, e marque o arquivo com ⛔ DOCUMENTO INTERNO — NÃO CIRCULAR.
 
 *(Changelog do modelo: no histórico do git, não no template.)*

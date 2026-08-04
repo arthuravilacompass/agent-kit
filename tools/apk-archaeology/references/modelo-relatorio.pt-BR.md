@@ -3,13 +3,13 @@
 **Projeto/Aplicativo:** [preencher] · **Pacote (`applicationId`):** [preencher] · **Versão do APK / build:** [preencher]
 **Autor(a) / Equipe:** [preencher] · **Data:** [preencher]
 
-<!-- Preenchedor: ordem de preenchimento e convenções em references/guia-preenchimento.pt-BR.md. Entregar só este arquivo (.md), não o guia. -->
+<!-- Preenchedor: ordem de preenchimento e convenções em references/guia-preenchimento.pt-BR.md. Documento interno — nunca circula pro cliente (a decompilação é a fonte); não entregar nem este arquivo nem o guia. Marcar o arquivo preenchido com ⛔ DOCUMENTO INTERNO — NÃO CIRCULAR. -->
 
 ## 1. Introdução e Objetivo
 
 Este relatório recupera documentação funcional ágil — User Stories (US), Regras de Negócio (RN) e Critérios de Aceite (CA) — a partir do comportamento observado no binário e no código decompilado de um aplicativo Android legado, cada afirmação ancorada em evidência (`arquivo:linha`).
 
-É **insumo para o Product Owner e o time de desenvolvimento**, não um substituto da validação de negócio: o código mostra **como** o sistema foi implementado, não necessariamente como **deveria** funcionar. **Comportamento legado ≠ requisito aprovado** — toda regra recuperada é insumo para o time decidir *manter, mudar, redesenhar ou tirar*, e toda RN inferida é hipótese até ratificação com o negócio.
+É **documento interno — insumo para o Product Owner e o time de desenvolvimento, nunca entregável ao cliente** (a decompilação é a fonte do relatório; restrição contratual deste engajamento veda expor essa origem em qualquer canal onde o cliente esteja presente), não um substituto da validação de negócio: o código mostra **como** o sistema foi implementado, não necessariamente como **deveria** funcionar. **Comportamento legado ≠ requisito aprovado** — toda regra recuperada é insumo para o time decidir *manter, mudar, redesenhar ou tirar*, e toda RN inferida é hipótese até ratificação com o negócio.
 
 > *Aplique este método apenas a aplicativos próprios ou com autorização contratual explícita, respeitando termos de uso, licenças e a legislação de proteção de dados (ver §9).*
 
