@@ -21,7 +21,7 @@ Local commit pays one check: `./scripts/check-provenance.sh`. The full gate runs
 
 ## Agent skills
 
-Client-effort work (including its own issue tracking) doesn't happen in this repo — it lives in `~/dev/labs` (`wayfinder/<esforço>/issues/NN-slug.md`, open tickets only — resolved ones die once their gist lands in the effort's `wayfinder/<esforço>/map.md`), a separate local git repo with no remote. The kit's real domain doc is `docs/OPERATIONS.md`; `CONTEXT.md` and `docs/adr/` don't exist here.
+Client-effort work (including its own issue tracking) doesn't happen in this repo — it lives in `~/dev/labs`, a separate local git repo with no remote. Its layout is `labs/CLAUDE.md`'s business: **don't restate labs paths here.** The kit's real domain doc is `docs/OPERATIONS.md`; `CONTEXT.md` and `docs/adr/` don't exist here.
 
 ## Watch out
 
