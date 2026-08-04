@@ -5,17 +5,9 @@ docs/superpowers/
 # CE plan and ideation artifacts — session material, not kit deliverables
 docs/plans/
 docs/ideation/
-# Local wayfinder/tracker config (issue-tracker.md, domain.md) — not a kit deliverable
-docs/agents/
-# Wayfinder maps and local-markdown issue tracker — session material, not deliverables
-.scratch/
 .worktrees/
 __pycache__/
 *.pyc
-# Client APKs — never commit real client binaries (provenance / pseudonym rule)
-apks/
-# Working labs — local scratch, not kit deliverables
-labs/
 # Local-only Claude Code settings (per-machine permission allowlist, not shared)
 .claude/settings.local.json
 .claude/settings.local.json.new

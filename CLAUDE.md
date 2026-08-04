@@ -21,13 +21,7 @@ Local commit pays one check: `./scripts/check-provenance.sh`. The full gate runs
 
 ## Agent skills
 
-### Issue tracker
-
-Issues live as markdown files under `.scratch/<feature-slug>/` — part of the gitignored working tree. See `docs/agents/issue-tracker.md` — local, gitignored config, same tier as `.scratch/`, not a kit deliverable.
-
-### Domain docs
-
-Single-context. The kit's real domain doc is `docs/OPERATIONS.md`; `CONTEXT.md` and `docs/adr/` don't exist here. See `docs/agents/domain.md` — local, gitignored config, same tier as `.scratch/`, not a kit deliverable.
+Client-effort work (including its own issue tracking) doesn't happen in this repo — it lives in `~/dev/labs` (`issues/<esforço>/NN-slug.md`), a separate local git repo with no remote. The kit's real domain doc is `docs/OPERATIONS.md`; `CONTEXT.md` and `docs/adr/` don't exist here.
 
 ## Watch out
 

@@ -74,15 +74,15 @@ Some tools this kit's methodology relies on aren't vendored — they're adopted 
 
 ## 7. Lifecycle
 
-Every artifact — skill, hook, gate — is either wired (`plugins/<plugin>/`, proven real use) or it doesn't exist (deleted, recoverable via git history; no purgatory tier in between). Promotion happens on real use, not "seems useful": rewrite the `description` for the real trigger, fill in provenance placeholders with real names, run `claude plugin validate .`. The meta-principle behind this: **a rule that keeps failing becomes a mechanism** — a hook, a schema, a deterministic gate — and a mechanism with no real catch left becomes a deletion candidate. New ideas are born in `.scratch/` (gitignored) and prove themselves before ever touching `plugins/`. This applies uniformly to skills, hooks, and gates.
+Every artifact — skill, hook, gate — is either wired (`plugins/<plugin>/`, proven real use) or it doesn't exist (deleted, recoverable via git history; no purgatory tier in between). Promotion happens on real use, not "seems useful": rewrite the `description` for the real trigger, fill in provenance placeholders with real names, run `claude plugin validate .`. The meta-principle behind this: **a rule that keeps failing becomes a mechanism** — a hook, a schema, a deterministic gate — and a mechanism with no real catch left becomes a deletion candidate. New ideas incubate in-session or as a plan under `docs/plans/` and prove themselves before ever touching `plugins/` — there is no dedicated incubation directory. This applies uniformly to skills, hooks, and gates.
 
 **D6** (single load-bearing note): Council's episodic corpus `outcome` is stored and displayed, never scored — cited by `plugins/council/skills/council-recall/SKILL.md`.
 
 ## 8. Gitignored working tree — a protection, not an omission
 
-`docs/plans/`, `docs/ideation/`, `docs/agents/`, `docs/superpowers/`, `.scratch/`, and `labs/` are deliberately gitignored: they hold the session material the kit is *developed with* (specs, plans, handoffs, wayfinder config, local scratch) — not the kit itself — and they carry client/engagement names `check-provenance.sh` exists to keep out of a public repo. `apks/` is gitignored for the same client-name reason but is a binary exception: `check-provenance.sh` greps with `-I`, which skips binary content, so the mechanical net below doesn't cover it the same way.
+`docs/plans/`, `docs/ideation/`, and `docs/superpowers/` are deliberately gitignored: they hold the session material the kit is *developed with* (specs, plans, handoffs, local scratch) — not the kit itself. Client-effort material (`labs/`, `apks/`, and the local-markdown issue tracker) does not live here anymore — it moved to its own local repo (`~/dev/labs`) on 2026-08-03, because it carries client/engagement names `check-provenance.sh` exists to keep out of a public repo, and this repo's remote is public.
 
-The net for the text-bearing directories needs no separate enforcement: `check-provenance.sh` scans `git ls-files`, so a force-add turns an ignored file into a tracked one and the very next gate run fails on it. Don't force-add under any of the directories above — the text-bearing ones are caught on the next run; `apks/` is not.
+The net needs no separate enforcement: `check-provenance.sh` scans `git ls-files`, so a force-add turns an ignored file into a tracked one and the very next gate run fails on it. Don't force-add under any of the directories above.
 
 ---
 
