@@ -1,6 +1,7 @@
 ---
 name: learn
 description: Invoke when the user says "save this", "capture this learning", "use skill learn", or before a /clear or compact when the session has accumulated uncaptured corrections and decisions — scans the conversation and proposes memory entries for approval.
+disable-model-invocation: true
 ---
 
 Scan the current conversation (or the last N messages if specified) for corrections, established preferences, domain facts, and decisions. Propose structured entries for typed memory with inline approval. Write only what's approved.

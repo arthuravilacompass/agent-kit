@@ -1,6 +1,7 @@
 ---
 name: grill-me
 description: Invoke at the deterministic checkpoints pre-plan / post-plan / pre-done to escalate to a stronger reviewer with controlled or blind context (e.g., `/core:grill-me pre-done`). Not for interview-style "grill me" requests — those route to the user-scope `/grilling` skill (Matt Pocock's pattern).
+disable-model-invocation: true
 ---
 
 # grill-me — checkpoint escalation

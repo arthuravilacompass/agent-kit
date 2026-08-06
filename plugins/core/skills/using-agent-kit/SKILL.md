@@ -5,93 +5,7 @@ description: Always loaded via SessionStart — the agent-kit's epistemic and di
 
 # Using Agent Kit
 
-Always-on content of the agent-kit, injected at the start of every session. These are the epistemic and discipline rules that apply to any project, regardless of stack or domain.
-
-## Research Depth
-
-### When to apply
-
-When answering any question about this project's convention, library, utility, analytics tooling, or existing pattern — **and** when asserting any conclusion about code behavior, branch state, flag/feature-gate semantics, route existence, or API contract — before generating a response or touching code.
-
----
-
-### Grep before answering about convention 🔴
-
-Read/Grep/Glob the real usages before answering — never answer from memory or generic heuristics alone.
-
-**Signal**: the turn delivers an answer about convention/lib/tooling/pattern without any Read, Grep, Glob, or listing of real usage in the same turn.
-
-— detail: core:methodology
-
----
-
-### Evidence before claim 🔴
-
-**You MUST NOT** assert a conclusion about code behavior, branch state, feature-flag semantics, route existence, or API contract without having read/grepped/run the corresponding command **in the same turn**.
-
-**Signal**: the turn contains a factual claim about the project's state **without** any Read/Grep/Bash/git in the same turn; OR it uses "should", "likely", "assuming", "probably", "I imagine", "must be" before a conclusion about state.
-
-— detail: core:methodology
-
----
-
-### Project script before generic shell
-
-Before approximating an analytical metric with generic shell, check whether a dedicated script already exists in the repo (e.g., under `scripts/`) that covers that metric.
-
-**Signal**: the turn uses `wc -c`, `grep | wc -l`, or a Python/awk one-liner for a task already covered by a dedicated project script.
-
-## Verification and Confirmation
-
-### Verify your own claim as adversarially as an agent's 🔴
-
-For a claim about state (git/branch/config/topology), prefer a blind/adversarial check (with no preview of what you expect to find) and runtime evidence over self-review; understand a check's mechanism before trusting its verdict.
-
-**Signal**: a claim about state backed by 1 isolated command with no adversarial check; validation done by whoever already held the hypothesis.
-
-— detail: core:methodology
-
-## Scope Discipline
-
-### 3 Questions Before Editing
-
-1. **Is the file in scope?** If it wasn't cited and isn't a direct dependency, don't touch it.
-2. **Am I removing an annotation or import?** (DI, observability, lifecycle, override) — keep it by default; removal requires explicit justification.
-3. **They asked for doc X — am I editing X?** Edit exactly the file requested.
-
----
-
-### Edit only in scope
-
-**Signal**: the diff touches a file not cited by the user.
-
-— detail: core:methodology
-
----
-
-### No silent removal of annotations/imports 🔴
-
-Don't remove imports, lifecycle/dispose, or override annotations without explicit justification.
-
-**Signal**: the diff removes an import or one of these annotations with no explanation in the PR or commit.
-
-— detail: core:methodology
-
----
-
-### Edit the doc requested, not another one
-
-Update the doc that was requested — not another one. "X was already up to date" without confirmation isn't acceptable.
-
-**Signal**: the turn says "I updated X" when the request was Y.
-
----
-
-### Scope-back on a multi-file request
-
-For multi-file requests without itemization, list the files before the first edit.
-
-**Signal**: multi-file Edit without listing first.
+Always-on content of the agent-kit, injected at the start of every session. Domain-specific opinion the model doesn't have by default — not a restatement of harness-level scope/verification/commit behavior, which the model already does well without prompting.
 
 ## Bugfix Principles
 
@@ -143,16 +57,6 @@ State that survives multiple operations needs an explicit origin, a named home, 
 When the reported bug is "action X does nothing", the fix needs to make X work — decorating the broken state with an error message, a warning, or a UX change instead of that is not a fix for the reported bug.
 
 **Signal**: the fix responds to "X doesn't work" with new messaging/UX instead of making X execute/record.
-
-## Permissions
-
-### NO-COMMIT — Never commit without explicit user request
-
-**You MUST NOT** run `git commit`, `git push`, or `git merge` unless the user explicitly asks.
-
-**Signal**: session contains a git commit or push that the user did not explicitly request.
-
-— detail: core:methodology
 
 ## Kit Governance
 
