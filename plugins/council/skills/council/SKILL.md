@@ -1,6 +1,7 @@
 ---
 name: council
 description: Invoke to consult the kit's index for the Council of Postures — the 6 wired postures (4 in-thread skills, 2 isolated subagents), what each interrogates, when to wear it, the output format (callout), and when to escalate to blind mode (agent epistemic-council). The work lives in each posture; this is the map.
+disable-model-invocation: true
 ---
 
 # Council of Epistemic Postures

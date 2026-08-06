@@ -1,6 +1,7 @@
 ---
 name: epicurus
 description: Invoke before calling a design, scope, or plan done — classifies each element as necessary, wanted-but-dispensable, or vain, and cuts the latter two.
+disable-model-invocation: true
 ---
 
 # Epicurus — sufficiency

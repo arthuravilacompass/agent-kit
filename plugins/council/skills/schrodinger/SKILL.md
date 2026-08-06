@@ -1,6 +1,7 @@
 ---
 name: schrodinger
 description: Invoke when a diagnosis has more than one plausible explanation and the temptation is to settle on one without the observation that would discriminate between them — keeps the hypotheses alive until that observation exists.
+disable-model-invocation: true
 ---
 
 # Schrödinger — superposition

@@ -1,6 +1,7 @@
 ---
 name: sagan
 description: Invoke before investing effort in a decision or task in this conversation — calibrates whether it matters, at what scale, and whether it survives time. Council posture (council:council). Distinct from council:epicurus, which cuts elements from a design already judged worthy; Sagan calibrates the altitude of the whole decision.
+disable-model-invocation: true
 ---
 
 # Sagan — scale and perspective

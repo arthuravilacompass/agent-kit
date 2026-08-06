@@ -1,6 +1,7 @@
 ---
 name: council-log
 description: Invoke after running a Council posture (council:schrodinger/bohr/epicurus/sagan or agents maxwell/zeno) on a high-cost-to-reverse decision worth remembering — logs the brief to the episodic corpus (~/.claude/epistemic/<posture>.jsonl, append-only). Advisory; never blocks.
+disable-model-invocation: true
 ---
 
 # /council:council-log — log a deliberation

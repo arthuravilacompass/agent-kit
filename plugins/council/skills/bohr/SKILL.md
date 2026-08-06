@@ -1,6 +1,7 @@
 ---
 name: bohr
 description: Invoke when a decision in this conversation gets stuck on an "A or B" ("refactor or ship," "hook or prose," "wired or unwired"). Council posture (council:council) — refuses the false choice and looks for the axis that dissolves the trade-off; an in-thread lens on the current reasoning, doesn't open new context.
+disable-model-invocation: true
 ---
 
 # Bohr — complementarity

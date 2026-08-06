@@ -1,6 +1,7 @@
 ---
 name: council-recall
 description: Invoke before a high-cost-to-reverse decision, together with the Council posture that will wear it — queries episodic memory (~/.claude/epistemic/) and lists up to 3 past cases that rhyme by FORM (same posture + surface_class + overlap). Silent if nothing rhymes. Advisory.
+disable-model-invocation: true
 ---
 
 # /council:council-recall — retrieve analogues
