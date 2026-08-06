@@ -41,9 +41,11 @@ Don't fix, in the current PR, problems the change didn't introduce — functiona
 
 ---
 
-### Edit only in scope — detail
+### Edit only in scope
 
-Descended from the always-on tier (`using-agent-kit`) — the **Signal** stays there, and the rule statement is question 1 of that tier's `3 Questions Before Editing`; this holds the rationale.
+Touch only files cited by the user or a direct dependency of the request — not files noticed "while in here."
+
+**Signal**: the diff touches a file not cited by the user.
 
 **Why**: editing "while I'm in here" hijacks the PR and makes review impossible.
 
@@ -51,9 +53,11 @@ Descended from the always-on tier (`using-agent-kit`) — the **Signal** stays t
 
 ---
 
-### No silent removal of annotations/imports — detail
+### No silent removal of annotations/imports
 
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the exception.
+Don't remove imports, lifecycle/dispose, or override annotations without explicit justification — DI, observability, and lifecycle wiring look dead from a local diff but aren't.
+
+**Signal**: the diff removes an import or one of these annotations with no explanation in the PR or commit.
 
 **Exception**: an import genuinely unused, flagged by the linter.
 
@@ -69,9 +73,11 @@ A card/doc/draft you created yourself (or created on request) doesn't count as i
 
 ---
 
-### Verify your own claim as adversarially as an agent's — detail
+### Verify your own claim as adversarially as an agent's
 
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale.
+For a claim about state (git/branch/config/topology), prefer a blind/adversarial check (with no preview of what you expect to find) and runtime evidence over self-review; understand a check's mechanism before trusting its verdict.
+
+**Signal**: a claim about state backed by 1 isolated command with no adversarial check; validation done by whoever already held the hypothesis.
 
 **Why**: a review that inherits the framing of whoever produced the work — including yourself — carries the same blind spot.
 
@@ -89,9 +95,11 @@ Before listing a finding (review, audit, enumeration), re-read the evidence in i
 
 ---
 
-### Grep before answering about convention — detail
+### Grep before answering about convention
 
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale and the exception.
+Read/Grep/Glob the real usages before answering — never answer from memory or generic heuristics alone.
+
+**Signal**: the turn delivers an answer about convention/lib/tooling/pattern without any Read, Grep, Glob, or listing of real usage in the same turn.
 
 **Why**: an answer based only on memory or generic heuristics fails when the project already uses a specific lib (e.g.: the project's logging lib, the chosen observability tool, the adopted serialization lib, etc.) — the generic answer is plausible but wrong for this codebase.
 
@@ -99,9 +107,11 @@ Descended from the always-on tier (`using-agent-kit`) — the rule and its **Sig
 
 ---
 
-### Evidence before claim — detail
+### Evidence before claim
 
-Descended from the always-on tier (`using-agent-kit`) — the rule and its **Signal** stay there; this holds the rationale and the application steps.
+**You MUST NOT** assert a conclusion about code behavior, branch state, feature-flag semantics, route existence, or API contract without having read/grepped/run the corresponding command **in the same turn**.
+
+**Signal**: the turn contains a factual claim about the project's state **without** any Read/Grep/Bash/git in the same turn; OR it uses "should", "likely", "assuming", "probably", "I imagine", "must be" before a conclusion about state.
 
 **Why**: premature assumption is the most common cause of rework in review — the model generates plausible-but-wrong text when it lacks evidence, and the reviewer spends an extra turn refuting it with real data. Examples: assuming a remote-config flag's behavior without reading the config, inferring an environment is "beta" without checking, inventing a route/endpoint that doesn't exist, proposing `-m 1` on a commit that isn't a merge.
 
@@ -200,16 +210,6 @@ This checkpoint was cut from the always-on tier (`using-agent-kit`) deliberately
 **Failure mode**: wasted effort when the understanding was wrong; eroded trust. A broad licence read as a waiver of the checkpoint is the specific way this fails.
 
 **How to apply**: at the opening of each heavy phase, list the route and the stages you intend to skip, and confirm. The harness default already covers checking in when competing readings would change the work materially; this rule is the narrower, stronger case — the stage boundary itself.
-
----
-
-### NO-COMMIT — detail
-
-Descended from the always-on tier (`using-agent-kit`, §Permissions) — the rule and its **Signal** stay there; this holds the rationale.
-
-**Why**: committing or pushing on the user's behalf bypasses their review of what goes on the branch and in history.
-
-**Failure mode**: unwanted commits on the wrong branch; history rewrite required.
 
 ---
 
