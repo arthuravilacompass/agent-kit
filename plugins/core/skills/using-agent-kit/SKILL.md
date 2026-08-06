@@ -58,6 +58,18 @@ When the reported bug is "action X does nothing", the fix needs to make X work �
 
 **Signal**: the fix responds to "X doesn't work" with new messaging/UX instead of making X execute/record.
 
+## Code Change Discipline
+
+### No silent removal of annotations/imports 🔴
+
+Don't remove imports, lifecycle/dispose, or override annotations without explicit justification — DI, observability, and lifecycle wiring look dead from a local diff but aren't.
+
+**Signal**: the diff removes an import or one of these annotations with no explanation in the PR or commit.
+
+**Exception**: an import genuinely unused, flagged by the linter.
+
+— detail: core:methodology
+
 ## Kit Governance
 
 Lifecycle, ceiling, and publish rules live in `docs/OPERATIONS.md`.
