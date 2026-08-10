@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# desc: PreToolUse(Edit|Write|MultiEdit) — advisory: the session model (persisted by session-start.sh) is a synthesis-tier model (e.g. Fable) writing a code artifact directly; house model strategy routes code/fix/eval work to a Sonnet subagent; non-blocking (exit 0 + additionalContext), once per session.
-# retire-review: this gate's subject is a model behavior — a synthesis-tier session model
+# desc: PreToolUse(Edit|Write|MultiEdit) — advisory: the session model (persisted by session-start.sh) is a conducting-tier model (e.g. Opus, Fable) writing a code artifact directly; house model strategy routes code/fix/eval work to a Sonnet subagent; non-blocking (exit 0 + additionalContext), once per session.
+# retire-review: this gate's subject is a model behavior — a conducting-tier session model
 # writing a code artifact itself instead of dispatching it to an executor. Re-verify its
 # necessity at each major model generation, and retire it if it stops firing in real
 # sessions across one.
 #
-# Self-enforcement for the operator's model strategy (his CLAUDE.md: Fable is the session
-# default for synthesis/decisions, Sonnet/Opus SUBAGENTS execute code). Observed failure
-# mode: the session model writes hooks/evals/code inline instead of delegating. PreToolUse
-# exit 2 would BLOCK the edit — too strong for a strategy preference, not a correctness
-# gate — so this hook always exits 0 and, when it has something to say, rides
+# Self-enforcement for the operator's model strategy (his CLAUDE.md: Opus is the session
+# default (conducting/synthesis/decisions), Fable is the on-demand synthesis tier for what
+# resists Opus, and Sonnet SUBAGENTS execute code). Observed failure mode: the session
+# model writes hooks/evals/code inline instead of delegating. PreToolUse exit 2 would
+# BLOCK the edit — too strong for a strategy preference, not a correctness gate — so this
+# hook always exits 0 and, when it has something to say, rides
 # hookSpecificOutput.additionalContext instead (advisory, never blocks the edit).
 #
 # Failure modes, documented (fails toward silence in every case):
@@ -68,11 +69,11 @@ def main(data):
     if not model:
         return
 
-    # Synthesis-tier model-name fragments (house strategy: Fable is the session default
-    # for synthesis/decisions; code execution belongs to a Sonnet/Opus subagent) — extend
-    # this tuple as the tier list grows.
-    SYNTHESIS_TIER_MARKERS = ("fable",)
-    if not any(marker in model.lower() for marker in SYNTHESIS_TIER_MARKERS):
+    # Conducting-tier model-name fragments (house strategy: Opus is the session default;
+    # Fable is the on-demand synthesis tier; code execution belongs to a Sonnet subagent)
+    # — extend this tuple as the tier list grows.
+    CONDUCTING_TIER_MARKERS = ("fable", "opus")
+    if not any(marker in model.lower() for marker in CONDUCTING_TIER_MARKERS):
         return
 
     # Once per session — marker keyed by session_id only (one advisory message, not one
@@ -92,7 +93,7 @@ def main(data):
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
             "additionalContext": (
-                "[model-routing] session model is a synthesis-tier model writing a "
+                "[model-routing] session model is a conducting-tier model writing a "
                 "code artifact directly - house model strategy routes code/fix/eval "
                 "work to a Sonnet subagent. Advisory, once per session."
             ),

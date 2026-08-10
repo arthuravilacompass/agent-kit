@@ -153,12 +153,12 @@ answers into the optimized prompt.
 axes (`core:methodology`'s `references/technical-reference.md`, §Model vs. effort is the source of truth — don't
 invent a parallel policy here):
 
-- **Model** = what it knows. Roles, not versions: **Fable** is the session
-  default for synthesis/decisions/brainstorming/architecture; **Sonnet**
-  executes via subagents (code, fixes, reviews, investigation); **Opus** is
-  the fallback and long-horizon-planning option at lower cost than Fable.
-  The `model-routing` hook enforces the boundary: a Fable-tier session model
-  editing a code/hook/eval artifact directly gets an advisory nudge to
+- **Model** = what it knows. Roles, not versions: **Opus** is the session
+  default (conducting, long-horizon planning, synthesis); **Fable** is the
+  on-demand synthesis/critique/architecture tier for what resists Opus;
+  **Sonnet** executes via subagents (code, fixes, reviews, investigation).
+  The `model-routing` hook enforces the boundary: a conducting-tier session
+  model editing a code/hook/eval artifact directly gets an advisory nudge to
   delegate to a Sonnet subagent instead.
 - **Effort** = how hard it tries (how much it reads/verifies before calling
   it done). It's a per-domain preference, not a per-task dial — don't
