@@ -56,6 +56,8 @@ The Council keeps the **dev's decisions**, not the **AI's outputs**. But the AI'
 
 **Ritual (not mechanized — disposition, measure before gating):** before delivering an artifact of that *context-seeding* class, run it through **blind review** — an isolated subagent (`epistemic-council` / an exploration equivalent) that receives only the verification instruction, **without the thread or the framing**. Self-check in the same thread = disposition, not guarantee (the same failure as the inline overlays).
 
+**Cap — what this is not.** This targets *contamination* (whose framing the next executor inherits), never *correctness*. It does not generalize into a verification step for non-trivial work, and it is not a default pass before delivering anything: outside the context-seeding class listed above, deliver without it. Current models verify their own correctness unasked, and an instruction telling them to do it again buys over-verification rather than accuracy — the narrow case that survives here is the one a self-check structurally cannot cover, because the reviewer would inherit the very framing under test.
+
 **Mechanical checklist** (verifiable without semantic reading): (1) no pre-written expected values; (2) neutral framing; (3) points-to-the-source instead of re-narrating conclusions.
 
 Why a ritual and not a hook: it's the Council's most honest and verifiable *dev-side* gain ("the AI stops silently biasing the next step"), but mechanizing detection of the *context-seeding* class without semantic reading is uncertain — deferred until the ritual proves it pays off. Practiced by hand in a project of origin (blind-subagent validation; clean). Detail and the open decision live in that project of origin's internal notes, not included here.

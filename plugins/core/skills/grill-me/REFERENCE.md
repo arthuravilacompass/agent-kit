@@ -8,8 +8,8 @@ The native advisor escalates to a stronger model with the **full conversation**,
 
 | Mechanism | Context it gets | Who triggers | Used by |
 |---|---|---|---|
-| **Native advisor** (`/advisor opus`) | Full conversation, always | Claude (model-driven; requestable) | `pre-plan`, `post-plan` |
-| **Blind adversarial subagent** (Agent tool, `model: opus`) | Only what you pass (diff + ACs); reads the repo fresh | You, deterministically | `pre-done` |
+| **Native advisor** (`/advisor`) | Full conversation, always | Claude (model-driven; requestable) | `pre-plan`, `post-plan` |
+| **Blind adversarial subagent** (Agent tool, session tier or above) | Only what you pass (diff + ACs); reads the repo fresh | You, deterministically | `pre-done` |
 
 **Why split:** the native advisor sees everything — ideal when the reviewer needs the whole problem (planning, approach choice). But "sees everything" means it inherits your framing, and a model that shares your blind spot can't catch what you missed (the *self-correction illusion*: models reliably correct **others**, not **themselves**). For the "I think I'm done" check, that correlation is the enemy — so `pre-done` withholds your narrative and gives a fresh reviewer an adversarial mandate.
 
@@ -27,7 +27,7 @@ Without these configs, the skill still runs — just with less specialized conte
 
 ## Advisor prerequisite
 
-**Prerequisite for `pre-plan` / `post-plan`:** an advisor model must be configured — run `/advisor opus` (persists) or set `"advisorModel": "opus"` in settings. Requires Claude Code ≥ v2.1.98 on the Anthropic API. If no advisor is configured, those modes fall back to a full-context subagent dispatch (`model: opus`) so the checkpoint still runs.
+**Prerequisite for `pre-plan` / `post-plan`:** an advisor model must be configured — run `/advisor <model at or above the session tier>` (persists) or set `advisorModel` in settings. Requires Claude Code ≥ v2.1.98 on the Anthropic API. If no advisor is configured, those modes fall back to a full-context subagent dispatch at the session tier or above so the checkpoint still runs.
 
 ## Ticket source
 
@@ -91,7 +91,7 @@ Without these configs, the skill still runs — just with less specialized conte
 3. **Escalate — mechanism per mode**
 
    **`pre-plan` / `post-plan` — native advisor:**
-   - Confirm an advisor model is configured (else fall back to a subagent with `model: opus`).
+   - Confirm an advisor model is configured (else fall back to a subagent at the session tier or above).
    - Solicit a consultation with the mode framing below. The advisor sees the full conversation — **do not re-paste context.**
 
      *`pre-plan` framing (merit-first, NOT "which rule does this violate"):*
@@ -102,7 +102,7 @@ Without these configs, the skill still runs — just with less specialized conte
      > "Review the plan I just produced. What hidden dependencies does it carry? Which assumptions are fragile? Where would a naive implementation violate a project invariant (use the named rules as lenses)? Cite specifics."
 
    **`pre-done` — blind adversarial subagent:**
-   - Dispatch **one** subagent via the Agent tool (`model: opus`). It is blind to your **narrative**, not to the **code** — it reads the repo fresh.
+   - Dispatch **one** subagent via the Agent tool, at the session tier or above. It is blind to your **narrative**, not to the **code** — it reads the repo fresh.
    - Pass it ONLY: the diff, the ticket ACs, the paths of the rule files for the affected modules, and the plan's `session-settled:` Key Decision entries if any were loaded in step 2 (it reads them).
    - Mandate (adversarial):
      > "This change is presented as complete. Assume it is **not**. Find the regression, the dropped behavior, the scope drift, the missing verification. Run the bidirectional trace: **every diff hunk must trace to an AC** (unmatched hunk = scope creep) and **every AC must have a corresponding hunk** (unmatched AC = omission) — list the orphans of both sides explicitly. If the plan carries `session-settled:` Key Decision entries, every one must be covered by the artifact or explicitly deferred — list uncovered entries as findings. Work against the diff and read the surrounding code to confirm. For every claim about current code, cite `file:lineStart-lineEnd` precisely — it will be spot-checked against the actual file — and set `epistemicSource`. Return findings as a JSON array."

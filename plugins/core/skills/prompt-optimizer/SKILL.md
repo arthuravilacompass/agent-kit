@@ -159,7 +159,11 @@ invent a parallel policy here):
   **Sonnet** executes via subagents (code, fixes, reviews, investigation).
   The `model-routing` hook enforces the boundary: a conducting-tier session
   model editing a code/hook/eval artifact directly gets an advisory nudge to
-  delegate to a Sonnet subagent instead.
+  delegate to a Sonnet subagent instead. Routing is not fan-out: "execution
+  goes to a Sonnet subagent" says *who* writes, one delegation. It never
+  means several subagents splitting one medium task. Delegate when the work
+  is large and genuinely independent; never to verify; if one agent resolves
+  it, don't dispatch two.
 - **Effort** = how hard it tries (how much it reads/verifies before calling
   it done). It's a per-domain preference, not a per-task dial — don't
   re-tune it per prompt here.

@@ -66,17 +66,17 @@ From the input, extract:
 
 Present to the user before dispatching the agents — full format: `REFERENCE.md` §1.
 
-Wait for confirmation before proceeding. Wrong terms contaminate all 4 agents.
+Wait for confirmation before proceeding. Wrong terms contaminate every agent dispatched.
 
-### 2. Dispatch 4 Explore agents in parallel
+### 2. Dispatch Explore agents in parallel — one per dimension in scope
 
-Dispatch **4 Explore agents in parallel** (`subagent_type: "Explore"`), one per dimension — A: Entry Points, B: Controllers and Stores, C: Repositories and Endpoints, D: Duplication. Pass the terms, modules, and patterns confirmed in step 1.
+Dispatch **one Explore agent per dimension the confirmed scope actually touches** (`subagent_type: "Explore"`) — A: Entry Points, B: Controllers and Stores, C: Repositories and Endpoints, D: Duplication. Pass the terms, modules, and patterns confirmed in step 1. **Four is the ceiling, not the target**: drop any dimension step 1 showed to be empty, and when a single agent can cover the whole scope in a few reads, dispatch one. Every spawn re-establishes context and returns a report you then re-read.
 
 Each agent delivers **raw evidence + cites `file:line`**, without classifying as "shared", "risk", or "opportunity" — that's the consolidator's job in step 3. Detailed instructions per dimension: `REFERENCE.md` §2.
 
 ### 3. Consolidation — prescriptive structure
 
-With the 4 outputs in hand, synthesize the map in this fixed order (do not improvise sections): **TL;DR → Decisions Needed → Consolidated View by Module → Evidence by Dimension → Improvement Opportunities → Other Open Questions**.
+With the agents' outputs in hand, synthesize the map in this fixed order (do not improvise sections): **TL;DR → Decisions Needed → Consolidated View by Module → Evidence by Dimension → Improvement Opportunities → Other Open Questions**.
 
 Full structure template + consolidator's mandatory rules (fixed order, TL;DR written last, dedup in Opportunities, mandatory `file:line` citation, ranking capped at 5 items): `REFERENCE.md` §3.
 

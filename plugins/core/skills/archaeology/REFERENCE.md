@@ -14,7 +14,7 @@ Primary terms: search, query, unified
 Code terms: SearchController, SearchResultListController, SearchRepository
 Candidate modules: home, catalog, filter, results
 
-Grep patterns (used by the 4 agents):
+Grep patterns (used by the dispatched agents):
 - Entry:        SearchField|onSearchChanged|Route\..*search
 - Controllers:  glob *search*_controller.*, *search*_store.*
 - Repos:        SearchRepository|SearchDataSource, plus /api/.*search in the shared SDK/package
@@ -23,11 +23,11 @@ Grep patterns (used by the 4 agents):
 Edit terms / modules / patterns? (enter = confirm)
 ```
 
-Wait for confirmation before proceeding. Wrong terms contaminate all 4 agents.
+Wait for confirmation before proceeding. Wrong terms contaminate every agent dispatched.
 
 ## §2 — Detailed per-dimension instructions (Step 2)
 
-Dispatch **4 Explore agents in parallel** (`subagent_type: "Explore"`), one per dimension. Pass the terms, modules, and patterns confirmed in step 1.
+Dispatch **one Explore agent per dimension the confirmed scope actually touches** (`subagent_type: "Explore"`). Pass the terms, modules, and patterns confirmed in step 1. Four is the ceiling, not the target — drop dimensions step 1 showed to be empty.
 
 **Each agent delivers raw evidence + cites `file:line`.** It doesn't classify as "shared", "risk", or "opportunity" — that's the consolidator's job in step 3.
 
@@ -77,7 +77,7 @@ What's repeated?
 
 ## §3 — Consolidation template (Step 3)
 
-With the 4 outputs in hand, synthesize the map **in this order and structure** (do not improvise sections):
+With the agents' outputs in hand, synthesize the map **in this order and structure** (do not improvise sections):
 
 ```markdown
 # Archaeological Map — <Domain> — <YYYY-MM-DD>
@@ -207,4 +207,4 @@ Before presenting the map, sweep for these signals:
 - If the domain crosses more than 6 modules, ask the user whether they want reduced scope before dispatch.
 - Always confirm the extracted vocabulary and grep patterns (step 1) before executing.
 - **Free domain** mode does not trigger handoff to `core:tech-breakdown` — it's architectural reference, not pre-US.
-- The 4 agents deliver raw evidence. **Opportunities is 100% consolidator synthesis** — which is why the mandatory-citation rule is what separates honest synthesis from inference without grep.
+- The dispatched agents deliver raw evidence. **Opportunities is 100% consolidator synthesis** — which is why the mandatory-citation rule is what separates honest synthesis from inference without grep.
