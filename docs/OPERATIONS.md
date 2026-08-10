@@ -76,6 +76,8 @@ Some tools this kit's methodology relies on aren't vendored — they're adopted 
 
 Every artifact — skill, hook, gate — is either wired (`plugins/<plugin>/`, proven real use) or it doesn't exist (deleted, recoverable via git history; no purgatory tier in between). Promotion happens on real use, not "seems useful": rewrite the `description` for the real trigger, fill in provenance placeholders with real names, run `claude plugin validate .`. The meta-principle behind this: **a rule that keeps failing becomes a mechanism** — a hook, a schema, a deterministic gate — and a mechanism with no real catch left becomes a deletion candidate. New ideas incubate in-session or as a plan under `docs/plans/` and prove themselves before ever touching `plugins/` — there is no dedicated incubation directory. This applies uniformly to skills, hooks, and gates.
 
+**Retire-review of a model-behavior gate**: a hook whose subject is a model behavior (today: `model-routing`) carries a `retire-review` line in its own header and gets re-verified at each major model generation. The re-verification is a count of real firings, not a judgement call — the hook's per-session marker directory is the counter. Reading it requires `CLAUDE_PLUGIN_DATA` to point at a persistent path: the fallback is `$TMPDIR`, which macOS purges, so an unset variable makes any multi-session count meaningless. The trigger to re-read is the end-of-session `/core:learn`; baselines and their dates live in `CHANGELOG.md`.
+
 **D6** (single load-bearing note): Council's episodic corpus `outcome` is stored and displayed, never scored — cited by `plugins/council/skills/council-recall/SKILL.md`.
 
 ## 8. Gitignored working tree — a protection, not an omission
