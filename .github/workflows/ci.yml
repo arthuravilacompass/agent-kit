@@ -12,8 +12,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Provenance gate
         run: bash scripts/check-provenance.sh
-      - name: Ceiling gate
-        run: bash scripts/check-ceiling.sh
       - name: README pair gate
         run: bash scripts/check-readme-pair.sh
       - name: Shellcheck

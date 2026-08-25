@@ -41,14 +41,13 @@ claude plugin install mobile@agent-kit    # only in a Flutter/Dart project
 
 Local commit pays one check: `./scripts/check-provenance.sh` — the one leak cheaper to catch before the commit exists than after. That's the whole commit-time gate.
 
-The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`), 4 mechanical steps:
+The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`), 3 mechanical steps:
 
-1. `check-provenance.sh` — structural patterns shipped in the script; literal patterns (real client/product names) from local `.provenance-deny`, gitignored — CI runs structural-only.
-2. `check-ceiling.sh` — provenance-narration ban (`plugins/`) plus an informational sub-check of the maintainer's personal `$HOME` `MEMORY.md` index against its own 12,288-byte ceiling.
-3. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present, and every version badge agrees with its `plugin.json` in both the alt text and the URL, with every on-disk plugin carrying a badge (the badges are hand-maintained since the fragment generator was retired, so this is what catches a forgotten bump).
-4. `shellcheck` over every `.sh` under `plugins scripts tools`.
+1. `check-provenance.sh` — two checks over git-tracked files, both always run: origin-domain/company content repo-wide (structural patterns shipped in the script; literal patterns from local `.provenance-deny`, gitignored — CI runs structural-only), and the provenance-narration ban scoped to `plugins/`, which needs its own case-insensitive pass because the first is deliberately case-sensitive.
+2. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present, and every version badge agrees with its `plugin.json` in both the alt text and the URL, with every on-disk plugin carrying a badge (the badges are hand-maintained since the fragment generator was retired, so this is what catches a forgotten bump).
+3. `shellcheck` over every `.sh` under `plugins scripts tools`.
 
-`scripts/doctor.sh --maintainer` is the optional local rehearsal, also 4 gates: `check-ceiling.sh`, `check-provenance.sh`, `check-readme-pair.sh`, and `claude plugin validate .` (marketplace + plugin manifests) in place of `shellcheck`. `claude plugin validate .` is deliberately local-only — the `claude` CLI isn't installed on CI runners, so it can only ever run on the maintainer's machine — and `shellcheck` is deliberately CI-only, with no local equivalent invoked by `doctor.sh`.
+`scripts/doctor.sh --maintainer` is the optional local rehearsal, also 3 gates: `check-provenance.sh`, `check-readme-pair.sh`, and `claude plugin validate .` (marketplace + plugin manifests) in place of `shellcheck`. `claude plugin validate .` is deliberately local-only — the `claude` CLI isn't installed on CI runners, so it can only ever run on the maintainer's machine — and `shellcheck` is deliberately CI-only, with no local equivalent invoked by `doctor.sh`.
 
 Version bumps and the `(plugin X.Y.Z)` changelog trailer move to **publish**, batched across whatever commits accumulated since the last one — not per commit. Going-forward `CHANGELOG.md` entries are 1-3 lines.
 

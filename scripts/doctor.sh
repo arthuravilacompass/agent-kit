@@ -3,9 +3,8 @@
 # usage: bash scripts/doctor.sh [--maintainer]
 #   (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,
 #                 external marketplaces (superpowers, compound-engineering) reported informationally.
-#   --maintainer  additionally runs all four kit-maintainer gates: check-ceiling.sh,
-#                 check-provenance.sh, claude plugin validate .,
-#                 check-readme-pair.sh.
+#   --maintainer  additionally runs all three kit-maintainer gates: check-provenance.sh,
+#                 claude plugin validate ., check-readme-pair.sh.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
@@ -21,7 +20,7 @@ for arg in "$@"; do
       echo "Usage: bash scripts/doctor.sh [--maintainer]"
       echo "  (default)     colleague checks: claude CLI present, marketplace registered, plugins installed,"
       echo "                external marketplaces (superpowers, compound-engineering) reported informationally"
-      echo "  --maintainer  additionally run all four kit-maintainer repo gates (check-ceiling, check-provenance, plugin validate, check-readme-pair)"
+      echo "  --maintainer  additionally run all three kit-maintainer repo gates (check-provenance, plugin validate, check-readme-pair)"
       exit 0
       ;;
     *)
@@ -265,17 +264,6 @@ if [ "$MAINTAINER_MODE" -ne 1 ]; then
 fi
 
 # repo self-checks — run from repo root, only if the corresponding file exists
-if [ -f scripts/check-ceiling.sh ]; then
-  if out="$(bash scripts/check-ceiling.sh 2>&1)"; then
-    pass "scripts/check-ceiling.sh"
-  else
-    fail "scripts/check-ceiling.sh" "run 'bash scripts/check-ceiling.sh' directly and read its ERROR line"
-    printf '%s\n' "$out" | sed 's/^/    /'
-  fi
-else
-  info "scripts/check-ceiling.sh not found — skipped"
-fi
-
 if [ -f scripts/check-provenance.sh ]; then
   if out="$(bash scripts/check-provenance.sh 2>&1)"; then
     pass "scripts/check-provenance.sh"

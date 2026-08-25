@@ -35,9 +35,8 @@
 #      (README.md) or an unreadable/missing plugin.json version is
 #      indeterminate, not clean.
 #
-# Env overrides (scratch-copy testing, mirrors check-ceiling.sh's CEILING_OVERRIDE
-# style): README_EN, README_PT default to the repo's real pair; README_INSTALL
-# defaults to docs/INSTALL.md.
+# Env overrides (scratch-copy testing): README_EN, README_PT default to the repo's
+# real pair; README_INSTALL defaults to docs/INSTALL.md.
 #
 # Exit: 0 = clean · 1 = drift/violation found · 2 = indeterminate (files missing).
 set -uo pipefail

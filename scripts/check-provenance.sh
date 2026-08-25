@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# Hygiene gate: no content from the origin domain/company in the kit.
+# Hygiene gate, two checks over git-tracked files:
+#   1. no content from the origin domain/company anywhere in the kit;
+#   2. no provenance narration ("Promoted from" and variants) in plugins/.
 # Scans ONLY git-tracked files — gitignored and untracked paths (e.g. .claude/settings.local.json,
 # docs/superpowers/, .worktrees/) never reach a commit, so flagging them is a false positive.
-# Exit: 0 = clean · 1 = provenance content found · >=2 = grep aborted (indeterminate).
+# Both checks always run: failing fast on the first would hide a violation of the second
+# behind it until the first was fixed.
+# Exit: 0 = clean · 1 = a check found something · >=2 = grep aborted (indeterminate).
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
@@ -95,13 +99,58 @@ if [ "${#files[@]}" -eq 0 ]; then
   exit 2
 fi
 
+fail=0
+
+# --- Check 1: origin-domain/company content, repo-wide ------------------------------
 grep -InE "$DENY" "${files[@]}"
 rc=$?
 if [ "$rc" -eq 0 ]; then
   echo "FAILED: provenance content found (above) ($literal_status)"
-  exit 1
+  fail=1
 elif [ "$rc" -ge 2 ]; then
   echo "ERROR: grep aborted (exit $rc) — indeterminate result, do NOT treat as clean"
   exit "$rc"
+else
+  echo "OK: zero provenance content ($literal_status)"
 fi
-echo "OK: zero provenance content ($literal_status)"
+
+# --- Check 2: provenance-narration ban, scoped to plugins/ --------------------------
+# "Promoted from" (and variants — "Promotion from", lowercase, or with text in between,
+# e.g. "Promoted 2026-07-26 from") belongs in CHANGELOG.md, not in a shipped skill/agent
+# body. Case-insensitive and tolerant of an inserted date/clause is deliberate: a literal
+# match let "Promoted 2026-07-26 from ..." through once already (the two words split by a
+# date). `[^.]{0,40}` bounds the gap to the same sentence, so it can't reach across a
+# period into unrelated prose. Scoped to plugins/ (not repo-wide) so the CHANGELOG's own
+# legitimate promotion narration never trips it. Validated against a manual review of
+# every "promot*" hit in plugins/ when the pattern was written: legitimate uses either
+# don't pair "promot(ed|ion)" with "from", or the two words aren't followed by "from"
+# within the same clause ("promotion to BLOCKER", "not yet promoted to wired").
+#
+# This check needs its OWN grep, not a branch of the one above: that one is deliberately
+# case-SENSITIVE (a denylist literal can spell an ordinary lowercase word), and this one
+# must be case-insensitive. Folding them would break one or the other.
+plugin_files=()
+while IFS= read -r -d '' f; do plugin_files+=("$f"); done \
+  < <(git ls-files -z -- plugins/)
+
+if [ "${#plugin_files[@]}" -eq 0 ]; then
+  # Anti-staleness floor: a pattern that stops matching any file would report zero
+  # violations over zero entries and pass forever. Same doctrine as the empty
+  # tracked-file set above — absence where content is expected is not "nothing to hide".
+  echo "ERROR: no tracked files under plugins/ — indeterminate, do NOT treat as clean" >&2
+  exit 2
+fi
+
+grep -InEi 'promot(ed|ion)[^.]{0,40}from' "${plugin_files[@]}"
+narr_rc=$?
+if [ "$narr_rc" -eq 0 ]; then
+  echo "FAILED: provenance narration ('Promoted from' or a variant) found in plugins/ (above)"
+  fail=1
+elif [ "$narr_rc" -ge 2 ]; then
+  echo "ERROR: narration grep aborted (exit $narr_rc) — indeterminate, do NOT treat as clean"
+  exit "$narr_rc"
+else
+  echo "OK: zero provenance narration ('Promoted from' or a variant) in ${#plugin_files[@]} tracked file(s) under plugins/"
+fi
+
+exit "$fail"
