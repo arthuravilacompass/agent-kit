@@ -4,7 +4,7 @@
 
 > **agent-kit is an epistemic-discipline kit for Flutter/Dart work with Claude Code — deterministic verifiers for what the harness doesn't check, plus the reasoning postures to use them well.**
 
-![mobile 0.17.0](https://img.shields.io/badge/mobile-0.17.0-8a8378) ![core 0.30.0](https://img.shields.io/badge/core-0.30.0-8a8378) ![council 0.6.0](https://img.shields.io/badge/council-0.6.0-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
+![mobile 0.17.0](https://img.shields.io/badge/mobile-0.17.0-8a8378) ![core 0.31.0](https://img.shields.io/badge/core-0.31.0-8a8378) ![council 0.6.0](https://img.shields.io/badge/council-0.6.0-8a8378) ![team 0.3.1](https://img.shields.io/badge/team-0.3.1-8a8378)
 
 **How to read the map below.** The top band is entry — three ways in: a loose phrase, a `/ce-*` command, or always-on (no invocation). The rail underneath is conduction: `superpowers` owns Discover, [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) ("CE" from here on) owns Plan through Ship — both external plugins you install separately. This repo (`/core:*`, `/team:*`) is the always-on floor under either conductor.
 
@@ -13,7 +13,7 @@
   <img alt="agent-kit routing map: how you enter (loose phrase, /ce-*, always-on) and who conducts each stage" src="assets/routing-diagram-light.svg">
 </picture>
 
-*The gate behind Ship is `/core:review-local` (lint · tests · manual citation spot-check); the commit itself is `/core:commit`; capture after Ship is `/ce-compound` and `core:learn`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
+*The gate behind Ship is `/core:review-local` (lint · tests · manual citation spot-check); the commit itself is `/core:commit`; capture after Ship is `/ce-compound`. `/core:tech-breakdown` (dead end, dotted) never enters CE automatically — its output is copy-pasted into `/ce-plan`.*
 
 Of everything the kit ships, **only the hooks are a guarantee**: they fire on their own; every skill, gate, and posture runs because you invoked it. Lifecycle, the promotion rule, the always-on ceiling, publishing, and the gates: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
@@ -52,7 +52,6 @@ Severity of each dependency — what you'll actually observe if it's missing, no
 |---|---|---|
 | Profile script (`scripts/install.sh`) | you're on Claude Code — most people | below |
 | Native `claude plugin` commands | you want to see/control each install step | [docs/INSTALL.md](docs/INSTALL.md#native-install-commands) |
-| **Not on Claude Code** (Copilot, Cursor, ...) | you still want the epistemic tier | [docs/INSTALL.md](docs/INSTALL.md#use-the-epistemic-tier-on-another-ai-tool) — emits `AGENTS.md` |
 
 ### 1. Clone (once)
 
@@ -87,11 +86,11 @@ claude plugin list                  # or manually: should list what you installe
 claude plugin update core@agent-kit council@agent-kit team@agent-kit mobile@agent-kit
 ```
 
-`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins); `core`'s rules arrive via SessionStart — nothing to type. **Maintaining?** `--maintainer` runs all four gate commands (ceiling, provenance, manifest validate, README pair) — full gate detail: [docs/OPERATIONS.md](docs/OPERATIONS.md) §2. Native commands / `AGENTS.md` / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
+`doctor.sh` prints the exact install command for anything missing (CLI, marketplace, plugin, or routing's external plugins). **Maintaining?** `--maintainer` runs all four gate commands (ceiling, provenance, manifest validate, README pair) — full gate detail: [docs/OPERATIONS.md](docs/OPERATIONS.md) §2. Native commands / uninstall: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Which tool, when
 
-Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching. Neither plugin enforces this: both loops stay model-invocable, so the always-on tier (`core:using-agent-kit`) is what restates the boundary. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
+Indexed by the situation you're in, not by plugin. **The boundary convention:** loose phrase → `superpowers`; slash command → CE — syntax elects, not pattern-matching. Neither plugin enforces this: both loops stay model-invocable, and no kit artifact restates the boundary — it lives in your own `CLAUDE.md`. No kit skill routes you stage to stage (why: `CHANGELOG.md`'s "CE adopted as flow conductor" decision record) — the table is the whole map.
 
 | Situation | You say/type | What fires | Owner |
 |---|---|---|---|
@@ -149,7 +148,7 @@ Six postures, each with its own question and "wear it when" — cataloged under 
 
 **Discriminator: the change is about to leave your hands.** The two reviews compose: `/core:review-local` is the gate — it blocks before spending a review token if lint or tests fail, then you manually spot-check every citation against the actual file before presenting findings — and `/ce-code-review` is the judgment pass on top. Cite `file:lineStart-lineEnd` precisely: it gets re-read and checked, not just trusted. Unverified ≠ fabricated: a citation that doesn't match the code on spot-check lands in its own "Unverified" section as a hypothesis, never presented as a confirmed finding.
 
-Once it passes, capture runs twice, on purpose: `/ce-compound` writes the repo-local learning doc (committed, shared); `core:learn` writes personal cross-session memory. `ce-compound`'s scan folds in auto-memory as lower-priority context — run `core:learn` first if you want that.
+Once it passes, capture: `/ce-compound` writes the repo-local learning doc (committed, shared). Personal cross-session memory is the harness's own — `ce-compound`'s scan folds that auto-memory in as lower-priority context.
 
 ---
 

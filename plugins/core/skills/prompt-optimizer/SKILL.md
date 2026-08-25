@@ -92,7 +92,7 @@ from the prompt description alone and mark the estimate as uncertain.
 | LOW | Single component or module | Single skill, or direct execution — a minimal route is legitimate |
 | MEDIUM | Multiple components, same domain | `core:review-local`/`core:review-remote` + `core:commit` |
 | HIGH | Cross-domain, 5+ files | `core:archaeology` (map) first; `council:council` for any high-reversal-cost call inside it |
-| EPIC | Multi-session, multi-PR, architectural shift | `core:learn` at each close; `council:sagan` to calibrate whether the effort altitude is actually warranted |
+| EPIC | Multi-session, multi-PR, architectural shift | `council:sagan` to calibrate whether the effort altitude is actually warranted |
 
 ### Phase 3: Kit Component Matching
 
@@ -104,7 +104,7 @@ the only stack-opinionated vertical it ships is `mobile` (Flutter/Dart).
 
 | Intent | Skills | Agents / Council postures |
 |--------|--------|--------|
-| New Feature | `superpowers:brainstorming` or the user-scope `/grilling` skill (clarify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) → `core:learn` (capture) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
+| New Feature | `superpowers:brainstorming` or the user-scope `/grilling` skill (clarify) → `superpowers:writing-plans` or `core:tech-breakdown` (break down) → `superpowers:executing-plans` (implement) → `core:review-local`/`core:review-remote` (review) → `core:commit` (deliver, then open the PR via native/`gh` flow) | `core:cold-reader` (deliverable for a cold audience), `council:epicurus` (cut scope before done) |
 | Bug Fix | `superpowers:systematic-debugging` (diagnose) → implement fix → `core:review-local`/`core:review-remote` → `core:commit` | `council:schrodinger` (if more than one live hypothesis for the cause) |
 | Refactor | `core:archaeology` (map) → clarify scope → implement → `core:review-local`/`core:review-remote` (+ `mobile:refactor-review` if the `mobile` plugin is active) → `core:commit` | `council:maxwell` (coupling map before touching), `council:epicurus` |
 | Investigation | `core:archaeology` (map) → `superpowers:systematic-debugging` (diagnose) → report/handoff (terminal — don't force implementation) | `council:schrodinger` |
@@ -150,7 +150,7 @@ answers into the optimized prompt.
 ### Phase 5: Workflow & Model Recommendation
 
 **Model recommendation.** This kit's model strategy runs on two independent
-axes (`core:methodology`'s `references/technical-reference.md`, §Model vs. effort is the source of truth — don't
+axes (`core:methodology` §Model vs. effort is the source of truth — don't
 invent a parallel policy here):
 
 - **Model** = what it knows. Roles, not versions: **Opus** is the session
@@ -176,8 +176,7 @@ invent a parallel policy here):
 **Multi-session splitting** (for HIGH/EPIC scope): this kit has no
 `save-session`/`resume-session` command pair — apply the session-discipline
 rule instead (one heavy phase per session: *clarify/specify*
-· *implement* · *review/deliver* · *close*), with a handoff at each boundary
-and `core:learn` capturing decisions/corrections at each close.
+· *implement* · *review/deliver* · *close*), with a handoff at each boundary.
 
 ---
 
@@ -235,7 +234,7 @@ A compact version for experienced kit users. Vary by intent type:
 | Testing | Check `CLAUDE.md` test policy first. `superpowers:test-driven-development` if that flow applies.` |
 | Review | `core:review-local` (or `core:review-remote` without the toolkit plugin). `core:grill-me pre-done`.` |
 | Docs | Direct edit. `core:commit`.` |
-| EPIC | `council:sagan` to calibrate. Phase via session discipline, handoff between phases, `core:learn` to capture.` |
+| EPIC | `council:sagan` to calibrate. Phase via session discipline, handoff between phases.` |
 
 ### Section 5: Enhancement Rationale
 
@@ -352,7 +351,7 @@ Scope: EPIC — multi-session, architectural shift.
 
 Session discipline: one heavy phase per session —
 clarify/specify · implement · review/deliver · close — with a handoff
-at each boundary and core:learn capturing decisions between sessions.
+at each boundary.
 
 Suggested phases:
 1. core:archaeology per current domain/module to map real coupling
@@ -365,8 +364,8 @@ Suggested phases:
 5. Open the PR (native/gh flow) once a phase is independently shippable
 
 Model: Fable or Opus for the cross-session architectural plan (synthesis),
-Sonnet subagent for each phase's implementation — see core:methodology's
-references/technical-reference.md §Model vs. effort; this isn't a fixed scope→model table, adjust by the
+Sonnet subagent for each phase's implementation — see core:methodology
+§Model vs. effort; this isn't a fixed scope→model table, adjust by the
 actual difficulty of each phase.
 
 Do not:
@@ -382,7 +381,6 @@ Do not:
 |-----------|------------------|
 | `core:grill-me` | Escalation mode at `pre-plan`/`post-plan`/`pre-done`; interview mode is the user-scope `/grilling` skill, not this one |
 | `council:council` | Entry point for a high-reversal-cost decision, at any stage |
-| `core:methodology` → `references/technical-reference.md` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |
+| `core:methodology` | §Model vs. effort (source of truth for model recommendation), portable technical reference (hooks, advisor, git, Flutter/Dart `build_runner`) |
 | `mobile:*` | Flutter/Dart stack-specific component catalog, only when that plugin is installed |
-| `core:learn` | Capture stage — persist corrections/decisions worth remembering |
 | `plugins/*/skills`, `plugins/*/agents`, `plugins/*/hooks` | Live source of every skill/agent/hook — browse directly instead of trusting a hardcoded catalog when auditing what's actually installed |

@@ -11,7 +11,7 @@
   <img alt="agent-kit routing map: how you enter (loose phrase, /ce-*, always-on) and who conducts each stage" src="assets/routing-diagram-light.svg">
 </picture>
 
-*O gate depois de Ship é `/core:review-local`; a captura depois é `/ce-compound` e `core:learn`. `/core:tech-breakdown` (beco sem saída, pontilhado) nunca entra na CE sozinho — a saída dele é copiada e colada em `/ce-plan`.*
+*O gate depois de Ship é `/core:review-local`; a captura depois é `/ce-compound`. `/core:tech-breakdown` (beco sem saída, pontilhado) nunca entra na CE sozinho — a saída dele é copiada e colada em `/ce-plan`.*
 
 Só os hooks são garantia: disparam sozinhos. Toda skill, gate e postura roda porque você invocou. Lifecycle, regra de promoção, teto sempre-ativo, publicação e os gates: **[docs/OPERATIONS.md](docs/OPERATIONS.md)**.
 
@@ -29,7 +29,7 @@ Os comandos de clone e instalação vivem no [README.md](README.md#1-clone-once)
 
 Verifique com `~/dev/agent-kit/scripts/doctor.sh` — checa CLI, marketplace, plugins e os gates do próprio kit, e imprime o comando exato pra corrigir o que faltar.
 
-Comandos nativos passo a passo, emissão de `AGENTS.md` para outras ferramentas de IA (Copilot, Cursor), e desinstalação: **[docs/INSTALL.md](docs/INSTALL.md)**.
+Comandos nativos passo a passo e desinstalação: **[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ## Qual ferramenta, quando
 

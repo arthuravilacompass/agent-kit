@@ -160,6 +160,6 @@ Without these configs, the skill still runs — just with less specialized conte
 - Advisor output (native or subagent) is **signal, not decision**. Human approves before any code change.
 - `pre-done`'s independence is now **structural** (withheld narrative + adversarial mandate + blind dispatch), not temporal — you no longer need to wait for the bubble to fade; the correlation is broken by construction. (Still fine to `/clear` first if you want.)
 - Never modify code inside this skill. It only loads context, escalates, verifies, presents, and asks. Fixes are a separate step taken after user approval.
-- Do not commit memory entries or update project docs based on findings — that's a separate capture via skill `core:learn` (or inline write with approval).
+- Do not commit memory entries or update project docs based on findings — that's a separate capture via Claude Code's native project memory (auto-memory / project `MEMORY.md`), or an inline write with approval.
 - Invocation order in a typical feature track: `pre-plan` (before `superpowers:writing-plans`) → `post-plan` (after plan approval) → `pre-done` (before `core:review-local`).
 - **Native advisor vs. this mode:** see §Two mechanisms, by design above — same context/trigger split, stated once.

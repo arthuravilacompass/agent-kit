@@ -1,19 +1,11 @@
 #!/usr/bin/env bash
-# desc: SessionStart — injects the body of using-agent-kit as always-on context and persists the session model for model-routing.sh.
-#
-# Two independent concerns share this hook because SessionStart is the only event that
-# sees both cleanly. (1) The skill-body injection below MUST fail loud if the SKILL.md is
-# missing — a broken always-on tier is worse silent than noisy — so `set -e` plus the
-# unguarded `open()` in the final python block is intentional and unchanged from before
-# this hook grew the second concern below. (2) The session-model state write is a
-# best-effort addition and must NEVER cause (1) to fail: absent stdin, malformed JSON, or
-# a state-dir write failure each degrade to silence, never an error.
+# desc: SessionStart — persists the session model for model-routing.sh to read later.
 #
 # Session-model state: SessionStart's stdin JSON may carry `model`/`session_id` (both
 # optional — absent on older Claude Code builds, or when the field names drift). Written
 # to STATE_DIR/session-model-<session_id> for model-routing.sh (PreToolUse) to read later.
 # Missing either field, malformed JSON, or a write failure -> skip silently, never touch
-# the exit code.
+# the exit code. This write is best-effort and must never fail loud.
 
 set -euo pipefail
 
@@ -57,13 +49,3 @@ except Exception:
 sys.exit(0)
 PYEOF
 fi
-
-python3 - "${CLAUDE_PLUGIN_ROOT}/skills/using-agent-kit/SKILL.md" << 'PY'
-import json, sys
-
-body = open(sys.argv[1], encoding="utf-8").read()
-
-print(json.dumps({"hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": "<agent-kit-core>\n" + body + "\n</agent-kit-core>\n"}}))
-PY

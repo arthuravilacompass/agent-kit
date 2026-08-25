@@ -1,6 +1,6 @@
 # Install reference
 
-Detail behind the README's one-line happy path: native `claude plugin` commands (what `scripts/install.sh` wraps), emitting the epistemic tier as `AGENTS.md` for non-Claude-Code tools, uninstall, and the repo's own governance/structure tables. Nothing here is required reading to get started — [README.md](../README.md#installation) covers that in three steps.
+Detail behind the README's one-line happy path: native `claude plugin` commands (what `scripts/install.sh` wraps), uninstall, and the repo's own governance/structure tables. Nothing here is required reading to get started — [README.md](../README.md#installation) covers that in three steps.
 
 ## Native install commands
 
@@ -39,17 +39,6 @@ The README's Requirements table is deliberately compact. The full detail behind 
 - For `mobile`: a Flutter/Dart project
 - **`grilling`** (user-scope skill, source `mattpocock/skills`, installed to `~/.claude/skills/`) — severity **degrades**. Without it: grill-me's interview route and deepen-architecture step 3 both dead-end
 - The kit ships no MCP servers of its own. The one place it expects one you supply is `team`'s two refine commands — a board/kanban MCP; nothing else in the kit assumes any
-
-## Use the epistemic tier on another AI tool
-
-The plugins are Claude Code-native, but the always-on epistemic tier is tool-agnostic. Emit it as an `AGENTS.md`, read by GitHub Copilot, Cursor, and other AGENTS.md-honoring tools:
-
-```bash
-~/dev/agent-kit/scripts/install.sh --tool copilot --out .   # writes ./AGENTS.md
-# --dry-run to preview · --force to overwrite an existing AGENTS.md
-```
-
-Enforcement doesn't travel — hooks and subagent skills run only under Claude Code, so there the rules are **advisory**, and the emitted header says so. Source of truth stays the `using-agent-kit` skill shipped in `core`; re-run to refresh, never hand-edit the output.
 
 ## Uninstall
 

@@ -44,7 +44,7 @@ Local commit pays one check: `./scripts/check-provenance.sh` — the one leak ch
 The full gate runs at **publish**, via CI (`.github/workflows/ci.yml`), 4 mechanical steps:
 
 1. `check-provenance.sh` — structural patterns shipped in the script; literal patterns (real client/product names) from local `.provenance-deny`, gitignored — CI runs structural-only.
-2. `check-ceiling.sh` — always-on byte ceiling, see §3.
+2. `check-ceiling.sh` — provenance-narration ban (`plugins/`) plus an informational sub-check of the maintainer's personal `$HOME` `MEMORY.md` index against its own 12,288-byte ceiling.
 3. `check-readme-pair.sh` — bilingual README invariants: every pt-BR bash fence byte-identical in the English pair, referenced SVGs exist with `data-look="handDrawn"`, source-of-truth cross-links present, and every version badge agrees with its `plugin.json` in both the alt text and the URL, with every on-disk plugin carrying a badge (the badges are hand-maintained since the fragment generator was retired, so this is what catches a forgotten bump).
 4. `shellcheck` over every `.sh` under `plugins scripts tools`.
 
@@ -54,33 +54,27 @@ Version bumps and the `(plugin X.Y.Z)` changelog trailer move to **publish**, ba
 
 ---
 
-## 3. Always-on tier ceiling
-
-`using-agent-kit`'s always-on body (injected by `plugins/core/hooks/session-start.sh`) has a hard ceiling of **16,384 bytes**, measured on the hook's real output by `check-ceiling.sh` — no ratchet, just pass/fail against that number. A separate, informational sub-check measures the maintainer's personal `$HOME` `MEMORY.md` index against its own 12,288-byte ceiling — `SKIP`s (not a failure) when the file is absent, the normal state on any other machine or in CI, so it can fail locally while CI stays green.
-
-## 4. Composition with the harness's permission mode
+## 3. Composition with the harness's permission mode
 
 The user's `settings.json` permission mode (`defaultMode`, sandbox) owns the approval decision for tool calls; there is currently no refining layer in front of it in `core`.
 
-## 5. Double-loading note
+## 4. Double-loading note
 
 Installing this marketplace inside a workspace that already has its own committed skills: both sources coexist, no name conflict (namespaced `core:`/`council:`/`team:`/`mobile:`) — the cost is duplicated context, not incorrect behavior.
 
 ---
 
-## 6. External skills
+## 5. External skills
 
 Some tools this kit's methodology relies on aren't vendored — they're adopted as-is from the external Claude Code ecosystem at user scope (`~/.claude/skills/`), zero pre-validation. If one proves out with real, repeated use, a 1-line `CHANGELOG.md` note records that it entered the environment; config that only serves the operator's own machine is born gitignored, never tracked.
 
-## 7. Lifecycle
+## 6. Lifecycle
 
 Every artifact — skill, hook, gate — is either wired (`plugins/<plugin>/`, proven real use) or it doesn't exist (deleted, recoverable via git history; no purgatory tier in between). Promotion happens on real use, not "seems useful": rewrite the `description` for the real trigger, fill in provenance placeholders with real names, run `claude plugin validate .`. The meta-principle behind this: **a rule that keeps failing becomes a mechanism** — a hook, a schema, a deterministic gate — and a mechanism with no real catch left becomes a deletion candidate. New ideas incubate in-session or as a plan under `docs/plans/` and prove themselves before ever touching `plugins/` — there is no dedicated incubation directory. This applies uniformly to skills, hooks, and gates.
 
-**Retire-review of a model-behavior gate**: a hook whose subject is a model behavior (today: `model-routing`) carries a `retire-review` line in its own header and gets re-verified at each major model generation. The re-verification is a count of real firings, not a judgement call — the hook's per-session marker directory is the counter. Reading it requires `CLAUDE_PLUGIN_DATA` to point at a persistent path: the fallback is `$TMPDIR`, which macOS purges, so an unset variable makes any multi-session count meaningless. The trigger to re-read is the end-of-session `/core:learn`; baselines and their dates live in `CHANGELOG.md`.
-
 **D6** (single load-bearing note): Council's episodic corpus `outcome` is stored and displayed, never scored — cited by `plugins/council/skills/council-recall/SKILL.md`.
 
-## 8. Gitignored working tree — a protection, not an omission
+## 7. Gitignored working tree — a protection, not an omission
 
 `docs/plans/`, `docs/ideation/`, and `docs/superpowers/` are deliberately gitignored: they hold the session material the kit is *developed with* (specs, plans, handoffs, local scratch) — not the kit itself. Client-effort material (`labs/`, `apks/`, and the local-markdown issue tracker) does not live here anymore — it moved to its own local repo (`~/dev/labs`) on 2026-08-03, because it carries client/engagement names `check-provenance.sh` exists to keep out of a public repo, and this repo's remote is public.
 
